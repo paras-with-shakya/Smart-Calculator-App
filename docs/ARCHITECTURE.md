@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status (2026-09-28): Phase 1 (Foundation) is implemented.**
+> **Status (2026-09-28): Phase 1 (Foundation) and Phase 2 (Design system) are implemented.** Phase 2 awaits the user's design sign-off.
 >
 > - **§1 Implemented** describes what the code actually does.
 > - **§2 Confirmed** lists the decisions the user has made.
@@ -9,37 +9,42 @@
 >
 > The reasons behind decisions are in [DECISIONS.md](DECISIONS.md), and build and test results are in [DEVELOPMENT_STATUS.md](DEVELOPMENT_STATUS.md). When something from §3 gets built, move it into §1 and describe what the code does.
 
-## 1. Implemented (Phase 1)
+## 1. Implemented
 
 ### 1.1 Repository layout
 
 ```text
 smart_calculator/                    ← Git root and pub workspace root
-├── pubspec.yaml                     ← app package; `workspace: [packages/calc_engine]`
+├── pubspec.yaml                     ← app package, workspace, dependencies, fonts, assets
 ├── analysis_options.yaml            ← strict analyzer and lint rules for the whole workspace
+├── dart_test.yaml                   ← skips the design-review screenshot generator by default
 ├── l10n.yaml                        ← gen-l10n configuration
-├── packages/calc_engine/            ← pure-Dart engine package: empty skeleton (§1.10)
+├── assets/fonts/                    ← Manrope 400/500/600/700 and its OFL licence
+├── packages/calc_engine/            ← pure-Dart engine package: empty skeleton (§1.12)
 ├── lib/
-│   ├── main.dart                    ← preload preferences → AppRoot
+│   ├── main.dart                    ← registers font licences, preloads preferences → AppRoot
+│   ├── main_gallery.dart            ← debug-only entry point of the component gallery (§1.9)
 │   ├── app/
-│   │   ├── app.dart                 ← SmartCalculatorApp (MaterialApp)
+│   │   ├── app.dart                 ← SmartCalculatorApp (MaterialApp, four themes)
 │   │   ├── app_root.dart            ← ProviderScope: overrides, automatic retry off
+│   │   ├── font_licenses.dart       ← registers Manrope's licence
 │   │   ├── modes/                   ← CalculatorMode registry, its icons and names, currentModeProvider
 │   │   ├── navigation/              ← AppRoute (sealed) and context.pushRoute
-│   │   ├── shell/                   ← adaptive shell, header, mode pill and sheet, mode rail
-│   │   └── theme/                   ← AppTheme, AppSpacing, ThemePreference → ThemeMode
+│   │   ├── shell/                   ← adaptive shell, header, mode pill and mode sheet, mode rail
+│   │   └── theme/                   ← design tokens and AppTheme (§1.7)
 │   ├── core/
 │   │   ├── layout/                  ← WindowSizeClass
 │   │   ├── persistence/             ← preferences, PreferenceKeys, AppDatabase, database providers
-│   │   └── widgets/                 ← PlaceholderView
+│   │   └── widgets/                 ← the reusable components (§1.8)
 │   ├── features/
 │   │   ├── settings/                ← domain/ · data/ · application/ · presentation/
 │   │   └── history/                 ← presentation/ (placeholders only)
+│   ├── gallery/                     ← component gallery (debug-only tool, not part of the app)
 │   └── l10n/                        ← app_en.arb and the generated app_localizations*.dart
-└── test/                            ← mirrors lib/, plus architecture/ and helpers/
+└── test/                            ← mirrors lib/, plus architecture/, gallery/, design_review/ and helpers/
 ```
 
-Folders from the target design (§3.1) that have no code yet are **not** created as empty placeholders. Each one is created when its first file is written: `core/services`, `core/extensions`, `core/utils`, `features/calculator`, `programmer`, `saved`, `converter`, `finance`, `date_calculator`, and `integration_test/`.
+Folders from the target design (§3.1) that have no code yet are **not** created as empty placeholders. Each one is created when its first file is written.
 
 ### 1.2 Layers and how the boundaries are enforced
 
@@ -52,13 +57,20 @@ Folders from the target design (§3.1) that have no code yet are **not** created
 - **Enforcement:**
   - `test/architecture/layer_boundaries_test.dart` fails if any file under a `domain/` folder, or any file in `packages/calc_engine`, imports `package:flutter…` or `dart:ui`. It also fails if `calc_engine`'s pubspec declares a Flutter dependency.
   - `analysis_options.yaml` makes `depend_on_referenced_packages` an **error**. In a pub workspace every package shares one package config, so this rule is what stops `calc_engine` from importing a package it doesn't declare.
+- **UI rule (user requirement):** screens are built only from the widgets in `lib/core/widgets/` and the tokens in `lib/app/theme/`. Feature code never hard-codes colours, sizes, shapes or text styles (CLAUDE.md, rule 12).
 
 ### 1.3 Startup
 
-1. `main` calls `WidgetsFlutterBinding.ensureInitialized()`, then `openPreferences()`. That creates `SharedPreferencesWithCache` with the allow-list `PreferenceKeys.all` and loads every allowed key into memory, so the saved theme applies on the first frame.
-2. `runApp(AppRoot(preferences))` builds `ProviderScope(retry: never, overrides: [sharedPreferencesProvider → preferences])`, then `SmartCalculatorApp`.
-3. `SmartCalculatorApp` builds the `MaterialApp`: light and dark themes, `themeMode` from `themePreferenceProvider`, the localization delegates, `onGenerateTitle`, and `home: AppShell`.
-4. **The database is not opened at startup.** It opens the first time `appDatabaseProvider` is read, and nothing reads it yet.
+1. `main` initializes the bindings and calls `registerFontLicenses()`, which is lazy: the licence file is read only when the licences page asks for it.
+2. `main` calls `openPreferences()`, which creates `SharedPreferencesWithCache` with the allow-list `PreferenceKeys.all` and loads every allowed key into memory, so the saved theme applies on the first frame.
+3. `runApp(AppRoot(preferences))` builds `ProviderScope(retry: never, overrides: [sharedPreferencesProvider → preferences])`, then `SmartCalculatorApp`.
+4. `SmartCalculatorApp` builds the `MaterialApp`:
+   - `theme`, `darkTheme`, `highContrastTheme` and `highContrastDarkTheme`
+   - `themeMode` from `themePreferenceProvider`
+   - a theme-change animation from the motion tokens
+   - the localization delegates and `onGenerateTitle`
+   - `home: AppShell`
+5. **The database is not opened at startup.** It opens the first time `appDatabaseProvider` is read, and nothing reads it yet.
 
 The widget tests start the app through the same `AppRoot`, so they run the real configuration.
 
@@ -78,13 +90,13 @@ Conventions:
 - **Repository providers** live in the data layer and are typed by the domain interface. Notifiers read them through `ref`.
 - **Dependency injection** is done with provider overrides. Tests use real in-memory backends (`InMemorySharedPreferencesAsync`, `sqflite_common_ffi`) rather than mocks.
 - **Automatic retry** (a Riverpod 3 default) is turned off app-wide in `AppRoot`.
-- **`select`:** every Phase 1 provider holds a single value, so there is nothing to narrow yet. Use `ref.watch(provider.select(...))` once a widget needs part of a larger state, such as the calculator display in Phase 3.
+- **`select`:** every provider so far holds a single value, so there is nothing to narrow yet. Use `ref.watch(provider.select(...))` once a widget needs part of a larger state, such as the calculator display in Phase 3.
 
 ### 1.5 Navigation (plain Navigator with a typed route layer)
 
 - **Pages** are the sealed `AppRoute` hierarchy: `HistoryRoute` (`/history`) and `SettingsRoute` (`/settings`).
 - **Pushing:** `context.pushRoute<T>(route)` (the `AppNavigator` extension) calls `Navigator.push` with a `MaterialPageRoute` whose `RouteSettings.name` is the route's name. That gives each platform its native transition, including the iOS back-swipe. The page for each route comes from an exhaustive `switch` in `app_navigator.dart`, so the compiler rejects a route without a page.
-- **Going back and closing sheets** use the standard `Navigator.pop`: the app-bar back button, the system back gesture, iOS swipe-back.
+- **Going back and closing sheets** use the standard `Navigator.pop`.
 - **Modes are state, not routes.**
 - There are no deep links, no named-route table and no `go_router`.
 
@@ -92,23 +104,72 @@ Conventions:
 
 | Window width | Layout |
 | --- | --- |
-| Compact (< 600 dp) | A top bar with the **mode pill** and the history and settings actions, above the current mode. The pill opens a bottom sheet listing the modes. **No bottom navigation.** |
-| Medium (600–839 dp) | A `NavigationRail` of modes, then a top bar (mode name, history, settings), then the current mode |
+| Compact (< 600 dp) | An `AppHeader` with the **mode pill** (`AppButton`, secondary, with a dropdown arrow) and the history and settings `AppIconButton`s, above the current mode. The pill opens a bottom sheet with a **grid of `AppCard` mode tiles**: 3 columns, or 2 from 115% text size. The current mode's tile is selected. **No bottom navigation.** |
+| Medium (600–839 dp) | A `NavigationRail` of modes, then the header (mode name, history, settings), then the current mode |
 | Expanded (≥ 840 dp) | Rail, current mode and a 320 dp **history panel**. The history action is hidden because the panel is visible. |
 
 - **Size class:** `WindowSizeClass.fromWidth(MediaQuery.sizeOf(context).width)`, using the Material 3 breakpoints. Most phones in landscape measure 840 dp or more, so they get the expanded layout.
-- **Short windows:** the rail scrolls when it can't show every destination, for example a phone in landscape. A test checks this.
+- **Short windows:** the rail scrolls when it can't show every destination. A test checks this.
 - **Mode registry:** the `CalculatorMode` enum (basic, scientific, programmer, finance, converter, date). `CalculatorModePresentation` gives each mode its icon and translated name through exhaustive switches.
-- **Mode content:** every mode shows `PlaceholderView` (an icon plus "This mode isn't available yet."), and so do the history page and panel.
+- **Mode content:** every mode shows an `EmptyState` ("This mode isn't available yet."), and so do the history page and panel.
 
-### 1.7 Theme
+### 1.7 Design system: tokens and themes (Phase 2)
 
-- **`AppTheme.light` / `AppTheme.dark`:** `ThemeData(colorScheme: ColorScheme.fromSeed(...))` from a single, **provisional** "iris" seed, `0xFF5B57D1`.
-- **`AppSpacing`:** sm 8, md 16, lg 24 (provisional). Only the steps in use exist; Phase 2 defines the full scale.
-- **Theme mode:** `ThemePreference` (system, light, dark) maps to `ThemeMode`. `MaterialApp` animates theme changes.
-- **Settings page:** Phase 1 has only the foundation, an "Appearance → Theme" segmented button.
+All tokens live in `lib/app/theme/`. Components and screens read them from the theme; nothing hard-codes a value.
 
-### 1.8 Persistence
+- **`AppColors`** (`ThemeExtension`, `AppColors.of(context)`):
+  - **27 colour roles:** background, surface, card, surfaceMuted, textPrimary, textMuted; primary with its container and "on" colours; secondary; success, warning, error, onError; divider, outline, contrastOutline; digit, operator, function and equals keys, each with its label colour.
+  - **Four palettes:** `light` ("porcelain"), `dark` ("graphite"), `highContrastLight`, `highContrastDark`.
+  - **One accent:** `primary` (iris) is the only accent. There is deliberately no separate "accent" role.
+  - **`contrastOutline`** is transparent except in the high-contrast palettes, where it draws a visible edge around keys, cards, buttons, sheets and dialogs.
+  - **Checked by tests:** every foreground/background pair meets WCAG AA (4.5:1) in the normal palettes and AAA (7:1) in the high-contrast ones. Outlines meet 3:1, and 4.5:1 in high contrast.
+- **`AppTypography`** (`ThemeExtension`): 11 styles.
+  - display 40, result 48, expression 24, key 28, keySymbol 34, heading 22, title 17, body 16, caption 13, button 16, label 14.
+  - All use the bundled **Manrope**. The number styles (display, result, expression, key) turn on **tabular figures**, because Manrope's default digits are proportional.
+  - `keySymbol` is larger and heavier because Manrope draws + − × ÷ = small.
+- **`AppSpacing`:** xs 4, sm 8, md 16, lg 24, xl 32, xxl 48.
+- **`AppRadius`:** sm 8, md 12, lg 16, xl 24. `AppRadius.shape(radius)` returns a `RoundedSuperellipseBorder` (a squircle); every rounded shape in the app uses it.
+- **`AppMotion`:** short 100 ms, medium 200 ms, long 300 ms; standard and emphasized curves. `AppMotion.durationOf(context, d)` returns zero when the platform asks for reduced motion.
+- **`AppTheme`:** builds the four `ThemeData`s from the tokens. It maps them onto `ColorScheme` (the page background is `surface`), onto `TextTheme` (Manrope everywhere) and onto the component themes:
+  - app bar, filled/outlined/text buttons, card, dialog, bottom sheet
+  - text fields: filled, `UnderlineInputBorder` rounded on every corner, so the label floats inside the fill
+  - navigation rail and segmented button: the active item uses the accent tint
+  - list tile, divider, progress indicator, text selection
+
+  Plain Material widgets therefore match the design system too.
+- **Sheets** use the page background, so cards inside them read the same way they do on a page. **Dialogs** use `surface`.
+- **High contrast:** `MaterialApp` switches to the high-contrast themes when the platform asks for more contrast (a test checks this). An in-app switch is Phase 10.
+- **Fonts:** Manrope static TTFs (from `googlefonts/manrope` at commit `6f81ebe`) are bundled in `assets/fonts/` and declared in pubspec. They are never downloaded at runtime. `registerFontLicenses()` adds the OFL text to `LicenseRegistry`.
+
+### 1.8 Reusable components (`lib/core/widgets/`, Phase 2)
+
+| Widget | Purpose and API highlights |
+| --- | --- |
+| `AppButton` | Every text button. `variant`: primary, secondary, text, destructive. Optional `icon` / `trailingIcon`, `isLoading` (a spinner; the label stays for size and screen readers), `expand`. At least 48 dp. |
+| `AppIconButton` | Icon-only button. `tooltip` is **required**; it is the accessibility label. `variant`: standard or tonal. |
+| `CalculatorButton` | A squircle calculator key. `kind`: digit, operator, function, equals, which sets the tone. `semanticLabel` is **required** (screen readers hear "Divide", not "÷"). `label` or `icon`, and `onLongPress`. Pressing scales it (off under reduced motion). Never below 48 dp, and the label shrinks rather than overflows. |
+| `AppCard` | Rounded surface, optionally tappable. `selected` gives the accent tint and matching foreground, and is announced. |
+| `AppBottomSheet` / `showAppBottomSheet` | A titled modal sheet (heading semantics), as tall as its content and scrollable beyond. It returns the popped value. |
+| `AppDialog` / `showConfirmationDialog` | A title, a message and `AppButton` actions. The confirmation returns `bool` (dismiss counts as cancel), and `isDestructive` uses the error colour. Cancel defaults to the platform's translated label. |
+| `AppTextField` | A filled text field. `label` is **required**. Also hint, helper, error, prefix/suffix, keyboard type, formatters and callbacks. |
+| `EmptyState` / `ErrorState` / `LoadingState` | Status views sharing one layout: icon badge (or spinner), optional title, message, optional action. They scroll at large text sizes. `LoadingState` is a live region. |
+| `SectionHeader` | A quiet group heading (heading semantics). |
+| `AppHeader` | The top bar: title, automatic back button, actions. `primary: false` for headers inside panels. |
+
+`PlaceholderView` (Phase 1) was replaced by `EmptyState`, and the settings page's private section header by `SectionHeader`. `ShellHeader`, the mode pill, the mode sheet and the history and settings pages all use these components.
+
+### 1.9 Component gallery and design review (Phase 2)
+
+- **Gallery:** `lib/main_gallery.dart` (`flutter run -t lib/main_gallery.dart`) shows every token and component. Switches toggle light/dark, high contrast and text size (100%, 150%, 200%). It is a separate entry point, so `main.dart` never includes it in app builds. The gallery's demo copy is not localized (it is a developer tool).
+- **Accessibility checks:** `test/gallery/gallery_accessibility_test.dart` runs Flutter's `textContrastGuideline`, `androidTapTargetGuideline` and `labeledTapTargetGuideline` over every gallery section in all four themes (36 tests).
+- **Screenshots:** `test/design_review/design_review_screenshots_test.dart` (tag `design-review`, skipped by default through `dart_test.yaml`) renders 33 PNGs with the real fonts into `build/design_review/`:
+  - every section, in light and dark
+  - some sections at 200% text and in high contrast
+  - phone shell, mode sheet and settings, and the tablet landscape shell
+
+  Generate them with `flutter test --tags design-review --run-skipped --update-goldens`. They are review images, not committed, and not a cross-machine regression suite.
+
+### 1.10 Persistence
 
 **Preferences** (`SharedPreferencesWithCache`, allow-list `PreferenceKeys.all`):
 
@@ -130,14 +191,14 @@ Conventions:
 
 - **Nothing reads or writes these tables yet.** The repositories come in Phase 4.
 
-### 1.9 Localization
+### 1.11 Localization
 
 - **Configuration** (`l10n.yaml`): `arb-dir: lib/l10n`, template `app_en.arb`, output `app_localizations.dart`, `nullable-getter: false`, `required-resource-attributes: true`, `format: true`.
-- **Strings:** English only. Every visible string is in `app_en.arb`, with a description for translators.
+- **Strings:** English only (18 strings). Every visible string of the app is in `app_en.arb`, with a description for translators. The component gallery is the only exception, as a developer tool.
 - **Access:** `AppLocalizations.of(context)` never returns null.
-- **Generated files:** `lib/l10n/app_localizations*.dart` are committed. `flutter pub get` (and run, build, analyze) regenerates them because `flutter: generate: true` is set.
+- **Generated files:** `lib/l10n/app_localizations*.dart` are committed. `flutter pub get` (and run, build, analyze) regenerates them.
 
-### 1.10 Calculation engine package
+### 1.12 Calculation engine package
 
 `packages/calc_engine` contains:
 
@@ -147,7 +208,7 @@ Conventions:
 
 The app does **not** depend on it yet. The engine, its dependencies (`decimal`, `rational`, `test`) and its tests arrive in Phase 3 (DEC-019).
 
-### 1.11 Platforms
+### 1.13 Platforms
 
 | Platform | Identity | Verification |
 | --- | --- | --- |
@@ -155,33 +216,52 @@ The app does **not** depend on it yet. The engine, its dependencies (`decimal`, 
 | iOS | Bundle ID `com.parasshakya.smartcalculator` (tests: `.RunnerTests`), `CFBundleName` and `CFBundleDisplayName` "Smart Calculator" | Can't be built on Windows (P-5) |
 | web, Windows, Linux, macOS | Template identifiers (DEC-025) | Not built. Not supported targets (DEC-004). |
 
-### 1.12 Tests
+### 1.14 Tests (107 in the normal run)
 
 | File | Covers |
 | --- | --- |
 | `test/app/app_test.dart` | The app starts in Basic mode, with the system theme and the app title |
-| `test/app/shell/app_shell_test.dart` | Each window class's layout; the mode sheet and rail switching modes; no bottom navigation; no overflow at 200% text; the rail scrolling on a phone in landscape |
-| `test/app/navigation/app_navigator_test.dart` | Header actions push the typed routes (checking route names); back returns to the shell |
-| `test/features/settings/preferences_settings_repository_test.dart` | Default value, round trip, the stored string format, fallback for unknown values |
-| `test/features/settings/theme_preference_test.dart` | The notifier loads and saves; choosing Dark in the UI survives a simulated restart |
-| `test/core/persistence/app_database_test.dart` | Schema version, tables, columns and indexes; reopening keeps data; the provider opens in the databases directory and closes on dispose |
-| `test/core/layout/window_size_class_test.dart` | Breakpoint boundaries |
-| `test/architecture/layer_boundaries_test.dart` | The engine and the domain layers stay free of Flutter |
+| `test/app/shell/app_shell_test.dart` | Each window class's layout; the mode sheet grid (every mode, current one selected, switching); the rail; no bottom navigation; the shell and the mode sheet at 200% text; the rail scrolling on a phone in landscape |
+| `test/app/navigation/app_navigator_test.dart` | Header actions push the typed routes; back returns |
+| `test/app/theme/app_colors_test.dart` | WCAG contrast for all four palettes (AA, and AAA for high contrast) |
+| `test/app/theme/app_theme_test.dart` | Each theme uses Manrope and carries its tokens; tabular figures on the number styles; the platform's high-contrast switch; reduced motion |
+| `test/app/font_licenses_test.dart` | The fonts are bundled; Manrope's OFL is registered |
+| `test/core/widgets/*` | Each component's behaviour, semantics, touch target, variants and colours, including high-contrast outlines, the confirmation results and loading states |
+| `test/gallery/gallery_accessibility_test.dart` | Flutter's contrast, tap-target and label guidelines on every gallery section, in four themes |
+| `test/features/settings/*` | The repository format and fallback; the theme choice surviving a restart |
+| `test/core/persistence/app_database_test.dart` | Schema, reopening, provider lifecycle |
+| `test/core/layout/window_size_class_test.dart` | Breakpoints |
+| `test/architecture/layer_boundaries_test.dart` | The engine and domain layers stay free of Flutter |
+| `test/design_review/…` | The screenshot generator (skipped by default; §1.9) |
 
-Shared helpers are in `test/helpers/test_app.dart`: in-memory preferences, `pumpApp` with a window size, and English strings.
+Helpers:
 
-### 1.13 How to extend the current code
+- `test/helpers/test_app.dart`: `pumpApp`, in-memory preferences, English strings
+- `themed.dart`: `pumpThemed`
+- `real_fonts.dart`: loads the fonts for screenshots
 
+### 1.15 How to extend the current code
+
+- **Add or change a screen:** compose it from `lib/core/widgets/` and the tokens. If a needed widget is missing, add a reusable one to `core/widgets` (with tests and a gallery entry) rather than styling inline.
+- **Add a colour role or text style:**
+  1. Add it to `AppColors` (all four palettes, `copyWith`, `lerp`) or `AppTypography`.
+  2. Add a contrast pair to `app_colors_test.dart`.
+  3. Show it in the gallery.
 - **Add a calculator mode:** add a value to `CalculatorMode`. The compiler then flags the icon and name switches. From Phase 3, add the mode's screen.
-- **Add a pushed page:** add a `final class` to `AppRoute` with a unique `name`, then add its case to `_pageFor` (the compiler enforces this). Open it with `context.pushRoute`.
-- **Add a preference:** add its key to `PreferenceKeys` and to `PreferenceKeys.all`. Read and write it through a repository in the owning feature's data layer, storing fixed strings.
-- **Change the database schema:** append a migration to `_migrations` in `app_database.dart`. `schemaVersion` follows automatically. Add a test.
+- **Add a pushed page:** add a `final class` to `AppRoute` with a unique `name`, then add its case to `_pageFor`. Open it with `context.pushRoute`.
+- **Add a preference:** add its key to `PreferenceKeys` and `PreferenceKeys.all`. Read and write it through a repository in the owning feature's data layer, storing fixed strings.
+- **Change the database schema:** append a migration to `_migrations`. `schemaVersion` follows automatically. Add a test.
 - **Add a string:** add it to `app_en.arb` with a description, then run `flutter pub get`.
-- **Checks** (run from `smart_calculator/`): `flutter analyze`, `dart format .`, `flutter test`, `flutter build apk --debug`.
+- **Checks** (run from `smart_calculator/`):
+  - `flutter analyze`
+  - `dart format --set-exit-if-changed lib test packages`
+  - `flutter test`
+  - `flutter build apk --debug`
+  - after visual changes: the design-review screenshots (§1.9)
 
 ## 2. Confirmed Decisions
 
-Decided by the user. The "Implemented" column reflects the state after Phase 1.
+Decided by the user. The "Implemented" column reflects the state after Phase 2.
 
 | Area | Decision | Implemented | Record |
 | --- | --- | --- | --- |
@@ -192,15 +272,16 @@ Decided by the user. The "Implemented" column reflects the state after Phase 1.
 | App identity | `com.parasshakya.smartcalculator`, "Smart Calculator" | Yes, on Android and iOS | DEC-005 |
 | Version control | Local Git, `main`, never push | Yes | DEC-006 |
 | State management | Riverpod 3 without code generation | Foundation (§1.4) | DEC-007 |
-| Calculation engine | Pure-Dart `packages/calc_engine`; numeric library hidden; exact arithmetic | Skeleton only (§1.10) | DEC-008 |
-| Persistence | `SharedPreferencesWithCache` for settings; `sqflite` for history and saved calculations | Foundation (§1.8) | DEC-009 |
-| Testing | 200+ engine tests before the calculator UI counts as complete; unit, widget and integration tests | Foundation tests only | DEC-010 |
-| UI/UX | "Quiet precision" | No (Phase 2) | DEC-011 |
+| Calculation engine | Pure-Dart `packages/calc_engine`; numeric library hidden; exact arithmetic | Skeleton only (§1.12) | DEC-008 |
+| Persistence | `SharedPreferencesWithCache` for settings; `sqflite` for history and saved calculations | Foundation (§1.10) | DEC-009 |
+| Testing | 200+ engine tests before the calculator UI counts as complete; unit, widget and integration tests | Foundation and design-system tests | DEC-010 |
+| UI/UX | "Quiet precision" | Design system (§1.7–1.9); awaiting sign-off | DEC-011 |
 | Navigation UX | Phones: mode pill and sheet, no bottom nav. Tablets and landscape: rail and history panel | Shell with placeholders (§1.6) | DEC-012 |
 | Shared state | Basic and scientific share one calculator state | No (Phase 3/5) | DEC-013 |
 | Privacy | Offline first and privacy first | Partly (§3.10) | DEC-014 |
-| Dependencies | Verify before adding | Applied in Phase 1 | DEC-015 |
+| Dependencies | Verify before adding | Applied; Phase 2 added no packages | DEC-015 |
 | Phase 1 scope | Foundation only | Yes | DEC-016 |
+| Reusable widgets | Screens use only the shared components and tokens | Yes (§1.2, §1.8) | DEC-034 |
 
 ## 3. Proposed Architecture (target design — NOT implemented yet)
 
@@ -249,18 +330,12 @@ Each feature has `domain/` (pure Dart), `data/`, `application/` and `presentatio
 - Memory value and last mode in preferences. Right now the current mode isn't persisted (DEC-021).
 - If desktop is ever wanted, only the database setup would need a desktop SQLite driver.
 
-### 3.6 Design system (Phase 2)
+### 3.6 Design system: still to come
 
-- **Tokens:**
-  - colour roles (primary, secondary, background, surface, card, text, muted text, accent, success, warning, error, divider, operator keys, number keys)
-  - typography (display, expression, result, heading, body, caption, button, label)
-  - the full spacing scale, radius and motion
-  - light, dark and high-contrast variants
-- **Palette:** warm neutral surfaces ("porcelain" and "graphite") and the iris accent, used sparingly.
-- **Keys:** squircle shape (`RoundedSuperellipseBorder`) in three tones.
-- **Fonts:** bundled, with tabular digits (P-8).
-- **Components:** everything in the master prompt except `AppBottomNavigation`. `PlaceholderView` and the settings page's private section header are Phase 1 stand-ins; Phase 2 decides what replaces them.
-- **Review:** a debug-only component gallery for the design review.
+- **The real keypad** (Phase 3): keypad layout and sizing from the available height, haptics, and result auto-shrinking. The gallery's key grid is only a static sample.
+- **In-app switches** (Phase 10): high contrast and "larger buttons". Today high contrast follows only the platform setting.
+- **Programmer mode font** (Phase 9): JetBrains Mono, which must be re-verified and bundled first (DEC-028).
+- **Icon scaling review** (Phase 11): icons follow the platform and don't grow with text size.
 
 ### 3.7 Localization still to come
 
@@ -287,7 +362,7 @@ Each must be re-verified before it is added (DEC-015).
 ### 3.10 Privacy checks
 
 - **Plan:** the release app requests no INTERNET permission.
-- **Actual:** the plugins added in Phase 1 add no network permission. For the release manifest check, see DEVELOPMENT_STATUS.md.
+- **Actual:** fonts are bundled, not downloaded. For the release manifest check, see DEVELOPMENT_STATUS.md.
 
 ## 4. Pending Decisions
 
@@ -295,9 +370,9 @@ The decisions that affect architecture (full list: [DEVELOPMENT_STATUS.md](DEVEL
 
 - **P-6:** the engine's default behaviours, before Phase 3.
 - **P-7:** where the app version comes from (Phase 10).
-- **P-8:** which fonts to use (Phase 2).
 - **P-9:** Windows Developer Mode (symlinks), which affects `flutter pub get` on this machine.
-- **P-10:** Kotlin incremental compilation across drives (see DEVELOPMENT_STATUS.md).
+- **P-10:** Kotlin incremental compilation across drives.
+- **P-11:** the user's sign-off of the Phase 2 design review.
 
 **Not decided at all yet:** the history retention default; the currency-rate service beyond "behind a service interface, no committed keys"; the release signing setup; the phone-landscape calculator layout (Phase 3/5).
 
@@ -316,3 +391,7 @@ See [DECISIONS.md](DECISIONS.md) for the reasoning.
 | A bottom navigation bar on phones | DEC-012 |
 | `google_fonts`, `fl_chart`, `freezed`, `json_serializable`, analytics, audio/vibration packages | DEC-015 |
 | Empty placeholder folders; adding engine dependencies before they are used | DEC-019 |
+| A variable font; a separate "accent" colour role | DEC-028, DEC-029 |
+| Separate PrimaryButton, SecondaryButton and OperatorButton classes | DEC-030 |
+| Outlined-style borders on filled text fields | DEC-031 |
+| The gallery as an in-app route; committed golden images | DEC-032, DEC-033 |

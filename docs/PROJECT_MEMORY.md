@@ -119,9 +119,10 @@ It must reach portfolio quality.
   - excessive gradients, excessive shadows, random colours
   - huge text, clutter, unnecessary animations
   - inconsistent spacing, corner radius or button sizes
-- **Design system:** centralized tokens for colour, typography, spacing, radius and motion, plus a reusable component set. No hardcoded colours in widgets.
+- **Design system (built in Phase 2):** centralized tokens for colour, typography, spacing, radius and motion (`lib/app/theme/`), plus a reusable component set (`lib/core/widgets/`). No hardcoded colours in widgets.
+- **Reusable widgets only (user requirement, 2026-09-28):** every screen is built from the shared components and tokens. Feature code never duplicates styling (DEC-034; CLAUDE.md rule 12).
 - **Motion:** fast and meaningful, reduced when accessibility settings require it.
-- **Fonts:** bundled with the app, never downloaded at runtime, with fixed-width (tabular) digits. The specific fonts are **PENDING** (P-8).
+- **Fonts:** bundled with the app, never downloaded at runtime, with fixed-width (tabular) digits. **Manrope** (DEC-028, tabular figures verified), and JetBrains Mono planned for programmer mode (Phase 9).
 - Detailed screen plans (keypad layout, scientific tray, result "tape", gestures) are PROPOSED; see ARCHITECTURE.md.
 
 ## Calculation Correctness Principles

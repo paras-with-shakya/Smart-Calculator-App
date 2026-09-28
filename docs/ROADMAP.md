@@ -10,9 +10,9 @@ This file gives the intended development sequence. Every phase needs the user's 
 ```text
 Phase 0  Audit & architecture ............ COMPLETED 2026-09-28
   —      Project-memory system ........... COMPLETED 2026-09-28
-Phase 1  Foundation ...................... COMPLETED 2026-09-28 (awaiting the user's review)
-Phase 2  Design system ................... PENDING APPROVAL
-Phase 3  Basic calculator + engine + memory planned
+Phase 1  Foundation ...................... COMPLETED 2026-09-28
+Phase 2  Design system ................... IMPLEMENTED 2026-09-28, awaiting the user's design sign-off
+Phase 3  Basic calculator + engine + memory PENDING APPROVAL (after the Phase 2 sign-off)
 Phase 4  History + saved calculations .... planned
 Phase 5  Scientific ...................... planned
 Phase 6  Converters ...................... planned
@@ -30,7 +30,7 @@ Phase 12 QA .............................. planned
 2. Formatting passes: `dart format --set-exit-if-changed lib test packages`. Don't run `dart format .`; see CLAUDE.md.
 3. All tests pass. Record the actual command output.
 4. The Android build passes.
-5. The UI has been reviewed in light and dark, on small and large screens (from Phase 2 on).
+5. The UI has been reviewed in light and dark, on small and large screens (from Phase 2 on). Use the design-review screenshots (`flutter test --tags design-review --run-skipped --update-goldens`, DEC-033).
 6. The docs are updated (Session Handoff Protocol).
 7. Local commits have been made.
 8. The report has been delivered to the user, and work stops.
@@ -80,37 +80,31 @@ The user approved it on 2026-09-28. It was built exactly to the approved scope (
 
 ## In Progress
 
-Nothing.
+### Phase 2: Design system (implemented 2026-09-28, awaiting the user's design sign-off)
+
+The user approved it on 2026-09-28. The code is in commit `0fc15ef`, and ARCHITECTURE.md §1.7–1.9 describes it. **It counts as complete only after the user signs off the design review (P-11).**
+
+| Scope item | Result |
+| --- | --- |
+| Colour tokens (incl. operator and number keys), light/dark/system, high contrast, contrast checked | Done: `AppColors`, 27 roles, 4 palettes, WCAG tests (DEC-029) |
+| Typography tokens | Done: `AppTypography`, 11 styles (display, result, expression, key, keySymbol, heading, title, body, caption, button, label) |
+| Spacing (xs to xxl), radius, motion | Done: `AppSpacing`, `AppRadius` (superellipse), `AppMotion` (reduced motion) |
+| Bundled fonts with tabular digits (P-8) | Done: Manrope, `tnum` verified (DEC-028) |
+| AppButton, PrimaryButton, SecondaryButton | Done as one `AppButton` with variants (DEC-030) |
+| AppIconButton | Done; the tooltip is required |
+| CalculatorButton, OperatorButton | Done as one `CalculatorButton` with kinds (DEC-030) |
+| AppCard, AppBottomSheet, AppDialog, AppTextField | Done (`showAppBottomSheet`, `showConfirmationDialog`) |
+| EmptyState, ErrorState, SectionHeader, AppHeader | Done, plus `LoadingState` |
+| `AppBottomNavigation` | Dropped (DEC-012) |
+| Replace the Phase 1 stand-ins | Done: `PlaceholderView` removed, section header, provisional seed and spacing, the mode sheet as a grid |
+| Debug-only gallery | Done: `lib/main_gallery.dart` (DEC-032) |
+| Review in light and dark at 200% text | Done by Claude on 33 generated screenshots (DEC-033), with 4 issues fixed. **The user's sign-off is still pending.** |
 
 ## Pending Approval
 
-### Phase 2: Design system
-
-**Status:** not started, and **needs the user's explicit approval.**
-
-- **Tokens:**
-  - colour roles, including operator and number keys, for light, dark and system, plus high contrast; contrast is checked
-  - typography: display, expression, result, heading, body, caption, button, label
-  - spacing (xs to xxl; Phase 1 has only sm, md and lg), radius and motion
-- **Bundled fonts** with tabular digits (P-8).
-- **Components:**
-  - AppButton, AppIconButton, CalculatorButton, OperatorButton, PrimaryButton, SecondaryButton
-  - AppCard, AppBottomSheet, AppDialog, AppTextField
-  - EmptyState, ErrorState, SectionHeader, AppHeader
-  - (`AppBottomNavigation` is dropped, by DEC-012.)
-- **Phase 1 stand-ins to replace or absorb:**
-  - `PlaceholderView`
-  - the settings page's private section header
-  - the provisional seed colour and spacing
-  - the mode sheet's plain list (the audit proposed a grid)
-- A debug-only gallery screen showing every component *(proposed)*.
-- **Done when:** every component has been reviewed in light and dark at 200% text size, and **the user has signed off the design review**. This needs an Android test device (P-4).
-
----
-
-## Planned
-
 ### Phase 3: Basic calculator (engine, state, memory)
+
+**Status:** not started. It needs the Phase 2 sign-off and then the user's explicit approval. **Every screen must use only the Phase 2 components and tokens** (DEC-034).
 
 - **First:** add and re-verify `decimal`, `rational` and `test` for the engine (DEC-019), and confirm the default behaviours (P-6).
 - **Engine** (DEC-008):
@@ -122,7 +116,7 @@ Nothing.
 - **Screen:**
   - Header: mode, history shortcut, settings shortcut, a "more" menu.
   - Expression area: the current expression, the previous expression, the result, the cursor, and clear/delete.
-  - Keypad: digits, decimal point, `=`, + − × ÷, %, clear, backspace and parentheses.
+  - Keypad: digits, decimal point, `=`, + − × ÷, %, clear, backspace and parentheses. Built from `CalculatorButton`.
 - **Memory:** MC, MR, M+, M−, MS, independent of the UI.
 - **Also:** error handling, animations, haptics and keyboard support.
 - **Landscape:** decide the phone-landscape calculator layout (DEC-022).
@@ -131,6 +125,11 @@ Nothing.
   - **More than 200 engine edge-case tests pass** (DEC-010).
   - Keypad and display widget tests pass.
   - The module is stable. Don't move on until it is.
+
+---
+
+## Planned
+
 
 ### Phase 4: History and saved calculations
 

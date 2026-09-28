@@ -19,6 +19,84 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-09-28: Phase 2 (Design system)
+
+### Added
+
+- **Design tokens** (`lib/app/theme/`):
+  - `AppColors`: 27 roles; light "porcelain", dark "graphite", and high-contrast light and dark palettes
+  - `AppTypography`: 11 styles, with tabular figures on the number styles
+  - `AppRadius`: superellipse shapes
+  - `AppMotion`: reduced-motion aware
+  - `AppSpacing`: extended to xs–xxl
+- **Themes:** `AppTheme` builds four themes and the Material component themes. `MaterialApp` gets `highContrastTheme`, `highContrastDarkTheme` and a theme-change animation.
+- **Manrope font** (400/500/600/700, `googlefonts/manrope@6f81ebe`) in `assets/fonts/`, with its OFL, registered through `lib/app/font_licenses.dart`.
+- **Reusable components** (`lib/core/widgets/`): `AppButton`, `AppIconButton`, `CalculatorButton`, `AppCard`, `AppBottomSheet`/`showAppBottomSheet`, `AppDialog`/`showConfirmationDialog`, `AppTextField`, `EmptyState`, `ErrorState`, `LoadingState`, `SectionHeader`, `AppHeader`.
+- **Component gallery:** `lib/main_gallery.dart` and `lib/gallery/`.
+- **Tests:**
+  - palette contrast (WCAG)
+  - theme, font and motion tests
+  - component tests
+  - Flutter accessibility guidelines over every gallery section in four themes
+  - the design-review screenshot generator (tag `design-review`, skipped by default through `dart_test.yaml`)
+  - helpers: `themed.dart`, `real_fonts.dart`
+
+### Changed
+
+- **Shell:**
+  - The header uses `AppHeader` and `AppIconButton`.
+  - The mode pill is an `AppButton`.
+  - The mode sheet is a grid of `AppCard` tiles, with the current mode selected.
+- **Placeholders:** the mode, history page and history panel placeholders use `EmptyState`.
+- **Settings page:** uses `AppHeader` and `SectionHeader`.
+- **Startup:** `main.dart` registers the font licences.
+- **`pubspec.yaml`:** the fonts and the licence asset.
+- **`CLAUDE.md`:** rule 12 (reusable widgets only) and rule 13 (Hinglish replies), plus the design-review commands.
+
+### Removed
+
+- `lib/core/widgets/placeholder_view.dart` (replaced by `EmptyState`).
+
+### Fixed
+
+Found in Claude's review of the screenshots, and fixed before the final set:
+
+- **Mode sheet:**
+  - Tiles were invisible on the white sheet. Sheets now use the page background.
+  - "Programmer" broke mid-word. There is less tile padding, 2 columns from 115% text, and a one-line label.
+- **Keys:** operator and `=` symbols looked faint. There is a new `keySymbol` style.
+- **Text fields:** the floating label sat on the field's edge. Filled fields now use `UnderlineInputBorder` (DEC-031).
+- **Buttons:** they were cramped at 200% text. Vertical padding added.
+
+### Decisions
+
+- The user approved Phase 2 and required reusable widgets (DEC-034).
+- DEC-028 to DEC-033 were adopted:
+  - DEC-028: the font; resolves P-8
+  - DEC-029: the tokens
+  - DEC-030: the consolidated components
+  - DEC-031: the filled fields
+  - DEC-032: the gallery entry point
+  - DEC-033: the screenshot review
+- New pending decision: P-11, the user's design sign-off.
+
+### Tests
+
+- **Font check:** `tnum` is present in all four Manrope weights.
+- **Mutation check:** a low-contrast `textMuted` made the gallery contrast test fail. Restored.
+- **`flutter analyze`:** no issues.
+- **Formatting:** 70 files, 0 changed.
+- **`flutter test`:** 107 passed, and 1 skipped (the screenshot generator).
+- **Screenshot generator:** 33 passed; screenshots written to `build/design_review/`.
+- **`flutter build apk --debug`:** built. **`--release`:** built, 45.7 MB, no INTERNET permission, fonts bundled.
+
+### Notes
+
+- **Phase 2 awaits the user's design sign-off.** Phase 3 has not started.
+- **Commits:** `0fc15ef` (code), then the docs update.
+
+---
+
 ## 2026-09-28: Phase 1 (Foundation)
 
 ### Added

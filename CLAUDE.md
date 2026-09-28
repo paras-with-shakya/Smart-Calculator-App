@@ -2,7 +2,7 @@
 
 This is the entry point for every Claude Code session on this project. Read it first, then follow the **Context Recovery Protocol** below before doing any work.
 
-**Snapshot (2026-09-28):** Phase 1 (Foundation) is **complete** (commit `7926920`) and awaits the user's review. **Phase 2 (Design system) has not started and needs the user's explicit approval.** The app has no calculator features yet. If this line disagrees with [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), that file wins; fix this line.
+**Snapshot (2026-09-28):** Phase 2 (Design system) is **implemented** (commit `0fc15ef`) and **awaits the user's design sign-off** (P-11). **Phase 3 has not started and needs explicit approval.** The app has no calculator features yet. If this line disagrees with [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), that file wins; fix this line.
 
 ## Source of truth
 
@@ -68,6 +68,12 @@ Notes on the steps:
 9. **Phase gates:** work one phase and one module at a time. Stop at every phase boundary with a report and wait for explicit approval. Never batch phases.
 10. **Git is local only.** Never add a remote, and never push.
 11. **Never invent product facts** (IDs, names, prices, legal text, developer info). Ask.
+12. **Reusable widgets only (user requirement, 2026-09-28).**
+    - Build every screen from the shared design-system widgets in `lib/core/widgets/` and the theme tokens in `lib/app/theme/`.
+    - Before writing a new widget, check whether an existing one can be used or extended.
+    - Never copy styling (colours, sizes, shapes, text styles) into feature code.
+    - A widget needed by more than one screen belongs in `lib/core/widgets/`.
+13. **Language (user requirement, 2026-09-28).** Talk to the user in **Hinglish** (Roman-script Hindi mixed with English). Code, repository docs and commit messages stay in English unless the user asks otherwise.
 
 ## Session Handoff Protocol (mandatory)
 
@@ -117,7 +123,7 @@ Status labels used across the docs:
 
 ## Quick reference
 
-- **Flutter app root:** this directory (`smart_calculator/`). This is also the planned Git root.
+- **Flutter app root:** this directory (`smart_calculator/`). This is also the Git root.
 - **Toolchain:** Flutter 3.47.5 stable, Dart 3.13.4 (verified 2026-09-28).
 - **QA commands** (run from this directory):
   - `flutter analyze`
@@ -125,6 +131,10 @@ Status labels used across the docs:
   - `flutter test`
   - `flutter build apk --debug`
   - The engine package has no tests yet. From Phase 3, also run `dart test` inside `packages/calc_engine`.
+- **Design review:**
+  - Screenshots: `flutter test --tags design-review --run-skipped --update-goldens` writes PNGs to `build/design_review/`. Never commit them. Look at them after any visual change.
+  - Gallery of every component: `flutter run -t lib/main_gallery.dart`.
+- **Design system:** tokens are in `lib/app/theme/`, and the reusable components in `lib/core/widgets/` (see rule 12).
 - **Machine:** Windows 11; PowerShell and Git Bash are available.
   - There is no real Python. The `python` on PATH is the Microsoft Store stub, so write helper scripts in Dart or PowerShell.
   - No Visual Studio, so no Windows desktop builds.

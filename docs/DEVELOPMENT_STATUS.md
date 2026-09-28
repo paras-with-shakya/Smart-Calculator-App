@@ -2,27 +2,27 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-09-28, at the end of the Phase 1 session.
+**Last updated:** 2026-09-28, at the end of the Phase 2 session.
 
 ## At a Glance
 
 | Question | Answer |
 | --- | --- |
-| Where are we? | **Phase 1 (Foundation) is complete** and awaits the user's review. **Phase 2 has not started and needs explicit approval.** |
-| What exists in code? | The Phase 1 foundation: startup, Riverpod, typed navigation, an adaptive shell with placeholder screens, the theme with a persisted light/dark/system choice, preferences and database v1, l10n, and an empty engine package. **No calculator features.** |
-| What is being worked on? | Nothing |
-| What happens next? | The user reviews the Phase 1 report, then approves Phase 2 or asks for changes |
-| What must not be repeated? | The Phase 0 validation and the Phase 1 setup steps (see "Do NOT Repeat") |
-| Known issues? | Two local-machine build quirks (P-9, P-10), a `dart format .` crash on `build/`, and template leftovers (see "Known Issues") |
-| Pending decisions? | P-4 to P-10 |
+| Where are we? | **Phase 2 (Design system) is implemented and awaits the user's design sign-off** (P-11). Phase 3 has not started and needs explicit approval. |
+| What exists in code? | The Phase 1 foundation, plus the design system: tokens, four themes, bundled Manrope, 10 reusable component files in `lib/core/widgets/`, and a debug-only component gallery. **No calculator features.** |
+| What is being worked on? | Nothing. The design review is with the user. |
+| What happens next? | The user reviews the screenshots (`build/design_review/`) and signs off Phase 2 or asks for changes. After that comes the Phase 3 approval. |
+| What must not be repeated? | See "Do NOT Repeat" |
+| Known issues? | See "Known Issues" |
+| Pending decisions? | P-4 to P-7 and P-9 to P-11 |
 
 ## Current Phase
 
-**Phase 1 (Foundation): completed on 2026-09-28**, and awaiting the user's review.
+**Phase 2 (Design system): implemented on 2026-09-28, awaiting the user's design sign-off.**
 
-- The user approved Phase 1 on 2026-09-28 with explicit decisions: navigation option A, standard Material, the app identity, Riverpod 3 without code generation, the persistence choices, the platform strategy, no emulator, Git on `main` with no push.
-- It was built to the approved scope only (see [ROADMAP.md](ROADMAP.md) for each scope item).
-- **Phase 2 (Design system) must not start without the user's explicit approval.**
+- The user approved Phase 2 on 2026-09-28 ("phase 2 start kro"). During the phase they added a requirement: *"reusable widgets use krna"* (DEC-034).
+- **Phase 2 counts as complete only when the user signs off the design review** (ROADMAP exit criterion).
+- **Phase 3 must not start without the user's explicit approval.**
 
 ## Phase Status
 
@@ -30,9 +30,9 @@
 | --- | --- | --- |
 | 0 | Project audit and architecture | Completed 2026-09-28 |
 | — | Project-memory system | Completed 2026-09-28 |
-| 1 | Foundation | **Completed 2026-09-28** (commits `06c0a93`, `7926920`); awaiting review |
-| 2 | Design system | Not started; **pending approval** |
-| 3 | Basic calculator (engine, memory) | Not started |
+| 1 | Foundation | Completed 2026-09-28 (commits `06c0a93`, `7926920`) |
+| 2 | Design system | **Implemented 2026-09-28** (commit `0fc15ef`); **awaiting design sign-off** (P-11) |
+| 3 | Basic calculator (engine, memory) | Not started; needs approval |
 | 4 | History and saved calculations | Not started |
 | 5 | Scientific | Not started |
 | 6 | Converters | Not started |
@@ -45,63 +45,40 @@
 
 ## Completed Work
 
-### Phase 0 (2026-09-28, earlier session)
+### Phase 0, the memory system and Phase 1 (2026-09-28)
 
-- Audited the project; wrote the audit and plan report and the Final Architecture Decision Report.
-- Validated the plan in a throwaway scratch project: `material_ui`, go_router, the dependencies, exact arithmetic, the workspace, Android builds. The results are in DECISIONS.md.
-- The user approved DEC-001 to DEC-017.
+- Phase 0: the audit, the validation and the approved architecture (DEC-001 to DEC-017).
+- The project-memory system (`813533e`).
+- Phase 1 foundation (`06c0a93`, `7926920`, docs `01f120a`): Git, app identity, dependencies, strict lints, the workspace and engine skeleton, startup, Riverpod, typed navigation, the adaptive shell, the theme choice, preferences, database v1, l10n, and 24 tests. Details are in ARCHITECTURE.md §1.
 
-### Project-memory system (2026-09-28)
+### Phase 2: Design system (2026-09-28, this session; commit `0fc15ef`)
 
-- `CLAUDE.md` and `docs/` (DEC-018), committed as `813533e`.
+Details are in [ARCHITECTURE.md](ARCHITECTURE.md) §1.7–1.9.
 
-### Phase 1: Foundation (2026-09-28, this session)
-
-What was implemented; details are in [ARCHITECTURE.md](ARCHITECTURE.md) §1.
-
-- **Git** (DEC-006):
-  - `git init` in `smart_calculator/` on `main`
-  - `.gitattributes` (`* text=auto`, with binary markers for `*.png` and `*.ico`)
-  - commits:
-    - `8ca813c` baseline scaffold
-    - `813533e` project-memory docs
-    - `06c0a93` app identity
-    - `7926920` Phase 1 foundation
-    - a following docs commit
-  - Nothing is pushed, and there is no remote.
-- **App identity** (DEC-025), on Android and iOS:
-  - `com.parasshakya.smartcalculator`, "Smart Calculator"
-  - the Kotlin package moved to `com/parasshakya/smartcalculator`
-- **Dependencies** (DEC-019):
-  - each was re-verified on pub.dev before it was added
-  - `cupertino_icons` removed
-  - the engine's dependencies deferred to Phase 3
-- **Lints** (DEC-020):
-  - `strict-casts`, `strict-inference`, `strict-raw-types`
-  - 26 extra rules
-  - `depend_on_referenced_packages` raised to an error
-- **Workspace and engine:** `packages/calc_engine` is an empty pure-Dart skeleton (`pubspec.yaml`, `lib/calc_engine.dart`, `README.md`).
-- **App code**, 29 hand-written Dart files under `lib/`, plus the ARB file and 2 generated l10n files:
-  - `main.dart`
-  - `app/`:
-    - `app.dart`, `app_root.dart`
-    - `modes/`: 3 files
-    - `navigation/`: 2 files
-    - `shell/`: 4 files
-    - `theme/`: 3 files
-  - `core/`:
-    - `layout/window_size_class.dart`
-    - `persistence/`: 4 files
-    - `widgets/placeholder_view.dart`
-  - `features/settings/`: domain, data, application and presentation
-  - `features/history/presentation/`: page, panel and placeholder
-  - `l10n/`: `app_en.arb` and the generated `app_localizations*.dart`
-- **Tests:** the template counter test was replaced by 24 tests in 8 files, plus a helper (`test/helpers/test_app.dart`).
-- **Build configuration:**
-  - `android/gradle.properties`: `kotlin.incremental=false` (DEC-027)
-  - `android/.gitignore`: `/.kotlin/`
-  - `l10n.yaml`
-- **Docs:** ARCHITECTURE.md (the implemented state), DECISIONS.md (DEC-019 to DEC-027, plus status updates), ROADMAP.md, CHANGELOG.md, this file, and PROJECT_MEMORY.md and CLAUDE.md.
+- **Font (DEC-028, resolves P-8):**
+  - Manrope 400/500/600/700, static TTFs from `googlefonts/manrope@6f81ebe`, in `assets/fonts/`
+  - `tnum` verified in each weight with a Dart check of the font files
+  - the OFL is bundled and registered through `lib/app/font_licenses.dart`
+- **Tokens (DEC-029):**
+  - `AppColors`: 27 roles and 4 palettes
+  - `AppTypography`: 11 styles, with tabular figures on the number styles
+  - `AppSpacing`: xs to xxl
+  - `AppRadius`: superellipse shapes
+  - `AppMotion`: reduced-motion aware
+- **Themes:** `AppTheme` builds four `ThemeData`s and the component themes. `MaterialApp` uses `highContrastTheme` and `highContrastDarkTheme`, and animates theme changes with the motion tokens.
+- **Components (DEC-030):** `AppButton`, `AppIconButton`, `CalculatorButton`, `AppCard`, `AppBottomSheet`/`showAppBottomSheet`, `AppDialog`/`showConfirmationDialog`, `AppTextField`, `EmptyState`/`ErrorState`/`LoadingState`, `SectionHeader`, `AppHeader`.
+- **Phase 1 stand-ins replaced:**
+  - `PlaceholderView` was removed; `EmptyState` replaces it.
+  - The settings page uses `SectionHeader` and `AppHeader`.
+  - The shell header uses `AppHeader` and `AppIconButton`.
+  - The mode pill is an `AppButton`.
+  - The mode sheet is a grid of `AppCard` tiles.
+- **Gallery (DEC-032):** `lib/main_gallery.dart` and `lib/gallery/`.
+- **Design review (DEC-033):**
+  - 33 screenshots generated in `build/design_review/`.
+  - **Claude reviewed them** and fixed four issues before the final set: the mode sheet (tiles invisible on the sheet, a label breaking mid-word), operator symbols that looked faint (hence the new `keySymbol` style), floating text-field labels sitting on the edge (DEC-031), and cramped buttons at 200% text (vertical padding added).
+- **Tests:** 24 grew to 107 (see Tests).
+- **User requirements recorded:** reusable widgets only (CLAUDE.md rule 12, DEC-034), and Hinglish communication (CLAUDE.md rule 13).
 
 ## Work In Progress
 
@@ -109,97 +86,68 @@ None.
 
 ## Current Task
 
-The user reviews the Phase 1 report. No implementation task is active.
+The user reviews the Phase 2 design. The screenshots are in `build/design_review/`, and the gallery can be run with `flutter run -t lib/main_gallery.dart`.
 
 ## Next Task
 
-**Only after the user explicitly approves Phase 2:** do Phase 2, the design system (see [ROADMAP.md](ROADMAP.md#phase-2-design-system)).
-
-1. Settle P-8 (fonts) and confirm how the Phase 2 design review will be viewed on a device (P-4). The user does not want an emulator set up.
-2. Build the tokens, then the components, then the debug-only gallery, following the per-module workflow.
-3. Replace or absorb the Phase 1 stand-ins: `PlaceholderView`, the settings page's private section header, the provisional seed colour and spacing.
-4. Stop for the user's design sign-off.
+1. **If the user asks for design changes:** make them in the tokens or components, then regenerate and review the screenshots. Update the docs.
+2. **After the user signs off Phase 2 and explicitly approves Phase 3:** do Phase 3, the basic calculator (see [ROADMAP.md](ROADMAP.md)).
+   - First, settle P-6 (the engine's default behaviours).
+   - Re-verify and add `decimal`, `rational` and `test` for the engine (DEC-019).
+   - Build the engine test-first. The 200+ edge-case test gate applies (DEC-010).
+   - Then build the keypad and display from `CalculatorButton` and the tokens only (DEC-034).
 
 ## Do NOT Repeat
 
-- **Don't redo the Phase 0 audit or the scratch-project validation** (DECISIONS.md).
-- **Don't redo the Phase 1 setup:** `git init`, the baseline and docs commits, the app identity change, adding the Phase 1 dependencies. It is all done and committed.
-- **Dependencies:** re-verify one only when adding it or changing its version (DEC-015).
-- **Don't re-propose `material_ui` or `go_router`** without new evidence (DEC-002, DEC-003).
-- **Don't run `dart format .`.** It crashes on long paths under `build/`. Use `dart format lib test packages`.
-- **Don't remove `kotlin.incremental=false`** unless P-10 is resolved by moving the project or the pub cache to the same drive. Without it, Android builds fail on this machine.
-- **Don't treat the first `flutter pub get` failure after a plugin change as a code problem** (P-9). Run it again.
-- **Don't delete** the web or desktop folders (DEC-004). **Don't push** to any remote.
-- **Don't start Phase 2** without explicit approval.
-- **Don't set up an Android emulator.** The user doesn't want one right now.
+- Don't redo the Phase 0 validation, or the Phase 1 setup (Git, identity, dependencies).
+- **Don't re-check Manrope's `tnum` support.** It was verified on 2026-09-28 (DEC-028). Re-check only if the font files change.
+- **Don't re-add `PlaceholderView`** or restyle widgets inline. Use the components (DEC-034).
+- **Don't commit `build/design_review/`** images (DEC-033).
+- Don't run `dart format .`; use `dart format lib test packages`.
+- Don't remove `kotlin.incremental=false` (DEC-027) unless P-10 is resolved.
+- Treat the first `flutter pub get` failure after a plugin change as expected (P-9) and run it again.
+- Don't set up an emulator. Don't delete platform folders. Don't push.
+- **Don't start Phase 3** without the Phase 2 sign-off and explicit approval.
 
 ## Pending Decisions
 
 | ID | Decision | Needed by | Notes |
 | --- | --- | --- | --- |
-| **P-4** | How the UI is checked on a device | Phase 2 design review | See note P-4 below the table |
+| **P-4** | Viewing the UI on a device | Optional | See note P-4 below the table |
 | **P-5** | iOS verification: does the user have access to a Mac? | Before any iOS claim | iOS was not built (Windows) |
 | **P-6** | Engine default behaviours (percent, `−3²`, `2^3^2`, `0^0`, …) | Before Phase 3 engine work | See [PROJECT_MEMORY.md](PROJECT_MEMORY.md#calculation-correctness-principles) |
 | **P-7** | App version source for the About screen | Phase 10 | `package_info_plus` or a build-time constant |
-| **P-8** | Fonts | Phase 2 | Proposed: Manrope, pending a check that it has tabular digits, and JetBrains Mono. Licenses must allow bundling. |
-| **P-9** | Windows Developer Mode | Whenever convenient | See note P-9 below the table |
-| **P-10** | Kotlin incremental builds across drives | Optional | See note P-10 below the table |
+| **P-9** | Windows Developer Mode, or accept the one-time `pub get` failure after plugin changes | Whenever convenient | Symlinks for the kept desktop folders |
+| **P-10** | Keep `kotlin.incremental=false`, or put the project and the pub cache on one drive | Optional | DEC-027 |
+| **P-11** | **The user's sign-off of the Phase 2 design** (palette, type, shapes, components) | Before Phase 3 | Screenshots are in `build/design_review/` |
 
-**P-4, device checks.** The user said: no emulator, and Phase 1 shouldn't depend on device testing. A physical Android 15 device (`23124RN87I`) was seen connected on 2026-09-28. The app has **not** been installed or run on it.
+**P-4, device checks.** The design review uses generated screenshots (DEC-033). The user may also run the gallery or the app on their Android phone (`23124RN87I`); Claude has not installed anything on it.
 
-**P-9, Developer Mode.** It is off on this machine, so Flutter can't create the plugin symlinks for the kept Windows and Linux folders. The first `flutter pub get` after the plugin list changes fails once; running it again succeeds, and Android and iOS are unaffected. The choices:
-
-- enable Developer Mode (a Windows setting), or
-- accept the one-time failure.
-
-**P-10, Kotlin across drives.** The current fix is `kotlin.incremental=false` (DEC-027). The alternative is to move the project, or `PUB_CACHE`, onto the same drive, then remove the setting.
-
-**Resolved this session:**
-
-- **P-1:** Phase 1 was approved.
-- **P-2:** the user allowed the docs in the initial commits; the scaffold and the docs were committed separately.
-- **P-3:** the app ID was applied in Phase 1.
+**Resolved this session:** P-8. The fonts are Manrope, with `tnum` verified (DEC-028).
 
 ## Important Files
 
 | File | Role |
 | --- | --- |
-| `pubspec.yaml` | App package, workspace root, dependencies, `flutter: generate: true` |
-| `analysis_options.yaml` | The strict lint configuration for the whole workspace |
-| `l10n.yaml`, `lib/l10n/app_en.arb` | Localization configuration and the English strings |
-| `lib/main.dart`, `lib/app/app_root.dart`, `lib/app/app.dart` | Startup chain |
-| `lib/app/navigation/app_route.dart`, `app_navigator.dart` | The typed route layer |
-| `lib/app/shell/app_shell.dart` | The adaptive layouts |
-| `lib/app/modes/calculator_mode.dart` | The mode registry |
-| `lib/core/persistence/app_database.dart` | Schema v1 and migrations |
-| `lib/core/persistence/preferences.dart`, `preference_keys.dart` | Preferences loading, provider and key allow-list |
-| `lib/features/settings/**` | The reference feature for the layered structure |
-| `packages/calc_engine/` | The engine skeleton |
-| `test/helpers/test_app.dart` | `pumpApp`, in-memory preferences, window sizes |
-| `test/architecture/layer_boundaries_test.dart` | Enforces the engine and domain boundaries |
-| `android/gradle.properties` | `kotlin.incremental=false` (DEC-027) |
-| `android/app/build.gradle.kts` | ID `com.parasshakya.smartcalculator`; release still signs with the debug key |
+| `lib/app/theme/app_colors.dart` | The colour roles and the four palettes |
+| `lib/app/theme/app_typography.dart` | The type scale; the number styles use tabular figures |
+| `lib/app/theme/app_theme.dart` | Builds the four themes from the tokens |
+| `lib/app/theme/app_spacing.dart`, `app_radius.dart`, `app_motion.dart` | Spacing, shapes, motion |
+| `lib/core/widgets/*` | The reusable components; screens use only these |
+| `lib/gallery/*`, `lib/main_gallery.dart` | The debug-only component gallery |
+| `assets/fonts/*` | Manrope and its OFL |
+| `test/design_review/design_review_screenshots_test.dart`, `dart_test.yaml` | The screenshot generator, skipped by default |
+| `test/gallery/gallery_accessibility_test.dart` | Accessibility guidelines over every component |
+| (Phase 1 files) | See ARCHITECTURE.md §1: startup, navigation, shell, persistence, l10n, engine skeleton |
 
 ## Dependencies
 
-Actually in `pubspec.yaml` and `pubspec.lock` (verified 2026-09-28):
-
-| Package | Constraint | Locked | Scope |
-| --- | --- | --- | --- |
-| `flutter`, `flutter_localizations` | SDK | — | app |
-| `flutter_riverpod` | ^3.4.3 | 3.4.3 (with `riverpod` 3.4.3) | app |
-| `intl` | any | 0.20.3 | app |
-| `path` | ^1.9.1 | 1.9.1 | app |
-| `shared_preferences` | ^2.5.5 | 2.5.5 | app |
-| `sqflite` | ^2.4.4 | 2.4.4 | app |
-| `flutter_test` | SDK | — | dev |
-| `flutter_lints` | ^6.0.0 | 6.0.0 | dev |
-| `shared_preferences_platform_interface` | ^2.4.2 | 2.4.2 | dev |
-| `sqflite_common_ffi` | ^2.4.3 | 2.4.3 (with `sqlite3` 3.5.2) | dev |
-
-- **Removed:** `cupertino_icons`.
+- **Unchanged in Phase 2:** no packages were added or removed. The fonts are assets, not packages.
+- **Actually in `pubspec.yaml` and `pubspec.lock`:**
+  - app: `flutter_riverpod` 3.4.3, `shared_preferences` 2.5.5, `sqflite` 2.4.4, `path` 1.9.1, `intl` 0.20.3, `flutter_localizations`
+  - dev: `flutter_test`, `flutter_lints` 6.0.0, `shared_preferences_platform_interface` 2.4.2, `sqflite_common_ffi` 2.4.3
 - **`packages/calc_engine`** has no dependencies.
-- **Still planned:** see [ARCHITECTURE.md](ARCHITECTURE.md) §3.8.
+- **Still planned:** ARCHITECTURE.md §3.8.
 
 ## Tests
 
@@ -207,100 +155,103 @@ These checks were run this session, in `smart_calculator/`:
 
 | Command | Result |
 | --- | --- |
-| `flutter pub get` (first run after adding the plugins) | Dependencies resolved and l10n generated, then **exit 1** because symlinks need Developer Mode (P-9) |
-| `flutter pub get` (again) | Exit 0 |
-| `flutter build apk --debug` (at `06c0a93`, identity only) | **Built**, 79 s |
-| `flutter build apk --debug` / `--release` (Phase 1, before DEC-027) | **Failed**: Kotlin incremental caches across drives |
-| `flutter build apk --debug` (with DEC-027) | **Built**, 64.5 s |
-| `flutter build apk --release` (with DEC-027) | **Built**: `app-release.apk`, 45.3 MB, universal (all ABIs), signed with the debug key |
-| `aapt dump badging` on both APKs | See the aapt results below |
-| `flutter analyze` (final) | `No issues found! (ran in 15.5s)`, exit 0 |
-| `dart format --output=none --set-exit-if-changed lib test packages` | `Formatted 41 files (0 changed)`, exit 0 |
-| `dart format --output=none --set-exit-if-changed .` | **Crashed**: `PathNotFoundException` in `build/` (long Gradle paths). Not a formatting issue. |
-| `flutter test` (final) | `+24: All tests passed!`, exit 0 |
-| Mutation check: the rail without its scroll wrapper | The phone-landscape test **failed** (RenderFlex overflow); the file was restored |
+| Font check (Dart script on the 4 TTFs) | `tnum` present in all four weights; default digits proportional |
+| `flutter test test/app/theme/app_colors_test.dart` (first run) | 9 passed. A temporary report showed the headroom: lowest light-palette text pair 5.15, lowest dark 6.08, high contrast ≥ 9.28. |
+| Mutation check: light `textMuted` set to `#C8C4BE` | The gallery contrast test **failed** ("found 1.51, expected 4.5"); the colour was restored |
+| `flutter test --tags design-review --run-skipped --update-goldens` | 33 passed; 33 PNGs written to `build/design_review/`. Run 4 times while fixing review issues. |
+| `dart format --output=none --set-exit-if-changed lib test packages` (final) | `Formatted 70 files (0 changed)`, exit 0 |
+| `flutter analyze` (final) | `No issues found!`, exit 0 |
+| `flutter test` (final) | `+107 ~1: All tests passed!`; the 1 skip is the design-review generator |
+| `flutter build apk --debug` | **Built**, 36.9 s |
+| `flutter build apk --release` | **Built**, 45.7 MB (was 45.3 MB before the fonts) |
+| `aapt dump badging` and `unzip -l` on the release APK | See the APK checks below |
 
-**aapt results:**
+**APK checks:**
 
-- package `com.parasshakya.smartcalculator`, versionName 1.0.0, versionCode 1
-- label "Smart Calculator", minSdk 24, targetSdk 36
-- the release APK has **no INTERNET permission**; its only permission is `…DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` (AndroidX)
-- the debug APK adds INTERNET, which the Flutter tooling needs
+- package `com.parasshakya.smartcalculator`, label "Smart Calculator"
+- **no INTERNET permission**
+- the four Manrope TTFs and `Manrope-OFL.txt` are bundled
+- the Material icon font was tree-shaken to 3.5 KB
+
+**Where the 107 tests are:**
+
+| Area | Tests |
+| --- | --- |
+| Phase 1 tests | 24 |
+| Palette contrast | 9 |
+| Themes and motion | 7 |
+| Fonts | 2 |
+| AppButton | 5 |
+| Cards, headers, icon buttons | 6 |
+| CalculatorButton | 7 |
+| Dialogs, sheets, text fields | 7 |
+| Status views | 4 |
+| Gallery accessibility (9 sections × 4 themes) | 36 |
 
 **Not run:**
 
-- the iOS build (impossible on Windows)
-- running the app on a device (not required for Phase 1)
-- integration tests (none exist yet)
-- web and desktop builds (not supported targets)
-
-**The 24 tests:**
-
-| File | Tests |
-| --- | --- |
-| app | 1 |
-| shell | 7 |
-| navigation | 2 |
-| settings repository | 4 |
-| theme preference | 2 |
-| database | 4 |
-| window size class | 1 |
-| architecture | 3 |
+- the iOS build (Windows)
+- running on a device or emulator (not required)
+- integration tests (none yet)
 
 ## Known Issues
 
-1. **`flutter pub get` fails once after a plugin change** on this machine, because Developer Mode is off and plugin symlinks can't be created (P-9). Running it again works.
-2. **Kotlin incremental compilation is disabled** (DEC-027, P-10). Android builds need it on this machine.
-3. **`dart format .` crashes** on long paths inside `build/`. Use `dart format lib test packages`.
-4. **Release APKs are signed with the debug key.** Not scheduled; required before any distribution.
-5. **Template leftovers:**
-   - web and desktop identifiers
-   - the web manifest and `index.html` names and descriptions
-   - the project `README.md`
-   - the default launcher icons (Phase 11)
-6. **Provisional theme:** the seed colour and spacing are provisional (Phase 2).
-7. **Landscape layout:** most phones in landscape get the expanded layout with the history panel (DEC-022). A dedicated landscape calculator layout is for Phase 3/5.
-8. **The current mode isn't persisted.** The app always starts in Basic (DEC-021).
-9. **No device or visual verification yet.** The layouts are checked only by widget tests. The 200% text check covers only the compact shell, not the rail or the settings page (Phase 2/11 accessibility review).
-10. **`appDatabaseProvider` has no consumers yet.** It is tested, but the app never opens the database until Phase 4.
+1. **P-9:** the first `flutter pub get` after a plugin change fails once on this machine (no symlink permission). Run it again.
+2. **DEC-027:** Kotlin incremental compilation is disabled (drives `C:`/`D:`).
+3. **`dart format .`** crashes on long paths inside `build/`. Use `dart format lib test packages`.
+4. **Release signing:** release APKs are signed with the debug key. Not scheduled.
+5. **Template leftovers:** web and desktop identifiers, the web manifest and `index.html` text, `README.md`, and the default launcher icons (Phase 11).
+6. **Icons don't grow with text size,** which matches Android's behaviour. To review in Phase 11.
+7. **High contrast follows only the platform setting.** The in-app switch is Phase 10.
+8. **Landscape layout:** most phones in landscape get the expanded layout with the history panel (DEC-022). The Phase 3/5 design must decide the landscape calculator layout.
+9. **The current mode isn't persisted** (DEC-021).
+10. **No visual check on a real device yet.** The review relies on test-rendered screenshots. Test rendering differs slightly from a device: no platform text antialiasing, and no system bars.
+11. **`appDatabaseProvider` has no consumers yet** (Phase 4).
 
 ## Blockers
 
-- **Phase 2** needs the user's approval, and its design review needs a way to view the UI on a device (P-4).
+- **Phase 3:** needs the user's Phase 2 sign-off (P-11) and explicit approval, then P-6.
 - **No technical blockers.** iOS still can't be built on Windows.
 
 ## Discrepancies Found
 
-1. **2026-09-28, project-memory session.** The auto-memory had gone stale, and an example status template had been mistaken for real status. The approval conflicts that became P-2 and P-3 were resolved this session.
-2. **2026-09-28, Phase 1.** DEC-015 said every planned package had been released within the past year. That was wrong for `path` (1.9.1, 2024-10). Corrected in DEC-015.
-3. **2026-09-28, Phase 1.** Phase 0 recorded "Android debug and release builds succeed with the plugins". That held only for a project on the pub cache's drive (`C:`). On `D:` the build needed DEC-027.
-4. **2026-09-28, Phase 1.** The docs listed `dart format .` as the QA command. It crashes once `build/` holds deep Gradle output. The docs now use `dart format lib test packages`.
+1. **Project-memory session:** the auto-memory had gone stale, and an example status template had been mistaken for real status. Both resolved.
+2. **Phase 1:**
+   - DEC-015's "released within the past year" claim was wrong for `path` (corrected).
+   - The Phase 0 claim that Android builds pass held only on the `C:` drive (DEC-027).
+   - The docs listed `dart format .` as the QA command (replaced).
+3. **Phase 2:** the master prompt's component list differs from what was built (consolidated variants, plus `LoadingState`). This is a deliberate, recorded deviation (DEC-030), not a discrepancy between docs and code.
 
 ## Last Session Summary
 
-**2026-09-28, Phase 1 session.**
+**2026-09-28, Phase 2 session.**
 
-1. Followed the Context Recovery Protocol. The docs were unchanged since the previous session, and Git was not initialized.
-2. Git: initialized, then made the baseline scaffold and docs commits.
-3. Applied the app identity (`06c0a93`) and confirmed it with a debug build.
-4. Re-verified the dependencies and added them. Hit and handled the Developer Mode symlink failure.
-5. Wrote the foundation code and 24 tests. Analyzer: no issues. Tests: all passing. Checked one test with a mutation.
-6. The Android build failed across drives. Fixed it with DEC-027; debug and release now build, and the APK contents were verified.
-7. Committed the foundation (`7926920`), then updated the docs.
+1. The user approved Phase 2, asked for Hinglish replies (recorded in CLAUDE.md and Claude's memory) and required reusable widgets (DEC-034).
+2. Fonts:
+   - Downloaded Manrope from the upstream Google Fonts repo.
+   - Verified `tnum` with a Dart script.
+   - Bundled the fonts and registered the OFL.
+3. Tokens:
+   - Wrote the tokens, the four palettes and the contrast tests.
+   - Checked the headroom, and confirmed with a mutation that the checks catch low contrast.
+4. Built `AppTheme` and 10 component files, and replaced the Phase 1 stand-ins.
+5. Built the gallery, the accessibility guideline tests and the screenshot generator.
+6. Reviewed the screenshots and fixed four visual issues.
+7. Checks: `flutter analyze` clean, 107 tests pass, and the debug and release APKs build.
+8. Committed the code (`0fc15ef`), then updated the docs.
 
 ## Instructions For Next Session
 
-1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md). Run `git log --oneline` and expect the commits listed above.
-2. **Don't start Phase 2** unless the user has explicitly approved it. If the user asks for changes to Phase 1, make them and update these docs.
-3. When Phase 2 is approved:
-   - Settle P-8.
-   - Agree on how to view the design review (P-4; no emulator).
-   - Then follow [ROADMAP.md](ROADMAP.md) Phase 2 exactly.
-4. **Checks:**
+1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md). **Reply to the user in Hinglish** (CLAUDE.md rule 13).
+2. **If P-11 (design sign-off) is still open,** ask the user for it. Apply any requested changes through the tokens and components, then regenerate the screenshots (`flutter test --tags design-review --run-skipped --update-goldens`) and review them.
+3. **Don't start Phase 3** until the user signs off Phase 2 and explicitly approves Phase 3. Then settle P-6 first.
+4. **Build every new screen only from `lib/core/widgets/` and the tokens** (rule 12, DEC-034).
+5. **Checks:**
    - `flutter analyze`
    - `dart format --set-exit-if-changed lib test packages`
    - `flutter test`
    - `flutter build apk --debug`
+   - after visual changes, the screenshots
 
-   Record the actual results. If a new plugin was added and `flutter pub get` fails with the symlink error, run it again (P-9).
-5. Finish with the Session Handoff Protocol.
+   Record the actual results.
+6. Finish with the Session Handoff Protocol.

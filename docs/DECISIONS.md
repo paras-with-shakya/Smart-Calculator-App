@@ -335,7 +335,7 @@ The 17.x line has had no releases since 18.0.0, so pinning 17.x would mean pinni
 
 - **Status:** Accepted
 - **Date:** 2026-09-28
-- **Implemented:** No. Design-system work starts in Phase 2. Phase 1 builds only the basic theme structure and placeholder screens, and no feature UI is built before the Phase 2 design review is signed off.
+- **Implemented:** Design system in Phase 2: tokens, four themes, components, gallery (DEC-028 to DEC-033). It awaits the user's design sign-off (P-11). Feature screens come from Phase 3 on.
 
 **Context:** The master prompt asks for a premium, original design language.
 
@@ -363,7 +363,7 @@ Phase 2 ends with a design review: a debug-only gallery of every component, in l
 
 - **Status:** Accepted
 - **Date:** 2026-09-28
-- **Implemented:** Shell with placeholders (Phase 1): mode pill and mode sheet on compact windows; navigation rail on medium and expanded windows; history panel on expanded windows. No bottom navigation, and a test checks this (DEC-022).
+- **Implemented:** Shell with placeholders (Phase 1): mode pill and mode sheet on compact windows (a grid of mode tiles since Phase 2), navigation rail on medium and expanded windows, history panel on expanded windows. No bottom navigation, and a test checks this (DEC-022).
 
 **Context:** The master prompt listed an `AppBottomNavigation` component.
 
@@ -830,3 +830,197 @@ Then stop.
 - **Pending (P-10):** move the project, or `PUB_CACHE`, onto the same drive, and then remove this setting. That is the user's environment choice.
 
 **Impact:** Plugin Kotlin code is fully recompiled when it changes, so those rebuilds are slightly slower.
+
+---
+
+### [DEC-028] Font: Manrope, bundled, with tabular figures (resolves P-8)
+
+- **Status:** Adopted (Phase 2). This was the approved proposal, pending one check, which passed. Open to the user's review.
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`assets/fonts/`, `pubspec.yaml`, `AppTypography`, `lib/app/font_licenses.dart`)
+
+**Context:** The UI plan proposed Manrope, "pending a check that it supports fixed-width digits". Fonts must be bundled, never downloaded (DEC-014).
+
+**Decision:**
+
+- **Source:** the static Manrope TTFs in weights 400, 500, 600 and 700, from `googlefonts/manrope` at commit `6f81ebe`. That is the commit Google Fonts used; the original `sharanda/manrope` repository no longer exists.
+- **Tabular figures:** a Dart check of each font's OpenType feature list found `tnum` in all four weights. The default digits are proportional (for example, "1" is 780 units wide and "0" is 1220), so the number styles turn on `FontFeature.tabularFigures()`.
+- **Licence:** the OFL text is bundled and registered with `LicenseRegistry`.
+- **JetBrains Mono** (programmer mode) is deferred to Phase 9, when it is first used.
+
+**Reason:** The check confirmed the proposal. With tabular digits, numbers don't shift while being typed.
+
+**Alternatives:**
+
+- **Rejected:** the variable font. Flutter's `fontWeight` doesn't drive the weight axis, so Material widgets that set a weight would render at the wrong weight.
+- **Rejected:** `google_fonts` (runtime download, DEC-015).
+
+**Impact:**
+
+- The release APK grew by about 0.4 MB (45.3 to 45.7 MB).
+- Any new number style must enable tabular figures, and a test checks the existing ones.
+
+---
+
+### [DEC-029] Design tokens as theme extensions, with four palettes
+
+- **Status:** Adopted (Phase 2 implementation of DEC-011; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`lib/app/theme/`)
+
+**Context:** The master prompt asks for centralized tokens: colours, typography, spacing, radius, and motion. The UI direction is "quiet precision".
+
+**Decision:**
+
+- **`AppColors`** and **`AppTypography`** are `ThemeExtension`s, so they animate with theme changes and are read through the theme.
+- **`AppSpacing`, `AppRadius` and `AppMotion`** are constants. `AppMotion` has a reduced-motion helper.
+- **Four palettes:** light ("porcelain"), dark ("graphite"), high-contrast light and high-contrast dark. They are wired into `MaterialApp.highContrastTheme` and `highContrastDarkTheme`.
+- **One accent:** `primary` (iris) is the only accent; there is no separate "accent" role. The master prompt listed both, but the approved direction is "one signature accent".
+- **Neutral secondary:** `secondary` and tonal fills are warm neutrals.
+- **Three key tones:**
+  - digits: plain
+  - operators and functions: the same tint, with operator symbols in the accent colour and function labels in the text colour
+  - `=`: solid accent
+- **Tested contrast:** a test checks every foreground/background pair against WCAG (AA, and AAA in high contrast). The Flutter guideline tests check every gallery component in all four themes.
+- **Shapes:** every rounded shape is a superellipse, through `AppRadius.shape`.
+
+**Reason:**
+
+- One place to change the look.
+- Accessibility is enforced by tests rather than by eye.
+- High contrast works as soon as the platform asks for it.
+
+**Alternatives:**
+
+- **Rejected:** `ColorScheme.fromSeed` (the Phase 1 stand-in). It can't express the warm neutrals or the three key tones.
+- **Rejected:** a fourth, neutral tone for function keys. It would break the approved three-tone hierarchy.
+
+**Impact:** Every new colour or text style starts as a token, with a contrast test and a gallery entry.
+
+---
+
+### [DEC-030] Component set: one widget per concept, with variants
+
+- **Status:** Adopted (Phase 2; a deviation from the master prompt's component list, explained here; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`lib/core/widgets/`)
+
+**Context:** The master prompt listed AppButton, PrimaryButton, SecondaryButton, AppIconButton, CalculatorButton, OperatorButton, AppCard, AppBottomSheet, AppDialog, AppTextField, EmptyState, ErrorState, SectionHeader, AppHeader and AppBottomNavigation. It also said: "Do not duplicate UI code."
+
+**Decision:**
+
+- **`AppButton`** has variants (primary, secondary, text, destructive) instead of separate PrimaryButton and SecondaryButton classes.
+- **`CalculatorButton`** has kinds (digit, operator, function, equals) instead of a separate OperatorButton.
+- **`LoadingState`** was added, because the UI direction requires designed loading states. It shares a layout with `EmptyState` and `ErrorState`.
+- **`AppBottomNavigation`** stays dropped (DEC-012).
+- **Phase 1 stand-ins replaced:** `PlaceholderView` became `EmptyState`, and the settings page's private header became `SectionHeader`.
+- **Mode sheet:** it became a grid of `AppCard` tiles, as the audit proposed, instead of a list.
+- **Required accessibility inputs:**
+  - `AppIconButton.tooltip`
+  - `CalculatorButton.semanticLabel`
+  - `AppTextField.label`
+
+**Reason:** One widget per concept means sizes, shapes, loading and disabled states are defined once. Required labels make an unlabelled control impossible to write.
+
+**Alternatives:**
+
+- **Rejected:** one class per variant. It would duplicate the styling and behaviour, which the master prompt forbids.
+
+**Impact:** New variants extend the existing widget, instead of adding a new class.
+
+---
+
+### [DEC-031] Filled text fields with the label inside the fill
+
+- **Status:** Adopted (Phase 2; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`AppTheme` input decoration theme)
+
+**Context:** The first design-review screenshots showed each floating label sitting on the field's top edge. `OutlineInputBorder` places the label in a gap in the outline, which clashes with a filled field.
+
+**Decision:**
+
+- Use `UnderlineInputBorder`, rounded on every corner.
+- The label floats inside the fill.
+- The enabled field has no line, except in high contrast.
+- Focus and error show a 2 px or 1 px line along the bottom.
+
+**Reason:** This is Material's filled style, and it reads cleanly on the warm surfaces.
+
+**Alternatives:**
+
+- **Rejected:** outlined fields. They add more lines than the quiet style wants.
+
+**Impact:** Only the theme changed; `AppTextField` is the same.
+
+---
+
+### [DEC-032] The component gallery is a separate debug-only entry point
+
+- **Status:** Adopted (Phase 2; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`lib/main_gallery.dart`, `lib/gallery/`)
+
+**Context:** Phase 2 needed a debug-only screen showing every component for the design review.
+
+**Decision:**
+
+- The gallery runs with `flutter run -t lib/main_gallery.dart`, with switches for light/dark, high contrast and text size.
+- `main.dart` never imports it, so it isn't in app builds.
+- Its demo copy is not localized, because it is a developer tool.
+
+**Reason:** The app has no debug routes or flags, and the gallery can't leak into a release.
+
+**Alternatives:**
+
+- **Rejected:** a debug-only route inside the app. It would put debug code paths into the app's navigation.
+
+**Impact:** Every new component gets a gallery entry.
+
+---
+
+### [DEC-033] Design review through generated screenshots; accessibility through guideline tests
+
+- **Status:** Adopted (Phase 2; open to the user's review). It answers how to review without an emulator (P-4).
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`test/design_review/`, `dart_test.yaml`, `test/gallery/`)
+
+**Context:** The user doesn't want an emulator, and Phase 2 must not depend on the physical device.
+
+**Decision:**
+
+- **Screenshots:** a tagged test renders 33 design-review screenshots with the real fonts into `build/design_review/`: gallery sections and app screens, in light, dark, high contrast and at 200% text.
+  - It is skipped by default, and runs with `flutter test --tags design-review --run-skipped --update-goldens`.
+  - The images are not committed and are not compared across machines.
+- **Accessibility:** the normal test run checks every gallery section against Flutter's contrast, tap-target and label guidelines, in all four themes.
+
+**Reason:** The design can be reviewed, by Claude and by the user, without a device. The accessibility checks run on every test run.
+
+**Alternatives:**
+
+- **Rejected:** committed golden images. They are platform-dependent, so they would fail on another operating system.
+- **Deferred:** a run on the physical device, which the user can do.
+
+**Impact:** After visual changes, regenerate and review the screenshots.
+
+---
+
+### [DEC-034] Screens use only the reusable widgets and tokens
+
+- **Status:** Accepted (user requirement, 2026-09-28: *"ye dhyan rkhna ki mere app mai reusable wedgits use krna"*)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (CLAUDE.md rule 12; ARCHITECTURE.md §1.2 and §1.8)
+
+**Context:** The user asked for the app to use reusable widgets. The master prompt also forbids duplicated UI code.
+
+**Decision:**
+
+- Every screen is built from `lib/core/widgets/` and the tokens in `lib/app/theme/`.
+- Feature code never copies colours, sizes, shapes or text styles.
+- A widget needed by more than one screen goes into `core/widgets`, with tests and a gallery entry.
+
+**Reason:** The user's explicit requirement, plus a consistent look and less code to maintain.
+
+**Alternatives:** None.
+
+**Impact:** Reviews of new screens check that they use only shared components.
