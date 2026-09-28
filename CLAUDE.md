@@ -66,7 +66,7 @@ Notes on the steps:
 7. **If the code differs from the docs,** inspect the code and Git history and correct the docs. Don't guess.
 8. **Never invent completed work.** Never claim tests passed unless they were actually run; record the command, the date and the result.
 9. **Phase gates:** work one phase and one module at a time. Stop at every phase boundary with a report and wait for explicit approval. Never batch phases.
-10. **Claude never pushes, and never adds or changes remotes.** The remote `origin` belongs to the user, who pushes it. Push only when the user explicitly asks in the current session.
+10. **Claude never pushes, and never adds or changes remotes.** The remote `origin` belongs to the user, who pushes it. The user confirmed this on 2026-09-28, and it stays as it is. Push only when the user explicitly asks in the current session.
 11. **Never invent product facts** (IDs, names, prices, legal text, developer info). Ask.
 12. **Reusable widgets only (user requirement, 2026-09-28).**
     - Build every screen from the shared design-system widgets in `lib/core/widgets/` and the theme tokens in `lib/app/theme/`.
