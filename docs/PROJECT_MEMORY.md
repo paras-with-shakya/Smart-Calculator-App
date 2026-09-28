@@ -206,7 +206,7 @@ It must reach portfolio quality.
 - **Git:**
   - A local repository in `smart_calculator/`, on branch `main`.
   - A baseline commit of the untouched scaffold, then one meaningful commit per major phase.
-  - **Claude never pushes.** The user added the GitHub remote `origin` and pushes it themselves (DEC-006).
+  - **Claude never pushes.** The user pushes their code to GitHub (`origin`) themselves (DEC-006, user instruction 2026-09-28).
   - Initialized 2026-09-28. The commits are listed in DEVELOPMENT_STATUS.md.
 - **Project memory:** keep the files in `docs/` accurate, following the protocols in [CLAUDE.md](../CLAUDE.md).
 
