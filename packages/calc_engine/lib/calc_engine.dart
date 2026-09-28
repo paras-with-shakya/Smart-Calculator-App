@@ -6,6 +6,13 @@
 /// numeric library used internally stays hidden behind them
 /// (docs/DECISIONS.md, DEC-008).
 ///
-/// The engine is implemented in Phase 3. Until then this library is
-/// intentionally empty.
+/// ```dart
+/// const engine = CalcEngine();
+/// final result = engine.evaluate('0.1+0.2−0.3'); // CalcSuccess(0)
+/// ```
 library;
+
+export 'src/calc_engine.dart' show CalcEngine;
+export 'src/calc_result.dart'
+    show CalcError, CalcFailure, CalcResult, CalcSuccess;
+export 'src/number/calc_value.dart' show CalcValue;

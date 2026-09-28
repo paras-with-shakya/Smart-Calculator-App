@@ -6,3 +6,13 @@ environment:
   sdk: ^3.13.4
 
 resolution: workspace
+
+# Verified on pub.dev before adding (docs/DECISIONS.md, DEC-015 and DEC-038).
+dependencies:
+  # Exact fractions (BigInt numerator and denominator). Used only inside
+  # lib/src/number/; the public API exposes the engine's own types.
+  rational: ^2.2.3
+
+dev_dependencies:
+  # Highest version compatible with the SDK-pinned test_api of flutter_test.
+  test: ^1.31.1
