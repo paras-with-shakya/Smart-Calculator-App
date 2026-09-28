@@ -61,7 +61,7 @@ void main() {
           body: SingleChildScrollView(
             child: RepaintBoundary(
               key: _capture,
-              child: ColoredBox(
+              child: Material(
                 color: theme.extension<AppColors>()!.background,
                 child: GallerySectionView(section),
               ),

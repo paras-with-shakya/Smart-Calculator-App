@@ -8,6 +8,7 @@ import 'package:smart_calculator/app/theme/app_typography.dart';
 import 'package:smart_calculator/core/widgets/app_bottom_sheet.dart';
 import 'package:smart_calculator/core/widgets/app_button.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
+import 'package:smart_calculator/core/widgets/app_choice_group.dart';
 import 'package:smart_calculator/core/widgets/app_dialog.dart';
 import 'package:smart_calculator/core/widgets/app_header.dart';
 import 'package:smart_calculator/core/widgets/app_icon_button.dart';
@@ -36,8 +37,8 @@ enum GallerySection {
   /// AppCard and SectionHeader.
   cards('Cards'),
 
-  /// AppTextField.
-  inputs('Text fields'),
+  /// AppTextField and AppChoiceGroup.
+  inputs('Inputs and choices'),
 
   /// EmptyState, ErrorState and LoadingState.
   states('States'),
@@ -518,6 +519,7 @@ class _InputsSectionState extends State<_InputsSection> {
     text: '25,00,000',
   );
   final TextEditingController _rate = TextEditingController(text: '8.5');
+  String _period = 'month';
 
   @override
   void dispose() {
@@ -547,6 +549,16 @@ class _InputsSectionState extends State<_InputsSection> {
       const AppTextField(label: 'Tenure', hint: 'In years'),
       const SizedBox(height: AppSpacing.md),
       const AppTextField(label: 'Disabled', enabled: false),
+      const SizedBox(height: AppSpacing.md),
+      AppChoiceGroup<String>(
+        options: const [
+          AppChoice(value: 'week', label: 'Week'),
+          AppChoice(value: 'month', label: 'Month'),
+          AppChoice(value: 'year', label: 'Year'),
+        ],
+        selected: _period,
+        onChanged: (value) => setState(() => _period = value),
+      ),
     ],
   );
 }

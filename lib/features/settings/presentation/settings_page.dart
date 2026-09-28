@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smart_calculator/app/theme/app_colors.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
+import 'package:smart_calculator/app/theme/app_typography.dart';
+import 'package:smart_calculator/core/widgets/app_choice_group.dart';
 import 'package:smart_calculator/core/widgets/app_header.dart';
 import 'package:smart_calculator/core/widgets/section_header.dart';
 import 'package:smart_calculator/features/settings/application/theme_preference_notifier.dart';
@@ -40,24 +43,32 @@ class _ThemePreferenceSetting extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final preference = ref.watch(themePreferenceProvider);
-    return ListTile(
-      title: Text(l10n.settingsThemeLabel),
-      subtitle: Padding(
-        padding: const EdgeInsets.only(top: AppSpacing.sm),
-        child: SegmentedButton<ThemePreference>(
-          segments: [
-            for (final option in ThemePreference.values)
-              ButtonSegment(
-                value: option,
-                icon: Icon(option.icon),
-                label: Text(option.label(l10n)),
-              ),
-          ],
-          selected: {preference},
-          onSelectionChanged: (selection) => ref
-              .read(themePreferenceProvider.notifier)
-              .setPreference(selection.single),
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: .stretch,
+        children: [
+          Text(
+            l10n.settingsThemeLabel,
+            style: AppTypography.of(context).body
+                .copyWith(color: AppColors.of(context).textPrimary),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          AppChoiceGroup<ThemePreference>(
+            options: [
+              for (final option in ThemePreference.values)
+                AppChoice(
+                  value: option,
+                  label: option.label(l10n),
+                  icon: option.icon,
+                ),
+            ],
+            selected: preference,
+            onChanged: (choice) => ref
+                .read(themePreferenceProvider.notifier)
+                .setPreference(choice),
+          ),
+        ],
       ),
     );
   }

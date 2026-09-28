@@ -64,4 +64,27 @@ void main() {
       );
     },
   );
+
+  // Regression: on a 360 dp phone at 200% text, the segmented theme control
+  // broke "System" mid-word (found on a real device, 2026-09-28).
+  testWidgets('on a 360 dp phone at 200% text, the theme choice becomes a '
+      'list that still works', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    await pumpApp(tester, size: const Size(360, 800));
+    await tester.tap(find.byTooltip(l10n.settingsTitle));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(SegmentedButton<ThemePreference>), findsNothing);
+    expect(find.byType(RadioListTile<ThemePreference>), findsNWidgets(3));
+
+    await tester.tap(find.text(l10n.themeDark));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode,
+      ThemeMode.dark,
+    );
+  });
 }
