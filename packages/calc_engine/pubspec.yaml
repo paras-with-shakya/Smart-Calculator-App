@@ -1,0 +1,8 @@
+name: calc_engine
+description: Pure-Dart calculation engine for Smart Calculator. Must never depend on Flutter.
+publish_to: none
+
+environment:
+  sdk: ^3.13.4
+
+resolution: workspace

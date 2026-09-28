@@ -1,0 +1,75 @@
+{
+  "@@locale": "en",
+  "appTitle": "Smart Calculator",
+  "@appTitle": {
+    "description": "Name of the app, shown by the operating system and in the task switcher."
+  },
+  "modeBasic": "Basic",
+  "@modeBasic": {
+    "description": "Name of the basic calculator mode."
+  },
+  "modeScientific": "Scientific",
+  "@modeScientific": {
+    "description": "Name of the scientific calculator mode."
+  },
+  "modeProgrammer": "Programmer",
+  "@modeProgrammer": {
+    "description": "Name of the programmer calculator mode (binary, octal, decimal and hexadecimal)."
+  },
+  "modeFinance": "Finance",
+  "@modeFinance": {
+    "description": "Name of the financial calculators mode (loans, interest, tax, discounts)."
+  },
+  "modeConverter": "Converter",
+  "@modeConverter": {
+    "description": "Name of the unit converter mode."
+  },
+  "modeDate": "Date",
+  "@modeDate": {
+    "description": "Name of the date calculator mode (date differences, adding or subtracting days)."
+  },
+  "changeModeTooltip": "Change mode",
+  "@changeModeTooltip": {
+    "description": "Tooltip and accessibility hint for the button that opens the list of calculator modes."
+  },
+  "modeSheetTitle": "Modes",
+  "@modeSheetTitle": {
+    "description": "Heading of the sheet listing all calculator modes."
+  },
+  "modeNotAvailableYet": "This mode isn't available yet.",
+  "@modeNotAvailableYet": {
+    "description": "Shown in place of a calculator mode that has not been built yet."
+  },
+  "historyTitle": "History",
+  "@historyTitle": {
+    "description": "Title of the calculation history page and panel, and tooltip of the button that opens it."
+  },
+  "historyNotAvailableYet": "History isn't available yet.",
+  "@historyNotAvailableYet": {
+    "description": "Shown in place of the calculation history, which has not been built yet."
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Title of the settings page, and tooltip of the button that opens it."
+  },
+  "settingsAppearanceSection": "Appearance",
+  "@settingsAppearanceSection": {
+    "description": "Heading of the settings section about the app's look."
+  },
+  "settingsThemeLabel": "Theme",
+  "@settingsThemeLabel": {
+    "description": "Label of the setting that chooses between the system, light and dark themes."
+  },
+  "themeSystem": "System",
+  "@themeSystem": {
+    "description": "Theme option: follow the device's light or dark setting."
+  },
+  "themeLight": "Light",
+  "@themeLight": {
+    "description": "Theme option: always use the light theme."
+  },
+  "themeDark": "Dark",
+  "@themeDark": {
+    "description": "Theme option: always use the dark theme."
+  }
+}
