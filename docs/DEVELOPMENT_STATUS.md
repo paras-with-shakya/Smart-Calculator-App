@@ -12,7 +12,7 @@
 | What exists in code? | The foundation, the design system, the calculation engine (`packages/calc_engine`), and a working basic calculator: display, keypad, memory, region number format, keyboard, portrait and landscape. Other modes still show an empty state. |
 | What is being worked on? | Nothing. The Phase 3 report is with the user. |
 | What happens next? | The user reviews Phase 3. After their approval (and only then) comes Phase 4, history and saved calculations. |
-| Git? | `main` is 6 commits ahead of `origin/main` (the user's GitHub remote) after this session's docs commit. **Claude never pushes; the user pushes themselves.** |
+| Git? | `main` is ahead of `origin/main` (the user's GitHub remote); `git status -sb` shows by how much. The Phase 3 docs are in `a5fa8fd` (committed by the user from the working tree) and `d114dbb`. **Claude never pushes; the user pushes themselves.** |
 | What must not be repeated? | See "Do NOT Repeat" |
 | Known issues? | See "Known Issues" |
 | Pending decisions? | P-5, the rest of P-6 (Phase 5), P-7, P-9, P-10 |
