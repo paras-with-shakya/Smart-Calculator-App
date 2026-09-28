@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/shell/app_shell.dart';
+import 'package:smart_calculator/app/theme/app_motion.dart';
 import 'package:smart_calculator/app/theme/app_theme.dart';
 import 'package:smart_calculator/app/theme/theme_preference_mode.dart';
 import 'package:smart_calculator/features/settings/application/theme_preference_notifier.dart';
@@ -17,7 +18,13 @@ class SmartCalculatorApp extends ConsumerWidget {
     onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
     theme: AppTheme.light,
     darkTheme: AppTheme.dark,
+    highContrastTheme: AppTheme.highContrastLight,
+    highContrastDarkTheme: AppTheme.highContrastDark,
     themeMode: ref.watch(themePreferenceProvider).themeMode,
+    themeAnimationStyle: const AnimationStyle(
+      duration: AppMotion.medium,
+      curve: AppMotion.standard,
+    ),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: const AppShell(),

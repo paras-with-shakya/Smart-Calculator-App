@@ -5,7 +5,7 @@ import 'package:smart_calculator/app/modes/current_mode_notifier.dart';
 import 'package:smart_calculator/app/shell/mode_navigation_rail.dart';
 import 'package:smart_calculator/app/shell/shell_header.dart';
 import 'package:smart_calculator/core/layout/window_size_class.dart';
-import 'package:smart_calculator/core/widgets/placeholder_view.dart';
+import 'package:smart_calculator/core/widgets/status_views.dart';
 import 'package:smart_calculator/features/history/presentation/history_panel.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
@@ -76,7 +76,7 @@ class _RailShell extends StatelessWidget {
   );
 }
 
-/// The current mode's content. Every mode is a placeholder until its phase
+/// The current mode's content. Every mode shows an empty state until its phase
 /// is implemented (docs/ROADMAP.md).
 class _CurrentModeView extends ConsumerWidget {
   const _CurrentModeView();
@@ -84,7 +84,7 @@ class _CurrentModeView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mode = ref.watch(currentModeProvider);
-    return PlaceholderView(
+    return EmptyState(
       icon: mode.icon,
       message: AppLocalizations.of(context).modeNotAvailableYet,
     );

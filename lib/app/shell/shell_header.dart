@@ -5,6 +5,8 @@ import 'package:smart_calculator/app/modes/current_mode_notifier.dart';
 import 'package:smart_calculator/app/navigation/app_navigator.dart';
 import 'package:smart_calculator/app/navigation/app_route.dart';
 import 'package:smart_calculator/app/shell/mode_picker.dart';
+import 'package:smart_calculator/core/widgets/app_header.dart';
+import 'package:smart_calculator/core/widgets/app_icon_button.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// The shell's top bar: the current mode, plus the history and settings
@@ -32,17 +34,17 @@ class ShellHeader extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final mode = ref.watch(currentModeProvider);
-    return AppBar(
+    return AppHeader(
       title: showModePicker ? const ModePickerButton() : Text(mode.label(l10n)),
       actions: [
         if (showHistoryAction)
-          IconButton(
-            icon: const Icon(Icons.history),
+          AppIconButton(
+            icon: Icons.history,
             tooltip: l10n.historyTitle,
             onPressed: () => context.pushRoute<void>(const HistoryRoute()),
           ),
-        IconButton(
-          icon: const Icon(Icons.settings_outlined),
+        AppIconButton(
+          icon: Icons.settings_outlined,
           tooltip: l10n.settingsTitle,
           onPressed: () => context.pushRoute<void>(const SettingsRoute()),
         ),

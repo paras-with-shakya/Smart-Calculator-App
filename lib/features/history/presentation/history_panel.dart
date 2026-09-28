@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_calculator/core/widgets/app_header.dart';
 import 'package:smart_calculator/features/history/presentation/history_placeholder.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
@@ -10,10 +11,10 @@ class HistoryPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(
     children: [
-      AppBar(
+      AppHeader(
         title: Text(AppLocalizations.of(context).historyTitle),
-        automaticallyImplyLeading: false,
         primary: false,
+        automaticallyImplyLeading: false,
       ),
       const Expanded(child: HistoryPlaceholder()),
     ],

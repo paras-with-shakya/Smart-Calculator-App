@@ -1,0 +1,6 @@
+tags:
+  # Renders design-review screenshots into build/design_review/.
+  # Skipped in normal runs. Generate them with:
+  #   flutter test --tags design-review --run-skipped --update-goldens
+  design-review:
+    skip: "Design-review screenshot generator; run it on demand."

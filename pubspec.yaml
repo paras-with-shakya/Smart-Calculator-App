@@ -38,3 +38,22 @@ flutter:
   # Generates lib/l10n/app_localizations*.dart from the ARB files (l10n.yaml).
   generate: true
   uses-material-design: true
+
+  # The Manrope font's licence (SIL OFL 1.1), registered in
+  # lib/app/font_licenses.dart.
+  assets:
+    - assets/fonts/Manrope-OFL.txt
+
+  # Bundled, never downloaded at runtime (DEC-014). Static instances from
+  # github.com/googlefonts/manrope at commit 6f81ebe.
+  fonts:
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Manrope-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Manrope-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Manrope-Bold.ttf
+          weight: 700

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
+import 'package:smart_calculator/core/widgets/app_header.dart';
+import 'package:smart_calculator/core/widgets/section_header.dart';
 import 'package:smart_calculator/features/settings/application/theme_preference_notifier.dart';
 import 'package:smart_calculator/features/settings/domain/theme_preference.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// The settings page.
 ///
-/// Phase 1 foundation: only the theme choice exists. Phase 10 builds the full
+/// Foundation only: the theme choice exists so far. Phase 10 builds the full
 /// settings screen.
 class SettingsPage extends StatelessWidget {
   /// Creates the settings page.
@@ -17,42 +19,14 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.settingsTitle)),
+      appBar: AppHeader(title: Text(l10n.settingsTitle)),
       body: SafeArea(
         top: false,
         child: ListView(
           children: [
-            _SectionHeader(l10n.settingsAppearanceSection),
+            SectionHeader(l10n.settingsAppearanceSection),
             const _ThemePreferenceSetting(),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader(this.title);
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.lg,
-        AppSpacing.md,
-        AppSpacing.sm,
-      ),
-      child: Semantics(
-        header: true,
-        child: Text(
-          title,
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: theme.colorScheme.primary,
-          ),
         ),
       ),
     );
