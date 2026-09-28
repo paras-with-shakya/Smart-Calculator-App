@@ -85,7 +85,7 @@ From the master prompt:
 ## Architecture Principles
 
 - Separate UI, state, domain logic, the calculation engine, persistence, services, utilities and configuration.
-- **The calculation engine is independent of the UI.** It is a pure-Dart package that cannot import Flutter (CONFIRMED, DEC-008). Phase 1 created it as an empty skeleton, and tests enforce the boundary.
+- **The calculation engine is independent of the UI.** It is a pure-Dart package that cannot import Flutter (CONFIRMED, DEC-008). Phase 1 created it as a skeleton, Phase 3 built the basic engine in it, and tests enforce the boundary.
 - Layers depend in one direction: presentation → application → domain ← data. Domain code never imports Flutter. (PROPOSED detail from the approved final report; see ARCHITECTURE.md.)
 - The code is organized as feature modules (CONFIRMED). Calculator modes come from a single mode registry, so adding a mode is a contained change (PROPOSED).
 - External or remote data (for example future currency rates) sits behind service interfaces.
