@@ -180,7 +180,7 @@ The 17.x line has had no releases since 18.0.0, so pinning 17.x would mean pinni
 
 - **Status:** Accepted
 - **Date:** 2026-09-28
-- **Implemented:** Yes (2026-09-28): repository in `smart_calculator/` on branch `main`. Commits: the untouched scaffold with `.gitattributes` (`8ca813c`), the project-memory docs (`813533e`), the app identity (`06c0a93`), then the Phase 1 foundation. Nothing is pushed.
+- **Implemented:** Yes (2026-09-28): repository in `smart_calculator/` on branch `main`. Commits: the untouched scaffold with `.gitattributes` (`8ca813c`), the project-memory docs (`813533e`), the app identity (`06c0a93`), then the Phase 1 foundation. Claude has never pushed; see the update below about the user's remote.
 
 **Context:** The folder isn't a Git repository, which is risky for a 12-phase build.
 
@@ -197,6 +197,12 @@ The 17.x line has had no releases since 18.0.0, so pinning 17.x would mean pinni
 **Alternatives:** None considered.
 
 **Impact:** `CLAUDE.md` and `docs/` existed before `git init`, which raised P-2. **Resolved 2026-09-28:** the user allowed the docs in the initial commits. The scaffold (with `.gitattributes`) and the docs went into separate commits, `8ca813c` and `813533e`.
+
+**Update, 2026-09-28 (after Phase 1):**
+
+- The user added the GitHub remote `origin` (`https://github.com/paras-with-shakya/Smart-Calculator-App.git`) and pushed `main` up to `01f120a`, outside Claude's sessions.
+- Claude found this in the Phase 2 session, through `git branch -vv` (`origin/main` at `01f120a`, a `FETCH_HEAD` file present). Claude has never pushed or fetched.
+- The rule for Claude is still: **never push, and never add or change remotes.** The user pushes, or asks Claude explicitly in the current session (CLAUDE.md rule 10).
 
 ---
 

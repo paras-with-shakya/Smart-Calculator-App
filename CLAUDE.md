@@ -51,7 +51,7 @@ Continue from documented state
 
 Notes on the steps:
 
-- **Check Git status:** run `git status` and `git log --oneline -15`. The repository was initialized on 2026-09-28 on branch `main`, and the latest commits are listed in DEVELOPMENT_STATUS.md. There is no remote, and none must be added.
+- **Check Git status:** run `git status`, `git log --oneline -15` and `git status -sb`, which shows how far `main` is ahead of `origin/main`. The repository was initialized on 2026-09-28 on branch `main`. The user later added the GitHub remote `origin` (`github.com/paras-with-shakya/Smart-Calculator-App`) and pushes to it themselves. The latest commits are listed in DEVELOPMENT_STATUS.md.
 - **Inspect source / compare:** read `pubspec.yaml`, `lib/`, `test/` and `packages/`. The docs say what *should* be true; the code says what *is* true.
 - **Identify current task:** use "Current Task" and "Next Task" in DEVELOPMENT_STATUS.md. If the next task needs the user's approval (every new phase does), stop and ask. Don't start it.
 
@@ -66,7 +66,7 @@ Notes on the steps:
 7. **If the code differs from the docs,** inspect the code and Git history and correct the docs. Don't guess.
 8. **Never invent completed work.** Never claim tests passed unless they were actually run; record the command, the date and the result.
 9. **Phase gates:** work one phase and one module at a time. Stop at every phase boundary with a report and wait for explicit approval. Never batch phases.
-10. **Git is local only.** Never add a remote, and never push.
+10. **Claude never pushes, and never adds or changes remotes.** The remote `origin` belongs to the user, who pushes it. Push only when the user explicitly asks in the current session.
 11. **Never invent product facts** (IDs, names, prices, legal text, developer info). Ask.
 12. **Reusable widgets only (user requirement, 2026-09-28).**
     - Build every screen from the shared design-system widgets in `lib/core/widgets/` and the theme tokens in `lib/app/theme/`.

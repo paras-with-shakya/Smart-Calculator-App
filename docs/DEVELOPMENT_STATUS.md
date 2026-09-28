@@ -12,6 +12,7 @@
 | What exists in code? | The Phase 1 foundation, plus the design system: tokens, four themes, bundled Manrope, 10 reusable component files in `lib/core/widgets/`, and a debug-only component gallery. **No calculator features.** |
 | What is being worked on? | Nothing. The design review is with the user. |
 | What happens next? | The user reviews the screenshots (`build/design_review/`) and signs off Phase 2 or asks for changes. After that comes the Phase 3 approval. |
+| Git? | `main` is ahead of `origin/main` (GitHub, the user's remote, at `01f120a`) by the Phase 2 commits. **Claude does not push**; the user pushes, or asks. |
 | What must not be repeated? | See "Do NOT Repeat" |
 | Known issues? | See "Known Issues" |
 | Pending decisions? | P-4 to P-7 and P-9 to P-11 |
@@ -106,7 +107,7 @@ The user reviews the Phase 2 design. The screenshots are in `build/design_review
 - Don't run `dart format .`; use `dart format lib test packages`.
 - Don't remove `kotlin.incremental=false` (DEC-027) unless P-10 is resolved.
 - Treat the first `flutter pub get` failure after a plugin change as expected (P-9) and run it again.
-- Don't set up an emulator. Don't delete platform folders. Don't push.
+- Don't set up an emulator. Don't delete platform folders. **Don't push** to `origin` unless the user asks in that session (CLAUDE.md rule 10).
 - **Don't start Phase 3** without the Phase 2 sign-off and explicit approval.
 
 ## Pending Decisions
@@ -221,6 +222,11 @@ These checks were run this session, in `smart_calculator/`:
    - The Phase 0 claim that Android builds pass held only on the `C:` drive (DEC-027).
    - The docs listed `dart format .` as the QA command (replaced).
 3. **Phase 2:** the master prompt's component list differs from what was built (consolidated variants, plus `LoadingState`). This is a deliberate, recorded deviation (DEC-030), not a discrepancy between docs and code.
+4. **Phase 2 (Git remote):**
+   - The docs said "no remote, nothing pushed". But the user had added the GitHub remote `origin` and pushed `main` up to `01f120a` after Phase 1.
+   - Claude did not do this, and found it with `git branch -vv`.
+   - The docs are corrected: CLAUDE.md rule 10, and DEC-006.
+   - Local `main` is now **2 commits ahead** (`0fc15ef`, `4d0f07f`), plus this correction. **Not pushed.**
 
 ## Last Session Summary
 
