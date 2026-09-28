@@ -19,6 +19,37 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-09-28: Phase 3 final audit
+
+A strict, code-level audit requested by the user before approving Phase 4. No feature code changed; the input system was not redesigned, per the user's instruction.
+
+### Added
+
+- Two regression tests in `test/features/calculator/domain/expression_buffer_test.dart` ("editing at the cursor"): `5+3LL×` → `5×|+3`, and `5%L×` → `5×|%`.
+- Two regression tests in `test/features/calculator/application/calculator_notifier_test.dart` (new group "editing in the middle"): confirm that editing an operator in before an existing one can either silently reinterpret the expression as a valid one (`5×+3` = 15, since unary `+` is a no-op) or produce a genuine, safely-handled syntax error (`5×%`).
+
+### Fixed
+
+- **Documentation error found during the audit:** `DEVELOPMENT_STATUS.md`'s "Calculator limitations" known issue claimed editing `5+3` into `5×+3` always shows "Invalid expression". Verified by direct engine evaluation that `5×+3` is actually valid input (unary `+` is a no-op) and evaluates to `15`; the claim was wrong. Corrected, with a verified example (`5×%`) of the genuine error case, and both paths now have regression tests.
+
+### Tests
+
+- `flutter analyze`: no issues. `dart format --set-exit-if-changed lib test packages`: 104 files, 0 changed.
+- `dart test` (`packages/calc_engine`): 260 passed (unchanged; the engine wasn't touched).
+- `flutter test`: **408 passed**, 1 skipped (up from 404; the 4 new tests above).
+- `flutter build apk --debug`: built (Gradle `assembleDebug`, 26.4 s).
+- Verified by direct evaluation (`CalcEngine().evaluate(...)`, via a scratch script deleted after use): `0.1+0.2−0.3` = 0, `(1÷3)×3` = 1, `6÷2(1+2)` = 9, `5×+3` = 15, `5×%` → syntax error.
+- Re-read `android/app/src/main/AndroidManifest.xml` (the release manifest): still no `INTERNET` permission.
+- Re-read `test/architecture/layer_boundaries_test.dart` and `packages/calc_engine/pubspec.yaml`: the engine still declares and imports no Flutter dependency.
+
+### Notes
+
+- Judged acceptable for Phase 3, per the user's explicit instruction not to redesign without a genuine correctness or safety issue: invalid-expression editing in general (every reachable case fails safely or evaluates to a mathematically correct result), the absence of touch copy/paste (Ctrl+V still works via a hardware keyboard), and always-on haptics (no setting exists before Phase 10).
+- Confirmed, not just re-stated: repeated `=` is a no-op (doesn't repeat the last operation); the memory survives a restart exactly; regional number grouping (including India's 12,34,567 pattern) comes from `intl`'s locale data, not a hardcoded rule; the landscape-key-height and memory-badge-semantics fixes from the Phase 3 session are each covered by an automated test, not only the original manual device test.
+- Docs updated: this file, `DEVELOPMENT_STATUS.md`, `ARCHITECTURE.md` (test counts). `PROJECT_MEMORY.md`, `DECISIONS.md` and `ROADMAP.md` needed no changes — nothing they claim was contradicted by the code.
+
+---
+
 ## 2026-09-28: Phase 3 (Basic calculator)
 
 ### Added

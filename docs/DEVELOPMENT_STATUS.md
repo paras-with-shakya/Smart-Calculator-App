@@ -2,16 +2,16 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-09-28, at the end of the Phase 3 session.
+**Last updated:** 2026-09-28, at the end of the Phase 3 final-audit session.
 
 ## At a Glance
 
 | Question | Answer |
 | --- | --- |
-| Where are we? | **Phase 3 (Basic calculator) is implemented and awaits the user's review.** Phases 0–2 are complete. |
+| Where are we? | **Phase 3 (Basic calculator) is implemented, audited and awaits the user's approval to start Phase 4.** Phases 0–2 are complete. |
 | What exists in code? | The foundation, the design system, the calculation engine (`packages/calc_engine`), and a working basic calculator: display, keypad, memory, region number format, keyboard, portrait and landscape. Other modes still show an empty state. |
-| What is being worked on? | Nothing. The Phase 3 report is with the user. |
-| What happens next? | The user reviews Phase 3. After their approval (and only then) comes Phase 4, history and saved calculations. |
+| What is being worked on? | Nothing. A strict Phase 3 audit (2026-09-28, this session) is with the user; see "Phase 3 Audit" below. |
+| What happens next? | The user reviews the audit and approves Phase 4, history and saved calculations. |
 | Git? | `main` is ahead of `origin/main` (the user's GitHub remote); `git status -sb` shows by how much. The Phase 3 docs are in `a5fa8fd` (committed by the user from the working tree) and `d114dbb`. **Claude never pushes; the user pushes themselves.** |
 | What must not be repeated? | See "Do NOT Repeat" |
 | Known issues? | See "Known Issues" |
@@ -19,11 +19,29 @@
 
 ## Current Phase
 
-**Phase 3 (Basic calculator): implemented on 2026-09-28, awaiting the user's review.**
+**Phase 3 (Basic calculator): implemented on 2026-09-28, audited on 2026-09-28, awaiting the user's approval to start Phase 4.**
 
 - The user approved Phase 2's design and Phase 3 on 2026-09-28 ("phase 2 approv and start phase 3").
 - Their decisions: smart percent (DEC-036) and number formatting that follows the phone's region (DEC-037).
 - **Phase 4 must not start without the user's explicit approval.**
+
+## Phase 3 Audit (2026-09-28)
+
+A strict final audit, requested by the user before approving Phase 4. Everything below was checked against the actual code, tests and a fresh build in this session, not recalled from the earlier Phase 3 session.
+
+- **Re-ran every QA command:** `flutter analyze` (clean), `dart format --set-exit-if-changed lib test packages` (0 changed), `flutter test` (408 passed, 1 skipped), `dart test` in `packages/calc_engine` (260 passed), `flutter build apk --debug` (built). See "Tests" below for the updated counts.
+- **Read the engine source** (`lexer`, `parser`, `eval/evaluator.dart`, `number/calc_value.dart`) and confirmed by direct evaluation that the checklist behaviours hold: `0.1+0.2−0.3` = 0, `(1÷3)×3` = 1, `6÷2(1+2)` = 9 (one evaluator, so the same rule applies everywhere it's used), operator precedence, parentheses, implicit multiplication, smart percent, negative numbers, division by zero (including `0÷0`), invalid/incomplete expressions, overflow at 10¹⁰⁰, and 12-significant-digit formatting with scientific notation. `test/architecture/layer_boundaries_test.dart` and the engine's own `pubspec.yaml` confirm the engine still has no Flutter dependency.
+- **Repeated `=`:** confirmed (`calculator_notifier_test.dart`, "pressed again keeps the result") that pressing `=` again after a result is a no-op — it does **not** repeat the last operation the way some phone calculators do. This is intentional (DEC-040's "after `=`" rules), but DEC-040 doesn't spell this specific case out; worth a one-line addition next time DEC-040 is touched.
+- **Memory persistence:** confirmed (`calculator_notifier_test.dart`, "survives a restart, exactly") that the memory reloads exactly from a fresh `ProviderContainer`, matching the on-device test in the Phase 3 report.
+- **Indian number grouping and region formatting:** read `LocalizedNumberFormat`, which derives grouping from `intl`'s locale data rather than hardcoding India's 2-3 pattern, so it generalizes to any region `intl` knows. 33 tests cover en_US, en_IN and de_DE.
+- **`6÷2(1+2)` = 9:** confirmed in the engine tests and by direct evaluation. Implied multiplication has the same precedence as `×` ÷ everywhere, because there is exactly one evaluator (`CalcEngine.evaluate`) and the UI never re-implements precedence; the buffer only assembles the input string.
+- **Invalid expression editing (`5×+3`-style):** investigated in depth — see the corrected "Calculator limitations" entry below. The previous description of this behaviour was wrong; it's corrected here, and two regression tests were added (`calculator_notifier_test.dart`, group "editing in the middle"; `expression_buffer_test.dart`, group "editing at the cursor"). **Judgment: acceptable for Phase 3** — every case fails safely (a typed, recoverable error) or evaluates to a mathematically correct result; nothing crashes, shows `NaN`, or corrupts state. Not a correctness or safety issue, so the input system was not redesigned, per the user's instruction.
+- **Touch copy/paste:** confirmed absent (no `ClipboardData` writes, no context menu wiring in `lib/features/calculator/`); only Ctrl+V via a hardware keyboard works, matching the docs. **Treated as deferred, not a defect**, per the user's instruction.
+- **Haptics:** confirmed always on (`HapticFeedback.selectionClick()` / `.mediumImpact()` called unconditionally in `calculator_keypad.dart` and `calculator_memory_keys.dart`, with no setting to check). **Left as is**, deferred to Phase 10 per the user's instruction.
+- **Reusable components:** `DisplayText` and `CalculatorButtonKind.memory` are genuinely reused (the display's three lines and the memory row) and have gallery entries and dedicated tests (12 and part of the `CalculatorButton` suite). No hardcoded colours, text styles or dimensions found in `lib/features/calculator/presentation/` — grepped for `Color(0x`, `TextStyle(`, `fontSize:`, `EdgeInsets.all(`, `BorderRadius.circular(`: no matches. No new widget was added beyond what's genuinely shared.
+- **Landscape key height and memory badge semantics:** both fixes are covered by automated tests, not just the manual device test. `calculator_view_test.dart` — "landscape under a status bar keeps 48 dp keys" — simulates a 34 dp status bar and asserts every key still meets the touch-target guideline. The memory-badge test asserts its semantics node's `rect.height` is under `kMinInteractiveDimension` (48 dp), i.e. it's a small node, not a screen-sized one.
+- **Security/privacy:** `android/app/src/main/AndroidManifest.xml` (the release manifest) declares no `INTERNET` permission; only the debug/profile manifests do (Flutter tooling). Nothing in Phase 3 added network code or a new manifest permission.
+- **Test-quality gap found and fixed:** the exact `5×+3` scenario named in the user's checklist wasn't reproduced by any existing test (only a buffer-level DSL and a formatter-level error-message mapping existed separately, never chained together). Traced the code path, verified the actual behaviour by direct evaluation, corrected the documentation, and added 4 targeted tests (2 in `expression_buffer_test.dart`, 2 in `calculator_notifier_test.dart`) that reproduce it end to end. No other high-value gaps were found; the existing 260 engine and (now) 408 app tests already exercise precedence, brackets, percent, negatives, division by zero, overflow, formatting and persistence thoroughly. Nothing was added just to raise the count.
 
 ## Phase Status
 
@@ -33,7 +51,7 @@
 | — | Project-memory system | Completed 2026-09-28 |
 | 1 | Foundation | Completed 2026-09-28 (commits `06c0a93`, `7926920`) |
 | 2 | Design system | Completed 2026-09-28 (commit `0fc15ef`; device fix `950493b`); design approved by the user |
-| 3 | Basic calculator (engine, memory) | **Implemented 2026-09-28** (commits `4fec0b6`, `57a1e73`, `85c6c84`); **awaiting the user's review** |
+| 3 | Basic calculator (engine, memory) | **Implemented and audited 2026-09-28** (commits `4fec0b6`, `57a1e73`, `85c6c84`); **awaiting the user's approval for Phase 4** |
 | 4 | History and saved calculations | Not started; needs approval |
 | 5 | Scientific | Not started |
 | 6 | Converters | Not started |
@@ -109,15 +127,15 @@ None.
 
 ## Current Task
 
-The user reviews Phase 3.
+The user reviews the Phase 3 audit (see "Phase 3 Audit" above).
 
-- **Screenshots:** `build/design_review/calc_*.png` (15 calculator screens) and `gallery_display_*.png`. They are local only, not committed.
-- **On the phone:** the release build of this session is installed.
+- **Screenshots:** `build/design_review/calc_*.png` (15 calculator screens) and `gallery_display_*.png`. They are local only, not committed. Not regenerated this session, since nothing visual changed (only two test files and this doc set).
+- **On the phone:** the release build from the Phase 3 session is installed; not reinstalled this session.
 
 ## Next Task
 
-1. **If the user asks for changes to Phase 3:** make them, re-run the checks, regenerate and review the screenshots, and update the docs.
-2. **After the user approves Phase 3 and explicitly approves Phase 4:** do Phase 4, history and saved calculations (see [ROADMAP.md](ROADMAP.md)).
+1. **If the user asks for changes after the audit:** make them, re-run the checks, regenerate and review the screenshots if anything visual changed, and update the docs.
+2. **After the user explicitly approves Phase 4:** do Phase 4, history and saved calculations (see [ROADMAP.md](ROADMAP.md)).
    - First, confirm the v1 table columns (DEC-023).
    - Each `=` result becomes a history item (expression, result, time, mode).
 
@@ -188,21 +206,27 @@ The user reviews Phase 3.
 
 ## Tests
 
-These checks were run this session, in `smart_calculator/`:
+**Re-run and reverified in the Phase 3 audit session (2026-09-28), in `smart_calculator/`:**
 
 | Command | Result |
 | --- | --- |
-| `dart test` (in `packages/calc_engine`, final) | `+260: All tests passed!` |
+| `flutter analyze` | `No issues found!` |
+| `dart format --set-exit-if-changed lib test packages` | `Formatted 104 files (0 changed)`, exit 0 |
+| `dart test` (in `packages/calc_engine`) | `+260: All tests passed!` (unchanged; the engine wasn't touched this session) |
+| `flutter test` | `+408 ~1: All tests passed!` (404 from the Phase 3 session + 4 new regression tests added this session; the 1 skip is the design-review generator) |
+| `flutter build apk --debug` | **Built** (Gradle `assembleDebug`, 26.4 s) |
+| Direct engine evaluation (ad hoc, via a scratch `bin/probe.dart` in `packages/calc_engine`, deleted after use) | Verified `0.1+0.2−0.3`, `6÷2(1+2)`, and the exact behaviour of `5×+3` / `5×%`; the last one corrected a documentation error (see "Phase 3 Audit" above) |
+
+**From the original Phase 3 implementation session (2026-09-28), not re-run this session** (design-review screenshots and on-device behaviour don't change by reading code, and nothing visual changed):
+
+| Command | Result |
+| --- | --- |
 | Engine mutation checks (Module 1) | Plain percent: 13 failures. Truncating instead of rounding: 10 failures. Both restored. |
 | Mutation checks on the Module 2 tests (6 mutations, each restored and verified by hash) | Each caught: leading-zero rule, closing-bracket rule, bracketed variables, incomplete-error mapping, rejected-key handling, Indian grouping |
 | Landscape regression test with the old padding | **Failed**, as it should; passes with the fix |
-| `flutter test` (final) | `+404 ~1: All tests passed!`; the 1 skip is the design-review generator |
-| `dart format --set-exit-if-changed lib test packages` (final) | `Formatted 104 files (0 changed)`, exit 0 |
-| `flutter analyze` (final) | `No issues found!` |
 | `flutter test --tags design-review --run-skipped --update-goldens` | `+50: All tests passed!`; 50 PNGs in `build/design_review/`, reviewed |
-| `flutter build apk --debug` | **Built**, 85.9 s |
-| `flutter build apk --release` (final) | **Built**, 46.6 MB |
-| `aapt dump badging` on the release APK | package `com.parasshakya.smartcalculator`, label "Smart Calculator"; **no INTERNET permission** (the only permission is AndroidX's `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`) |
+| `flutter build apk --release` | **Built**, 46.6 MB |
+| `aapt dump badging` on the release APK | package `com.parasshakya.smartcalculator`, label "Smart Calculator"; **no INTERNET permission** (the only permission is AndroidX's `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`); **re-checked by reading `android/app/src/main/AndroidManifest.xml` directly this session — still no `INTERNET` permission** |
 | On the user's phone | See "Test on the user's phone" |
 
 **Where the tests are:**
@@ -210,21 +234,22 @@ These checks were run this session, in `smart_calculator/`:
 | Area | Tests |
 | --- | --- |
 | Engine (`packages/calc_engine`) | 260 |
-| Expression buffer | 138 |
-| Calculator notifier and memory | 59 |
+| Expression buffer | 140 (+2 this session: `5+3LL×`, `5%L×` — see "Phase 3 Audit") |
+| Calculator notifier and memory | 61 (+2 this session: "editing in the middle") |
 | Number format | 33 |
 | Calculator screen | 24 |
 | Display formatter | 18 |
 | `DisplayText` | 12 |
 | Gallery accessibility (10 sections × 4 themes) | 40 |
 | Earlier app tests (Phases 1–2), including 2 new `CalculatorButton` tests, 1 new app test and 1 new shell test | 80 |
-| **App total** (`flutter test`) | **404** |
+| **App total** (`flutter test`) | **408** |
 
 **Not run:**
 
 - the iOS build (Windows)
 - an emulator (the user doesn't want one; the app was tested on the user's phone)
 - integration tests (none yet)
+- the release build and the design-review screenshots, this session (see above; nothing visual changed)
 
 ## Known Issues
 
@@ -239,7 +264,7 @@ These checks were run this session, in `smart_calculator/`:
 9. **Only checked on one device:** one phone (Android 15, 360 dp), plus test-rendered screenshots. No tablet or iOS device yet.
 10. **`appDatabaseProvider` has no consumers yet** (Phase 4).
 11. **Calculator limitations (Phase 3):**
-    - **Editing in the middle** can build an expression the input rules can't prevent, such as `5×+3` (typing `×` before an existing `+`). `=` then shows "Invalid expression", and the expression stays editable.
+    - **Editing in the middle** can build an expression the input rules didn't intend, because a new operator is only collapsed with the unit *right before* the cursor, never the unit after it. Typing `×` right before an existing `+` (cursor between `5` and `+` in `5+3`) does **not** error: `5×+3` is valid (`+` is a no-op unary plus), so `=` silently gives `15`, not the `3×3` a user probably meant. **Verified during the Phase 3 audit** (2026-09-28) to differ from what this file previously claimed (that it always fails as "Invalid expression"); that claim was wrong and is corrected here. A syntax error **is** reachable the same way, for example `5×%` (`×` before `5`'s `%`, which cannot be unary): `=` then shows "Invalid expression", and the expression stays editable. Both paths are now covered by regression tests (`calculator_notifier_test.dart`, group "editing in the middle").
     - **Two values next to each other:** deleting the `×` between two inserted values (results or memory) leaves them adjacent. They still multiply, but on screen they read as one number. This needs cursor editing to happen.
     - **The region format is read at startup.** A region change applies after the app restarts.
     - **Paste** works only through a hardware keyboard (Ctrl+V). There is no touch copy or paste menu yet.
@@ -263,10 +288,21 @@ These checks were run this session, in `smart_calculator/`:
    - **ROADMAP.md** showed Phase 2 as COMPLETED in its sequence, but its section was still under "In Progress" (the start-of-Phase-3 update had missed it). Moved to "Completed".
    - **DEC-021** pointed to ARCHITECTURE.md §1.13 for adding pages; that section is now §1.16. Corrected.
    - **Deviations from the plan, recorded rather than silent:** no `decimal` (DEC-038); no function registry and no "more" menu (ROADMAP Phase 3 table, DEC-041).
+5. **Phase 3 audit (2026-09-28):** the "Calculator limitations" known issue (#11 above) claimed that editing `5+3` into `5×+3` always shows "Invalid expression". Verified by direct engine evaluation that this is wrong: `5×+3` is valid (unary `+` is a no-op) and silently evaluates to `15`. A genuinely invalid case exists too (`5×%`), but it's a different example than the one the docs gave. Corrected, and both paths now have regression tests. This was the only discrepancy the audit found; every other checked claim (test counts once updated, the engine's independence from Flutter, the release manifest's permissions, the landscape and memory-badge fixes) held up against the code.
 
 ## Last Session Summary
 
-**2026-09-28, Phase 3 session.**
+**2026-09-28, Phase 3 final-audit session** (for the Phase 3 implementation session, see [CHANGELOG.md](CHANGELOG.md)).
+
+1. The user asked for a strict, code-level audit of Phase 3 before approving Phase 4 (see "Phase 3 Audit" above for the full checklist and findings).
+2. Re-ran every QA command from a clean state: `flutter analyze`, `dart format --set-exit-if-changed`, `flutter test`, `dart test` (engine), `flutter build apk --debug`. All passed, matching the Phase 3 session's claims.
+3. Read the engine's lexer, parser, evaluator and `CalcValue`, and confirmed the requested behaviours (exactness, precedence, `6÷2(1+2)` = 9, percent, division by zero, overflow, formatting) by direct evaluation, not just by reading test names.
+4. Found and corrected one real discrepancy: the "Calculator limitations" known issue's `5×+3` example was wrong (see "Discrepancies Found" #5). Traced the actual behaviour, verified it by direct evaluation, corrected the doc, and added 4 regression tests (2 in `expression_buffer_test.dart`, 2 in `calculator_notifier_test.dart`) so the corrected behaviour — and the genuine error case (`5×%`) — stay covered. **408 app tests now pass** (was 404).
+5. Confirmed repeated `=`, memory persistence across a restart, Indian/regional number grouping, the engine's independence from Flutter (both the architecture test and the pubspec), the release manifest's lack of an `INTERNET` permission, and that the landscape-key and memory-badge fixes are covered by automated tests, not only the earlier manual device test.
+6. Judged the deferred items (invalid-expression editing at large, touch copy/paste, always-on haptics) acceptable for Phase 3 as instructed, and did not redesign the input system or make any UI/design changes.
+7. **Docs:** this file, ARCHITECTURE.md (test counts) and CHANGELOG.md updated. No changes to PROJECT_MEMORY.md, DECISIONS.md or ROADMAP.md were needed — nothing they claim was contradicted by the code.
+
+**2026-09-28, Phase 3 implementation session** (kept for context; see CHANGELOG.md for the full entry):
 
 1. The user approved the Phase 2 design and Phase 3. They chose smart percent (DEC-036) and the region number format (DEC-037).
 2. **Module 1, the engine:**
@@ -291,7 +327,7 @@ These checks were run this session, in `smart_calculator/`:
 ## Instructions For Next Session
 
 1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md). **Reply to the user in Hinglish** (CLAUDE.md rule 13).
-2. **If the user hasn't reviewed Phase 3 yet,** ask for the review. Apply any changes through the components and tokens, then re-run the checks and regenerate the screenshots.
+2. **If the user hasn't approved Phase 4 yet,** ask for it (the audit is done; see "Phase 3 Audit" above). Apply any requested changes through the components and tokens, then re-run the checks and regenerate the screenshots if anything visual changed.
 3. **Don't start Phase 4** until the user explicitly approves it. Then confirm the history table columns first (DEC-023).
 4. **Build every new screen only from `lib/core/widgets/` and the tokens** (rule 12, DEC-034).
 5. **Checks:**

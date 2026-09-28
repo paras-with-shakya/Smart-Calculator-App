@@ -248,13 +248,13 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | iOS | Bundle ID `com.parasshakya.smartcalculator` (tests: `.RunnerTests`), `CFBundleName` and `CFBundleDisplayName` "Smart Calculator" | Can't be built on Windows (P-5) |
 | web, Windows, Linux, macOS | Template identifiers (DEC-025) | Not built. Not supported targets (DEC-004). |
 
-### 1.15 Tests (404 in the normal app run, plus 260 in the engine)
+### 1.15 Tests (408 in the normal app run, plus 260 in the engine)
 
 | File | Covers |
 | --- | --- |
 | `packages/calc_engine/test/*` | The engine (§1.12): 260 tests, run with `dart test` in the package |
-| `test/features/calculator/domain/expression_buffer_test.dart` | 138 input-rule cases (numbers, operators, percent, brackets, the smart bracket key, backspace, editing at the cursor, values), limits, engine input |
-| `test/features/calculator/application/calculator_notifier_test.dart` | 59 tests: typing and preview, `=`, smart percent, continuing after a result, errors, the cursor, paste, and memory (including exactness and a restart) |
+| `test/features/calculator/domain/expression_buffer_test.dart` | 140 input-rule cases (numbers, operators, percent, brackets, the smart bracket key, backspace, editing at the cursor, values), limits, engine input |
+| `test/features/calculator/application/calculator_notifier_test.dart` | 61 tests: typing and preview, `=`, smart percent, continuing after a result, errors, editing in the middle (Phase 3 audit, 2026-09-28), the cursor, paste, and memory (including exactness and a restart) |
 | `test/features/calculator/presentation/*` | The display formatter (18), and the screen (24): keypad names and layout, haptics, display lines and their semantics, errors, tap-to-move, hold ⌫, region formats (en_IN, de_DE), the memory row, the keyboard and paste, and layouts at 200% text on phones and tablets, including landscape under a status bar |
 | `test/core/formatting/localized_number_format_test.dart` | 33 tests: separators, grouping (en_US, en_IN, de_DE), fallbacks, scientific notation, offsets, paste |
 | `test/app/app_test.dart` | The app starts in Basic mode with the calculator, the system theme and the app title; modes not built yet show an empty state |

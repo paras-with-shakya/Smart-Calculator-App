@@ -167,6 +167,15 @@ void main() {
       '(5)L)': '(5|)',
       '((5)L)': '((5)|)',
       '123456789012345L6': '12345678901234|5',
+      // An operator typed before an existing operator (rather than right
+      // after one) is not collapsed: only the unit before the cursor is
+      // checked. "5×+3" is not a bug in itself (unary + is a no-op, so it
+      // evaluates to 15), but "5×%" is a genuine syntax error, since %
+      // cannot be a unary operator. Both are reachable this way, and this
+      // is the accepted, documented Phase 3 limitation (DEVELOPMENT_STATUS
+      // "Calculator limitations").
+      '5+3LL×': '5×|+3',
+      '5%L×': '5×|%',
     });
   });
 

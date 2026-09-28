@@ -288,6 +288,40 @@ void main() {
     });
   });
 
+  group('editing in the middle (known limitation, DEVELOPMENT_STATUS.md '
+      '"Calculator limitations")', () {
+    // The input rules only look at the unit right before the cursor, so
+    // moving the cursor before an existing operator and typing a new one
+    // does not collapse the two the way typing normally does.
+    test('can silently reinterpret the expression, rather than error', () {
+      press('5+3');
+      calculator().moveCursor(-2); // between "5" and "+"
+      press('×');
+
+      expect(show(state().buffer), '5×|+3');
+
+      press('=');
+
+      // Not a bug: "+3" is a valid unary-plus operand, so "5×+3" is "5×3".
+      expect(state().error, isNull);
+      expect(state().result, n('15'));
+    });
+
+    test('can also produce a genuine, safely-handled syntax error', () {
+      press('5%');
+      calculator().moveCursor(-1); // between "5" and "%"
+      press('×');
+
+      expect(show(state().buffer), '5×|%');
+
+      press('=');
+
+      expect(state().error, CalcError.syntax);
+      expect(show(state().buffer), '5×|%');
+      expect(state().showsResult, isFalse);
+    });
+  });
+
   group('the cursor', () {
     test('edits happen at the cursor', () {
       press('123');
