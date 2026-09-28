@@ -6,6 +6,10 @@ abstract final class PreferenceKeys {
   /// The theme the user chose: system, light or dark.
   static const String themePreference = 'settings.theme_preference';
 
+  /// The calculator memory, as an exact fraction (`CalcValue`'s storage
+  /// form). Absent when the memory is empty.
+  static const String calculatorMemory = 'calculator.memory';
+
   /// Every key above.
-  static const Set<String> all = {themePreference};
+  static const Set<String> all = {themePreference, calculatorMemory};
 }

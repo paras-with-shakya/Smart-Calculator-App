@@ -16,6 +16,9 @@ workspace:
 dependencies:
   flutter:
     sdk: flutter
+  # The workspace's pure-Dart calculation engine (DEC-008).
+  calc_engine:
+    path: packages/calc_engine
   flutter_localizations:
     sdk: flutter
   flutter_riverpod: ^3.4.3
