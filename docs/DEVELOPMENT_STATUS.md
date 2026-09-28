@@ -15,7 +15,7 @@
 | Git? | `main` is ahead of `origin/main` (GitHub, the user's remote). **Claude never pushes; the user pushes themselves.** |
 | What must not be repeated? | See "Do NOT Repeat" |
 | Known issues? | See "Known Issues" |
-| Pending decisions? | P-4 to P-7 and P-9 to P-11 |
+| Pending decisions? | P-5 to P-7 and P-9 to P-11. P-11, the design sign-off, is the next one. |
 
 ## Current Phase
 
@@ -78,8 +78,33 @@ Details are in [ARCHITECTURE.md](ARCHITECTURE.md) §1.7–1.9.
 - **Design review (DEC-033):**
   - 33 screenshots generated in `build/design_review/`.
   - **Claude reviewed them** and fixed four issues before the final set: the mode sheet (tiles invisible on the sheet, a label breaking mid-word), operator symbols that looked faint (hence the new `keySymbol` style), floating text-field labels sitting on the edge (DEC-031), and cramped buttons at 200% text (vertical padding added).
-- **Tests:** 24 grew to 107 (see Tests).
+- **Tests:** 24 grew to 107, then to 112 with the device-found fix (see Tests).
 - **User requirements recorded:** reusable widgets only (CLAUDE.md rule 12, DEC-034), and Hinglish communication (CLAUDE.md rule 13).
+
+### Test on the user's phone (2026-09-28, at the user's request)
+
+The user connected their phone by USB and asked Claude to test the app.
+
+- **Device:** `23124RN87I`, Android 15 (API 35), 720×1600 px at 320 dpi, which is 360×800 dp.
+- **Method:** the release APK was installed with `adb install -r`. Flows were driven with `adb shell input`, the UI was read through `uiautomator dump` (Flutter's semantics appear as content descriptions), and screenshots were taken with `screencap`.
+- **Phone settings:** the ones changed for the test (font scale, rotation) were restored to their original values (font 1.0, auto-rotate off, rotation 0), and the temporary files on the phone were removed.
+
+| Check | Result |
+| --- | --- |
+| Cold start (`am start -W`) | 1126 ms on the first launch; 621–1080 ms after that |
+| Launch screen | Correct: status bar inset, Manrope, porcelain theme following the system (light) |
+| Mode sheet | 6 tiles, the current one selected, "Programmer" on one line; choosing Programmer updates the pill |
+| Theme persistence | Chose Dark in Settings, force-stopped the app, relaunched: still dark |
+| History page and system back | Page opens; the Android back gesture returns to the shell |
+| 200% system font | The mode sheet switches to 2 columns and fits. **Bug:** the settings theme control broke "System" as "Syste/m". Fixed, see below. |
+| Landscape (800×360 dp, medium) | Navigation rail, header, history action; the rail scrolls to the last modes |
+| Accessibility tree | Labels exposed: "Change mode", "History", "Settings", rail items as "Tab n of 6", mode tiles, radio items |
+| Log (`logcat`) | No Flutter errors, exceptions or overflows. Rendering: Impeller (Vulkan). |
+
+- **Fix (commit `950493b`, DEC-035):** a new reusable `AppChoiceGroup`. It shows a segmented button when every label fits on one line, and a radio list otherwise.
+  - The settings page uses it, and so does the gallery.
+  - It is wrapped in a transparent `Material`, so it works on any background. The screenshot harness exposed that need.
+- **Re-tested on the phone with the final build:** segmented at 100%, radio list at 200%, and choosing an option works in both. No log errors. The app theme was set back to System, its default.
 
 ## Work In Progress
 
@@ -114,7 +139,6 @@ The user reviews the Phase 2 design. The screenshots are in `build/design_review
 
 | ID | Decision | Needed by | Notes |
 | --- | --- | --- | --- |
-| **P-4** | Viewing the UI on a device | Optional | See note P-4 below the table |
 | **P-5** | iOS verification: does the user have access to a Mac? | Before any iOS claim | iOS was not built (Windows) |
 | **P-6** | Engine default behaviours (percent, `−3²`, `2^3^2`, `0^0`, …) | Before Phase 3 engine work | See [PROJECT_MEMORY.md](PROJECT_MEMORY.md#calculation-correctness-principles) |
 | **P-7** | App version source for the About screen | Phase 10 | `package_info_plus` or a build-time constant |
@@ -122,9 +146,12 @@ The user reviews the Phase 2 design. The screenshots are in `build/design_review
 | **P-10** | Keep `kotlin.incremental=false`, or put the project and the pub cache on one drive | Optional | DEC-027 |
 | **P-11** | **The user's sign-off of the Phase 2 design** (palette, type, shapes, components) | Before Phase 3 | Screenshots are in `build/design_review/` |
 
-**P-4, device checks.** The design review uses generated screenshots (DEC-033). The user may also run the gallery or the app on their Android phone (`23124RN87I`); Claude has not installed anything on it.
+**Device testing.** The user's phone (`23124RN87I`) is used when the user connects it and asks for a test. Restore any phone setting a test changes.
 
-**Resolved this session:** P-8. The fonts are Manrope, with `tnum` verified (DEC-028).
+**Resolved this session:**
+
+- P-8: the fonts are Manrope, with `tnum` verified (DEC-028).
+- P-4: the user connected their phone and asked for a test, which was done (see "Test on the user's phone").
 
 ## Important Files
 
@@ -163,6 +190,8 @@ These checks were run this session, in `smart_calculator/`:
 | `dart format --output=none --set-exit-if-changed lib test packages` (final) | `Formatted 70 files (0 changed)`, exit 0 |
 | `flutter analyze` (final) | `No issues found!`, exit 0 |
 | `flutter test` (final) | `+107 ~1: All tests passed!`; the 1 skip is the design-review generator |
+| `flutter test` (after the device fix, `950493b`) | `+112 ~1: All tests passed!` |
+| Mutation check: `AppChoiceGroup` without its `Material` wrapper | The coloured-background test **failed**; restored |
 | `flutter build apk --debug` | **Built**, 36.9 s |
 | `flutter build apk --release` | **Built**, 45.7 MB (was 45.3 MB before the fonts) |
 | `aapt dump badging` and `unzip -l` on the release APK | See the APK checks below |
@@ -174,7 +203,7 @@ These checks were run this session, in `smart_calculator/`:
 - the four Manrope TTFs and `Manrope-OFL.txt` are bundled
 - the Material icon font was tree-shaken to 3.5 KB
 
-**Where the 107 tests are:**
+**Where the 112 tests are:**
 
 | Area | Tests |
 | --- | --- |
@@ -188,11 +217,13 @@ These checks were run this session, in `smart_calculator/`:
 | Dialogs, sheets, text fields | 7 |
 | Status views | 4 |
 | Gallery accessibility (9 sections × 4 themes) | 36 |
+| AppChoiceGroup | 4 |
+| Settings at 200% on a 360 dp phone (regression) | 1 |
 
 **Not run:**
 
 - the iOS build (Windows)
-- running on a device or emulator (not required)
+- an emulator (the user doesn't want one; the app was tested on the user's phone instead)
 - integration tests (none yet)
 
 ## Known Issues
@@ -206,7 +237,7 @@ These checks were run this session, in `smart_calculator/`:
 7. **High contrast follows only the platform setting.** The in-app switch is Phase 10.
 8. **Landscape layout:** most phones in landscape get the expanded layout with the history panel (DEC-022). The Phase 3/5 design must decide the landscape calculator layout.
 9. **The current mode isn't persisted** (DEC-021).
-10. **No visual check on a real device yet.** The review relies on test-rendered screenshots. Test rendering differs slightly from a device: no platform text antialiasing, and no system bars.
+10. **Only checked on one device.** The app was tested on one phone (Android 15, 360 dp), plus test-rendered screenshots. There is no tablet or iOS device yet.
 11. **`appDatabaseProvider` has no consumers yet** (Phase 4).
 
 ## Blockers
@@ -245,6 +276,10 @@ These checks were run this session, in `smart_calculator/`:
 6. Reviewed the screenshots and fixed four visual issues.
 7. Checks: `flutter analyze` clean, 107 tests pass, and the debug and release APKs build.
 8. Committed the code (`0fc15ef`), then updated the docs.
+9. The user connected their phone and asked for a test.
+   - The main flows passed on the device.
+   - One bug was found at 200% font: the theme control broke "System" mid-word.
+   - It was fixed with the reusable `AppChoiceGroup` (`950493b`) and re-tested on the device.
 
 ## Instructions For Next Session
 

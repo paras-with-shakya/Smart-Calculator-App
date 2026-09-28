@@ -19,6 +19,55 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-09-28: Test on the user's phone
+
+### Added
+
+- `AppChoiceGroup` / `AppChoice` (`lib/core/widgets/app_choice_group.dart`). It shows a segmented button when every label fits on one line, and a radio list otherwise (DEC-035).
+- Tests:
+  - `test/core/widgets/app_choice_group_test.dart` (4 tests, measured with the real font)
+  - a settings regression test at 200% text on a 360 dp phone
+
+### Changed
+
+- **Settings page:** the theme control is an `AppChoiceGroup`, outside the list tile, so it gets the full content width.
+- **Gallery:** the inputs section is renamed "Inputs and choices" and shows `AppChoiceGroup`.
+- **Screenshot harness:** it paints sections on a `Material` instead of a `ColoredBox`.
+
+### Fixed
+
+- **Settings theme control at 200% system font on a 360 dp phone:** "System" was broken as "Syste/m". It was found on the user's phone and fixed in `950493b`.
+
+### Tests
+
+- **On the user's phone** (`23124RN87I`, Android 15, 360×800 dp; release APK installed with `adb`):
+  - cold start 1126 ms (then 621–1080 ms)
+  - launch screen, mode sheet, mode switch, history page and system back all correct
+  - Dark survives a force-stop and relaunch
+  - 200% font: the mode sheet uses 2 columns; the theme control bug above was found, then fixed and re-tested
+  - landscape: rail layout, with scrolling
+  - accessibility labels present in `uiautomator dump`
+  - no errors in `logcat`
+  - phone settings restored afterwards
+- **`flutter analyze`:** no issues.
+- **Formatting:** 72 files, 0 changed.
+- **`flutter test`:** 112 passed.
+- **Design-review screenshots:** 33 regenerated.
+- **Mutation check:** without the `Material` wrapper, the coloured-background test fails.
+- **`flutter build apk --release`:** built, 46.1 MB.
+
+### Decisions
+
+- DEC-035 was adopted.
+- P-4 is resolved: the user's phone is used for device tests when it is connected and the user asks.
+
+### Notes
+
+- Phase 2 still awaits the user's design sign-off (P-11).
+- Nothing was pushed (the user pushes to GitHub themselves).
+
+---
+
 ## 2026-09-28: Phase 2 (Design system)
 
 ### Added

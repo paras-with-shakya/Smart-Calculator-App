@@ -1031,3 +1031,33 @@ Then stop.
 **Alternatives:** None.
 
 **Impact:** Reviews of new screens check that they use only shared components.
+
+---
+
+### [DEC-035] Single choices use the adaptive AppChoiceGroup
+
+- **Status:** Adopted (fix for a bug found on the user's phone, 2026-09-28; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`lib/core/widgets/app_choice_group.dart`, commit `950493b`)
+
+**Context:** On the user's phone (360 dp wide, 200% system font), the settings page's segmented theme control broke "System" as "Syste/m". The 200% widget tests had covered only the shell.
+
+**Decision:**
+
+- Every "pick one of a few" control uses the reusable `AppChoiceGroup`.
+- **How it chooses a layout:** it measures each label at the current text scale, allowing for Material 3's segment padding, icon, gap and border (56 dp at 100%, an upper bound).
+  - If every label fits on one line, it shows a segmented button.
+  - Otherwise it shows a vertical radio list (`RadioGroup` with `RadioListTile`), which screen readers announce as a mutually exclusive group.
+- **Background:** the list is wrapped in a transparent `Material`, so it works on any background.
+
+**Reason:** No label is ever broken mid-word, whether from large text or long translations. It is one reusable control for this and the Phase 10 settings (angle mode, precision, default mode).
+
+**Alternatives:**
+
+- **Rejected:** always a radio list (less compact at normal size).
+- **Rejected:** shrinking or ellipsizing the labels (it defeats the user's text size).
+
+**Impact:**
+
+- Tests measure the layout with the real Manrope font, because the default test font is much wider.
+- A regression test covers the settings page at 200% on a 360 dp phone.

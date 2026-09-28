@@ -98,7 +98,7 @@ The user approved it on 2026-09-28. The code is in commit `0fc15ef`, and ARCHITE
 | `AppBottomNavigation` | Dropped (DEC-012) |
 | Replace the Phase 1 stand-ins | Done: `PlaceholderView` removed, section header, provisional seed and spacing, the mode sheet as a grid |
 | Debug-only gallery | Done: `lib/main_gallery.dart` (DEC-032) |
-| Review in light and dark at 200% text | Done by Claude on 33 generated screenshots (DEC-033), with 4 issues fixed. **The user's sign-off is still pending.** |
+| Review in light and dark at 200% text | Done by Claude on 33 generated screenshots (DEC-033), with 4 issues fixed. Tested on the user's phone, where 1 more issue was found and fixed (DEC-035). **The user's sign-off is still pending.** |
 
 ## Pending Approval
 

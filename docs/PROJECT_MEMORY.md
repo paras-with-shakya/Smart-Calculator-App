@@ -66,7 +66,7 @@ Machine limits:
 - No real Python (the `python` on PATH is the Microsoft Store stub).
 - No Visual Studio, so no Windows desktop builds.
 - No Android emulators exist, and **the user does not want one set up** for now.
-- A USB Android device was seen connected on 2026-09-28. The app has not been run on it (P-4).
+- The user's Android phone (`23124RN87I`, Android 15, 360×800 dp) is used for device tests when the user connects it by USB and asks. Tests use `adb`: install, input, `uiautomator dump`, `screencap`. Restore any phone setting a test changes.
 - Windows Developer Mode is off, so Flutter can't create plugin symlinks. The first `flutter pub get` after a plugin change fails once (P-9).
 - The pub cache is on `C:` and the project is on `D:`. Kotlin incremental compilation is therefore disabled (DEC-027, P-10).
 - `dart format .` crashes on long paths under `build/`. Format `lib test packages` instead.

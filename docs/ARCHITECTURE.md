@@ -152,11 +152,12 @@ All tokens live in `lib/app/theme/`. Components and screens read them from the t
 | `AppBottomSheet` / `showAppBottomSheet` | A titled modal sheet (heading semantics), as tall as its content and scrollable beyond. It returns the popped value. |
 | `AppDialog` / `showConfirmationDialog` | A title, a message and `AppButton` actions. The confirmation returns `bool` (dismiss counts as cancel), and `isDestructive` uses the error colour. Cancel defaults to the platform's translated label. |
 | `AppTextField` | A filled text field. `label` is **required**. Also hint, helper, error, prefix/suffix, keyboard type, formatters and callbacks. |
+| `AppChoiceGroup` / `AppChoice` | Pick one of a few options: a segmented button when every label fits on one line, otherwise a radio list (DEC-035). |
 | `EmptyState` / `ErrorState` / `LoadingState` | Status views sharing one layout: icon badge (or spinner), optional title, message, optional action. They scroll at large text sizes. `LoadingState` is a live region. |
 | `SectionHeader` | A quiet group heading (heading semantics). |
 | `AppHeader` | The top bar: title, automatic back button, actions. `primary: false` for headers inside panels. |
 
-`PlaceholderView` (Phase 1) was replaced by `EmptyState`, and the settings page's private section header by `SectionHeader`. `ShellHeader`, the mode pill, the mode sheet and the history and settings pages all use these components.
+`PlaceholderView` (Phase 1) was replaced by `EmptyState`, and the settings page's private section header by `SectionHeader`. The settings page's theme control is an `AppChoiceGroup`. `ShellHeader`, the mode pill, the mode sheet and the history and settings pages all use these components.
 
 ### 1.9 Component gallery and design review (Phase 2)
 
@@ -212,11 +213,11 @@ The app does **not** depend on it yet. The engine, its dependencies (`decimal`, 
 
 | Platform | Identity | Verification |
 | --- | --- | --- |
-| Android | `com.parasshakya.smartcalculator`, label "Smart Calculator"; the Kotlin package matches | APK builds; see DEVELOPMENT_STATUS.md |
+| Android | `com.parasshakya.smartcalculator`, label "Smart Calculator"; the Kotlin package matches | APK builds, and it was tested on the user's phone (Android 15, 360 dp; see DEVELOPMENT_STATUS.md) |
 | iOS | Bundle ID `com.parasshakya.smartcalculator` (tests: `.RunnerTests`), `CFBundleName` and `CFBundleDisplayName` "Smart Calculator" | Can't be built on Windows (P-5) |
 | web, Windows, Linux, macOS | Template identifiers (DEC-025) | Not built. Not supported targets (DEC-004). |
 
-### 1.14 Tests (107 in the normal run)
+### 1.14 Tests (112 in the normal run)
 
 | File | Covers |
 | --- | --- |
