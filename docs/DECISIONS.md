@@ -7,6 +7,7 @@ This is the architecture and product decision record. It is **append-only**: whe
 | Status | Meaning |
 | --- | --- |
 | `Accepted` | Decided by the user; may or may not be implemented yet (see "Implemented") |
+| `Adopted` | An implementation choice Claude made within a user-approved scope. It stands unless the user objects. |
 | `Proposed` | Awaiting the user's decision |
 | `Superseded` | Replaced by a later decision |
 | `Rejected` | Considered and turned down |
@@ -90,7 +91,7 @@ This is the architecture and product decision record. It is **append-only**: whe
 
 - **Status:** Accepted
 - **Date:** 2026-09-28
-- **Implemented:** No (Phase 1)
+- **Implemented:** Yes, in Phase 1 (2026-09-28): sealed `AppRoute` and `context.pushRoute` over `MaterialPageRoute`; see ARCHITECTURE.md §1.5 and DEC-021.
 
 **Context:** The first audit proposed `go_router` ^18.0.1. Validation found that go_router 18 moved onto `material_ui` and checks for *`material_ui`'s* `MaterialApp`, which is a different class from the framework's.
 
@@ -151,9 +152,9 @@ The 17.x line has had no releases since 18.0.0, so pinning 17.x would mean pinni
 
 ### [DEC-005] Application ID and display name
 
-- **Status:** Accepted (values); **when to apply them is pending (P-3)**
+- **Status:** Accepted. The user approved applying the values in Phase 1 (2026-09-28), which resolved P-3.
 - **Date:** 2026-09-28
-- **Implemented:** No. The code still has Android `com.example.smart_calculator` and iOS `com.example.smartCalculator`.
+- **Implemented:** Yes on Android and iOS (Phase 1, 2026-09-28, commit `06c0a93`): namespace, applicationId, Kotlin package, label; iOS bundle IDs and `CFBundleName`. Web and desktop keep template identifiers (DEC-025).
 
 **Context:** `com.example.*` IDs are rejected by Google Play. Claude was told never to invent an ID.
 
@@ -171,7 +172,7 @@ The 17.x line has had no releases since 18.0.0, so pinning 17.x would mean pinni
 
 **Alternatives:** None; this was the user's choice.
 
-**Impact:** The approved Phase 1 scope list doesn't include this step, and the final report said app IDs weren't part of Phase 1. Ask the user whether it belongs in Phase 1 (P-3).
+**Impact:** The approved Phase 1 scope list didn't include this step, which raised P-3. **Resolved 2026-09-28:** the user said to apply the values in Phase 1, and they were (DEC-025).
 
 ---
 
@@ -179,7 +180,7 @@ The 17.x line has had no releases since 18.0.0, so pinning 17.x would mean pinni
 
 - **Status:** Accepted
 - **Date:** 2026-09-28
-- **Implemented:** No. Git is not initialized, verified 2026-09-28.
+- **Implemented:** Yes (2026-09-28): repository in `smart_calculator/` on branch `main`. Commits: the untouched scaffold with `.gitattributes` (`8ca813c`), the project-memory docs (`813533e`), the app identity (`06c0a93`), then the Phase 1 foundation. Nothing is pushed.
 
 **Context:** The folder isn't a Git repository, which is risky for a 12-phase build.
 
@@ -195,7 +196,7 @@ The 17.x line has had no releases since 18.0.0, so pinning 17.x would mean pinni
 
 **Alternatives:** None considered.
 
-**Impact:** `CLAUDE.md` and `docs/` now exist before `git init`. How the baseline commit should handle them is pending (P-2).
+**Impact:** `CLAUDE.md` and `docs/` existed before `git init`, which raised P-2. **Resolved 2026-09-28:** the user allowed the docs in the initial commits. The scaffold (with `.gitattributes`) and the docs went into separate commits, `8ca813c` and `813533e`.
 
 ---
 
@@ -203,7 +204,7 @@ The 17.x line has had no releases since 18.0.0, so pinning 17.x would mean pinni
 
 - **Status:** Accepted
 - **Date:** 2026-09-28
-- **Implemented:** No (the dependency is added in Phase 1)
+- **Implemented:** Foundation (Phase 1): `flutter_riverpod` 3.4.3, `Notifier` providers, overrides for dependency injection, retry disabled in `AppRoot`. See ARCHITECTURE.md §1.4 and DEC-026.
 
 **Context:** The project had no state management. Settings (angle mode, precision, haptics) feed several features, and three modes write to the same history.
 
@@ -235,7 +236,7 @@ The 17.x line has had no releases since 18.0.0, so pinning 17.x would mean pinni
 
 - **Status:** Accepted
 - **Date:** 2026-09-28
-- **Implemented:** No. Phase 1 creates only an **empty** package skeleton; the engine logic comes in Phase 3.
+- **Implemented:** Skeleton only (Phase 1): `packages/calc_engine` exists as a workspace member with no dependencies and an empty library. The engine logic, `decimal`/`rational` and its tests come in Phase 3 (DEC-019).
 
 **Context:**
 
@@ -273,7 +274,7 @@ The 17.x line has had no releases since 18.0.0, so pinning 17.x would mean pinni
 
 - **Status:** Accepted
 - **Date:** 2026-09-28
-- **Implemented:** No (settings storage and database v1 are in Phase 1)
+- **Implemented:** Foundation (Phase 1): `SharedPreferencesWithCache` preloaded at startup, stores the theme choice; `AppDatabase` schema v1 with migration setup, opened lazily through `appDatabaseProvider`. No history or saved-calculation repositories yet (Phase 4). See DEC-023.
 
 **Context:** History, saved calculations, settings, the theme and calculator preferences must persist locally. The master prompt says: don't introduce a database unnecessarily.
 
@@ -305,7 +306,7 @@ The 17.x line has had no releases since 18.0.0, so pinning 17.x would mean pinni
 
 - **Status:** Accepted
 - **Date:** 2026-09-28
-- **Implemented:** No. Only the template test exists.
+- **Implemented:** Foundation tests only (Phase 1): 24 widget and unit tests for the shell, navigation, theme persistence, the database and the architecture boundaries. The engine test gate applies from Phase 3.
 
 **Context:** Calculation correctness is the core of the product.
 
@@ -362,7 +363,7 @@ Phase 2 ends with a design review: a debug-only gallery of every component, in l
 
 - **Status:** Accepted
 - **Date:** 2026-09-28
-- **Implemented:** No (the adaptive shell with placeholder screens comes in Phase 1)
+- **Implemented:** Shell with placeholders (Phase 1): mode pill and mode sheet on compact windows; navigation rail on medium and expanded windows; history panel on expanded windows. No bottom navigation, and a test checks this (DEC-022).
 
 **Context:** The master prompt listed an `AppBottomNavigation` component.
 
@@ -438,18 +439,19 @@ Phase 2 ends with a design review: a debug-only gallery of every component, in l
 
 - **Status:** Accepted
 - **Date:** 2026-09-28
-- **Implemented:** Policy (applies whenever a dependency is added)
+- **Implemented:** Policy (applies whenever a dependency is added). Applied in Phase 1; see the re-verification note below.
 
 **Context:** The user said: don't add dependencies because they are popular, and verify that each one is compatible and maintained.
 
 **Decision:**
 
 - Before adding a package, verify that it is compatible with Flutter 3.47.5 / Dart 3.13.4 and actively maintained.
-- The planned set is listed in ARCHITECTURE.md ("Dependencies (planned)"). It was verified 2026-09-28 in a scratch project: each package resolved at its latest version, none is discontinued, all were released within the past year, and each passed a runtime smoke test.
+- The planned set was verified 2026-09-28 in a scratch project: each package resolved at its latest version, none is discontinued, and each passed a runtime smoke test. **Correction (Phase 1 re-check):** the earlier claim that all were released within the past year was wrong for `path`. Its latest version, 1.9.1, dates from 2024-10; it is a stable dart.dev core package and stays in the plan.
+- **Re-verified on pub.dev, 2026-09-28, before adding in Phase 1:** `flutter_riverpod` 3.4.3 (2026-09-03), `shared_preferences` 2.5.5 (2026-03-25), `shared_preferences_platform_interface` 2.4.2 (2026-03-25), `sqflite` 2.4.4 (2026-09-10), `sqflite_common_ffi` 2.4.3 (2026-09-10), `path` 1.9.1 (2024-10-17). All are the latest versions, none is discontinued, and all come from verified publishers. The packages still to be added are listed in ARCHITECTURE.md §3.8.
 - **Deferred:**
   - `package_info_plus` (P-7), which pulls in `http` and `win32`
   - `http`, until live currency rates exist
-- **To remove:** `cupertino_icons` (unused).
+- **Removed in Phase 1:** `cupertino_icons` (unused).
 
 **Reason:** Keep the dependency footprint small and justified.
 
@@ -473,9 +475,9 @@ Phase 2 ends with a design review: a debug-only gallery of every component, in l
 
 ### [DEC-016] Phase 1 is foundation only
 
-- **Status:** Accepted (scope). **The start of Phase 1 is not approved yet (P-1).**
+- **Status:** Accepted (scope). Phase 1 was approved and carried out on 2026-09-28.
 - **Date:** 2026-09-28
-- **Implemented:** No
+- **Implemented:** Yes (Phase 1, 2026-09-28). No Phase 2 work was started.
 
 **Context:** The user wants foundations laid before any feature UI is built.
 
@@ -563,3 +565,268 @@ Then stop.
 - **Rejected as the primary store:** Claude's local auto-memory. It is outside the repository, tied to the machine and the working directory, and it had already gone stale once (see DEVELOPMENT_STATUS.md, "Discrepancies Found").
 
 **Impact:** Every meaningful session must end with the Session Handoff Protocol.
+
+---
+
+### [DEC-019] Phase 1 dependency set; engine dependencies and empty folders deferred
+
+- **Status:** Adopted (Phase 1 implementation choice; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (Phase 1)
+
+**Context:** Phase 1 scope included "dependencies" and the "folder structure". The engineering standards also say: no unnecessary dependencies and no dead code.
+
+**Decision:**
+
+- **Added** only what Phase 1 code uses:
+  - `flutter_riverpod` ^3.4.3, `shared_preferences` ^2.5.5, `sqflite` ^2.4.4, `path` ^1.9.1, `intl` (`any`, pinned by the SDK), `flutter_localizations` (SDK)
+  - dev: `sqflite_common_ffi` ^2.4.3, and `shared_preferences_platform_interface` ^2.4.2
+- `shared_preferences_platform_interface` was not in the original plan. The tests need its in-memory preferences store, and `depend_on_referenced_packages` requires imported packages to be declared.
+- **Removed:** `cupertino_icons`.
+- **Not added yet:**
+  - `decimal`, `rational` and `test` for the engine (Phase 3, when engine code uses them)
+  - `integration_test` (when the first end-to-end flow exists)
+- **The app does not depend on `calc_engine` yet.** It is a workspace member only.
+- **No empty placeholder folders** (such as `.gitkeep` files for future features). Folders appear with their first file; the target layout is documented in ARCHITECTURE.md §3.1.
+
+**Reason:** An unused dependency or an empty folder adds maintenance and review noise and enforces nothing.
+
+**Alternatives:**
+
+- **Rejected:** adding every planned dependency now.
+- **Rejected:** scaffolding every feature folder with placeholders.
+
+**Impact:** Phase 3 adds the engine dependencies, and re-verifies them first (DEC-015).
+
+---
+
+### [DEC-020] One strict lint configuration for the workspace, plus boundary checks
+
+- **Status:** Adopted (Phase 1 implementation choice; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`analysis_options.yaml`, `test/architecture/layer_boundaries_test.dart`)
+
+**Context:** Phase 1 called for "strict lint rules". DEC-008 requires that the engine never import Flutter. In a pub workspace, every package resolves imports through one shared package config, so an undeclared import would still resolve.
+
+**Decision:**
+
+- **One `analysis_options.yaml`** at the root. `packages/calc_engine` inherits it.
+- **What it enables:**
+  - `flutter_lints`
+  - `strict-casts`, `strict-inference` and `strict-raw-types`
+  - 26 extra rules, including `avoid_dynamic_calls`, `unawaited_futures`, `prefer_final_locals`, `directives_ordering`, `comment_references` and `type_annotate_public_apis`
+- **`depend_on_referenced_packages` is raised to an error.**
+- **An architecture test** fails if the engine or any `domain/` folder imports `package:flutter…` or `dart:ui`, or if the engine's pubspec declares a Flutter dependency.
+
+**Reason:** The compiler and the tests enforce the boundary, instead of a convention that could be forgotten.
+
+**Alternatives:**
+
+- **Not chosen for now:** a separate `analysis_options.yaml` for the engine, based on `package:lints`. The engine has no code yet. Revisit in Phase 3 if engine-only rules (such as `public_member_api_docs`) are wanted.
+
+**Impact:** Every new file must pass these rules. Suppressing a rule needs a documented reason.
+
+---
+
+### [DEC-021] How the typed navigation and mode state are implemented
+
+- **Status:** Adopted (Phase 1 implementation of DEC-003 and DEC-012; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`lib/app/navigation/`, `lib/app/modes/`)
+
+**Context:** DEC-003 chose plain Navigator with a typed route layer. Modes change state; they don't navigate.
+
+**Decision:**
+
+- **Routes:** a sealed `AppRoute` class, with one `final class` per page (`HistoryRoute`, `SettingsRoute`), each with a unique `name`.
+- **Pushing:** only through `context.pushRoute(route)`, which pushes a `MaterialPageRoute` whose `RouteSettings.name` is the route's name.
+- **Pages:** one exhaustive `switch` maps each route to its page.
+- **Going back and closing sheets** use the standard `Navigator.pop`.
+- **The mode registry** is the `CalculatorMode` enum, with an exhaustive presentation extension (icon and translated name).
+- **The current mode** lives in `CurrentModeNotifier`, **in memory only**. It always starts at Basic.
+
+**Reason:**
+
+- The compiler rejects a route without a page.
+- Routes are plain data.
+- Platform-native transitions and iOS swipe-back come without special rules.
+- Remembering the last mode (in the persistence plan) was not in the Phase 1 scope, so it is deferred.
+
+**Alternatives:**
+
+- **Rejected:** a string-keyed route table, which has no exhaustiveness check.
+- **Rejected:** Flutter's named routes, which are untyped arguments.
+
+**Impact:**
+
+- New pages follow ARCHITECTURE.md §1.13.
+- Persisting the last mode, and the "default mode" setting (Phase 10), are still to come.
+
+---
+
+### [DEC-022] Adaptive shell breakpoints and behaviour
+
+- **Status:** Adopted (Phase 1 implementation of DEC-012; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`lib/app/shell/`, `lib/core/layout/window_size_class.dart`)
+
+**Context:** The approved plan uses the Material compact, medium and expanded classes: a mode pill on phones, and a rail plus a history panel on tablets and in landscape.
+
+**Decision:**
+
+- **Size class** comes from the window width (`MediaQuery.sizeOf`), using the Material 3 breakpoints of 600 and 840 dp.
+- **Compact:** a top bar with the mode pill, which opens a bottom sheet **list** of modes, plus the history and settings actions.
+- **Medium:** a navigation rail and a top bar with the mode name. History is a pushed page.
+- **Expanded:** the rail plus a 320 dp history panel. The history action is hidden.
+- **The rail scrolls** when the window is too short to show every destination.
+
+**Reason:** These are the standard Material breakpoints, and width alone covers phones in landscape too.
+
+**Alternatives:**
+
+- **Deferred:** the audit's proposed *grid* mode sheet. That is a visual-design question for Phase 2.
+- **Deferred:** a dedicated phone-landscape calculator layout, with the scientific keys beside the keypad. That belongs to Phase 3/5.
+
+**Impact:**
+
+- Most phones in landscape measure 840 dp or more, so they currently get the expanded layout, history panel included.
+- Phase 3/5 must decide the landscape calculator layout.
+
+---
+
+### [DEC-023] Persistence foundation details
+
+- **Status:** Adopted (Phase 1 implementation of DEC-009; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`lib/core/persistence/`, `lib/features/settings/data/`)
+
+**Context:** DEC-009 chose `SharedPreferencesWithCache` and `sqflite`. Phase 1 needed the foundation, without any history features.
+
+**Decision:**
+
+- **Preferences:**
+  - They are opened once, before the first frame, with the allow-list `PreferenceKeys.all`.
+  - `sharedPreferencesProvider` has no default and throws unless overridden, so forgetting to preload fails loudly.
+  - Values are stored as fixed strings (for example `settings.theme_preference` = `dark`), never enum names. Unknown values fall back to the default.
+- **Database:**
+  - It is opened **lazily** through `appDatabaseProvider`, not at startup. Nothing uses it yet, and this keeps startup fast.
+  - Migrations are an ordered list of SQL statement lists, and `schemaVersion` is derived from the list length.
+  - Schema v1 creates the `history` and `saved_calculations` tables with date indexes; the columns are in ARCHITECTURE.md §1.8.
+
+**Reason:** Deterministic startup, protection against typos in keys, and schema changes that must go through a migration.
+
+**Alternatives:**
+
+- **Rejected:** opening the database at startup (startup cost, and nothing uses it).
+- **Rejected:** storing enum names, since a rename would break saved values.
+
+**Impact:**
+
+- Phase 4 adds the history and saved-calculation repositories.
+- Phase 4 should confirm the v1 columns before any release. Once v1 ships, schema changes need a new migration.
+
+---
+
+### [DEC-024] Localization setup
+
+- **Status:** Adopted (Phase 1 implementation; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`l10n.yaml`, `lib/l10n/`)
+
+**Context:** The architecture requires l10n from day one. On Flutter 3.47, gen-l10n no longer supports a synthetic package.
+
+**Decision:**
+
+- **gen-l10n configuration:** ARB files in `lib/l10n`, output `app_localizations.dart`, `nullable-getter: false`, `required-resource-attributes: true` (every string needs a description) and `format: true`.
+- **Language:** English only.
+- **Generated files** are committed; `flutter pub get` regenerates them.
+
+**Reason:**
+
+- Every visible string can be translated.
+- Translators get context for each string.
+- Committed output keeps the repository readable and analyzable.
+
+**Alternatives:**
+
+- **Rejected:** ignoring the generated files in Git. The repository would be incomplete until someone ran `pub get`.
+
+**Impact:** Editing an ARB file changes the generated files, and both are committed together.
+
+---
+
+### [DEC-025] Application identity applied to Android and iOS only
+
+- **Status:** Adopted (Phase 1 implementation of DEC-005; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (commit `06c0a93`)
+
+**Context:** The user said to apply the ID and display name "where appropriate within Phase 1."
+
+**Decision:**
+
+- **Android:** `namespace` and `applicationId` set to `com.parasshakya.smartcalculator`; the Kotlin package moved to match; the launcher label is "Smart Calculator".
+- **iOS:** `PRODUCT_BUNDLE_IDENTIFIER` set to `com.parasshakya.smartcalculator` (and `.RunnerTests` for the tests); `CFBundleName` is "Smart Calculator".
+- **Web, Windows, Linux and macOS:** unchanged, with their template identifiers.
+
+**Reason:** Android and iOS are the primary platforms. The others are unsupported (DEC-004), and none of them can be built or verified on this machine.
+
+**Alternatives:**
+
+- **Deferred:** updating every platform now, which would mean unverifiable changes.
+
+**Impact:** If a web or desktop target is ever approved, update its identifiers first.
+
+---
+
+### [DEC-026] Riverpod wiring conventions
+
+- **Status:** Adopted (Phase 1 implementation of DEC-007; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes
+
+**Context:** DEC-007 chose Riverpod 3 without code generation. Phase 1 set the patterns that later features will copy.
+
+**Decision:**
+
+- **Providers** are top-level `final`s with explicit types.
+- **Repository providers** live in the feature's data layer and are typed by the domain interface. Notifiers (the application layer) read them through `ref`.
+- **After an `await`, notifiers check `ref.mounted`** before updating their state.
+- **Automatic retry** is disabled once, in `AppRoot`.
+- **Tests** use real in-memory backends through overrides and `AppRoot`, with no mocking packages.
+
+**Reason:** Layers stay swappable and testable, with no generated code and no service locator.
+
+**Alternatives:**
+
+- **Rejected:** `riverpod_generator`, per DEC-007.
+- **Rejected:** declaring repository providers in the domain layer and overriding them in `main`. It adds ceremony and has no Phase 1 benefit.
+
+**Impact:** New features follow the settings feature's structure.
+
+---
+
+### [DEC-027] Kotlin incremental compilation disabled for Android builds
+
+- **Status:** Adopted (Phase 1 build fix; the alternative is pending, see P-10)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`android/gradle.properties`: `kotlin.incremental=false`)
+
+**Context:**
+
+- After Phase 1 added the plugins, `flutter build apk` failed in `:shared_preferences_android:compileDebugKotlin` (and `compileReleaseKotlin`) with "Could not close incremental caches … this and base files have different roots".
+- The plugins' Kotlin sources are in the pub cache on drive `C:`, and this project and its build folder are on drive `D:`. Kotlin's incremental caches can't relate paths across Windows drives.
+- The previous session's scratch builds passed because that project was on `C:`.
+
+**Decision:** Set `kotlin.incremental=false` in `android/gradle.properties`.
+
+**Reason:**
+
+- It fixes the build with a project-level setting that doesn't change the machine.
+- It only turns off incremental caching for Kotlin compilation. App behaviour is unaffected, and the app's own Kotlin code is one small file.
+
+**Alternatives:**
+
+- **Pending (P-10):** move the project, or `PUB_CACHE`, onto the same drive, and then remove this setting. That is the user's environment choice.
+
+**Impact:** Plugin Kotlin code is fully recompiled when it changes, so those rebuilds are slightly slower.

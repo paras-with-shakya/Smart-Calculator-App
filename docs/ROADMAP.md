@@ -9,9 +9,9 @@ This file gives the intended development sequence. Every phase needs the user's 
 
 ```text
 Phase 0  Audit & architecture ............ COMPLETED 2026-09-28
-  —      Project-memory system ........... COMPLETED 2026-09-28 (awaiting review)
-Phase 1  Foundation ...................... PENDING APPROVAL (scope approved, start not approved)
-Phase 2  Design system ................... planned
+  —      Project-memory system ........... COMPLETED 2026-09-28
+Phase 1  Foundation ...................... COMPLETED 2026-09-28 (awaiting the user's review)
+Phase 2  Design system ................... PENDING APPROVAL
 Phase 3  Basic calculator + engine + memory planned
 Phase 4  History + saved calculations .... planned
 Phase 5  Scientific ...................... planned
@@ -27,12 +27,13 @@ Phase 12 QA .............................. planned
 **Exit gate for every phase:**
 
 1. `flutter analyze` finds no issues.
-2. `dart format` has been run.
+2. Formatting passes: `dart format --set-exit-if-changed lib test packages`. Don't run `dart format .`; see CLAUDE.md.
 3. All tests pass. Record the actual command output.
-4. The UI has been reviewed in light and dark, on small and large screens (from Phase 2 on).
-5. The docs are updated (Session Handoff Protocol).
-6. One local commit has been made.
-7. The report has been delivered to the user, and work stops.
+4. The Android build passes.
+5. The UI has been reviewed in light and dark, on small and large screens (from Phase 2 on).
+6. The docs are updated (Session Handoff Protocol).
+7. Local commits have been made.
+8. The report has been delivered to the user, and work stops.
 
 ---
 
@@ -47,7 +48,35 @@ Phase 12 QA .............................. planned
 
 ### Project-memory system (2026-09-28)
 
-- Created `CLAUDE.md` and `docs/` (DEC-018). It awaits the user's review.
+- Created `CLAUDE.md` and `docs/` (DEC-018).
+
+### Phase 1: Foundation (2026-09-28)
+
+The user approved it on 2026-09-28. It was built exactly to the approved scope (DEC-016), and it awaits the user's review. What was built is described in [ARCHITECTURE.md](ARCHITECTURE.md) §1.
+
+| # | Scope item | Result |
+| --- | --- | --- |
+| 1 | Git setup | Done. Repository on `main`, with `.gitattributes`; the baseline scaffold and docs are separate commits (DEC-006). |
+| 2 | Dependencies | Done. Each was re-verified first; `cupertino_icons` was removed. The engine's dependencies are deferred to Phase 3 (DEC-019). |
+| 3 | Strict lint rules | Done (DEC-020) |
+| 4 | Pub workspace | Done (`workspace: [packages/calc_engine]`) |
+| 5 | Empty calculation-engine package | Done: skeleton only |
+| 6 | Folder structure | Done for the folders Phase 1 uses. No empty placeholder folders (DEC-019). |
+| 7 | Startup architecture | Done (preferences preloaded, then `AppRoot`) |
+| 8 | Typed route layer over plain Navigator | Done (DEC-021) |
+| 9 | Adaptive shell with placeholder screens | Done (DEC-022) |
+| 10 | Basic theme structure | Done (provisional seed colour and spacing) |
+| 11 | Light/dark/system choice, persisted | Done; a test covers a restart |
+| 12 | Settings storage | Done (`SharedPreferencesWithCache`) |
+| 13 | Database v1 | Done (schema v1 and migration setup; DEC-023) |
+| 14 | Translation (l10n) setup | Done (DEC-024) |
+| 15 | `docs/ARCHITECTURE.md` | Updated to the implemented state |
+| 16 | Replace the default counter test | Done. 24 foundation tests. |
+| 17 | Format, analyze, test | Done; results in DEVELOPMENT_STATUS.md |
+| 18 | Local Git commits | Done; nothing pushed |
+| — | App ID and display name | Done on Android and iOS; the user approved including it (DEC-025) |
+
+**Build fix outside the original scope:** `kotlin.incremental=false` (DEC-027). The Android build failed without it on this machine.
 
 ## In Progress
 
@@ -55,87 +84,48 @@ Nothing.
 
 ## Pending Approval
 
-### Phase 1: Foundation
-
-**Status:** the scope is approved (DEC-016), but **the start is not approved** (P-1). Settle P-2 (baseline commit) and P-3 (app ID timing) at the start.
-
-**Scope: exactly these items, in this order, and nothing more:**
-
-1. **Git setup:**
-   - `git init` in `smart_calculator/`, on branch `main`
-   - `.gitattributes`
-   - a baseline commit of the untouched scaffold (see P-2)
-2. **Dependencies:** add the planned set, each re-verified first (DEC-015), and remove `cupertino_icons`.
-3. **Strict lint rules** in `analysis_options.yaml`.
-4. **Pub workspace:** the root `pubspec.yaml` becomes the workspace root.
-5. **Empty calculation-engine package:** `packages/calc_engine`, pure Dart, skeleton only.
-6. **Folder structure:** see ARCHITECTURE.md §3.1.
-7. **Startup architecture:** preload prefs → `ProviderScope` → app.
-8. **Typed route layer over plain Navigator** (DEC-003).
-9. **Adaptive shell with placeholder screens:** mode pill and mode sheet on phones, a rail on tablets and landscape (DEC-012).
-10. **Basic theme structure.** The detailed tokens and components are Phase 2.
-11. **Light/dark/system theme choice, persisted.**
-12. **Settings storage:** `SharedPreferencesWithCache`.
-13. **Database v1:** `sqflite` schema and migration setup.
-14. **Translation (l10n) setup:** gen-l10n with ARB files.
-15. **`docs/ARCHITECTURE.md`:** move what was built into §1, "Implemented". Over time, it must also document (master prompt §36):
-    - features, folder structure, state management, the calculation engine, persistence and testing
-    - how to add a calculator module or a conversion unit
-    - build instructions
-16. **Replace the default counter test.**
-17. **Run formatting, analysis and tests**, and record the actual results.
-18. **The Phase 1 local Git commit.** Never push.
-
-**Not in Phase 1:**
-
-- anything in Phase 2
-- the final calculator UI and the scientific keypad
-- engine logic beyond the skeleton
-- design work
-- the app ID change, unless the user says otherwise at P-3
-
-**Done when:**
-
-- The app launches with the shell and placeholder screens.
-- The theme choice persists across restarts.
-- The exit gate passes.
-
-**Report:** the 9 items listed in DEC-016.
-
----
-
-## Planned
-
 ### Phase 2: Design system
+
+**Status:** not started, and **needs the user's explicit approval.**
 
 - **Tokens:**
   - colour roles, including operator and number keys, for light, dark and system, plus high contrast; contrast is checked
   - typography: display, expression, result, heading, body, caption, button, label
-  - spacing (xs to xxl), radius and motion
+  - spacing (xs to xxl; Phase 1 has only sm, md and lg), radius and motion
 - **Bundled fonts** with tabular digits (P-8).
 - **Components:**
   - AppButton, AppIconButton, CalculatorButton, OperatorButton, PrimaryButton, SecondaryButton
   - AppCard, AppBottomSheet, AppDialog, AppTextField
   - EmptyState, ErrorState, SectionHeader, AppHeader
   - (`AppBottomNavigation` is dropped, by DEC-012.)
+- **Phase 1 stand-ins to replace or absorb:**
+  - `PlaceholderView`
+  - the settings page's private section header
+  - the provisional seed colour and spacing
+  - the mode sheet's plain list (the audit proposed a grid)
 - A debug-only gallery screen showing every component *(proposed)*.
 - **Done when:** every component has been reviewed in light and dark at 200% text size, and **the user has signed off the design review**. This needs an Android test device (P-4).
 
+---
+
+## Planned
+
 ### Phase 3: Basic calculator (engine, state, memory)
 
+- **First:** add and re-verify `decimal`, `rational` and `test` for the engine (DEC-019), and confirm the default behaviours (P-6).
 - **Engine** (DEC-008):
   - precedence, parentheses, decimals, negatives, percent
   - floating-point handling with exact arithmetic
   - handling of invalid expressions and division by zero
   - very large and very small numbers
   - an extensible function registry
-- **Default behaviours:** confirm P-6 first.
 - **Screen:**
   - Header: mode, history shortcut, settings shortcut, a "more" menu.
   - Expression area: the current expression, the previous expression, the result, the cursor, and clear/delete.
   - Keypad: digits, decimal point, `=`, + − × ÷, %, clear, backspace and parentheses.
 - **Memory:** MC, MR, M+, M−, MS, independent of the UI.
 - **Also:** error handling, animations, haptics and keyboard support.
+- **Landscape:** decide the phone-landscape calculator layout (DEC-022).
 - *(Proposed):* token-based editing with a cursor, a live preview, a smart `( )` key, and long-pressing ⌫ to clear.
 - **Done when:**
   - **More than 200 engine edge-case tests pass** (DEC-010).
@@ -144,11 +134,12 @@ Nothing.
 
 ### Phase 4: History and saved calculations
 
+- **Start by** confirming the v1 table columns (DEC-023) before anything writes to them.
 - **History:**
   - Each item stores the expression, result, timestamp and mode.
   - View, search, reuse, copy, delete an item, clear all.
   - An empty state, and confirmation before destructive actions.
-  - It persists locally.
+  - It persists locally. The history panel and page replace their Phase 1 placeholders.
 - **Saved calculations:** save, rename, edit, reuse and delete. The master prompt's examples: mortgage, BMI, tax, monthly budget.
 - *(Proposed):*
   - grouping by Today, Yesterday and earlier; paging
@@ -226,7 +217,7 @@ A modular conversion system where new categories are easy to add.
 
 ### Phase 10: Settings screen
 
-- **Appearance:** light, dark or system.
+- **Appearance:** light, dark or system. Phase 1 built the theme choice itself; this phase builds the full screen around it.
 - **Calculator:** default mode, haptics, sound, decimal precision, angle mode.
 - **History:** history settings, clear history.
 - **Accessibility:** larger buttons, text scaling, high contrast.
@@ -259,7 +250,7 @@ A modular conversion system where new categories are easy to add.
 | --- | --- | --- |
 | Live currency rates (network) | Offline and privacy first; needs `http` and a service design | The user asks for live rates |
 | `go_router` / deep links | DEC-003 | Deep links or web become requirements |
-| Web and desktop as supported targets | DEC-004 | The user asks |
+| Web and desktop as supported targets, and their identifiers | DEC-004, DEC-025 | The user asks |
 | `drift` | Only needed for web | Web becomes a target |
 | `package_info_plus` | P-7 | Phase 10 |
 | iOS build verification | No Mac (P-5) | A Mac is available |
@@ -271,6 +262,7 @@ These need a phase assignment from the user:
 
 | Item | Notes |
 | --- | --- |
-| App ID and display name change (DEC-005) | Values confirmed; timing pending (P-3) |
-| Android predictive back gesture | The final report said it would be enabled, but it isn't in the Phase 1 scope list |
+| Android predictive back gesture | The final report said it would be enabled, but it isn't in any phase's scope |
 | Release signing configuration | The template signs release builds with the debug key; this must be fixed before any release build is distributed |
+| Persisting the last-used mode | In the persistence plan, but not in the Phase 1 scope (DEC-021). Relates to the Phase 10 "default mode" setting. |
+| Project `README.md` | Still the `flutter create` template text |

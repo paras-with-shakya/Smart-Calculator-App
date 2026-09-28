@@ -11,8 +11,8 @@ This file holds the stable, long-lived facts about the project. Current status i
 | Product name | Smart Calculator | CONFIRMED |
 | Flutter package name | `smart_calculator` | Implemented (template) |
 | Location | `D:\Flutter App Developement\SmartCalculator\smart_calculator` | Implemented |
-| Application ID | `com.parasshakya.smartcalculator` | CONFIRMED, **not applied yet**. The code still uses `com.example.*`, and the timing is PENDING (see DEVELOPMENT_STATUS P-3). |
-| Display name | Smart Calculator | CONFIRMED, not applied yet on Android (label is `smart_calculator`). iOS `CFBundleDisplayName` is already "Smart Calculator". |
+| Application ID | `com.parasshakya.smartcalculator` | CONFIRMED, **applied on Android and iOS** in Phase 1 (DEC-025). Web and desktop keep template identifiers. |
+| Display name | Smart Calculator | CONFIRMED, **applied**: the Android label, and iOS `CFBundleDisplayName` and `CFBundleName`. |
 | Version | `1.0.0+1` | Template default |
 | Purpose | A production-quality, portfolio-level Flutter project | CONFIRMED |
 
@@ -65,8 +65,11 @@ Machine limits:
 
 - No real Python (the `python` on PATH is the Microsoft Store stub).
 - No Visual Studio, so no Windows desktop builds.
-- No Android emulators exist.
-- A USB Android device was seen connected on 2026-09-28 (see DEVELOPMENT_STATUS P-4).
+- No Android emulators exist, and **the user does not want one set up** for now.
+- A USB Android device was seen connected on 2026-09-28. The app has not been run on it (P-4).
+- Windows Developer Mode is off, so Flutter can't create plugin symlinks. The first `flutter pub get` after a plugin change fails once (P-9).
+- The pub cache is on `C:` and the project is on `D:`. Kotlin incremental compilation is therefore disabled (DEC-027, P-10).
+- `dart format .` crashes on long paths under `build/`. Format `lib test packages` instead.
 
 ## Engineering Principles
 
@@ -82,7 +85,7 @@ From the master prompt:
 ## Architecture Principles
 
 - Separate UI, state, domain logic, the calculation engine, persistence, services, utilities and configuration.
-- **The calculation engine is independent of the UI.** It is planned as a pure-Dart package that cannot import Flutter (CONFIRMED, DEC-008).
+- **The calculation engine is independent of the UI.** It is a pure-Dart package that cannot import Flutter (CONFIRMED, DEC-008). Phase 1 created it as an empty skeleton, and tests enforce the boundary.
 - Layers depend in one direction: presentation → application → domain ← data. Domain code never imports Flutter. (PROPOSED detail from the approved final report; see ARCHITECTURE.md.)
 - The code is organized as feature modules (CONFIRMED). Calculator modes come from a single mode registry, so adding a mode is a contained change (PROPOSED).
 - External or remote data (for example future currency rates) sits behind service interfaces.
@@ -203,7 +206,7 @@ It must reach portfolio quality.
   - A local repository in `smart_calculator/`, on branch `main`.
   - A baseline commit of the untouched scaffold, then one meaningful commit per major phase.
   - **Never push to a remote.**
-  - Not initialized yet.
+  - Initialized 2026-09-28. The commits are listed in DEVELOPMENT_STATUS.md.
 - **Project memory:** keep the files in `docs/` accurate, following the protocols in [CLAUDE.md](../CLAUDE.md).
 
 ## Important Constraints
@@ -212,8 +215,8 @@ It must reach portfolio quality.
 - Keep `package:flutter/material.dart`. Don't add `material_ui`.
 - Don't use `go_router` for now.
 - Don't delete the web or desktop platform folders.
-- Don't change the Android or iOS identifiers to anything other than the confirmed ID, and only when that step is approved (P-3).
-- Phase 1 is **foundation only**: no calculator UI, no scientific keypad, and no engine logic beyond an empty package skeleton.
+- The Android and iOS identifiers are set (DEC-005, DEC-025). Don't change them.
+- Each phase implements only its approved scope. Phase 1 was foundation only, and it is complete.
 - iOS can't be verified on this machine. Windows desktop can't be built on it.
 
 ## Things We Explicitly Do Not Want

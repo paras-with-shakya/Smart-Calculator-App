@@ -2,7 +2,7 @@
 
 This is the entry point for every Claude Code session on this project. Read it first, then follow the **Context Recovery Protocol** below before doing any work.
 
-**Snapshot (2026-09-28):** Phase 0 (audit and architecture) is complete. Phase 1 (Foundation) has **not started** and is **not yet approved to start**. The code is still the untouched `flutter create` counter template. If this line disagrees with [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), that file wins; fix this line.
+**Snapshot (2026-09-28):** Phase 1 (Foundation) is **complete** (commit `7926920`) and awaits the user's review. **Phase 2 (Design system) has not started and needs the user's explicit approval.** The app has no calculator features yet. If this line disagrees with [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), that file wins; fix this line.
 
 ## Source of truth
 
@@ -51,8 +51,8 @@ Continue from documented state
 
 Notes on the steps:
 
-- **Check Git status:** run `git status` and `git log --oneline -15`. As of 2026-09-28 Git is **not initialized yet**. That is expected: `git init` is the first step of Phase 1. Do not initialize it before Phase 1 is approved.
-- **Inspect source / compare:** read `pubspec.yaml`, `lib/`, `test/` and (once they exist) `packages/`. The docs say what *should* be true; the code says what *is* true.
+- **Check Git status:** run `git status` and `git log --oneline -15`. The repository was initialized on 2026-09-28 on branch `main`, and the latest commits are listed in DEVELOPMENT_STATUS.md. There is no remote, and none must be added.
+- **Inspect source / compare:** read `pubspec.yaml`, `lib/`, `test/` and `packages/`. The docs say what *should* be true; the code says what *is* true.
 - **Identify current task:** use "Current Task" and "Next Task" in DEVELOPMENT_STATUS.md. If the next task needs the user's approval (every new phase does), stop and ask. Don't start it.
 
 ## Working rules
@@ -119,12 +119,20 @@ Status labels used across the docs:
 
 - **Flutter app root:** this directory (`smart_calculator/`). This is also the planned Git root.
 - **Toolchain:** Flutter 3.47.5 stable, Dart 3.13.4 (verified 2026-09-28).
-- **QA commands** (run from this directory): `flutter analyze`, `dart format .`, `flutter test`. For the engine package, once it exists: `dart test` inside `packages/calc_engine`.
+- **QA commands** (run from this directory):
+  - `flutter analyze`
+  - `dart format --set-exit-if-changed lib test packages` (**not** `dart format .`, which crashes on long paths under `build/`)
+  - `flutter test`
+  - `flutter build apk --debug`
+  - The engine package has no tests yet. From Phase 3, also run `dart test` inside `packages/calc_engine`.
 - **Machine:** Windows 11; PowerShell and Git Bash are available.
   - There is no real Python. The `python` on PATH is the Microsoft Store stub, so write helper scripts in Dart or PowerShell.
   - No Visual Studio, so no Windows desktop builds.
   - iOS can't be built here.
-- **Per-phase exit gate:** `flutter analyze` clean → `dart format` → all tests pass → UI review (from Phase 2 on) → docs updated → one local commit → report → stop.
+  - Developer Mode is off. The first `flutter pub get` after the plugin list changes fails with "requires symlink support"; **run it again**, and it succeeds (P-9).
+  - `android/gradle.properties` sets `kotlin.incremental=false`, because the pub cache (`C:`) and the project (`D:`) are on different drives (DEC-027). Keep it.
+  - No emulator. The user doesn't want one set up.
+- **Per-phase exit gate:** `flutter analyze` clean → formatting check passes → all tests pass → Android debug build → UI review (from Phase 2 on) → docs updated → local commits → report → stop.
 
 ## How to maintain the docs
 

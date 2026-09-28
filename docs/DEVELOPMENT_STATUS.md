@@ -2,40 +2,36 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-09-28, in the session that created the project-memory system.
+**Last updated:** 2026-09-28, at the end of the Phase 1 session.
 
 ## At a Glance
 
 | Question | Answer |
 | --- | --- |
-| Where are we? | Between Phase 0 (audit and architecture, **complete**) and Phase 1 (Foundation, **not started**) |
-| What exists in code? | Only the untouched `flutter create` counter template |
-| What is being worked on? | No code work. The project-memory docs were just created and await the user's review. |
-| What happens next? | The user reviews these docs, then gives or withholds the explicit go-ahead for Phase 1 |
-| What must not be repeated? | The Phase 0 audit and the architecture validation (see "Do NOT Repeat") |
-| Known issues? | Template-level only (see "Known Issues") |
-| Pending decisions? | P-1 to P-8 below. The biggest is P-1, the Phase 1 go-ahead. |
+| Where are we? | **Phase 1 (Foundation) is complete** and awaits the user's review. **Phase 2 has not started and needs explicit approval.** |
+| What exists in code? | The Phase 1 foundation: startup, Riverpod, typed navigation, an adaptive shell with placeholder screens, the theme with a persisted light/dark/system choice, preferences and database v1, l10n, and an empty engine package. **No calculator features.** |
+| What is being worked on? | Nothing |
+| What happens next? | The user reviews the Phase 1 report, then approves Phase 2 or asks for changes |
+| What must not be repeated? | The Phase 0 validation and the Phase 1 setup steps (see "Do NOT Repeat") |
+| Known issues? | Two local-machine build quirks (P-9, P-10), a `dart format .` crash on `build/`, and template leftovers (see "Known Issues") |
+| Pending decisions? | P-4 to P-10 |
 
 ## Current Phase
 
-**Pre-Phase 1.** Phase 0 is complete. **Phase 1 (Foundation) has NOT started, and its implementation is NOT approved to begin.**
+**Phase 1 (Foundation): completed on 2026-09-28**, and awaiting the user's review.
 
-How approval got here, so that no new session misreads it:
-
-1. **2026-09-28:** the user approved the Final Architecture Decision Report and listed 12 explicit decisions, including the Phase 1 scope (foundation only). These, together with the workflow and roadmap decisions from the same day, are recorded as DEC-001 to DEC-017 in [DECISIONS.md](DECISIONS.md).
-2. Before any Phase 1 work began, the user interrupted and asked for the project-memory and status system to be set up first.
-3. In the session that created these docs, the user stated: *"Phase 1 implementation has NOT been approved yet"* and *"the architecture/roadmap discussion has happened, but implementation is not yet approved."*
-
-**So:** treat the architecture decisions as CONFIRMED and the Phase 1 scope as defined, but **do not start Phase 1 until the user explicitly says so.**
+- The user approved Phase 1 on 2026-09-28 with explicit decisions: navigation option A, standard Material, the app identity, Riverpod 3 without code generation, the persistence choices, the platform strategy, no emulator, Git on `main` with no push.
+- It was built to the approved scope only (see [ROADMAP.md](ROADMAP.md) for each scope item).
+- **Phase 2 (Design system) must not start without the user's explicit approval.**
 
 ## Phase Status
 
 | Phase | Name | Status |
 | --- | --- | --- |
-| 0 | Project audit and architecture | **Completed** 2026-09-28 (planning and validation only; no project files changed) |
-| — | Project-memory system | **Completed** 2026-09-28; awaiting the user's review |
-| 1 | Foundation | **Not started.** Scope approved; the start needs the user's explicit go-ahead (P-1). |
-| 2 | Design system | Not started |
+| 0 | Project audit and architecture | Completed 2026-09-28 |
+| — | Project-memory system | Completed 2026-09-28 |
+| 1 | Foundation | **Completed 2026-09-28** (commits `06c0a93`, `7926920`); awaiting review |
+| 2 | Design system | Not started; **pending approval** |
 | 3 | Basic calculator (engine, memory) | Not started |
 | 4 | History and saved calculations | Not started |
 | 5 | Scientific | Not started |
@@ -49,30 +45,63 @@ How approval got here, so that no new session misreads it:
 
 ## Completed Work
 
-### Phase 0: audit and architecture (2026-09-28, previous session)
+### Phase 0 (2026-09-28, earlier session)
 
-- **Project audit.** Confirmed that the project is an untouched `flutter create` template: no calculator code, state management, routing, theme, assets or services. The findings are under "Known Issues" below.
-- **Planning documents.**
-  - Delivered the audit and plan report: architecture, dependencies, roadmap, UI/UX plan, implementation plan.
-  - Then delivered the **Final Architecture Decision Report**.
-- **Validation in a throwaway scratch project outside the repository.** None of these are tests of this repo, and none changed it.
-  - `material_ui` is not required on Flutter 3.47.5, so framework Material stays (DEC-002).
-  - Measured go_router 18 running with the framework `MaterialApp`, and compared release APK sizes (DEC-003).
-  - Every planned dependency resolved at its latest version on Flutter 3.47.5 / Dart 3.13.4 (DEC-015).
-  - Runtime smoke tests passed for a Riverpod notifier, `SharedPreferencesWithCache`, and in-memory SQLite through `sqflite_common_ffi`.
-  - Exact arithmetic with `decimal` gave `0.1+0.2−0.3 == 0` and `(1÷3)×3 == 1`, and `2^100` came out exact.
-  - A pub workspace containing a pure-Dart engine package resolved, and its tests ran under plain `dart test`. The analyzer requires `rational` as a direct dependency of the engine.
-  - Android debug and release builds of the scratch project succeeded with the plugins included (AGP 9.1, Gradle 9.3.1, Kotlin 2.4).
-- **Approval.** The user approved the plan and the final architecture: DEC-001 to DEC-017.
+- Audited the project; wrote the audit and plan report and the Final Architecture Decision Report.
+- Validated the plan in a throwaway scratch project: `material_ui`, go_router, the dependencies, exact arithmetic, the workspace, Android builds. The results are in DECISIONS.md.
+- The user approved DEC-001 to DEC-017.
 
-### Project-memory system (2026-09-28, this session)
+### Project-memory system (2026-09-28)
 
-- **Created:**
-  - `CLAUDE.md`
-  - `docs/PROJECT_MEMORY.md`, `docs/DEVELOPMENT_STATUS.md`, `docs/ARCHITECTURE.md`
-  - `docs/DECISIONS.md`, `docs/ROADMAP.md`, `docs/CHANGELOG.md`
-- **Also created** a short pointer file at `../CLAUDE.md`, the workspace folder `SmartCalculator/`, which sits outside the planned Git repo. It exists so that sessions started in the parent folder find this project's memory.
-- **Unchanged:** no application code, configuration or dependencies.
+- `CLAUDE.md` and `docs/` (DEC-018), committed as `813533e`.
+
+### Phase 1: Foundation (2026-09-28, this session)
+
+What was implemented; details are in [ARCHITECTURE.md](ARCHITECTURE.md) §1.
+
+- **Git** (DEC-006):
+  - `git init` in `smart_calculator/` on `main`
+  - `.gitattributes` (`* text=auto`, with binary markers for `*.png` and `*.ico`)
+  - commits:
+    - `8ca813c` baseline scaffold
+    - `813533e` project-memory docs
+    - `06c0a93` app identity
+    - `7926920` Phase 1 foundation
+    - a following docs commit
+  - Nothing is pushed, and there is no remote.
+- **App identity** (DEC-025), on Android and iOS:
+  - `com.parasshakya.smartcalculator`, "Smart Calculator"
+  - the Kotlin package moved to `com/parasshakya/smartcalculator`
+- **Dependencies** (DEC-019):
+  - each was re-verified on pub.dev before it was added
+  - `cupertino_icons` removed
+  - the engine's dependencies deferred to Phase 3
+- **Lints** (DEC-020):
+  - `strict-casts`, `strict-inference`, `strict-raw-types`
+  - 26 extra rules
+  - `depend_on_referenced_packages` raised to an error
+- **Workspace and engine:** `packages/calc_engine` is an empty pure-Dart skeleton (`pubspec.yaml`, `lib/calc_engine.dart`, `README.md`).
+- **App code**, 29 hand-written Dart files under `lib/`, plus the ARB file and 2 generated l10n files:
+  - `main.dart`
+  - `app/`:
+    - `app.dart`, `app_root.dart`
+    - `modes/`: 3 files
+    - `navigation/`: 2 files
+    - `shell/`: 4 files
+    - `theme/`: 3 files
+  - `core/`:
+    - `layout/window_size_class.dart`
+    - `persistence/`: 4 files
+    - `widgets/placeholder_view.dart`
+  - `features/settings/`: domain, data, application and presentation
+  - `features/history/presentation/`: page, panel and placeholder
+  - `l10n/`: `app_en.arb` and the generated `app_localizations*.dart`
+- **Tests:** the template counter test was replaced by 24 tests in 8 files, plus a helper (`test/helpers/test_app.dart`).
+- **Build configuration:**
+  - `android/gradle.properties`: `kotlin.incremental=false` (DEC-027)
+  - `android/.gitignore`: `/.kotlin/`
+  - `l10n.yaml`
+- **Docs:** ARCHITECTURE.md (the implemented state), DECISIONS.md (DEC-019 to DEC-027, plus status updates), ROADMAP.md, CHANGELOG.md, this file, and PROJECT_MEMORY.md and CLAUDE.md.
 
 ## Work In Progress
 
@@ -80,162 +109,198 @@ None.
 
 ## Current Task
 
-The user reviews the project-memory docs. No implementation task is active.
+The user reviews the Phase 1 report. No implementation task is active.
 
 ## Next Task
 
-**Only after the user explicitly approves starting Phase 1:** do Phase 1 (Foundation) as scoped in [ROADMAP.md](ROADMAP.md#phase-1-foundation).
+**Only after the user explicitly approves Phase 2:** do Phase 2, the design system (see [ROADMAP.md](ROADMAP.md#phase-2-design-system)).
 
-1. First ask about P-2 (what goes in the baseline commit) and P-3 (whether the app ID change belongs in Phase 1), unless they have already been answered.
-2. Git setup: `git init` in `smart_calculator/`, branch `main`, `.gitattributes`, then the baseline commit.
-3. Work through the rest of the Phase 1 scope in the order given in ROADMAP.md, following the per-module workflow.
-4. Finish with the Phase 1 report in the user's required format (9 items; see ROADMAP.md), then **stop** and wait for Phase 2 approval.
+1. Settle P-8 (fonts) and confirm how the Phase 2 design review will be viewed on a device (P-4). The user does not want an emulator set up.
+2. Build the tokens, then the components, then the debug-only gallery, following the per-module workflow.
+3. Replace or absorb the Phase 1 stand-ins: `PlaceholderView`, the settings page's private section header, the provisional seed colour and spacing.
+4. Stop for the user's design sign-off.
 
 ## Do NOT Repeat
 
-- **Don't redo the Phase 0 audit or the scratch-project validation.** The results are in [DECISIONS.md](DECISIONS.md).
-  - Re-verify a specific fact only when there is a concrete reason, such as a Flutter upgrade.
-  - Always re-verify a dependency's version and compatibility right before adding it (DEC-015).
+- **Don't redo the Phase 0 audit or the scratch-project validation** (DECISIONS.md).
+- **Don't redo the Phase 1 setup:** `git init`, the baseline and docs commits, the app identity change, adding the Phase 1 dependencies. It is all done and committed.
+- **Dependencies:** re-verify one only when adding it or changing its version (DEC-015).
 - **Don't re-propose `material_ui` or `go_router`** without new evidence (DEC-002, DEC-003).
-- **Don't delete** the web, Windows, Linux or macOS folders (DEC-004).
-- **Don't invent or ask again for the application ID.** It is decided (DEC-005); only the timing is open (P-3).
-- **Don't start Phase 1** without explicit approval. Inside Phase 1, don't start Phase 2 work: no final calculator UI, no scientific keypad, no engine logic.
-- **Don't push** to any remote.
-- **Don't treat as fact** the example "Development Status" template the user pasted in the previous session. Its "Completed" list (Riverpod 3, the calculation engine package, theme foundation, persistence foundation) was a format example. **None of those exist yet.**
+- **Don't run `dart format .`.** It crashes on long paths under `build/`. Use `dart format lib test packages`.
+- **Don't remove `kotlin.incremental=false`** unless P-10 is resolved by moving the project or the pub cache to the same drive. Without it, Android builds fail on this machine.
+- **Don't treat the first `flutter pub get` failure after a plugin change as a code problem** (P-9). Run it again.
+- **Don't delete** the web or desktop folders (DEC-004). **Don't push** to any remote.
+- **Don't start Phase 2** without explicit approval.
+- **Don't set up an Android emulator.** The user doesn't want one right now.
 
 ## Pending Decisions
 
 | ID | Decision | Needed by | Notes |
 | --- | --- | --- | --- |
-| **P-1** | Go-ahead to start Phase 1 | Before any Phase 1 work | The user said implementation is not yet approved |
-| **P-2** | What goes in the Git baseline commit | Phase 1, step 1 | See note P-2 below the table |
-| **P-3** | When to apply the app ID and display name | Phase 1 start | See note P-3 below the table |
-| **P-4** | Android test device | From the Phase 2 design review | See note P-4 below the table |
-| **P-5** | iOS verification: does the user have access to a Mac? | Before any iOS claim | Without one, iOS stays correct by design but unverified |
-| **P-6** | Engine default behaviours | Before Phase 3 engine work | Proposed in the final report; the user did not object but has not explicitly confirmed. See [PROJECT_MEMORY.md](PROJECT_MEMORY.md#calculation-correctness-principles). |
-| **P-7** | App version source for the About screen | Phase 10 | `package_info_plus` (pulls in `http` and `win32`) or a build-time constant |
-| **P-8** | Fonts | Phase 2 | Proposed: Manrope, pending a check that it has tabular digits, and JetBrains Mono for programmer mode. Licenses must allow bundling. |
+| **P-4** | How the UI is checked on a device | Phase 2 design review | See note P-4 below the table |
+| **P-5** | iOS verification: does the user have access to a Mac? | Before any iOS claim | iOS was not built (Windows) |
+| **P-6** | Engine default behaviours (percent, `−3²`, `2^3^2`, `0^0`, …) | Before Phase 3 engine work | See [PROJECT_MEMORY.md](PROJECT_MEMORY.md#calculation-correctness-principles) |
+| **P-7** | App version source for the About screen | Phase 10 | `package_info_plus` or a build-time constant |
+| **P-8** | Fonts | Phase 2 | Proposed: Manrope, pending a check that it has tabular digits, and JetBrains Mono. Licenses must allow bundling. |
+| **P-9** | Windows Developer Mode | Whenever convenient | See note P-9 below the table |
+| **P-10** | Kotlin incremental builds across drives | Optional | See note P-10 below the table |
 
-**P-2, baseline commit.** The user asked for *"the untouched Flutter scaffold as the baseline commit,"* but `CLAUDE.md` and `docs/` now exist in the folder. Suggested:
+**P-4, device checks.** The user said: no emulator, and Phase 1 shouldn't depend on device testing. A physical Android 15 device (`23124RN87I`) was seen connected on 2026-09-28. The app has **not** been installed or run on it.
 
-- commit 1: the scaffold only, excluding `CLAUDE.md` and `docs/`
-- commit 2: the project-memory docs
+**P-9, Developer Mode.** It is off on this machine, so Flutter can't create the plugin symlinks for the kept Windows and Linux folders. The first `flutter pub get` after the plugin list changes fails once; running it again succeeds, and Android and iOS are unaffected. The choices:
 
-**P-3, app ID timing.** The confirmed values are ID `com.parasshakya.smartcalculator` and display name "Smart Calculator". Two instructions conflict:
+- enable Developer Mode (a Windows setting), or
+- accept the one-time failure.
 
-- Approval item 4 says to apply them consistently and report exactly what changed.
-- The approved Phase 1 scope (item 12, *"implement only the items you listed"*) does not include them, and the final report said *"App IDs and design work aren't part of Phase 1."*
+**P-10, Kotlin across drives.** The current fix is `kotlin.incremental=false` (DEC-027). The alternative is to move the project, or `PUB_CACHE`, onto the same drive, then remove the setting.
 
-Ask the user which applies.
+**Resolved this session:**
 
-**P-4, test device.** On 2026-09-28, `flutter devices` showed a physical Android device connected: model `23124RN87I`, Android 15 (API 35). No emulators exist. The user has not confirmed that this is the intended test device.
+- **P-1:** Phase 1 was approved.
+- **P-2:** the user allowed the docs in the initial commits; the scaffold and the docs were committed separately.
+- **P-3:** the app ID was applied in Phase 1.
 
 ## Important Files
 
-| File | State (verified 2026-09-28) |
+| File | Role |
 | --- | --- |
-| `pubspec.yaml` | Template: `name: smart_calculator`, description "A new Flutter project.", `version: 1.0.0+1`, SDK `^3.13.4` |
-| `lib/main.dart` | Template counter demo (`MyApp`, `MyHomePage`), 122 lines. To be replaced in Phase 1. |
-| `test/widget_test.dart` | Template "Counter increments smoke test". To be replaced in Phase 1. |
-| `analysis_options.yaml` | `package:flutter_lints/flutter.yaml` only; platform folders excluded. Stricter rules are planned for Phase 1. |
-| `android/app/build.gradle.kts` | `namespace` and `applicationId` = `com.example.smart_calculator`; release signs with the debug key (template TODO) |
-| `android/app/src/main/AndroidManifest.xml` | `android:label="smart_calculator"`; no INTERNET permission (good, keep it) |
-| `android/app/src/main/kotlin/com/example/smart_calculator/MainActivity.kt` | Package `com.example.smart_calculator`; the folder moves when the ID changes |
-| `ios/Runner.xcodeproj/project.pbxproj` | `PRODUCT_BUNDLE_IDENTIFIER = com.example.smartCalculator` (and `.RunnerTests`); `IPHONEOS_DEPLOYMENT_TARGET = 15.0` |
-| `ios/Runner/Info.plist` | `CFBundleDisplayName` = "Smart Calculator"; `CFBundleName` = `smart_calculator` |
-| `web/manifest.json`, `web/index.html` | Name `smart_calculator`, description "A new Flutter project." (web isn't a supported target) |
-| `CLAUDE.md`, `docs/*.md` | The project-memory system (created 2026-09-28) |
+| `pubspec.yaml` | App package, workspace root, dependencies, `flutter: generate: true` |
+| `analysis_options.yaml` | The strict lint configuration for the whole workspace |
+| `l10n.yaml`, `lib/l10n/app_en.arb` | Localization configuration and the English strings |
+| `lib/main.dart`, `lib/app/app_root.dart`, `lib/app/app.dart` | Startup chain |
+| `lib/app/navigation/app_route.dart`, `app_navigator.dart` | The typed route layer |
+| `lib/app/shell/app_shell.dart` | The adaptive layouts |
+| `lib/app/modes/calculator_mode.dart` | The mode registry |
+| `lib/core/persistence/app_database.dart` | Schema v1 and migrations |
+| `lib/core/persistence/preferences.dart`, `preference_keys.dart` | Preferences loading, provider and key allow-list |
+| `lib/features/settings/**` | The reference feature for the layered structure |
+| `packages/calc_engine/` | The engine skeleton |
+| `test/helpers/test_app.dart` | `pumpApp`, in-memory preferences, window sizes |
+| `test/architecture/layer_boundaries_test.dart` | Enforces the engine and domain boundaries |
+| `android/gradle.properties` | `kotlin.incremental=false` (DEC-027) |
+| `android/app/build.gradle.kts` | ID `com.parasshakya.smartcalculator`; release still signs with the debug key |
 
 ## Dependencies
 
-**Actually in `pubspec.yaml` and `pubspec.lock` (verified 2026-09-28):**
+Actually in `pubspec.yaml` and `pubspec.lock` (verified 2026-09-28):
 
-| Package | Constraint | Locked | Notes |
+| Package | Constraint | Locked | Scope |
 | --- | --- | --- | --- |
-| `flutter` (SDK) | — | — | |
-| `cupertino_icons` | ^1.0.8 | 1.0.9 | Unused; removal planned for Phase 1 |
-| `flutter_test` (SDK, dev) | — | — | |
-| `flutter_lints` (dev) | ^6.0.0 | 6.0.0 | Brings in `lints` 6.1.0 |
+| `flutter`, `flutter_localizations` | SDK | — | app |
+| `flutter_riverpod` | ^3.4.3 | 3.4.3 (with `riverpod` 3.4.3) | app |
+| `intl` | any | 0.20.3 | app |
+| `path` | ^1.9.1 | 1.9.1 | app |
+| `shared_preferences` | ^2.5.5 | 2.5.5 | app |
+| `sqflite` | ^2.4.4 | 2.4.4 | app |
+| `flutter_test` | SDK | — | dev |
+| `flutter_lints` | ^6.0.0 | 6.0.0 | dev |
+| `shared_preferences_platform_interface` | ^2.4.2 | 2.4.2 | dev |
+| `sqflite_common_ffi` | ^2.4.3 | 2.4.3 (with `sqlite3` 3.5.2) | dev |
 
-**Planned, but NOT installed.** These were verified in the scratch project on 2026-09-28 and must be re-verified when they are added. Details are in [ARCHITECTURE.md](ARCHITECTURE.md#dependencies-planned) and DEC-015.
-
-| Package | Planned version |
-| --- | --- |
-| `flutter_riverpod` | ^3.4.3 |
-| `shared_preferences` | ^2.5.5 |
-| `sqflite` | ^2.4.4 |
-| `path` | ^1.9.1 |
-| `intl` | SDK-pinned |
-| `flutter_localizations` | SDK |
-| `decimal` (engine only) | ^3.2.6 |
-| `rational` (engine only) | ^2.2.3 |
-| dev: `sqflite_common_ffi` | ^2.4.3 |
-| dev: `integration_test` | SDK |
-| dev: `test` (engine) | — |
+- **Removed:** `cupertino_icons`.
+- **`packages/calc_engine`** has no dependencies.
+- **Still planned:** see [ARCHITECTURE.md](ARCHITECTURE.md) §3.8.
 
 ## Tests
 
-These checks were run in this repository:
+These checks were run this session, in `smart_calculator/`:
 
-| Date | Command (in `smart_calculator/`) | Result |
-| --- | --- | --- |
-| 2026-09-28 (this session) | `flutter analyze` | `No issues found! (ran in 26.7s)`, exit 0 |
-| 2026-09-28 (this session) | `flutter test` | `+1: All tests passed!` (the template "Counter increments smoke test"), exit 0 |
+| Command | Result |
+| --- | --- |
+| `flutter pub get` (first run after adding the plugins) | Dependencies resolved and l10n generated, then **exit 1** because symlinks need Developer Mode (P-9) |
+| `flutter pub get` (again) | Exit 0 |
+| `flutter build apk --debug` (at `06c0a93`, identity only) | **Built**, 79 s |
+| `flutter build apk --debug` / `--release` (Phase 1, before DEC-027) | **Failed**: Kotlin incremental caches across drives |
+| `flutter build apk --debug` (with DEC-027) | **Built**, 64.5 s |
+| `flutter build apk --release` (with DEC-027) | **Built**: `app-release.apk`, 45.3 MB, universal (all ABIs), signed with the debug key |
+| `aapt dump badging` on both APKs | See the aapt results below |
+| `flutter analyze` (final) | `No issues found! (ran in 15.5s)`, exit 0 |
+| `dart format --output=none --set-exit-if-changed lib test packages` | `Formatted 41 files (0 changed)`, exit 0 |
+| `dart format --output=none --set-exit-if-changed .` | **Crashed**: `PathNotFoundException` in `build/` (long Gradle paths). Not a formatting issue. |
+| `flutter test` (final) | `+24: All tests passed!`, exit 0 |
+| Mutation check: the rail without its scroll wrapper | The phone-landscape test **failed** (RenderFlex overflow); the file was restored |
 
-- **Coverage:** no project tests exist beyond the template test, and there are no engine tests yet.
-- **Scratch-project results** from Phase 0 are listed under Completed Work. They are *not* results for this repository.
+**aapt results:**
+
+- package `com.parasshakya.smartcalculator`, versionName 1.0.0, versionCode 1
+- label "Smart Calculator", minSdk 24, targetSdk 36
+- the release APK has **no INTERNET permission**; its only permission is `…DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` (AndroidX)
+- the debug APK adds INTERNET, which the Flutter tooling needs
+
+**Not run:**
+
+- the iOS build (impossible on Windows)
+- running the app on a device (not required for Phase 1)
+- integration tests (none exist yet)
+- web and desktop builds (not supported targets)
+
+**The 24 tests:**
+
+| File | Tests |
+| --- | --- |
+| app | 1 |
+| shell | 7 |
+| navigation | 2 |
+| settings repository | 4 |
+| theme preference | 2 |
+| database | 4 |
+| window size class | 1 |
+| architecture | 3 |
 
 ## Known Issues
 
-All of these come from the template. None is a bug in project code, since there is none yet.
-
-- **Placeholder IDs.** Android is `com.example.smart_calculator` (namespace, applicationId and the Kotlin package folder). iOS is `com.example.smartCalculator`. Google Play rejects `com.example.*` IDs. The fix is DEC-005, with the timing open (P-3).
-- **Names.** The Android label and iOS `CFBundleName` are `smart_calculator`. The pubspec, web manifest and web `index.html` descriptions say "A new Flutter project."
-- **Release signing.** Release builds are signed with the debug key (template TODO). This is not scheduled yet, but must be fixed before any release build is distributed.
-- **Default launcher icons.** Planned for Phase 11.
-- **Unused dependency.** `cupertino_icons` is unused.
-- **Lints.** Only the default recommended lint set is enabled, with no strict analyzer modes.
-- **No Git repository yet.**
+1. **`flutter pub get` fails once after a plugin change** on this machine, because Developer Mode is off and plugin symlinks can't be created (P-9). Running it again works.
+2. **Kotlin incremental compilation is disabled** (DEC-027, P-10). Android builds need it on this machine.
+3. **`dart format .` crashes** on long paths inside `build/`. Use `dart format lib test packages`.
+4. **Release APKs are signed with the debug key.** Not scheduled; required before any distribution.
+5. **Template leftovers:**
+   - web and desktop identifiers
+   - the web manifest and `index.html` names and descriptions
+   - the project `README.md`
+   - the default launcher icons (Phase 11)
+6. **Provisional theme:** the seed colour and spacing are provisional (Phase 2).
+7. **Landscape layout:** most phones in landscape get the expanded layout with the history panel (DEC-022). A dedicated landscape calculator layout is for Phase 3/5.
+8. **The current mode isn't persisted.** The app always starts in Basic (DEC-021).
+9. **No device or visual verification yet.** The layouts are checked only by widget tests. The 200% text check covers only the compact shell, not the rail or the settings page (Phase 2/11 accessibility review).
+10. **`appDatabaseProvider` has no consumers yet.** It is tested, but the app never opens the database until Phase 4.
 
 ## Blockers
 
-- **Phase 1** is blocked on the user's go-ahead (P-1). P-2 and P-3 need answers at the start of Phase 1.
-- **Technical limits on this machine** (not blockers for Phase 1):
-  - iOS can't be built on Windows.
-  - Windows desktop can't be built (no Visual Studio). Windows isn't a target, so this doesn't matter.
+- **Phase 2** needs the user's approval, and its design review needs a way to view the UI on a device (P-4).
+- **No technical blockers.** iOS still can't be built on Windows.
 
 ## Discrepancies Found
 
-Found on 2026-09-28 while creating these docs.
-
-1. **Stale auto-memory.**
-   - Claude's local auto-memory said the architecture was "awaiting the user's explicit approval," but the previous session's transcript shows the user approved it.
-   - It also described go_router and the app ID as open questions, but both were decided (DEC-003, DEC-005).
-   - Resolved: these docs follow the user's own words from the transcript, plus the user's statement in this session that Phase 1 implementation is not yet approved.
-2. **Example template treated as status.** The "Development Status" template the user pasted in the previous session listed items as "Completed" that don't exist in code. They are recorded here as not started.
-3. **App ID timing.** The approval messages conflict about whether the app ID change is part of Phase 1. This is recorded as P-3, not guessed.
-4. **Baseline commit.** The approved "untouched scaffold baseline commit" predates the docs that now exist in the folder. This is recorded as P-2.
-5. **Where the docs live.** The docs structure the user pasted in the previous session placed `CLAUDE.md` and `docs/` inside `smart_calculator/` without `PROJECT_MEMORY.md`. This session's request added `PROJECT_MEMORY.md`. The docs follow the latest request, inside `smart_calculator/`, the planned Git root.
+1. **2026-09-28, project-memory session.** The auto-memory had gone stale, and an example status template had been mistaken for real status. The approval conflicts that became P-2 and P-3 were resolved this session.
+2. **2026-09-28, Phase 1.** DEC-015 said every planned package had been released within the past year. That was wrong for `path` (1.9.1, 2024-10). Corrected in DEC-015.
+3. **2026-09-28, Phase 1.** Phase 0 recorded "Android debug and release builds succeed with the plugins". That held only for a project on the pub cache's drive (`C:`). On `D:` the build needed DEC-027.
+4. **2026-09-28, Phase 1.** The docs listed `dart format .` as the QA command. It crashes once `build/` holds deep Gradle output. The docs now use `dart format lib test packages`.
 
 ## Last Session Summary
 
-**2026-09-28, project-memory session.**
+**2026-09-28, Phase 1 session.**
 
-- **Inspected:** the full project structure, `pubspec.yaml` and `pubspec.lock`, the Android and iOS identifiers, the toolchain (`flutter --version`), connected devices, Git (not initialized) and Python (only the Store stub).
-- **Checked:** ran `flutter analyze` (clean) and `flutter test` (1 passed).
-- **Reconstructed** the decisions from the previous session's local Claude Code transcript (the user's own messages and Claude's reports) and from Claude's auto-memory. Where they differed, the transcript won.
-- **Created** the project-memory docs.
-- **Unchanged:** no source, configuration or dependencies. Phase 1 was not started.
+1. Followed the Context Recovery Protocol. The docs were unchanged since the previous session, and Git was not initialized.
+2. Git: initialized, then made the baseline scaffold and docs commits.
+3. Applied the app identity (`06c0a93`) and confirmed it with a debug build.
+4. Re-verified the dependencies and added them. Hit and handled the Developer Mode symlink failure.
+5. Wrote the foundation code and 24 tests. Analyzer: no issues. Tests: all passing. Checked one test with a mutation.
+6. The Android build failed across drives. Fixed it with DEC-027; debug and release now build, and the APK contents were verified.
+7. Committed the foundation (`7926920`), then updated the docs.
 
 ## Instructions For Next Session
 
-1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md).
-2. Check whether the user has given the Phase 1 go-ahead (P-1). If they haven't, don't start Phase 1; help with whatever they ask, or ask them.
-3. When Phase 1 is approved:
-   - Settle P-2 and P-3 first.
-   - Then carry out the Phase 1 scope exactly as listed in [ROADMAP.md](ROADMAP.md), and nothing from Phase 2 or later.
-   - Re-verify each dependency right before adding it.
-   - Run `flutter analyze`, `dart format .` and `flutter test`, and record the actual results.
-   - Make one local commit; never push.
-   - Deliver the 9-item Phase 1 report, then stop.
-4. At the end of the session, follow the Session Handoff Protocol. That includes moving implemented items in [ARCHITECTURE.md](ARCHITECTURE.md) from Proposed to Implemented.
+1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md). Run `git log --oneline` and expect the commits listed above.
+2. **Don't start Phase 2** unless the user has explicitly approved it. If the user asks for changes to Phase 1, make them and update these docs.
+3. When Phase 2 is approved:
+   - Settle P-8.
+   - Agree on how to view the design review (P-4; no emulator).
+   - Then follow [ROADMAP.md](ROADMAP.md) Phase 2 exactly.
+4. **Checks:**
+   - `flutter analyze`
+   - `dart format --set-exit-if-changed lib test packages`
+   - `flutter test`
+   - `flutter build apk --debug`
+
+   Record the actual results. If a new plugin was added and `flutter pub get` fails with the symlink error, run it again (P-9).
+5. Finish with the Session Handoff Protocol.
