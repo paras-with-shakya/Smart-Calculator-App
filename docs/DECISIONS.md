@@ -1061,3 +1061,51 @@ Then stop.
 
 - Tests measure the layout with the real Manrope font, because the default test font is much wider.
 - A regression test covers the settings page at 200% on a 360 dp phone.
+
+---
+
+### [DEC-036] Smart percent (resolves the percent part of P-6)
+
+- **Status:** Accepted (user decision, 2026-09-28)
+- **Date:** 2026-09-28
+- **Implemented:** Phase 3 (in progress)
+
+**Context:** Calculators treat `%` differently. P-6 listed the proposed defaults.
+
+**Decision:** `%` is a postfix operator.
+
+- **After `+` or `−`:** the percent is of the left operand. `50+10%` = 55, and `50−10%` = 45.
+- **Elsewhere:** `b%` means b/100. `50×10%` = 5, `50÷10%` = 500, and a lone `10%` = 0.1.
+
+**Reason:** The user chose this ("Smart percent"). It matches common phone calculators.
+
+**Alternatives:**
+
+- **Rejected by the user:** plain percent, where `50+10%` = 50.1.
+
+**Impact:**
+
+- The other P-6 defaults (`−3²`, `2^3^2`, `0^0`, `(−8)^(1/3)`, `tan 90°`) concern powers and trigonometry. They are settled before Phase 5.
+
+---
+
+### [DEC-037] Numbers are formatted for the phone's region
+
+- **Status:** Accepted (user decision, 2026-09-28)
+- **Date:** 2026-09-28
+- **Implemented:** Phase 3 (in progress)
+
+**Context:** Large numbers need digit grouping, and regions differ. India uses 12,34,567.89; many other regions use 1,234,567.89; some use a comma as the decimal separator.
+
+**Decision:** Displayed numbers follow the device's region: its grouping pattern and its decimal and group separators. The user's `en-IN` phone therefore shows 12,34,567.89. The engine works with locale-neutral canonical strings, and the presentation layer localizes them.
+
+**Reason:** The user chose this ("Phone region follow").
+
+**Alternatives:**
+
+- **Rejected by the user:** always international, or always Indian.
+
+**Impact:**
+
+- The app's UI language stays English (the only supported locale), but number formatting uses the device region.
+- Digits stay Latin (0–9).

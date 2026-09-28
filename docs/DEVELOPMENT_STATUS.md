@@ -2,7 +2,7 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-09-28, at the end of the Phase 2 session.
+**Last updated:** 2026-09-28, at the start of Phase 3 (the full rewrite comes at the end of the phase).
 
 ## At a Glance
 
@@ -18,6 +18,11 @@
 | Pending decisions? | P-5 to P-7 and P-9 to P-11. P-11, the design sign-off, is the next one. |
 
 ## Current Phase
+
+> **Update (start of Phase 3):**
+> - The user **approved the Phase 2 design** (P-11 resolved) and **approved Phase 3**.
+> - Decisions: smart percent (DEC-036) and region-based number formatting (DEC-037).
+> - **Phase 3 is IN PROGRESS.** If this session ends mid-phase, check `git log` and the code to see how far it got.
 
 **Phase 2 (Design system): implemented on 2026-09-28, awaiting the user's design sign-off.**
 

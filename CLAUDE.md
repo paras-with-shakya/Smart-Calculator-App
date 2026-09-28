@@ -2,7 +2,7 @@
 
 This is the entry point for every Claude Code session on this project. Read it first, then follow the **Context Recovery Protocol** below before doing any work.
 
-**Snapshot (2026-09-28):** Phase 2 (Design system) is **implemented** (commit `0fc15ef`) and **awaits the user's design sign-off** (P-11). **Phase 3 has not started and needs explicit approval.** The app has no calculator features yet. If this line disagrees with [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), that file wins; fix this line.
+**Snapshot (2026-09-28):** Phase 2 (Design system) is **complete and approved**. **Phase 3 (Basic calculator) is in progress** (approved 2026-09-28; percent: DEC-036; number format: DEC-037). If this line disagrees with [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), check `git log` and the code, then fix the docs.
 
 ## Source of truth
 

@@ -11,8 +11,8 @@ This file gives the intended development sequence. Every phase needs the user's 
 Phase 0  Audit & architecture ............ COMPLETED 2026-09-28
   —      Project-memory system ........... COMPLETED 2026-09-28
 Phase 1  Foundation ...................... COMPLETED 2026-09-28
-Phase 2  Design system ................... IMPLEMENTED 2026-09-28, awaiting the user's design sign-off
-Phase 3  Basic calculator + engine + memory PENDING APPROVAL (after the Phase 2 sign-off)
+Phase 2  Design system ................... COMPLETED 2026-09-28 (design approved)
+Phase 3  Basic calculator + engine + memory IN PROGRESS (approved 2026-09-28)
 Phase 4  History + saved calculations .... planned
 Phase 5  Scientific ...................... planned
 Phase 6  Converters ...................... planned
