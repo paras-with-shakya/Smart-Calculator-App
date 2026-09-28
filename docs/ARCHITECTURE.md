@@ -138,7 +138,7 @@ All tokens live in `lib/app/theme/`. Components and screens read them from the t
 
   Plain Material widgets therefore match the design system too.
 - **Sheets** use the page background, so cards inside them read the same way they do on a page. **Dialogs** use `surface`.
-- **High contrast:** `MaterialApp` switches to the high-contrast themes when the platform asks for more contrast (a test checks this). An in-app switch is Phase 10.
+- **High contrast:** `MaterialApp` switches to the high-contrast themes when the platform asks for more contrast (a test checks this). Flutter reports that request on **Android 14+ (API 34+)**, through the "High contrast text" setting, and on **iOS 13+** ("Increase Contrast"). On older Android versions only the Phase 10 in-app switch will turn it on.
 - **Fonts:** Manrope static TTFs (from `googlefonts/manrope` at commit `6f81ebe`) are bundled in `assets/fonts/` and declared in pubspec. They are never downloaded at runtime. `registerFontLicenses()` adds the OFL text to `LicenseRegistry`.
 
 ### 1.8 Reusable components (`lib/core/widgets/`, Phase 2)

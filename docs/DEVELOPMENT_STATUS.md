@@ -112,7 +112,10 @@ None.
 
 ## Current Task
 
-The user reviews the Phase 2 design. The screenshots are in `build/design_review/`, and the gallery can be run with `flutter run -t lib/main_gallery.dart`.
+The user reviews the Phase 2 design.
+
+- **Review page:** `build/design_review/index.html` (local only, not committed). It holds all 33 generated screenshots, 9 phone screenshots, the token tables, the component structure, and a checklist for the phone.
+- **Gallery:** run it with `flutter run -t lib/main_gallery.dart`.
 
 ## Next Task
 
@@ -239,6 +242,10 @@ These checks were run this session, in `smart_calculator/`:
 9. **The current mode isn't persisted** (DEC-021).
 10. **Only checked on one device.** The app was tested on one phone (Android 15, 360 dp), plus test-rendered screenshots. There is no tablet or iOS device yet.
 11. **`appDatabaseProvider` has no consumers yet** (Phase 4).
+12. **Review findings, not changed (awaiting the user's decision):**
+    - The high-contrast outline expression is repeated in 3 places (the theme, `AppCard`, `CalculatorButton`); it could become one `AppColors` getter.
+    - `AppTextField` passes through parameters that nothing uses yet (focus node, input formatters, on-submitted, text-input action).
+    - `CalculatorButton`, `AppTextField`, `AppDialog`, `ErrorState` and `LoadingState` are used only by the gallery and tests until Phases 3–7.
 
 ## Blockers
 
