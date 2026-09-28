@@ -19,6 +19,71 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-09-28: Phase 3 (Basic calculator)
+
+### Added
+
+- **Engine** (`packages/calc_engine`, commit `4fec0b6`): exact evaluation with `rational` (DEC-038). It has a lexer, a recursive-descent parser, a syntax tree and an evaluator, with smart percent (DEC-036), implied multiplication, typed errors, overflow at 10¹⁰⁰, and nesting and token limits (DEC-039). Results use 12 significant digits and switch to scientific notation from 10¹² and below 10⁻⁶.
+- **Calculator logic** (commit `57a1e73`):
+  - `ExpressionBuffer`: units with a cursor and the input rules (DEC-040)
+  - `CalculatorNotifier`: live value, `=`, continuing from the exact result, errors, cursor moves, paste
+  - memory (MC MR M+ M− MS), saved exactly under `calculator.memory` (DEC-041)
+  - `LocalizedNumberFormat` and `numberFormatProvider`: numbers in the device region's format (DEC-037)
+- **Calculator screen** (commit `85c6c84`):
+  - `CalculatorView` with portrait and landscape layouts (DEC-042) and hardware keyboard support
+  - `CalculatorDisplay`, `CalculatorKeypad`, `CalculatorMemoryKeys` and `CalculatorDisplayFormatter` (DEC-043)
+  - haptic ticks on key presses; hold ⌫ to clear everything
+- **Components:** `DisplayText`, and `CalculatorButtonKind.memory` (DEC-043). The gallery has a new "Display text" section and a memory row in the keys section.
+- **Strings:** 37 new, for key labels, what screen readers say, and the error messages (55 in all).
+
+### Changed
+
+- **Basic mode** shows the calculator instead of the empty state.
+- **Shell:** an expanded window shorter than 480 dp (a phone in landscape) shows no history panel; the history action opens the page instead (DEC-042).
+- **App dependencies:** `calc_engine` (path). **Engine dependencies:** `rational` ^2.2.3; dev `test` ^1.31.1.
+- **Design-review screenshots:** 17 more (15 calculator screens, and the gallery's display section in light and dark), 50 in all.
+
+### Fixed
+
+Found during this phase, before the commits:
+
+- **Screenshots:** a long expression broke inside a number. It now wraps only after an operator.
+- **Screenshots:** the tablet-landscape keypad floated in the middle. It is now aligned to the bottom.
+- **On the user's phone, in landscape:** keys were 47.6 dp tall under the 34 dp status bar. Tighter vertical padding in short windows makes them 49 dp. A regression test covers it.
+- **On the user's phone:** the memory badge's screen-reader label was attached to the whole screen. It is now its own node.
+
+### Decisions
+
+- DEC-036 (smart percent) and DEC-037 (region number format) are implemented.
+- New: DEC-038 to DEC-043. DEC-008, DEC-010 and DEC-022 are updated.
+
+### Tests
+
+- **Engine** (`dart test` in `packages/calc_engine`): **260 passed.** That is 224 table-driven cases, `CalcValue` tests, and a 20,000-input fuzz test. Mutation checks: plain percent caused 13 failures, and truncating instead of rounding caused 10. Both were restored.
+- **App** (`flutter test`): **404 passed**, 1 skipped (the design-review generator). There are 292 new tests:
+  - expression buffer 138, notifier and memory 59, number format 33
+  - `DisplayText` 12, display formatter 18, screen 24
+  - `CalculatorButton` +2, app +1, shell +1, gallery accessibility +4
+- **Mutation checks** on the new tests, all caught and then restored: leading-zero rule, closing-bracket rule, bracketed variables, incomplete-error mapping, rejected-key handling, Indian grouping. The landscape regression test fails with the old padding.
+- **`flutter analyze`:** no issues. **Formatting:** 104 files, 0 changed.
+- **Design review:** 50 screenshots generated and reviewed.
+- **Builds:** `flutter build apk --debug` built (85.9 s). `flutter build apk --release` built, 46.6 MB. `aapt`: package `com.parasshakya.smartcalculator`, label "Smart Calculator", **no INTERNET permission**.
+- **On the user's phone** (`23124RN87I`, Android 15, 360×800 dp, region en-IN; release APK):
+  - every key is exposed with its name
+  - `1234567×8+90` shows `12,34,567×8+90`, preview `98,76,626`, then the result `98,76,626`
+  - `50+10%` previews 55
+  - MS, then `2×` MR shows `2×98,76,626` (preview `1,97,53,252`)
+  - `5÷0=` shows "Can't divide by zero"
+  - the memory survives a force-stop and relaunch
+  - landscape: the keypad is beside the display
+  - holding ⌫ clears the display
+  - the rotation setting, changed for the landscape test, was restored (auto-rotate off, rotation 0). No other setting was changed.
+
+### Notes
+
+- **Not built in Phase 3:** the engine's function registry (there are no functions until Phase 5), and the roadmap's "more" menu (DEC-041).
+
+---
 ## 2026-09-28: Test on the user's phone
 
 ### Added

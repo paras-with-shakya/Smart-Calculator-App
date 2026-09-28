@@ -2,7 +2,7 @@
 
 This is the entry point for every Claude Code session on this project. Read it first, then follow the **Context Recovery Protocol** below before doing any work.
 
-**Snapshot (2026-09-28):** Phase 2 (Design system) is **complete and approved**. **Phase 3 (Basic calculator) is in progress** (approved 2026-09-28; percent: DEC-036; number format: DEC-037). If this line disagrees with [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), check `git log` and the code, then fix the docs.
+**Snapshot (2026-09-28):** Phases 1 and 2 are complete. **Phase 3 (Basic calculator) is implemented** (commits `4fec0b6`, `57a1e73`, `85c6c84`) **and awaits the user's review.** Don't start Phase 4 without explicit approval. If this line disagrees with [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), check `git log` and the code, then fix the docs.
 
 ## Source of truth
 
@@ -130,7 +130,7 @@ Status labels used across the docs:
   - `dart format --set-exit-if-changed lib test packages` (**not** `dart format .`, which crashes on long paths under `build/`)
   - `flutter test`
   - `flutter build apk --debug`
-  - The engine package has no tests yet. From Phase 3, also run `dart test` inside `packages/calc_engine`.
+  - `dart test` inside `packages/calc_engine` (the engine's 260 tests)
 - **Design review:**
   - Screenshots: `flutter test --tags design-review --run-skipped --update-goldens` writes PNGs to `build/design_review/`. Never commit them. Look at them after any visual change.
   - Gallery of every component: `flutter run -t lib/main_gallery.dart`.

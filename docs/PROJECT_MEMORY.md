@@ -142,7 +142,7 @@ It must reach portfolio quality.
   - invalid dates
   - negative values where they aren't allowed
 - Very large and very small numbers are handled with limits, so nothing freezes.
-- **Engine default behaviours are PENDING confirmation (P-6).** The final report proposed these and the user did not object:
+- **Engine default behaviours (P-6).** The final report proposed these and the user did not object. **Confirmed by the user:** smart percent (DEC-036), implemented in Phase 3 together with "Number too large" for results of 10¹⁰⁰ or more. **Still pending, for Phase 5:** the power and trigonometry rows.
 
   | Input | Result |
   | --- | --- |

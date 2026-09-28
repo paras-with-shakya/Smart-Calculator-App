@@ -12,7 +12,7 @@ Phase 0  Audit & architecture ............ COMPLETED 2026-09-28
   —      Project-memory system ........... COMPLETED 2026-09-28
 Phase 1  Foundation ...................... COMPLETED 2026-09-28
 Phase 2  Design system ................... COMPLETED 2026-09-28 (design approved)
-Phase 3  Basic calculator + engine + memory IN PROGRESS (approved 2026-09-28)
+Phase 3  Basic calculator + engine + memory IMPLEMENTED 2026-09-28, awaiting the user's review
 Phase 4  History + saved calculations .... planned
 Phase 5  Scientific ...................... planned
 Phase 6  Converters ...................... planned
@@ -78,11 +78,9 @@ The user approved it on 2026-09-28. It was built exactly to the approved scope (
 
 **Build fix outside the original scope:** `kotlin.incremental=false` (DEC-027). The Android build failed without it on this machine.
 
-## In Progress
+### Phase 2: Design system (2026-09-28; design approved by the user)
 
-### Phase 2: Design system (implemented 2026-09-28, awaiting the user's design sign-off)
-
-The user approved it on 2026-09-28. The code is in commit `0fc15ef`, and ARCHITECTURE.md §1.7–1.9 describes it. **It counts as complete only after the user signs off the design review (P-11).**
+The user approved the phase and, on 2026-09-28, the design review (P-11 resolved). The code is in commit `0fc15ef`, and ARCHITECTURE.md §1.7–1.9 describes it.
 
 | Scope item | Result |
 | --- | --- |
@@ -98,33 +96,33 @@ The user approved it on 2026-09-28. The code is in commit `0fc15ef`, and ARCHITE
 | `AppBottomNavigation` | Dropped (DEC-012) |
 | Replace the Phase 1 stand-ins | Done: `PlaceholderView` removed, section header, provisional seed and spacing, the mode sheet as a grid |
 | Debug-only gallery | Done: `lib/main_gallery.dart` (DEC-032) |
-| Review in light and dark at 200% text | Done by Claude on 33 generated screenshots (DEC-033), with 4 issues fixed. Tested on the user's phone, where 1 more issue was found and fixed (DEC-035). **The user's sign-off is still pending.** |
+| Review in light and dark at 200% text | Done by Claude on 33 generated screenshots (DEC-033), with 4 issues fixed. Tested on the user's phone, where 1 more issue was found and fixed (DEC-035). **Signed off by the user.** |
 
-## Pending Approval
+## In Progress
 
-### Phase 3: Basic calculator (engine, state, memory)
+### Phase 3: Basic calculator (implemented 2026-09-28, awaiting the user's review)
 
-**Status:** not started. It needs the Phase 2 sign-off and then the user's explicit approval. **Every screen must use only the Phase 2 components and tokens** (DEC-034).
+The user approved it on 2026-09-28 ("phase 2 approv and start phase 3"), and chose smart percent (DEC-036) and the region number format (DEC-037). The code is in commits `4fec0b6`, `57a1e73` and `85c6c84`; ARCHITECTURE.md §1.12–1.13 describes it. **It counts as complete once the user approves it.**
 
-- **First:** add and re-verify `decimal`, `rational` and `test` for the engine (DEC-019), and confirm the default behaviours (P-6).
-- **Engine** (DEC-008):
-  - precedence, parentheses, decimals, negatives, percent
-  - floating-point handling with exact arithmetic
-  - handling of invalid expressions and division by zero
-  - very large and very small numbers
-  - an extensible function registry
-- **Screen:**
-  - Header: mode, history shortcut, settings shortcut, a "more" menu.
-  - Expression area: the current expression, the previous expression, the result, the cursor, and clear/delete.
-  - Keypad: digits, decimal point, `=`, + − × ÷, %, clear, backspace and parentheses. Built from `CalculatorButton`.
-- **Memory:** MC, MR, M+, M−, MS, independent of the UI.
-- **Also:** error handling, animations, haptics and keyboard support.
-- **Landscape:** decide the phone-landscape calculator layout (DEC-022).
-- *(Proposed):* token-based editing with a cursor, a live preview, a smart `( )` key, and long-pressing ⌫ to clear.
-- **Done when:**
-  - **More than 200 engine edge-case tests pass** (DEC-010).
-  - Keypad and display widget tests pass.
-  - The module is stable. Don't move on until it is.
+| Scope item | Result |
+| --- | --- |
+| Engine dependencies, re-verified (DEC-019) | `rational` ^2.2.3 and dev `test` ^1.31.1. `decimal` not added (DEC-038). |
+| Default behaviours (P-6) | Percent settled (DEC-036); the rest concern powers and trigonometry (Phase 5) |
+| Precedence, parentheses, decimals, negatives, percent | Done (DEC-039) |
+| Exact arithmetic instead of floating point | Done: exact fractions; `0.1+0.2−0.3` = 0, `1÷3×3` = 1 |
+| Invalid expressions and division by zero | Done: typed errors with translated messages |
+| Very large and very small numbers | Done: 12 significant digits, scientific notation, overflow at 10¹⁰⁰ |
+| An extensible function registry | **Not built.** There are no functions until Phase 5; it moves there (ARCHITECTURE.md §3.3). |
+| Header: mode, history, settings, a "more" menu | Mode, history and settings. **No "more" menu**: it would be empty (DEC-041). |
+| Expression area: current and previous expression, result, cursor, clear/delete | Done (DEC-043) |
+| Keypad from `CalculatorButton` | Done: AC ( ) % ÷ / 7 8 9 × / 4 5 6 − / 1 2 3 + / 0 . ⌫ = |
+| Memory MC, MR, M+, M−, MS, independent of the UI | Done; saved exactly, survives restarts (DEC-041) |
+| Error handling, animations, haptics, keyboard | Done (DEC-040, DEC-043; `CalculatorView`) |
+| Phone-landscape layout (DEC-022) | Decided and built (DEC-042) |
+| *(Proposed)* token editing with a cursor, live preview, smart `( )`, hold ⌫ | Done (DEC-040) |
+| **Done when:** more than 200 engine edge-case tests pass | **260 pass** |
+| **Done when:** keypad and display widget tests pass | Pass (404 app tests in all) |
+| Review | 50 screenshots reviewed (2 layout fixes); tested on the user's phone (2 more fixes) |
 
 ---
 
@@ -156,6 +154,7 @@ The user approved it on 2026-09-28. The code is in commit `0fc15ef`, and ARCHITE
   - factorial, absolute value
   - π, e, brackets
   - degree/radian mode
+- **Engine:** an extensible function registry (moved from Phase 3, which had no functions), approximate values for irrational results, and the remaining P-6 defaults.
 - **Keypad:** a clean scientific keypad that does not overload the basic screen. It shares state with Basic (DEC-013).
 - *(Proposed):* a scientific tray (pulled up from an "fx" handle in Basic, kept open in Scientific), a 2nd/inverse toggle, and a landscape layout.
 - **Done when:** tests cover the edge cases of every function.

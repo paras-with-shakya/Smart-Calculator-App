@@ -243,7 +243,7 @@ The 17.x line has had no releases since 18.0.0, so pinning 17.x would mean pinni
 
 - **Status:** Accepted
 - **Date:** 2026-09-28
-- **Implemented:** Skeleton only (Phase 1): `packages/calc_engine` exists as a workspace member with no dependencies and an empty library. The engine logic, `decimal`/`rational` and its tests come in Phase 3 (DEC-019).
+- **Implemented:** Yes (Phase 3, commit `4fec0b6`): the engine for the basic calculator, with `rational` only (DEC-038) and 260 tests. Floating point for irrational results and the programmer evaluator come in later phases.
 
 **Context:**
 
@@ -313,7 +313,7 @@ The 17.x line has had no releases since 18.0.0, so pinning 17.x would mean pinni
 
 - **Status:** Accepted
 - **Date:** 2026-09-28
-- **Implemented:** Foundation tests only (Phase 1): 24 widget and unit tests for the shell, navigation, theme persistence, the database and the architecture boundaries. The engine test gate applies from Phase 3.
+- **Implemented:** The engine gate is met for the basic calculator (Phase 3): 260 engine tests, including 224 table-driven cases and a 20,000-input fuzz test. Function edge cases (√−1, log 0, factorial) come with the functions in Phase 5. Integration tests: none yet.
 
 **Context:** Calculation correctness is the core of the product.
 
@@ -666,7 +666,7 @@ Then stop.
 
 **Impact:**
 
-- New pages follow ARCHITECTURE.md §1.13.
+- New pages follow ARCHITECTURE.md §1.16 ("How to extend").
 - Persisting the last mode, and the "default mode" setting (Phase 10), are still to come.
 
 ---
@@ -697,7 +697,7 @@ Then stop.
 **Impact:**
 
 - Most phones in landscape measure 840 dp or more, so they currently get the expanded layout, history panel included.
-- Phase 3/5 must decide the landscape calculator layout.
+- Phase 3/5 must decide the landscape calculator layout. **Resolved by DEC-042** (phones in landscape: no history panel below 480 dp height).
 
 ---
 
@@ -1068,7 +1068,7 @@ Then stop.
 
 - **Status:** Accepted (user decision, 2026-09-28)
 - **Date:** 2026-09-28
-- **Implemented:** Phase 3 (in progress)
+- **Implemented:** Yes (`packages/calc_engine/lib/src/eval/evaluator.dart`, commit `4fec0b6`)
 
 **Context:** Calculators treat `%` differently. P-6 listed the proposed defaults.
 
@@ -1093,7 +1093,7 @@ Then stop.
 
 - **Status:** Accepted (user decision, 2026-09-28)
 - **Date:** 2026-09-28
-- **Implemented:** Phase 3 (in progress)
+- **Implemented:** Yes (`lib/core/formatting/`, commits `57a1e73` and `85c6c84`)
 
 **Context:** Large numbers need digit grouping, and regions differ. India uses 12,34,567.89; many other regions use 1,234,567.89; some use a comma as the decimal separator.
 
@@ -1109,3 +1109,174 @@ Then stop.
 
 - The app's UI language stays English (the only supported locale), but number formatting uses the device region.
 - Digits stay Latin (0–9).
+
+
+---
+
+### [DEC-038] The engine uses `rational` only; `decimal` is not added
+
+- **Status:** Adopted (Phase 3 implementation; refines DEC-008 and DEC-019; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`packages/calc_engine/lib/src/number/calc_value.dart`, commit `4fec0b6`)
+
+**Context:** DEC-008 and DEC-019 planned `decimal` and `rational` for the engine. DEC-008 noted that `decimal` has a single maintainer and no verified publisher.
+
+**Decision:**
+
+- `CalcValue` wraps a `Rational` (package `rational` ^2.2.3, locked at 2.2.3). Only `src/number/` imports it.
+- Decimal output is the engine's own code (`CalcValue.toDecimalString`), working on the exact fraction.
+- `test` ^1.31.1 is the engine's dev dependency. 1.32 needs a newer `test_api` than the Flutter SDK pins.
+
+**Reason:** Every basic operation is exact with fractions, and formatting needs only integer arithmetic. `decimal` would add a dependency without adding anything.
+
+**Alternatives:**
+
+- **Rejected:** adding `decimal` as planned. It is unused, and weaker on maintenance.
+
+**Impact:**
+
+- Replacing the numeric library later touches only `src/number/`.
+- Irrational results (roots, trigonometry) come with Phase 5, which decides how they are represented.
+
+---
+
+### [DEC-039] Engine semantics and limits for the basic calculator
+
+- **Status:** Adopted (Phase 3 implementation; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`packages/calc_engine`, commit `4fec0b6`; 260 engine tests)
+
+**Context:** P-6 and DEC-010 list behaviours that must be fixed before the engine counts as correct.
+
+**Decision:**
+
+- **Pipeline:** lexer → recursive-descent parser → syntax tree → exact evaluation. Input symbols: digits, `.`, `+ − × ÷` (and `- * /`), `%`, brackets, and letter-only variables (used for exact values; DEC-040).
+- **Precedence:** unary minus, then postfix `%`, then `× ÷`, then `+ −`, all left to right.
+- **Implied multiplication** has the same precedence as `×`: `2(3)`, `(2)(3)`, `(2)3` and `50%2`. So `6÷2(1+2)` = 9.
+- **Results:** 12 significant digits, rounded half away from zero, with trailing zeros removed and never `-0`. Scientific notation is used from 10¹² up, and below 10⁻⁶.
+- **Errors** are values (`CalcFailure`), never exceptions: empty, syntax, incomplete (the input ends too early), division by zero (including `0÷0`), and overflow.
+- **Limits:** overflow at 10¹⁰⁰ in size (any intermediate value); at most 100 nested brackets and 1000 tokens. Pathological input fails fast rather than freezing. A 20,000-input fuzz test checks that nothing throws.
+
+**Reason:** Common phone-calculator conventions, with safe limits.
+
+**Alternatives:**
+
+- **Rejected:** implied multiplication binding tighter than `÷` (which makes `6÷2(1+2)` = 1). That rule differs between calculators, and same-precedence is the simpler one to explain.
+
+**Impact:** The input limits of the expression buffer (DEC-040) keep ordinary typing well inside these limits.
+
+---
+
+### [DEC-040] Calculator input, results and errors
+
+- **Status:** Adopted (Phase 3 implementation; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`lib/features/calculator/domain/` and `application/`, commit `57a1e73`)
+
+**Context:** The roadmap proposed token-based editing with a cursor, a live preview, a smart `( )` key and long-press ⌫ to clear.
+
+**Decision:**
+
+- **The expression is a list of units** (one per key press) with a cursor. The input rules keep it sensible:
+  - no leading zeros; one decimal point per number (`.` alone types `0.`); at most 15 digits per number and 100 units in all
+  - a new operator replaces the previous one, except that `−` after `×` or `÷` starts a negative number
+  - `%` only after an operand, and `)` only when a bracket is open
+  - `×` is inserted when a number, bracket or value follows `)`, `%` or a value, so two operands never look like one number
+  - the single `( )` key closes a bracket when one is open and an operand comes before the cursor, otherwise it opens one
+- **Exact values:** a result or the memory is inserted as one unit holding the exact fraction. So `1÷3=`, then `×3=`, gives exactly 1. Backspace removes such a value in one step.
+- **Live preview:** the value of the expression with open brackets closed, shown only when it is valid and more than a plain number.
+- **After `=`:**
+  - an operator or `%` continues from the exact result
+  - a digit, the decimal point or a bracket starts a new expression
+  - ⌫ clears the result; holding ⌫ clears everything at any time
+  - a key the rules reject leaves the result in place
+- **Errors** show a message under the expression, which stays editable. The next accepted edit clears the message. When closing brackets would turn an unfinished expression into a syntax error (`(5+`), it is reported as incomplete.
+- **Paste** (Ctrl+V) is all or nothing: text with anything that isn't calculator input is not typed at all, because skipping characters could change a number (`1.5e12` would become `1.512`).
+
+**Reason:** These are the proposed behaviours from the roadmap, plus the rules needed to make them exact and predictable.
+
+**Alternatives:**
+
+- **Rejected:** inserting the result as its displayed digits, which loses precision.
+- **Rejected:** clearing the expression when an error appears.
+
+**Impact:** Scientific mode (Phase 5) reuses the buffer and adds function units.
+
+---
+
+### [DEC-041] Memory keys are always visible; no "more" menu yet
+
+- **Status:** Adopted (Phase 3 implementation; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`CalculatorMemoryKeys`, `MemoryNotifier`, `PreferencesMemoryRepository`)
+
+**Context:** The roadmap's Phase 3 header listed a "more" menu. The master prompt requires MC, MR, M+, M− and MS.
+
+**Decision:**
+
+- **A memory row** (MC MR M+ M− MS) sits between the display and the keypad, always visible.
+  - MC and MR need a value in memory; M+, M− and MS need a value on the display (the result or the live value). Keys that can't act are disabled.
+  - A small "M" badge on the display shows the value in memory.
+- **The memory is saved** under the preference key `calculator.memory` as an exact fraction (such as `1/3`), so it survives restarts exactly. A value of 10¹⁰⁰ or more is refused, and the memory keeps its value.
+- **No "more" menu in Phase 3.** It would have nothing to hold yet. It can be added with the first item that needs it.
+
+**Reason:** Memory one tap away is faster than a menu, and a menu with no items would be clutter.
+
+**Alternatives:**
+
+- **Rejected:** memory functions inside a "more" menu.
+- **Rejected:** an empty "more" menu to match the roadmap wording.
+
+**Impact:** The header is unchanged: mode, history and settings.
+
+---
+
+### [DEC-042] Calculator layouts, including phones in landscape (resolves the open item in DEC-022)
+
+- **Status:** Adopted (Phase 3 implementation; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`CalculatorView`, `AppShell`, commit `85c6c84`); checked on the user's phone in both orientations
+
+**Context:** DEC-022 left the phone-landscape calculator layout to Phase 3. Most phones in landscape are "expanded" by width, so the shell showed a 320 dp history panel there too.
+
+**Decision:**
+
+- **Portrait** (taller than wide): display, memory row and keypad in a centred column at most 480 dp wide. Keys are square unless the keypad would take more than 60% of the height.
+- **Landscape** (wider than tall): the display and memory row on the left; the keypad on the right, taking 55% of the width (at most 480 dp), aligned to the bottom.
+- **Short windows** (under 480 dp tall, Material's compact height): tighter spacing, so keys keep their 48 dp touch target. On the user's phone in landscape they are 49 dp.
+- **Shell:** an expanded window shorter than 480 dp shows no history panel. The history action opens the page instead, as on medium windows.
+
+**Reason:** A phone in landscape has about 280 dp of height for the calculator; a history panel there would squeeze it.
+
+**Alternatives:**
+
+- **Deferred to Phase 5:** scientific keys beside the keypad in landscape.
+
+**Impact:** Tablets in landscape keep the history panel.
+
+---
+
+### [DEC-043] The calculator display, and two additions to the components
+
+- **Status:** Adopted (Phase 3 implementation; open to the user's review)
+- **Date:** 2026-09-28
+- **Implemented:** Yes (`lib/core/widgets/display_text.dart`, `CalculatorButtonKind.memory`, `CalculatorDisplay`)
+
+**Context:** DEC-034 requires reusable components. The display needs text that shrinks to fit, a caret and tap-to-move, which no existing component provided.
+
+**Decision:**
+
+- **`DisplayText`** (new, in `core/widgets`): end-aligned text that shrinks down to 50% to stay on one line, then wraps at that size. It can draw a caret at a text offset, reports taps as text offsets, and has a semantics label and an optional live region. Programmer and finance screens can reuse it.
+- **`CalculatorButtonKind.memory`** (new): no fill, a smaller label in the muted text colour, and no high-contrast outline, so the memory row stays quieter than the keypad.
+- **The display:** the memory badge; the expression the result came from; the main line (the expression with a caret while the cursor is not at the end, or the result); and below it, the live preview or the error. Every line keeps its height when empty, and a muted `0` shows before anything is typed. The result fades in (reduced motion respected).
+- **Line breaks:** a long expression wraps only after a binary operator (a zero-width space marks the spot), never inside a number that fits on a line.
+- **Screen readers** hear words, not symbols: "12 plus 3", "Preview: 15", "Equals 15" (a live region), "Memory: 42".
+
+**Reason:** The user's reusable-widgets requirement, and a display that stays readable at any length and text size.
+
+**Alternatives:**
+
+- **Rejected:** `FittedBox` scaling of the whole display. It can't wrap, and the text would become unreadably small.
+- **Rejected:** memory keys as `AppButton`s. Their labels could break mid-word at large text sizes (the DEC-035 bug).
+
+**Impact:** Both additions have tests and gallery entries.
