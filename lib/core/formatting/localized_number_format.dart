@@ -62,13 +62,26 @@ final class LocalizedNumberFormat {
 
   /// Localizes a number as typed: digits with an optional `.` and fraction.
   /// A trailing point is kept (`5.` shows as `5.` while typing).
-  String formatTyped(String digits) {
+  String formatTyped(String digits) => formatTypedWithOffsets(digits).text;
+
+  /// [formatTyped], plus where each character of [digits] starts in the
+  /// text: `offsets[i]` is the text offset of `digits[i]`, and the last
+  /// entry is the text's length. A group separator comes before the offset
+  /// of the digit it precedes, so a caret there sits next to the digit.
+  ({String text, List<int> offsets}) formatTypedWithOffsets(String digits) {
     final point = digits.indexOf('.');
-    final whole = point < 0 ? digits : digits.substring(0, point);
-    final grouped = _group(whole);
-    return point < 0
-        ? grouped
-        : '$grouped$decimalSeparator${digits.substring(point + 1)}';
+    final wholeLength = point < 0 ? digits.length : point;
+    final text = StringBuffer();
+    final offsets = <int>[];
+    for (var i = 0; i < digits.length; i++) {
+      if (i > 0 && i < wholeLength && _groupStartsAt(wholeLength - i)) {
+        text.write(groupSeparator);
+      }
+      offsets.add(text.length);
+      text.write(digits[i] == '.' ? decimalSeparator : digits[i]);
+    }
+    offsets.add(text.length);
+    return (text: text.toString(), offsets: offsets);
   }
 
   /// Localizes a canonical decimal string (`-?digits(.digits)?(e-?digits)?`,
@@ -96,21 +109,13 @@ final class LocalizedNumberFormat {
       .replaceAll(RegExp(r'\s'), '')
       .replaceAll(decimalSeparator, '.');
 
-  String _group(String digits) {
-    if (_primaryGroupSize == 0 || digits.length <= _primaryGroupSize) {
-      return digits;
-    }
-    final groups = <String>[
-      digits.substring(digits.length - _primaryGroupSize),
-    ];
-    var end = digits.length - _primaryGroupSize;
-    while (end > 0) {
-      final start = end - _secondaryGroupSize < 0
-          ? 0
-          : end - _secondaryGroupSize;
-      groups.insert(0, digits.substring(start, end));
-      end = start;
-    }
-    return groups.join(groupSeparator);
+  /// Whether a group separator goes before a whole-number digit that has
+  /// [digitsAfter] digits (itself included) up to the decimal point.
+  bool _groupStartsAt(int digitsAfter) {
+    if (_primaryGroupSize == 0) return false;
+    if (digitsAfter == _primaryGroupSize) return true;
+    return _secondaryGroupSize > 0 &&
+        digitsAfter > _primaryGroupSize &&
+        (digitsAfter - _primaryGroupSize) % _secondaryGroupSize == 0;
   }
 }

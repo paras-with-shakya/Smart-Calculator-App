@@ -14,6 +14,7 @@ import 'package:smart_calculator/core/widgets/app_header.dart';
 import 'package:smart_calculator/core/widgets/app_icon_button.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
 import 'package:smart_calculator/core/widgets/calculator_button.dart';
+import 'package:smart_calculator/core/widgets/display_text.dart';
 import 'package:smart_calculator/core/widgets/section_header.dart';
 import 'package:smart_calculator/core/widgets/status_views.dart';
 
@@ -33,6 +34,9 @@ enum GallerySection {
 
   /// CalculatorButton kinds.
   keys('Calculator keys'),
+
+  /// DisplayText: shrinking, wrapping and the caret.
+  display('Display text'),
 
   /// AppCard and SectionHeader.
   cards('Cards'),
@@ -78,6 +82,7 @@ class GallerySectionView extends StatelessWidget {
           GallerySection.spacingAndShape => const _SpacingAndShapeSection(),
           GallerySection.buttons => const _ButtonsSection(),
           GallerySection.keys => const _KeysSection(),
+          GallerySection.display => const _DisplaySection(),
           GallerySection.cards => const _CardsSection(),
           GallerySection.inputs => const _InputsSection(),
           GallerySection.states => const _StatesSection(),
@@ -340,8 +345,8 @@ class _ButtonsSection extends StatelessWidget {
   );
 }
 
-/// A static sample of the key tones. The working keypad is built in
-/// Phase 3; these keys do nothing.
+/// A static sample of the key tones, with the memory row above. The working
+/// keypad is `CalculatorKeypad`; these keys do nothing.
 class _KeysSection extends StatelessWidget {
   const _KeysSection();
 
@@ -374,9 +379,37 @@ class _KeysSection extends StatelessWidget {
     ],
   ];
 
+  static const List<(String, String)> _memoryKeys = [
+    ('MC', 'Memory clear'),
+    ('MR', 'Memory recall'),
+    ('M+', 'Memory add'),
+    ('M−', 'Memory subtract'),
+    ('MS', 'Memory store'),
+  ];
+
   @override
   Widget build(BuildContext context) => Column(
     children: [
+      SizedBox(
+        height: kMinInteractiveDimension,
+        child: Row(
+          children: [
+            for (final (index, (label, semantics)) in _memoryKeys.indexed) ...[
+              if (index > 0) const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: CalculatorButton(
+                  kind: CalculatorButtonKind.memory,
+                  label: label,
+                  semanticLabel: semantics,
+                  // MC and MR are shown disabled, as with an empty memory.
+                  onPressed: index < 2 ? null : _noop,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+      const SizedBox(height: AppSpacing.sm),
       for (final row in _rows) ...[
         _KeyRow(
           children: [
@@ -421,6 +454,67 @@ class _KeysSection extends StatelessWidget {
       ),
     ],
   );
+}
+
+/// DisplayText lines as the calculator display uses them.
+class _DisplaySection extends StatelessWidget {
+  const _DisplaySection();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    final typography = AppTypography.of(context);
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: .stretch,
+        children: [
+          Text('Full size', style: typography.caption),
+          DisplayText(
+            '1,234×5',
+            style: typography.result,
+            color: colors.textPrimary,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text('Shrinks to fit', style: typography.caption),
+          DisplayText(
+            '12,34,56,789×9,87,654',
+            style: typography.result,
+            color: colors.textPrimary,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            'Wraps after an operator at half size',
+            style: typography.caption,
+          ),
+          DisplayText(
+            '12,34,56,78,90,123×​98,76,54,32,10,987+​12,345',
+            style: typography.result,
+            color: colors.textPrimary,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text('Caret', style: typography.caption),
+          DisplayText(
+            '12,345+678',
+            style: typography.result,
+            color: colors.textPrimary,
+            caretOffset: 4,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text('Preview and error', style: typography.caption),
+          DisplayText(
+            '13,023',
+            style: typography.expression,
+            color: colors.textMuted,
+          ),
+          DisplayText(
+            "Can't divide by zero",
+            style: typography.expression,
+            color: colors.error,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// Square keys in a row, separated by the standard gap.

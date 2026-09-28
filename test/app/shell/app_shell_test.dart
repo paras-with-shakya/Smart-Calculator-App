@@ -130,6 +130,18 @@ void main() {
       },
     );
 
+    testWidgets(
+      'phone in landscape: no history panel, so the calculator has room; '
+      'history opens from the header',
+      (tester) async {
+        await pumpApp(tester, size: TestWindows.phoneLandscape);
+
+        expect(find.byType(NavigationRail), findsOneWidget);
+        expect(find.byType(HistoryPanel), findsNothing);
+        expect(find.byTooltip(l10n.historyTitle), findsOneWidget);
+      },
+    );
+
     testWidgets('phone in landscape: the rail scrolls to reach every mode', (
       tester,
     ) async {

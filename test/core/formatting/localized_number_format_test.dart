@@ -68,6 +68,21 @@ void main() {
       expect(german.formatTyped('1234567.89'), '1.234.567,89');
       expect(german.formatTyped('5.'), '5,');
     });
+
+    test('report where each typed character starts', () {
+      final formatted = indian.formatTypedWithOffsets('123456.7');
+
+      expect(formatted.text, '1,23,456.7');
+      // 1 , 2 3 , 4 5 6 . 7
+      expect(formatted.offsets, [0, 2, 3, 5, 6, 7, 8, 9, 10]);
+    });
+
+    test('report offsets for an empty number', () {
+      final formatted = english.formatTypedWithOffsets('');
+
+      expect(formatted.text, isEmpty);
+      expect(formatted.offsets, [0]);
+    });
   });
 
   group('canonical values', () {

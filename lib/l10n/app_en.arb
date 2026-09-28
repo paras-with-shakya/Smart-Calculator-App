@@ -71,5 +71,171 @@
   "themeDark": "Dark",
   "@themeDark": {
     "description": "Theme option: always use the dark theme."
+  },
+  "keyAllClear": "AC",
+  "@keyAllClear": {
+    "description": "Visible label of the calculator key that clears everything. Keep it very short."
+  },
+  "keyAllClearLabel": "All clear",
+  "@keyAllClearLabel": {
+    "description": "What screen readers say for the AC key."
+  },
+  "keyBrackets": "( )",
+  "@keyBrackets": {
+    "description": "Visible label of the single bracket key, which opens or closes a bracket as needed."
+  },
+  "keyBracketsLabel": "Brackets",
+  "@keyBracketsLabel": {
+    "description": "What screen readers say for the bracket key."
+  },
+  "keyPercentLabel": "Percent",
+  "@keyPercentLabel": {
+    "description": "What screen readers say for the % key."
+  },
+  "keyDivideLabel": "Divide",
+  "@keyDivideLabel": {
+    "description": "What screen readers say for the ÷ key."
+  },
+  "keyMultiplyLabel": "Multiply",
+  "@keyMultiplyLabel": {
+    "description": "What screen readers say for the × key."
+  },
+  "keySubtractLabel": "Minus",
+  "@keySubtractLabel": {
+    "description": "What screen readers say for the − key."
+  },
+  "keyAddLabel": "Plus",
+  "@keyAddLabel": {
+    "description": "What screen readers say for the + key."
+  },
+  "keyEqualsLabel": "Equals",
+  "@keyEqualsLabel": {
+    "description": "What screen readers say for the = key."
+  },
+  "keyDecimalPointLabel": "Decimal point",
+  "@keyDecimalPointLabel": {
+    "description": "What screen readers say for the decimal point key."
+  },
+  "keyBackspaceLabel": "Backspace",
+  "@keyBackspaceLabel": {
+    "description": "What screen readers say for the key that deletes the last input. Holding it clears everything."
+  },
+  "memoryClear": "MC",
+  "@memoryClear": {
+    "description": "Visible label of the key that empties the calculator memory. Keep it very short."
+  },
+  "memoryClearLabel": "Memory clear",
+  "@memoryClearLabel": {
+    "description": "What screen readers say for the MC key."
+  },
+  "memoryRecall": "MR",
+  "@memoryRecall": {
+    "description": "Visible label of the key that inserts the value in memory. Keep it very short."
+  },
+  "memoryRecallLabel": "Memory recall",
+  "@memoryRecallLabel": {
+    "description": "What screen readers say for the MR key."
+  },
+  "memoryAdd": "M+",
+  "@memoryAdd": {
+    "description": "Visible label of the key that adds the current value to the memory. Keep it very short."
+  },
+  "memoryAddLabel": "Memory add",
+  "@memoryAddLabel": {
+    "description": "What screen readers say for the M+ key."
+  },
+  "memorySubtract": "M−",
+  "@memorySubtract": {
+    "description": "Visible label of the key that subtracts the current value from the memory. Keep it very short."
+  },
+  "memorySubtractLabel": "Memory subtract",
+  "@memorySubtractLabel": {
+    "description": "What screen readers say for the M− key."
+  },
+  "memoryStore": "MS",
+  "@memoryStore": {
+    "description": "Visible label of the key that stores the current value in the memory. Keep it very short."
+  },
+  "memoryStoreLabel": "Memory store",
+  "@memoryStoreLabel": {
+    "description": "What screen readers say for the MS key."
+  },
+  "memoryIndicator": "M",
+  "@memoryIndicator": {
+    "description": "Badge on the calculator display showing that a value is in memory. Keep it to one or two characters."
+  },
+  "memoryIndicatorLabel": "Memory: {value}",
+  "@memoryIndicatorLabel": {
+    "description": "What screen readers say for the memory badge.",
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "12,345.6"
+      }
+    }
+  },
+  "displayResultLabel": "Equals {value}",
+  "@displayResultLabel": {
+    "description": "What screen readers say for the result on the calculator display.",
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "8"
+      }
+    }
+  },
+  "displayPreviewLabel": "Preview: {value}",
+  "@displayPreviewLabel": {
+    "description": "What screen readers say for the live result shown while an expression is typed.",
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "8"
+      }
+    }
+  },
+  "spokenPlus": "plus",
+  "@spokenPlus": {
+    "description": "How screen readers say + inside an expression, such as '5 plus 3'."
+  },
+  "spokenMinus": "minus",
+  "@spokenMinus": {
+    "description": "How screen readers say − (subtraction or a negative sign) inside an expression."
+  },
+  "spokenTimes": "times",
+  "@spokenTimes": {
+    "description": "How screen readers say × inside an expression, such as '5 times 3'."
+  },
+  "spokenDividedBy": "divided by",
+  "@spokenDividedBy": {
+    "description": "How screen readers say ÷ inside an expression, such as '6 divided by 3'."
+  },
+  "spokenPercent": "percent",
+  "@spokenPercent": {
+    "description": "How screen readers say % inside an expression, such as '10 percent'."
+  },
+  "spokenOpenBracket": "open bracket",
+  "@spokenOpenBracket": {
+    "description": "How screen readers say ( inside an expression."
+  },
+  "spokenCloseBracket": "close bracket",
+  "@spokenCloseBracket": {
+    "description": "How screen readers say ) inside an expression."
+  },
+  "errorIncomplete": "Incomplete expression",
+  "@errorIncomplete": {
+    "description": "Calculator error: the expression ends too early, such as '5+'."
+  },
+  "errorInvalid": "Invalid expression",
+  "@errorInvalid": {
+    "description": "Calculator error: the expression can't be read, such as '5)'."
+  },
+  "errorDivisionByZero": "Can't divide by zero",
+  "@errorDivisionByZero": {
+    "description": "Calculator error: the expression divides by zero."
+  },
+  "errorOverflow": "Number too large",
+  "@errorOverflow": {
+    "description": "Calculator error: the result is too large to show."
   }
 }

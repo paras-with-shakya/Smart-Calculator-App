@@ -20,6 +20,10 @@ enum CalculatorButtonKind {
 
   /// `=`: solid accent.
   equals,
+
+  /// MC, MR, M+, M−, MS: no fill, a smaller label in the muted text colour,
+  /// so the memory row stays quieter than the keypad.
+  memory,
 }
 
 /// A calculator key: a squircle that fills the space its keypad gives it.
@@ -80,6 +84,7 @@ class _CalculatorButtonState extends State<CalculatorButton> {
       CalculatorButtonKind.equals => typography.keySymbol,
       CalculatorButtonKind.digit ||
       CalculatorButtonKind.function => typography.key,
+      CalculatorButtonKind.memory => typography.button,
     };
     final (background, foreground) = switch (widget.kind) {
       CalculatorButtonKind.digit => (colors.digitKey, colors.onDigitKey),
@@ -92,14 +97,18 @@ class _CalculatorButtonState extends State<CalculatorButton> {
         colors.onFunctionKey,
       ),
       CalculatorButtonKind.equals => (colors.equalsKey, colors.onEqualsKey),
+      CalculatorButtonKind.memory => (Colors.transparent, colors.textMuted),
     };
     final enabled = widget.onPressed != null;
     final labelColor = enabled
         ? foreground
         : foreground.withValues(alpha: _disabledOpacity);
+    final outlined =
+        colors.contrastOutline.a > 0 &&
+        widget.kind != CalculatorButtonKind.memory;
     final shape = AppRadius.shape(
       AppRadius.xl,
-      side: colors.contrastOutline.a > 0
+      side: outlined
           ? BorderSide(color: colors.contrastOutline)
           : BorderSide.none,
     );

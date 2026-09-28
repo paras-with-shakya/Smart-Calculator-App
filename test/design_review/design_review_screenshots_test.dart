@@ -12,12 +12,16 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_calculator/app/app_root.dart';
 import 'package:smart_calculator/app/shell/mode_picker.dart';
 import 'package:smart_calculator/app/theme/app_colors.dart';
 import 'package:smart_calculator/app/theme/app_theme.dart';
 import 'package:smart_calculator/core/persistence/preferences.dart';
+import 'package:smart_calculator/features/calculator/application/calculator_notifier.dart';
+import 'package:smart_calculator/features/calculator/domain/calculator_key.dart';
+import 'package:smart_calculator/features/calculator/presentation/calculator_view.dart';
 import 'package:smart_calculator/features/settings/data/preferences_settings_repository.dart';
 import 'package:smart_calculator/features/settings/domain/theme_preference.dart';
 import 'package:smart_calculator/gallery/gallery_sections.dart';
@@ -197,6 +201,145 @@ void main() {
         find.byKey(_capture),
         matchesGoldenFile(_file('app_tablet_landscape_light')),
       );
+    });
+  });
+
+  group('calculator', () {
+    setUp(useInMemoryPreferences);
+
+    // The user's phone: 360 x 800 dp, region India.
+    const phone = Size(360, 800);
+    const phoneLandscape = Size(800, 360);
+
+    Future<void> pumpCalculator(
+      WidgetTester tester, {
+      Size size = phone,
+      ThemePreference theme = ThemePreference.light,
+      double textScale = 1,
+      String typed = '',
+      int? cursor,
+      String memory = '',
+    }) async {
+      tester.platformDispatcher.localeTestValue = const Locale('en', 'IN');
+      addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+      tester.platformDispatcher.textScaleFactorTestValue = textScale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final preferences = await openPreferences();
+      await PreferencesSettingsRepository(preferences)
+          .setThemePreference(theme);
+      tester.view
+        ..physicalSize = size
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        RepaintBoundary(
+          key: _capture,
+          child: AppRoot(preferences: preferences),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final calculator = ProviderScope.containerOf(
+        tester.element(find.byType(CalculatorView)),
+      ).read(calculatorProvider.notifier);
+      if (memory.isNotEmpty) {
+        calculator.typeText(memory);
+        await calculator.memoryStore();
+        calculator.press(CalculatorKey.allClear);
+      }
+      calculator.typeText(typed);
+      if (cursor != null) calculator.setCursor(cursor);
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> capture(String name) =>
+        expectLater(find.byKey(_capture), matchesGoldenFile(_file(name)));
+
+    for (final theme in [ThemePreference.light, ThemePreference.dark]) {
+      testWidgets('empty (${theme.name})', (tester) async {
+        await pumpCalculator(tester, theme: theme);
+        await capture('calc_phone_empty_${theme.name}');
+      });
+
+      testWidgets('typing, with memory (${theme.name})', (tester) async {
+        await pumpCalculator(
+          tester,
+          theme: theme,
+          typed: '1234567×8+90',
+          memory: '2500',
+        );
+        await capture('calc_phone_typing_${theme.name}');
+      });
+
+      testWidgets('result (${theme.name})', (tester) async {
+        await pumpCalculator(tester, theme: theme, typed: '1234567.89×12=');
+        await capture('calc_phone_result_${theme.name}');
+      });
+
+      testWidgets('landscape (${theme.name})', (tester) async {
+        await pumpCalculator(
+          tester,
+          size: phoneLandscape,
+          theme: theme,
+          typed: '(250+75)×4',
+        );
+        await capture('calc_phone_landscape_${theme.name}');
+      });
+    }
+
+    testWidgets('error (light)', (tester) async {
+      await pumpCalculator(tester, typed: '125÷(5−5)=');
+      await capture('calc_phone_error_light');
+    });
+
+    testWidgets('cursor in the middle (light)', (tester) async {
+      await pumpCalculator(tester, typed: '12345+678', cursor: 3);
+      await capture('calc_phone_cursor_light');
+    });
+
+    testWidgets('long expression shrinks, then wraps (light)', (tester) async {
+      await pumpCalculator(
+        tester,
+        typed: '123456789012345×987654321098765+12345',
+      );
+      await capture('calc_phone_long_light');
+    });
+
+    testWidgets('scientific notation (dark)', (tester) async {
+      await pumpCalculator(
+        tester,
+        theme: ThemePreference.dark,
+        typed: '999999999×999999999×999999=',
+      );
+      await capture('calc_phone_scientific_dark');
+    });
+
+    testWidgets('200% text (light)', (tester) async {
+      await pumpCalculator(
+        tester,
+        textScale: 2,
+        typed: '1234×5+6',
+        memory: '7',
+      );
+      await capture('calc_phone_text200_light');
+    });
+
+    testWidgets('tablet portrait (light)', (tester) async {
+      await pumpCalculator(
+        tester,
+        size: TestWindows.tabletPortrait,
+        typed: '48000×18%=',
+      );
+      await capture('calc_tablet_portrait_light');
+    });
+
+    testWidgets('tablet landscape (dark)', (tester) async {
+      await pumpCalculator(
+        tester,
+        size: TestWindows.tabletLandscape,
+        theme: ThemePreference.dark,
+        typed: '48000+18%',
+      );
+      await capture('calc_tablet_landscape_dark');
     });
   });
 }

@@ -201,6 +201,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dark'**
   String get themeDark;
+
+  /// Visible label of the calculator key that clears everything. Keep it very short.
+  ///
+  /// In en, this message translates to:
+  /// **'AC'**
+  String get keyAllClear;
+
+  /// What screen readers say for the AC key.
+  ///
+  /// In en, this message translates to:
+  /// **'All clear'**
+  String get keyAllClearLabel;
+
+  /// Visible label of the single bracket key, which opens or closes a bracket as needed.
+  ///
+  /// In en, this message translates to:
+  /// **'( )'**
+  String get keyBrackets;
+
+  /// What screen readers say for the bracket key.
+  ///
+  /// In en, this message translates to:
+  /// **'Brackets'**
+  String get keyBracketsLabel;
+
+  /// What screen readers say for the % key.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent'**
+  String get keyPercentLabel;
+
+  /// What screen readers say for the ÷ key.
+  ///
+  /// In en, this message translates to:
+  /// **'Divide'**
+  String get keyDivideLabel;
+
+  /// What screen readers say for the × key.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiply'**
+  String get keyMultiplyLabel;
+
+  /// What screen readers say for the − key.
+  ///
+  /// In en, this message translates to:
+  /// **'Minus'**
+  String get keySubtractLabel;
+
+  /// What screen readers say for the + key.
+  ///
+  /// In en, this message translates to:
+  /// **'Plus'**
+  String get keyAddLabel;
+
+  /// What screen readers say for the = key.
+  ///
+  /// In en, this message translates to:
+  /// **'Equals'**
+  String get keyEqualsLabel;
+
+  /// What screen readers say for the decimal point key.
+  ///
+  /// In en, this message translates to:
+  /// **'Decimal point'**
+  String get keyDecimalPointLabel;
+
+  /// What screen readers say for the key that deletes the last input. Holding it clears everything.
+  ///
+  /// In en, this message translates to:
+  /// **'Backspace'**
+  String get keyBackspaceLabel;
+
+  /// Visible label of the key that empties the calculator memory. Keep it very short.
+  ///
+  /// In en, this message translates to:
+  /// **'MC'**
+  String get memoryClear;
+
+  /// What screen readers say for the MC key.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory clear'**
+  String get memoryClearLabel;
+
+  /// Visible label of the key that inserts the value in memory. Keep it very short.
+  ///
+  /// In en, this message translates to:
+  /// **'MR'**
+  String get memoryRecall;
+
+  /// What screen readers say for the MR key.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory recall'**
+  String get memoryRecallLabel;
+
+  /// Visible label of the key that adds the current value to the memory. Keep it very short.
+  ///
+  /// In en, this message translates to:
+  /// **'M+'**
+  String get memoryAdd;
+
+  /// What screen readers say for the M+ key.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory add'**
+  String get memoryAddLabel;
+
+  /// Visible label of the key that subtracts the current value from the memory. Keep it very short.
+  ///
+  /// In en, this message translates to:
+  /// **'M−'**
+  String get memorySubtract;
+
+  /// What screen readers say for the M− key.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory subtract'**
+  String get memorySubtractLabel;
+
+  /// Visible label of the key that stores the current value in the memory. Keep it very short.
+  ///
+  /// In en, this message translates to:
+  /// **'MS'**
+  String get memoryStore;
+
+  /// What screen readers say for the MS key.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory store'**
+  String get memoryStoreLabel;
+
+  /// Badge on the calculator display showing that a value is in memory. Keep it to one or two characters.
+  ///
+  /// In en, this message translates to:
+  /// **'M'**
+  String get memoryIndicator;
+
+  /// What screen readers say for the memory badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory: {value}'**
+  String memoryIndicatorLabel(String value);
+
+  /// What screen readers say for the result on the calculator display.
+  ///
+  /// In en, this message translates to:
+  /// **'Equals {value}'**
+  String displayResultLabel(String value);
+
+  /// What screen readers say for the live result shown while an expression is typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview: {value}'**
+  String displayPreviewLabel(String value);
+
+  /// How screen readers say + inside an expression, such as '5 plus 3'.
+  ///
+  /// In en, this message translates to:
+  /// **'plus'**
+  String get spokenPlus;
+
+  /// How screen readers say − (subtraction or a negative sign) inside an expression.
+  ///
+  /// In en, this message translates to:
+  /// **'minus'**
+  String get spokenMinus;
+
+  /// How screen readers say × inside an expression, such as '5 times 3'.
+  ///
+  /// In en, this message translates to:
+  /// **'times'**
+  String get spokenTimes;
+
+  /// How screen readers say ÷ inside an expression, such as '6 divided by 3'.
+  ///
+  /// In en, this message translates to:
+  /// **'divided by'**
+  String get spokenDividedBy;
+
+  /// How screen readers say % inside an expression, such as '10 percent'.
+  ///
+  /// In en, this message translates to:
+  /// **'percent'**
+  String get spokenPercent;
+
+  /// How screen readers say ( inside an expression.
+  ///
+  /// In en, this message translates to:
+  /// **'open bracket'**
+  String get spokenOpenBracket;
+
+  /// How screen readers say ) inside an expression.
+  ///
+  /// In en, this message translates to:
+  /// **'close bracket'**
+  String get spokenCloseBracket;
+
+  /// Calculator error: the expression ends too early, such as '5+'.
+  ///
+  /// In en, this message translates to:
+  /// **'Incomplete expression'**
+  String get errorIncomplete;
+
+  /// Calculator error: the expression can't be read, such as '5)'.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid expression'**
+  String get errorInvalid;
+
+  /// Calculator error: the expression divides by zero.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t divide by zero'**
+  String get errorDivisionByZero;
+
+  /// Calculator error: the result is too large to show.
+  ///
+  /// In en, this message translates to:
+  /// **'Number too large'**
+  String get errorOverflow;
 }
 
 class _AppLocalizationsDelegate

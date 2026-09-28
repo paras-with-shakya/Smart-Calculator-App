@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_calculator/app/theme/app_colors.dart';
 import 'package:smart_calculator/app/theme/app_motion.dart';
+import 'package:smart_calculator/app/theme/app_theme.dart';
 import 'package:smart_calculator/core/widgets/calculator_button.dart';
 
 import '../../helpers/themed.dart';
@@ -58,6 +59,53 @@ void main() {
         reason: '$kind label',
       );
     }
+  });
+
+  testWidgets('memory keys have no fill and a muted label', (tester) async {
+    await pumpThemed(
+      tester,
+      key(kind: CalculatorButtonKind.memory, onPressed: () {}),
+    );
+
+    final material = tester.widget<Material>(
+      find.descendant(
+        of: find.byType(CalculatorButton),
+        matching: find.byType(Material),
+      ),
+    );
+    expect(material.color, Colors.transparent);
+    expect(
+      tester.widget<Text>(find.text('÷')).style!.color,
+      AppColors.light.textMuted,
+    );
+  });
+
+  testWidgets('in high contrast, keys are outlined but memory keys are not', (
+    tester,
+  ) async {
+    BorderSide sideOf(CalculatorButtonKind kind) {
+      final material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(CalculatorButton),
+          matching: find.byType(Material),
+        ),
+      );
+      return (material.shape! as RoundedSuperellipseBorder).side;
+    }
+
+    await pumpThemed(
+      tester,
+      key(kind: CalculatorButtonKind.digit, onPressed: () {}),
+      theme: AppTheme.highContrastLight,
+    );
+    expect(sideOf(CalculatorButtonKind.digit), isNot(BorderSide.none));
+
+    await pumpThemed(
+      tester,
+      key(kind: CalculatorButtonKind.memory, onPressed: () {}),
+      theme: AppTheme.highContrastLight,
+    );
+    expect(sideOf(CalculatorButtonKind.memory), BorderSide.none);
   });
 
   testWidgets('tap and long press call their callbacks', (tester) async {

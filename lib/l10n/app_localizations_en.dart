@@ -62,4 +62,121 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeDark => 'Dark';
+
+  @override
+  String get keyAllClear => 'AC';
+
+  @override
+  String get keyAllClearLabel => 'All clear';
+
+  @override
+  String get keyBrackets => '( )';
+
+  @override
+  String get keyBracketsLabel => 'Brackets';
+
+  @override
+  String get keyPercentLabel => 'Percent';
+
+  @override
+  String get keyDivideLabel => 'Divide';
+
+  @override
+  String get keyMultiplyLabel => 'Multiply';
+
+  @override
+  String get keySubtractLabel => 'Minus';
+
+  @override
+  String get keyAddLabel => 'Plus';
+
+  @override
+  String get keyEqualsLabel => 'Equals';
+
+  @override
+  String get keyDecimalPointLabel => 'Decimal point';
+
+  @override
+  String get keyBackspaceLabel => 'Backspace';
+
+  @override
+  String get memoryClear => 'MC';
+
+  @override
+  String get memoryClearLabel => 'Memory clear';
+
+  @override
+  String get memoryRecall => 'MR';
+
+  @override
+  String get memoryRecallLabel => 'Memory recall';
+
+  @override
+  String get memoryAdd => 'M+';
+
+  @override
+  String get memoryAddLabel => 'Memory add';
+
+  @override
+  String get memorySubtract => 'M−';
+
+  @override
+  String get memorySubtractLabel => 'Memory subtract';
+
+  @override
+  String get memoryStore => 'MS';
+
+  @override
+  String get memoryStoreLabel => 'Memory store';
+
+  @override
+  String get memoryIndicator => 'M';
+
+  @override
+  String memoryIndicatorLabel(String value) {
+    return 'Memory: $value';
+  }
+
+  @override
+  String displayResultLabel(String value) {
+    return 'Equals $value';
+  }
+
+  @override
+  String displayPreviewLabel(String value) {
+    return 'Preview: $value';
+  }
+
+  @override
+  String get spokenPlus => 'plus';
+
+  @override
+  String get spokenMinus => 'minus';
+
+  @override
+  String get spokenTimes => 'times';
+
+  @override
+  String get spokenDividedBy => 'divided by';
+
+  @override
+  String get spokenPercent => 'percent';
+
+  @override
+  String get spokenOpenBracket => 'open bracket';
+
+  @override
+  String get spokenCloseBracket => 'close bracket';
+
+  @override
+  String get errorIncomplete => 'Incomplete expression';
+
+  @override
+  String get errorInvalid => 'Invalid expression';
+
+  @override
+  String get errorDivisionByZero => 'Can\'t divide by zero';
+
+  @override
+  String get errorOverflow => 'Number too large';
 }
