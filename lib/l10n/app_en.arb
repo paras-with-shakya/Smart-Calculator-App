@@ -401,5 +401,9 @@
   "errorOverflow": "Number too large",
   "@errorOverflow": {
     "description": "Calculator error: the result is too large to show."
+  },
+  "errorUndefined": "Undefined result",
+  "@errorUndefined": {
+    "description": "Calculator error: a function argument is outside its domain, such as the square root of a negative number, log of zero, or the factorial of a negative number."
   }
 }

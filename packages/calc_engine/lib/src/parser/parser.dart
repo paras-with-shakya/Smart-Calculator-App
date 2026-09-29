@@ -15,14 +15,22 @@ const int maxNesting = 100;
 /// ```text
 /// expression := term (('+' | '−') term)*
 /// term       := unary (('×' | '÷' | implied ×) unary)*
-/// unary      := ('+' | '−') unary | postfix
-/// postfix    := primary '%'*
-/// primary    := number | identifier | '(' expression ')'
+/// unary      := ('+' | '−') unary | power
+/// power      := postfix ('^' unary)?
+/// postfix    := primary ('%' | '!')*
+/// primary    := number | constant | function '(' expression ')'
+///             | identifier | '(' expression ')'
 /// ```
 ///
-/// Multiplication is implied before `(` (`2(3)`, `(2)(3)`), and before a
-/// number or name that follows `)` or `%` (`(2)3`, `10%50`). It has the same
-/// precedence as `×`, so `6÷2(1+2)` is 9.
+/// Multiplication is implied before `(` (`2(3)`, `(2)(3)`), before a number
+/// or name that follows `)`, `%` or `!` (`(2)3`, `10%50`), and before a name
+/// that follows a number (`2π`, `5sin(30)` — but not `2 3`, two numbers in a
+/// row, which stays a syntax error). It has the same precedence as `×`, so
+/// `6÷2(1+2)` is 9.
+///
+/// `^` is right-associative and binds tighter than unary minus but looser
+/// than `%`/`!`: `−3^2` is `−9`, and `2^3^2` is `2^(3^2)` = 512. Its right
+/// side parses as `unary`, so `2^−3` also works.
 ///
 /// Throws an [EvaluationException]: [CalcError.incomplete] when the input
 /// ends where an operand is needed (`5+`, `(2`), otherwise
@@ -91,8 +99,14 @@ class _Parser {
   bool get _impliesMultiplication {
     final next = _peek;
     if (next == TokenKind.openBracket) return true;
+    // A number directly followed by a name (`2π`, `5sin(30)`) implies ×, but
+    // two numbers in a row (`1 2`) do not: that's whitespace-separated junk,
+    // not an operand boundary.
+    if (_previous == TokenKind.number) return next == TokenKind.identifier;
     final operandEnd =
-        _previous == TokenKind.closeBracket || _previous == TokenKind.percent;
+        _previous == TokenKind.closeBracket ||
+        _previous == TokenKind.percent ||
+        _previous == TokenKind.factorial;
     return operandEnd &&
         (next == TokenKind.number || next == TokenKind.identifier);
   }
@@ -103,16 +117,32 @@ class _Parser {
       final operand = _nested(_unary);
       return negate ? NegateNode(operand) : operand;
     }
-    return _postfix();
+    return _power();
+  }
+
+  /// `^` is right-associative: its right side is a full `unary`, so a
+  /// second `^` (or a leading `-`) on the right recurses back here.
+  Node _power() {
+    final node = _postfix();
+    if (_peek != TokenKind.caret) return node;
+    _advance();
+    return BinaryNode(BinaryOperator.power, node, _nested(_unary));
   }
 
   Node _postfix() {
     var node = _primary();
-    while (_peek == TokenKind.percent) {
-      _advance();
-      node = PercentNode(node);
+    while (true) {
+      switch (_peek) {
+        case TokenKind.percent:
+          _advance();
+          node = PercentNode(node);
+        case TokenKind.factorial:
+          _advance();
+          node = FactorialNode(node);
+        case _:
+          return node;
+      }
     }
-    return node;
   }
 
   Node _primary() {
@@ -122,24 +152,68 @@ class _Parser {
       case TokenKind.number:
         return NumberNode(CalcValue.parse(token.text));
       case TokenKind.identifier:
-        return VariableNode(token.text);
+        return _identifierNode(token.text);
       case TokenKind.openBracket:
-        if (_peek == TokenKind.closeBracket) {
-          throw const EvaluationException(CalcError.syntax);
-        }
-        final inner = _nested(expression);
-        if (atEnd) throw const EvaluationException(CalcError.incomplete);
-        if (_advance().kind != TokenKind.closeBracket) {
-          throw const EvaluationException(CalcError.syntax);
-        }
-        return inner;
+        return _parenthesized();
       case TokenKind.plus ||
           TokenKind.minus ||
           TokenKind.times ||
           TokenKind.divide ||
           TokenKind.percent ||
+          TokenKind.factorial ||
+          TokenKind.caret ||
           TokenKind.closeBracket:
         throw const EvaluationException(CalcError.syntax);
     }
   }
+
+  Node _identifierNode(String name) {
+    switch (name) {
+      case 'π':
+        return const ConstantNode(CalcConstant.pi);
+      case 'e':
+        return const ConstantNode(CalcConstant.e);
+      default:
+        final function = _functions[name];
+        if (function == null) return VariableNode(name);
+        if (_peek != TokenKind.openBracket) {
+          throw const EvaluationException(CalcError.syntax);
+        }
+        _advance();
+        return FunctionCallNode(function, _nested(_bracketedExpression));
+    }
+  }
+
+  /// The opening bracket (of a group, or a function call) was already
+  /// consumed; parses its contents and consumes the matching `)`.
+  Node _bracketedExpression() {
+    if (_peek == TokenKind.closeBracket) {
+      throw const EvaluationException(CalcError.syntax);
+    }
+    final inner = expression();
+    if (atEnd) throw const EvaluationException(CalcError.incomplete);
+    if (_advance().kind != TokenKind.closeBracket) {
+      throw const EvaluationException(CalcError.syntax);
+    }
+    return inner;
+  }
+
+  Node _parenthesized() => _nested(_bracketedExpression);
 }
+
+const Map<String, CalcFunction> _functions = {
+  'sin': CalcFunction.sin,
+  'cos': CalcFunction.cos,
+  'tan': CalcFunction.tan,
+  'asin': CalcFunction.asin,
+  'acos': CalcFunction.acos,
+  'atan': CalcFunction.atan,
+  'sinh': CalcFunction.sinh,
+  'cosh': CalcFunction.cosh,
+  'tanh': CalcFunction.tanh,
+  'log': CalcFunction.log,
+  'ln': CalcFunction.ln,
+  'sqrt': CalcFunction.sqrt,
+  'cbrt': CalcFunction.cbrt,
+  'abs': CalcFunction.abs,
+};

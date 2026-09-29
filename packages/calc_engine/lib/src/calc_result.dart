@@ -18,6 +18,13 @@ enum CalcError {
 
   /// A value reached 10^100 or more in size.
   overflow,
+
+  /// Mathematically undefined for real numbers: a function argument outside
+  /// its domain (`√−1`, `ln 0`, `asin 2`), `tan` at an odd multiple of 90°,
+  /// a negative base raised to a power with no real root (`(−4)^(1/2)`),
+  /// `0` raised to a negative power, or `!` of a negative or non-integer
+  /// value.
+  undefined,
 }
 
 /// The outcome of evaluating an expression: a [CalcSuccess] or a

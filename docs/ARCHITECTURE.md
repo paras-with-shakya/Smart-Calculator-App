@@ -213,19 +213,21 @@ All tokens live in `lib/app/theme/`. Components and screens read them from the t
 - **Access:** `AppLocalizations.of(context)` never returns null.
 - **Generated files:** `lib/l10n/app_localizations*.dart` are committed. `flutter pub get` (and run, build, analyze) regenerates them.
 
-### 1.12 Calculation engine (`packages/calc_engine`, Phase 3)
+### 1.12 Calculation engine (`packages/calc_engine`, Phase 3; scientific functions added Phase 5)
 
 Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `test` ^1.31.1 for development (DEC-038).
 
-- **API** (`lib/calc_engine.dart` exports only these): `CalcEngine().evaluate(expression, variables: {...})` returns a `CalcResult`, which is either `CalcSuccess(CalcValue)` or `CalcFailure(CalcError)`. `CalcError` is empty, syntax, incomplete, divisionByZero or overflow. Nothing throws to the caller.
-- **`CalcValue`** (`src/number/`, the only place that imports `rational`): an exact fraction. It offers `+ − × ÷` and negation, `isZero`, `isTooLarge` (10¹⁰⁰ or more), `CalcValue.parse` for decimal literals, and `toStorageString` / `tryParseStorage` (`n` or `n/d`) for saving values exactly. `toDecimalString()` gives the canonical text: 12 significant digits, half away from zero, `d.ddde±N` from 10¹² up and below 10⁻⁶, never `-0`.
+- **API** (`lib/calc_engine.dart` exports only these): `CalcEngine().evaluate(expression, variables: {...}, angleMode: AngleMode.degrees)` returns a `CalcResult`, which is either `CalcSuccess(CalcValue)` or `CalcFailure(CalcError)`. `CalcError` is empty, syntax, incomplete, divisionByZero, overflow or undefined (DEC-047). Nothing throws to the caller.
+- **`CalcValue`** (`src/number/`, the only place that imports `rational`): a sealed hierarchy of an exact fraction (`Rational`) or an approximate value (`double`), for irrational results (DEC-047). Arithmetic is contagious: exact-op-exact stays exact; anything touching an approximate operand becomes approximate. It offers `+ − × ÷` and negation, `isZero`, `isExact`, `isTooLarge` (10¹⁰⁰ or more), `CalcValue.parse` for decimal literals, and `toStorageString` / `tryParseStorage` (`n`, `n/d` or `~<double>`) for saving values exactly. `toDecimalString()` gives the canonical text: 12 significant digits, half away from zero, `d.ddde±N` from 10¹² up and below 10⁻⁶, never `-0`.
 - **Pipeline:**
-  1. `src/lexer`: characters → tokens. It accepts digits and `.`, letters (variable names), `+ − × ÷` and `- * /`, `%`, brackets and spaces.
-  2. `src/parser`: recursive descent → a sealed `Node` tree (number, variable, negate, percent, binary). Precedence: unary minus, then `%`, then `× ÷` and implied multiplication, then `+ −`.
-  3. `src/eval`: evaluates the tree exactly, with smart percent (DEC-036), and checks every intermediate value for overflow.
-- **Limits:** 100 nested brackets and 1000 tokens (DEC-039).
-- **Variables** carry exact values into an expression: the app passes results and the memory as letter-only names (§1.13).
-- **Tests** (`dart test` in the package): 260. They are 224 table-driven cases (numbers, malformed input, each operator, precedence, brackets, implied multiplication, unary minus, smart percent, exactness, division by zero, incomplete input, large and small numbers, overflow, variables), plus `CalcValue` tests and a 20,000-input fuzz test with a fixed seed.
+  1. `src/lexer`: characters → tokens. It accepts digits and `.`, letters and `π` (variable, constant and function names), `+ − × ÷` and `- * /`, `%`, `^`, `!`, brackets and spaces.
+  2. `src/parser`: recursive descent → a sealed `Node` tree (number, variable, constant, negate, percent, factorial, function call, binary). Precedence, lowest to highest: `+ −`, then `× ÷` and implied multiplication, then unary `−`/`+`, then `^` (right-associative), then postfix `%`/`!`. `2^3^2 = 512`; `−3^2 = −9`; `2^3! = 64` (DEC-047).
+  3. `src/eval`: evaluates the tree exactly wherever provably possible (including through `^`, `sqrt`, `cbrt` via perfect-root/perfect-power detection on `BigInt`; DEC-047), with smart percent (DEC-036), angle-mode-aware trigonometry, and checks every intermediate value for overflow.
+- **Functions** (`src/ast/node.dart`'s `CalcFunction`, dispatched in `src/eval/evaluator.dart`): `sin cos tan asin acos atan sinh cosh tanh log ln sqrt cbrt abs`. A name is only read as a function call immediately followed by `(`; otherwise it's an ordinary variable. `π` and `e` are always the constants, never a variable, even if one of that name is supplied (DEC-047).
+- **`AngleMode`** (`src/angle_mode.dart`): `degrees` (the default) or `radians`, affecting sin/cos/tan/asin/acos/atan only — never the hyperbolic functions.
+- **Limits:** 100 nested brackets and 1000 tokens (DEC-039); factorial and `^` reject magnitudes past 2000 as overflow before computing.
+- **Variables** carry exact values into an expression: the app passes results and the memory as letter-only names (§1.13), skipping `e` (§1.13's `ExpressionBuffer._variableName`, DEC-047).
+- **Tests** (`dart test` in the package): 377. 260 from Phase 3 (224 table-driven cases, `CalcValue` tests, a 20,000-input fuzz test), plus `test/scientific_test.dart`'s 117 Phase 5 cases (the power operator's precedence and exactness, every function's normal range and domain errors, both angle modes, and the constants). The fuzz test's alphabet now also includes `^ ! π e` and function-name letters.
 
 ### 1.13 Basic calculator (`lib/features/calculator/`, Phase 3)
 
@@ -386,16 +388,15 @@ Each feature has `domain/` (pure Dart), `data/`, `application/` and `presentatio
 - **Pages to add:** saved calculations, the settings subpages (About, licenses, privacy) and the finance tools.
 - **Android predictive back gesture:** not scheduled yet (see ROADMAP.md).
 
-### 3.3 Calculation engine: still to come (Phase 5 and later)
+### 3.3 Calculation engine: still to come (Phase 5 UI/logic, and later)
 
-The basic engine is built (§1.12). Still to come:
+The scientific engine (functions, `^`, exact/approximate values, angle mode, the P-6 defaults) is built and tested (§1.12, DEC-047). Still to come:
 
-- **Functions** (Phase 5): kept in a registry, so a new one needs no parser changes. It was not built in Phase 3, which has no functions to register. The parser gets a function-call node when the first function arrives.
-- **Irrational results:** `CalcValue` gains an approximate form (such as a double) for roots and trigonometry, and settings (angle mode, precision) reach the evaluator.
-- **More errors:** invalid function input and undefined (such as `tan 90°`), each with a translated message.
-- **Editing:** backspace removes a function name such as `sin(` as one unit.
+- **The calculator's own scientific input logic (Phase 5, Module 2):** `ExpressionBuffer` support for inserting a function call (`sin(`), the `^` and `!` keys, and degree/radian mode as persisted state reaching `CalculatorNotifier`'s call to `CalcEngine.evaluate`.
+- **The scientific keypad (Phase 5, Module 3):** shares state with Basic (DEC-013); not designed yet.
+- **Editing:** backspace removes a function name such as `sin(` as one unit — a Module 2 concern, since it's the buffer's input rules that decide this, the same way DEC-040 did for Phase 3's units.
+- **Undefined-result messaging in the app:** `CalcError.undefined` has a generic translated message (`errorUndefined`) for now; whether specific domain errors (asin out of range vs. tan at 90°) deserve their own wording is a Module 2/3 question, not an engine one.
 - **Programmer mode:** a separate `BigInt` evaluator with a set word size and two's complement.
-- **Default behaviours still open (P-6):** `−3²`, `2^3^2`, `0^0`, `(−8)^(1/3)`, `tan 90°`.
 
 ### 3.4 State (Phase 4 onward)
 

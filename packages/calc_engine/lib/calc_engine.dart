@@ -12,6 +12,7 @@
 /// ```
 library;
 
+export 'src/angle_mode.dart' show AngleMode;
 export 'src/calc_engine.dart' show CalcEngine;
 export 'src/calc_result.dart'
     show CalcError, CalcFailure, CalcResult, CalcSuccess;

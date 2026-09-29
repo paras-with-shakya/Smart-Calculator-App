@@ -12,7 +12,7 @@ void main() {
   test('random input never throws, and every result is a value or a typed '
       'error with a canonical decimal string', () {
     final random = Random(20260928);
-    const alphabet = '0123456789..+−×÷-*/%%(()) a';
+    const alphabet = '0123456789..+−×÷-*/%%(()) a^!πesincotalgbrh';
     for (var run = 0; run < 20000; run++) {
       final length = random.nextInt(24);
       final input = String.fromCharCodes([

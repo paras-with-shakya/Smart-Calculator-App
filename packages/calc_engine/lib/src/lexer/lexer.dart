@@ -24,6 +24,12 @@ enum TokenKind {
   /// `%`
   percent,
 
+  /// `!`
+  factorial,
+
+  /// `^`
+  caret,
+
   /// `(`
   openBracket,
 
@@ -48,9 +54,10 @@ final class Token {
 
 /// Splits [source] into tokens.
 ///
-/// Accepts digits and `.`, letters, `+ - − * × / ÷ % ( )` and whitespace.
-/// Throws an [EvaluationException] with [CalcError.syntax] for any other
-/// character, or for a number with a second decimal point or no digits.
+/// Accepts digits and `.`, letters, `π`, `+ - − * × / ÷ % ! ^ ( )` and
+/// whitespace. Throws an [EvaluationException] with [CalcError.syntax] for
+/// any other character, or for a number with a second decimal point or no
+/// digits.
 List<Token> tokenize(String source) {
   final tokens = <Token>[];
   var index = 0;
@@ -83,6 +90,11 @@ List<Token> tokenize(String source) {
       tokens.add(Token(TokenKind.identifier, source.substring(start, index)));
       continue;
     }
+    if (char == 'π') {
+      tokens.add(const Token(TokenKind.identifier, 'π'));
+      index++;
+      continue;
+    }
     final kind = _symbols[char];
     if (kind == null) throw const EvaluationException(CalcError.syntax);
     tokens.add(Token(kind, char));
@@ -100,6 +112,8 @@ const Map<String, TokenKind> _symbols = {
   '/': TokenKind.divide,
   '÷': TokenKind.divide,
   '%': TokenKind.percent,
+  '!': TokenKind.factorial,
+  '^': TokenKind.caret,
   '(': TokenKind.openBracket,
   ')': TokenKind.closeBracket,
 };

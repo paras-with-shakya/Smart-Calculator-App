@@ -14,7 +14,7 @@ Phase 1  Foundation ...................... COMPLETED 2026-09-28
 Phase 2  Design system ................... COMPLETED 2026-09-28 (design approved)
 Phase 3  Basic calculator + engine + memory COMPLETED 2026-09-28, audited 2026-09-28
 Phase 4  History + saved calculations .... COMPLETED 2026-09-29 (both halves; phone-tested)
-Phase 5  Scientific ...................... planned
+Phase 5  Scientific ...................... in progress (engine module done 2026-09-29, not committed; keypad and input logic not started)
 Phase 6  Converters ...................... planned
 Phase 7  Financial ....................... planned
 Phase 8  Date calculator ................. planned
@@ -105,7 +105,7 @@ The user approved it on 2026-09-28 ("phase 2 approv and start phase 3"), and cho
 | Scope item | Result |
 | --- | --- |
 | Engine dependencies, re-verified (DEC-019) | `rational` ^2.2.3 and dev `test` ^1.31.1. `decimal` not added (DEC-038). |
-| Default behaviours (P-6) | Percent settled (DEC-036); the rest concern powers and trigonometry (Phase 5) |
+| Default behaviours (P-6) | Percent settled (DEC-036); the rest (powers and trigonometry) implemented in Phase 5, DEC-047 |
 | Precedence, parentheses, decimals, negatives, percent | Done (DEC-039) |
 | Exact arithmetic instead of floating point | Done: exact fractions; `0.1+0.2−0.3` = 0, `1÷3×3` = 1 |
 | Invalid expressions and division by zero | Done: typed errors with translated messages |
@@ -144,21 +144,25 @@ The user approved Phase 4 on 2026-09-29. ARCHITECTURE.md §1.17 (history) and §
 
 ---
 
-## Planned
+### Phase 5: Scientific (in progress — engine module done 2026-09-29, not committed)
 
-### Phase 5: Scientific
+The user approved Phase 5 on 2026-09-29 ("phase 5 start"). ARCHITECTURE.md §1.12 describes the engine; DEC-047 records the decisions, including a flagged deviation (the P-6 defaults below were implemented before being put back to the user, not after — see DEC-047's "Deviation" note and DEVELOPMENT_STATUS.md).
 
-- **Functions:**
-  - sin, cos, tan, asin, acos, atan, sinh, cosh, tanh
-  - log, ln, sqrt, cbrt
-  - x², xʸ, 10ˣ, eˣ
-  - factorial, absolute value
-  - π, e, brackets
-  - degree/radian mode
-- **Engine:** an extensible function registry (moved from Phase 3, which had no functions), approximate values for irrational results, and the remaining P-6 defaults.
-- **Keypad:** a clean scientific keypad that does not overload the basic screen. It shares state with Basic (DEC-013).
-- *(Proposed):* a scientific tray (pulled up from an "fx" handle in Basic, kept open in Scientific), a 2nd/inverse toggle, and a landscape layout.
-- **Done when:** tests cover the edge cases of every function.
+| Scope item | Result |
+| --- | --- |
+| Functions: sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, log, ln, sqrt, cbrt, abs | **Done** (engine) |
+| x², xʸ | **Done**, both via the general `^` operator — no separate x² key/node; the keypad (Module 3) will just insert `^2`. |
+| 10ˣ, eˣ | Not yet — no dedicated function/node; achievable as `10^x` / `e^x` once Module 2/3 exist, or as dedicated keypad buttons that insert that text. Revisit if the user wants a one-key `10ˣ`/`eˣ`. |
+| factorial, absolute value | **Done** (engine): `!` postfix operator, `abs` function |
+| π, e, brackets | **Done** (engine): always the constants, never a variable (DEC-047) |
+| degree/radian mode | **Done in the engine** (`AngleMode`, `CalcEngine.evaluate`'s new parameter); **not yet in the app** — no UI toggle or persisted setting (Module 2/3) |
+| Engine: an extensible function registry | **Done** — `CalcFunction` enum + a name→function lookup map in the parser; adding a function needs no grammar changes, just a new enum case and evaluator branch. |
+| Engine: approximate values for irrational results | **Done** — `CalcValue` is now a sealed exact/approximate hierarchy (DEC-047) |
+| Engine: the remaining P-6 defaults (`−3²`, `2^3^2`, `0^0`, `(−8)^(1/3)`, `tan 90°`) | **Implemented** (DEC-047) — **awaiting the user's explicit review**, since this was built before asking, not after (see the deviation note) |
+| Keypad: a clean scientific keypad, sharing state with Basic (DEC-013) | **Not started** (Module 3) |
+| Calculator input logic: buffer support for `^`/`!`/function calls, angle-mode state | **Not started** (Module 2) |
+| *(Proposed)* a scientific tray, a 2nd/inverse toggle, a landscape layout | Not started; still proposed, not committed to |
+| **Done when:** tests cover the edge cases of every function | **Done for the engine** — 117 new tests in `test/scientific_test.dart` (377 total in `packages/calc_engine`); the fuzz test's alphabet now also covers `^ ! π e` and function-name letters. App-level (Module 2/3) tests don't exist yet, since that code doesn't either. |
 
 ### Phase 6: Converters
 

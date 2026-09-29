@@ -615,6 +615,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Number too large'**
   String get errorOverflow;
+
+  /// Calculator error: a function argument is outside its domain, such as the square root of a negative number, log of zero, or the factorial of a negative number.
+  ///
+  /// In en, this message translates to:
+  /// **'Undefined result'**
+  String get errorUndefined;
 }
 
 class _AppLocalizationsDelegate

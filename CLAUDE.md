@@ -2,7 +2,7 @@
 
 This is the entry point for every Claude Code session on this project. Read it first, then follow the **Context Recovery Protocol** below before doing any work.
 
-**Snapshot (2026-09-29):** Phases 1–4 are complete. Phase 3 was audited (docs/DEVELOPMENT_STATUS.md, "Phase 3 Audit"). **Phase 4 (history and saved calculations) is done and phone-tested**; history is committed (`1604248`), saved calculations is built and QA-clean but not yet committed (nothing blocks that). Don't start Phase 5 without explicit approval. If this line disagrees with [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), check `git log` and the code, then fix the docs.
+**Snapshot (2026-09-29):** Phases 1–4 are complete (history `1604248`, saved calculations `f02b23a`, both committed and phone-tested). **Phase 5 (Scientific) is approved and in progress: Module 1 (the engine) is built, tested (377 engine + 465 app tests) and committed; Modules 2–3 (the calculator's scientific input logic, and the scientific keypad) are not started.** The engine module was built before the user reviewed its five P-6 defaults, not after — a flagged deviation; see docs/DECISIONS.md DEC-047 and docs/DEVELOPMENT_STATUS.md's "Pending Decisions". Don't start Module 2 until that review happens. If this line disagrees with [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), check `git log` and the code, then fix the docs.
 
 ## Source of truth
 

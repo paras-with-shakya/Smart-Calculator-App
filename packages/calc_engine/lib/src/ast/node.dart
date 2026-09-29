@@ -41,6 +41,78 @@ final class PercentNode extends Node {
   final Node operand;
 }
 
+/// Postfix factorial: `operand!`.
+final class FactorialNode extends Node {
+  /// Creates [operand] followed by `!`.
+  const FactorialNode(this.operand);
+
+  /// The expression before `!`.
+  final Node operand;
+}
+
+/// A built-in constant.
+enum CalcConstant {
+  /// π (pi).
+  pi,
+
+  /// Euler's number.
+  e,
+}
+
+/// A reference to a [CalcConstant], such as `π` or `e`.
+final class ConstantNode extends Node {
+  /// Creates a reference to [constant].
+  const ConstantNode(this.constant);
+
+  /// Which constant.
+  final CalcConstant constant;
+}
+
+/// A one-argument function, such as `sin(`.
+enum CalcFunction {
+  /// sin, cos, tan (in the evaluator's current angle mode)
+  sin,
+  cos,
+  tan,
+
+  /// asin, acos, atan (returning the evaluator's current angle mode)
+  asin,
+  acos,
+  atan,
+
+  /// sinh, cosh, tanh (never affected by angle mode)
+  sinh,
+  cosh,
+  tanh,
+
+  /// log base 10.
+  log,
+
+  /// Natural log.
+  ln,
+
+  /// Square root, exact for a perfect square.
+  sqrt,
+
+  /// Cube root, exact for a perfect cube. Defined for negative numbers too.
+  cbrt,
+
+  /// Absolute value.
+  abs,
+}
+
+/// A function call: `name(argument)`.
+final class FunctionCallNode extends Node {
+  /// Creates a call to [function] with [argument].
+  const FunctionCallNode(this.function, this.argument);
+
+  /// Which function.
+  final CalcFunction function;
+
+  /// The argument expression.
+  final Node argument;
+}
+
 /// The binary operators.
 enum BinaryOperator {
   /// `+`
@@ -54,6 +126,10 @@ enum BinaryOperator {
 
   /// `÷`
   divide,
+
+  /// `^`: `xʸ`, and `x²` (`^2`), `10ˣ` (`10^`) and `eˣ` (`e^`) built from it.
+  /// Right-associative: `2^3^2` is `2^(3^2)`.
+  power,
 }
 
 /// A binary operation.

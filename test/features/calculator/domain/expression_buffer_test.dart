@@ -282,8 +282,30 @@ void main() {
       ];
       final input = ExpressionBuffer.of(units).toEngineInput();
 
-      expect(input.variables.keys.skip(24), ['y', 'z', 'aa', 'ab']);
-      expect(input.variables['ab'], CalcValue.fromInt(27));
+      // The letter 'e' is skipped (see the next test), so the alphabet
+      // runs out one value earlier than a plain a-z count would suggest.
+      expect(input.variables.keys.skip(24), ['z', 'aa', 'ab', 'ac']);
+      expect(input.variables['ab'], CalcValue.fromInt(26));
+    });
+
+    test('the 5th value is never named "e": the engine always reads that '
+        'as Euler\'s number, not a variable', () {
+      final units = <ExpressionUnit>[
+        for (var i = 0; i < 5; i++) ...[
+          if (i > 0) const SymbolUnit(CalculatorSymbols.plus),
+          ValueUnit(CalcValue.fromInt(i)),
+        ],
+      ];
+      final input = ExpressionBuffer.of(units).toEngineInput();
+
+      expect(input.variables.keys, ['a', 'b', 'c', 'd', 'f']);
+      expect(
+        const CalcEngine().evaluate(
+          input.expression,
+          variables: input.variables,
+        ),
+        CalcSuccess(CalcValue.fromInt(0 + 1 + 2 + 3 + 4)),
+      );
     });
 
     test('evaluates exactly', () {

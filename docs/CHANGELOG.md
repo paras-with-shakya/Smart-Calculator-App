@@ -19,6 +19,49 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-09-29: Phase 5, Module 1 (Scientific engine)
+
+The user approved Phase 5 ("phase 5 start"). This session built the whole engine module — the power operator, factorial, constants, 14 functions, exact/approximate values, angle mode — in one pass, without first taking the five P-6 defaults back to the user, which is a deviation from the previous session's own "Instructions For Next Session." Flagged in full in DEC-047 and DEVELOPMENT_STATUS.md, not silently absorbed. Not committed by the end of this entry's session; not phone-tested (no scientific UI exists yet).
+
+### Added
+
+- **`AngleMode`** (`packages/calc_engine/lib/src/angle_mode.dart`): `degrees` (default) or `radians`, a new third parameter on `CalcEngine.evaluate`.
+- **The power operator `^`** (right-associative, binds tighter than unary minus, looser than postfix `%`/`!`) and postfix **factorial `!`**, in the lexer, parser and AST.
+- **14 functions**: sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, log, ln, sqrt, cbrt, abs — an extensible `CalcFunction` enum plus a name→function lookup, so a new function needs no parser changes.
+- **Constants π and e** — always read as the constant, never as a variable, even if one of that name is supplied.
+- **`CalcError.undefined`**: a function argument outside its domain, a negative base with no real root, `0^(negative)`, or `!` of a negative/non-integer value.
+- **`test/scientific_test.dart`**: 117 new engine tests covering the power operator's precedence and exactness, every function's normal range and domain errors, both angle modes, and the constants.
+
+### Changed
+
+- **`CalcValue`** (`packages/calc_engine/lib/src/number/calc_value.dart`) rewritten from a single `Rational`-backed class into a sealed exact/approximate hierarchy (`_ExactCalcValue`/`_ApproximateCalcValue`), so irrational results (`sin(30.5°)`, `sqrt(2)`) can exist without losing exactness for the values that have it. Arithmetic is contagious: exact-op-exact stays exact.
+- **Exactness through `^`/`sqrt`/`cbrt`** is preserved wherever mathematically possible (perfect-root/perfect-power detection via `BigInt` binary search), for both positive and negative bases: `sqrt(4)=2`, `(−8)^(1/3)=−2`, `4^0.5=2` stay exact rather than becoming lossy doubles.
+- **Implied multiplication** now also applies to a number directly followed by a name (`2π`, `5sin(30)`), closing an inconsistency where a number before `(` already implied `×` (`2(3)`) but a number before an identifier didn't.
+- **`ExpressionBuffer._variableName`** (`lib/features/calculator/domain/expression_buffer.dart`) now skips the letter `e`, so the 5th+ inserted value is never silently misread as Euler's number.
+- **`calculator_display_formatter.dart`'s `error()`** gained a case for `CalcError.undefined` (and a new `errorUndefined` string in `app_en.arb`) — required for the app to compile against the bigger `CalcError` enum; not new scientific-mode UI.
+
+### Fixed
+
+- **`cos(90°)` computed to `6.12…e-17`, not exactly `0`** (ordinary IEEE 754 behaviour of converting through radians) — fixed with an epsilon snap-to-zero on sin/cos/tan results.
+- **`tan(90°)` silently returned a huge finite double instead of erroring** — fixed by checking, before computing, whether the exact input is an integer number of degrees at an odd multiple of 90.
+
+### Decisions
+
+- **DEC-047**: the full engine design — exact/approximate `CalcValue`, the power operator's semantics (settling the rest of P-6), every function's domain, angle mode, the implied-multiplication extension, the `'e'`-collision fix — and, explicitly, the deviation of implementing the P-6 defaults before asking rather than after.
+
+### Tests
+
+- **377 total** in `packages/calc_engine` (260 + 117 new). **465 app tests** (`flutter test`), 1 skipped, 0 failed — 1 more than before this session, from the `ExpressionBuffer` `'e'`-collision regression test.
+- **`flutter analyze`:** no issues. **`dart format lib test packages/calc_engine/lib packages/calc_engine/test`:** 4 files needed it (the engine files written earlier in this session's work), applied; clean afterwards.
+- **`flutter build apk --debug`:** built (25.8 s).
+- The robustness fuzz test's alphabet was extended to include `^ ! π e` and function-name letters, so it actually exercises the new syntax; still found no crashes across 20,000 random inputs.
+
+### Notes
+
+- Module 2 (the calculator's own scientific input logic: buffer support for function calls, the `^`/`!` keys, degree/radian mode as persisted state) and Module 3 (the scientific keypad UI) are not built yet.
+
+---
+
 ## 2026-09-29: Phase 4 (Saved calculations)
 
 The user approved Phase 4 (history had already landed earlier the same day — see the entry below) and delegated the saved-calculations UI design to Claude ("jaisa tum karo, waha karo" — P-12). No new UI was added to the calculator screen or the app shell; everything lives inside the screen History already owns.

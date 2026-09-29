@@ -408,10 +408,14 @@ final class ExpressionBuffer {
       (CalculatorSymbols.isDigit(unit.symbol) ||
           unit.symbol == CalculatorSymbols.decimalPoint);
 
-  /// A letter-only variable name for the [index]th value: a, b, … z, aa, ab…
+  /// A letter-only variable name for the [index]th value: a, b, c, d, f, g,
+  /// … z, aa, ab… The single letter `e` is skipped: the engine always reads
+  /// it as Euler's number, never a variable (see CalcEngine, "'e' and 'π'
+  /// are always the constants"), so a value named `e` would silently be
+  /// replaced by 2.718… instead of the value actually inserted.
   static String _variableName(int index) {
     final letters = StringBuffer();
-    var n = index;
+    var n = index < 4 ? index : index + 1;
     do {
       letters.write(String.fromCharCode(0x61 + n % 26));
       n = n ~/ 26 - 1;

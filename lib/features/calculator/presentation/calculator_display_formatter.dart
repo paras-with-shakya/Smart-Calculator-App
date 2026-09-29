@@ -135,6 +135,7 @@ final class CalculatorDisplayFormatter {
     CalcError.syntax => l10n.errorInvalid,
     CalcError.divisionByZero => l10n.errorDivisionByZero,
     CalcError.overflow => l10n.errorOverflow,
+    CalcError.undefined => l10n.errorUndefined,
   };
 
   String _valueInExpression(CalcValue unitValue, int index) {

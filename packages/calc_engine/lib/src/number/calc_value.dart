@@ -1,18 +1,22 @@
 import 'package:rational/rational.dart';
 
-/// A number the engine calculates with: an exact fraction.
+/// A number the engine calculates with: either an exact fraction, or an
+/// approximate (`double`) value for a result that isn't rational.
 ///
 /// The numeric library stays inside this folder, so it can be replaced
-/// without touching the rest of the engine or the app (DEC-008). Phase 5
-/// adds approximate values for irrational results; the public API stays the
-/// same.
-final class CalcValue {
-  const CalcValue._(this._value);
+/// without touching the rest of the engine or the app (DEC-008). Basic
+/// arithmetic (`+ − × ÷ %`), whole-number powers and factorials stay exact;
+/// irrational results (most of Phase 5's functions, non-perfect roots,
+/// fractional powers) are approximate. Combining an exact value with an
+/// approximate one is contagious: the result is approximate.
+sealed class CalcValue {
+  const CalcValue();
 
-  /// The integer [value].
-  CalcValue.fromInt(int value) : _value = Rational.fromInt(value);
+  /// The integer [value], exactly.
+  factory CalcValue.fromInt(int value) =>
+      _ExactCalcValue(Rational.fromInt(value));
 
-  /// Parses a decimal literal such as `12`, `0.5`, `.5` or `5.`.
+  /// Parses a decimal literal such as `12`, `0.5`, `.5` or `5.`, exactly.
   ///
   /// Throws a [FormatException] for anything else: signs, exponents,
   /// separators or a second decimal point.
@@ -25,62 +29,107 @@ final class CalcValue {
     final fraction = match.group(2) ?? '';
     final digits = '$whole$fraction';
     if (digits.isEmpty) throw FormatException('No digits', literal);
-    return CalcValue._(
+    return _ExactCalcValue(
       Rational(BigInt.parse(digits), _ten.pow(fraction.length)),
     );
   }
 
-  /// Zero.
-  static final CalcValue zero = CalcValue._(Rational.zero);
+  /// An approximate value, such as an irrational function result. Not
+  /// finite (infinite or NaN) becomes [isTooLarge] rather than a raw
+  /// double a caller could show.
+  factory CalcValue.approximate(double value) => _ApproximateCalcValue(value);
+
+  /// Zero, exactly.
+  static final CalcValue zero = CalcValue.fromInt(0);
 
   static final RegExp _decimalLiteral = RegExp(r'^(\d*)(?:\.(\d*))?$');
   static final BigInt _ten = BigInt.from(10);
 
   /// Results at or beyond 10^100 in size are reported as overflow.
   static final Rational _overflowLimit = Rational(_ten.pow(100));
-
-  final Rational _value;
+  static const double _doubleOverflowLimit = 1e100;
 
   /// Whether this is zero.
-  bool get isZero => _value == Rational.zero;
+  bool get isZero;
 
-  /// Whether this is too large to report (10^100 or more in size).
-  bool get isTooLarge => _value.abs() >= _overflowLimit;
+  /// Whether this is too large to report (10^100 or more in size), or not
+  /// finite.
+  bool get isTooLarge;
 
-  /// The sum of this and [other].
-  CalcValue operator +(CalcValue other) => CalcValue._(_value + other._value);
+  /// Whether this is an exact fraction, rather than an approximate value.
+  bool get isExact => this is _ExactCalcValue;
 
-  /// The difference of this and [other].
-  CalcValue operator -(CalcValue other) => CalcValue._(_value - other._value);
+  /// This value as a `double`, exactly for an approximate value, or by
+  /// (possibly lossy) conversion for an exact one.
+  double toDouble();
 
-  /// The product of this and [other].
-  CalcValue operator *(CalcValue other) => CalcValue._(_value * other._value);
+  /// The sum of this and [other]. Approximate if either is.
+  CalcValue operator +(CalcValue other) => switch ((this, other)) {
+    (final _ExactCalcValue a, final _ExactCalcValue b) => _ExactCalcValue(
+      a._value + b._value,
+    ),
+    _ => _ApproximateCalcValue(toDouble() + other.toDouble()),
+  };
 
-  /// The quotient of this and [other].
+  /// The difference of this and [other]. Approximate if either is.
+  CalcValue operator -(CalcValue other) => switch ((this, other)) {
+    (final _ExactCalcValue a, final _ExactCalcValue b) => _ExactCalcValue(
+      a._value - b._value,
+    ),
+    _ => _ApproximateCalcValue(toDouble() - other.toDouble()),
+  };
+
+  /// The product of this and [other]. Approximate if either is.
+  CalcValue operator *(CalcValue other) => switch ((this, other)) {
+    (final _ExactCalcValue a, final _ExactCalcValue b) => _ExactCalcValue(
+      a._value * b._value,
+    ),
+    _ => _ApproximateCalcValue(toDouble() * other.toDouble()),
+  };
+
+  /// The quotient of this and [other]. Approximate if either is.
   ///
   /// Throws an [ArgumentError] if [other] is zero; check [isZero] first.
   CalcValue operator /(CalcValue other) {
     if (other.isZero) throw ArgumentError.value(other, 'other', 'is zero');
-    return CalcValue._(_value / other._value);
+    return switch ((this, other)) {
+      (final _ExactCalcValue a, final _ExactCalcValue b) => _ExactCalcValue(
+        a._value / b._value,
+      ),
+      _ => _ApproximateCalcValue(toDouble() / other.toDouble()),
+    };
   }
 
   /// This value with its sign flipped.
-  CalcValue operator -() => CalcValue._(-_value);
+  CalcValue operator -();
 
-  /// A lossless text form for storage, such as `-7/3` or `42`. Read it back
-  /// with [tryParseStorage].
-  String toStorageString() => _value.isInteger
-      ? '${_value.numerator}'
-      : '${_value.numerator}/${_value.denominator}';
+  /// The absolute value.
+  CalcValue abs();
+
+  /// Whether this is (exactly, or as a whole-number double) negative.
+  bool get isNegative;
+
+  /// A lossless text form for storage, such as `-7/3`, `42` or (for an
+  /// approximate value) `~1.4142135623730951`. Read it back with
+  /// [tryParseStorage].
+  String toStorageString();
 
   /// Reads a value written by [toStorageString], or returns null if [text]
   /// is not in that form.
   static CalcValue? tryParseStorage(String text) {
+    if (text.startsWith('~')) {
+      final value = double.tryParse(text.substring(1));
+      return value == null || !value.isFinite
+          ? null
+          : _ApproximateCalcValue(value);
+    }
     final match = RegExp(r'^(-?\d+)(?:/(\d+))?$').firstMatch(text);
     if (match == null) return null;
     final denominator = BigInt.parse(match.group(2) ?? '1');
     if (denominator == BigInt.zero) return null;
-    return CalcValue._(Rational(BigInt.parse(match.group(1)!), denominator));
+    return _ExactCalcValue(
+      Rational(BigInt.parse(match.group(1)!), denominator),
+    );
   }
 
   /// This value as a locale-neutral decimal string, rounded to
@@ -90,6 +139,53 @@ final class CalcValue {
   /// scientific notation, which is used when the value is 10^[significantDigits]
   /// or more in size, or smaller than 10^-6. Trailing zeros are dropped, and
   /// zero is always `0` (never `-0`).
+  String toDecimalString({int significantDigits = 12});
+
+  @override
+  bool operator ==(Object other) =>
+      other is CalcValue &&
+      switch ((this, other)) {
+        (final _ExactCalcValue a, final _ExactCalcValue b) =>
+          a._value == b._value,
+        (final _ApproximateCalcValue a, final _ApproximateCalcValue b) =>
+          a._value == b._value,
+        _ => false,
+      };
+
+  @override
+  int get hashCode => toDouble().hashCode;
+}
+
+/// An exact fraction. The only place that imports `rational` directly.
+final class _ExactCalcValue extends CalcValue {
+  const _ExactCalcValue(this._value);
+
+  final Rational _value;
+
+  @override
+  bool get isZero => _value == Rational.zero;
+
+  @override
+  bool get isTooLarge => _value.abs() >= CalcValue._overflowLimit;
+
+  @override
+  bool get isNegative => _value.signum < 0;
+
+  @override
+  double toDouble() => _value.toDouble();
+
+  @override
+  CalcValue operator -() => _ExactCalcValue(-_value);
+
+  @override
+  CalcValue abs() => _ExactCalcValue(_value.abs());
+
+  @override
+  String toStorageString() => _value.isInteger
+      ? '${_value.numerator}'
+      : '${_value.numerator}/${_value.denominator}';
+
+  @override
   String toDecimalString({int significantDigits = 12}) {
     if (significantDigits < 1) {
       throw RangeError.value(significantDigits, 'significantDigits');
@@ -98,30 +194,29 @@ final class CalcValue {
     final sign = _value.signum < 0 ? '-' : '';
     final numerator = _value.numerator.abs();
     final denominator = _value.denominator;
+    final ten = CalcValue._ten;
 
     // exponent = floor(log10(|value|)), from the digit counts, corrected
     // by at most one.
     var exponent = numerator.toString().length - denominator.toString().length;
     if (exponent >= 0
-        ? numerator < denominator * _ten.pow(exponent)
-        : numerator * _ten.pow(-exponent) < denominator) {
+        ? numerator < denominator * ten.pow(exponent)
+        : numerator * ten.pow(-exponent) < denominator) {
       exponent--;
     }
 
     // The value scaled to exactly [significantDigits] integer digits, rounded
     // half away from zero.
     final shift = significantDigits - 1 - exponent;
-    final scaledNumerator = shift >= 0
-        ? numerator * _ten.pow(shift)
-        : numerator;
+    final scaledNumerator = shift >= 0 ? numerator * ten.pow(shift) : numerator;
     final scaledDenominator = shift >= 0
         ? denominator
-        : denominator * _ten.pow(-shift);
+        : denominator * ten.pow(-shift);
     var digits = scaledNumerator ~/ scaledDenominator;
     final remainder = scaledNumerator - digits * scaledDenominator;
     if (remainder * BigInt.two >= scaledDenominator) digits += BigInt.one;
-    if (digits == _ten.pow(significantDigits)) {
-      digits = _ten.pow(significantDigits - 1);
+    if (digits == ten.pow(significantDigits)) {
+      digits = ten.pow(significantDigits - 1);
       exponent++;
     }
     final text = digits.toString();
@@ -143,13 +238,76 @@ final class CalcValue {
   static String _trimTrailingZeros(String digits) =>
       digits.replaceFirst(RegExp(r'0+$'), '');
 
-  @override
-  bool operator ==(Object other) =>
-      other is CalcValue && other._value == _value;
-
-  @override
-  int get hashCode => _value.hashCode;
+  /// The underlying exact fraction. Only for other engine code inside
+  /// `src/number/` and `src/eval/` that needs exact-only operations
+  /// (integer powers, factorial, perfect-root checks).
+  Rational get rationalValue => _value;
 
   @override
   String toString() => 'CalcValue(${toStorageString()})';
 }
+
+/// An approximate value: a `double`, never NaN or infinite (those become
+/// [isTooLarge] before a `CalcValue` is ever constructed from them).
+final class _ApproximateCalcValue extends CalcValue {
+  _ApproximateCalcValue(this._value)
+    : assert(!_value.isNaN, 'Approximate CalcValue must be finite or ±∞');
+
+  final double _value;
+
+  @override
+  bool get isZero => _value == 0;
+
+  @override
+  bool get isTooLarge =>
+      !_value.isFinite || _value.abs() >= CalcValue._doubleOverflowLimit;
+
+  @override
+  bool get isNegative => _value < 0;
+
+  @override
+  double toDouble() => _value;
+
+  @override
+  CalcValue operator -() => _ApproximateCalcValue(-_value);
+
+  @override
+  CalcValue abs() => _ApproximateCalcValue(_value.abs());
+
+  @override
+  String toStorageString() => '~$_value';
+
+  @override
+  String toDecimalString({int significantDigits = 12}) {
+    if (significantDigits < 1) {
+      throw RangeError.value(significantDigits, 'significantDigits');
+    }
+    // The evaluator always checks isTooLarge (true for non-finite values)
+    // before a result reaches here.
+    assert(_value.isFinite, 'toDecimalString on a non-finite CalcValue');
+    if (_value == 0) return '0';
+    // Reuse the exact formatter: 17 significant digits round-trip any
+    // double exactly (IEEE-754 double precision), so converting through a
+    // Rational here loses nothing the double didn't already lose.
+    final precise = Rational.parse(_value.toStringAsExponential(16));
+    return _ExactCalcValue(precise)
+        .toDecimalString(significantDigits: significantDigits);
+  }
+
+  @override
+  String toString() => 'CalcValue(${toStorageString()})';
+}
+
+/// Engine-internal helpers for code in `src/eval/` that needs to work with
+/// the exact fraction directly (integer powers, factorial, perfect-root
+/// checks) or build a value from one.
+extension CalcValueInternal on CalcValue {
+  /// The exact fraction, or null if this value is approximate.
+  Rational? get exactValue {
+    final self = this;
+    return self is _ExactCalcValue ? self.rationalValue : null;
+  }
+}
+
+/// Builds an exact [CalcValue] from a [Rational]. Engine-internal.
+CalcValue calcValueFromRational(Rational value) => _ExactCalcValue(value);

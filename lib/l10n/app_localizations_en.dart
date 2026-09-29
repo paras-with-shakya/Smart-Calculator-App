@@ -291,4 +291,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorOverflow => 'Number too large';
+
+  @override
+  String get errorUndefined => 'Undefined result';
 }
