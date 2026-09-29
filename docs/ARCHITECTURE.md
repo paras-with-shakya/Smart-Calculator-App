@@ -89,9 +89,11 @@ The widget tests start the app through the same `AppRoot`, so they run the real 
 | `memoryRepositoryProvider` | `Provider<MemoryRepository>` | calculator/data | A `PreferencesMemoryRepository` |
 | `numberFormatProvider` | `Provider<LocalizedNumberFormat>` | core/formatting | The device region's number format, read from the platform locale |
 | `databaseFactoryProvider` | `Provider<DatabaseFactory>` | core/persistence | The sqflite plugin factory; tests use an FFI factory instead |
-| `appDatabaseProvider` | `FutureProvider<Database>` | core/persistence | Opened on first read, closed on dispose. Read by `historyRepositoryProvider` (§1.17). |
+| `appDatabaseProvider` | `FutureProvider<Database>` | core/persistence | Opened on first read, closed on dispose. Read by `historyRepositoryProvider` and `savedCalculationRepositoryProvider` (§1.17, §1.18). |
 | `historyRepositoryProvider` | `Provider<HistoryRepository>` | history/data | A `SqfliteHistoryRepository` |
 | `historyProvider` | `AsyncNotifierProvider<HistoryNotifier, List<HistoryEntry>>` | history/application | The history, newest first (§1.17) |
+| `savedCalculationRepositoryProvider` | `Provider<SavedCalculationRepository>` | saved_calculations/data | A `SqfliteSavedCalculationRepository` |
+| `savedCalculationsProvider` | `AsyncNotifierProvider<SavedCalculationsNotifier, List<SavedCalculation>>` | saved_calculations/application | The saved calculations, most recently updated first (§1.18) |
 
 Conventions:
 
@@ -250,7 +252,7 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | iOS | Bundle ID `com.parasshakya.smartcalculator` (tests: `.RunnerTests`), `CFBundleName` and `CFBundleDisplayName` "Smart Calculator" | Can't be built on Windows (P-5) |
 | web, Windows, Linux, macOS | Template identifiers (DEC-025) | Not built. Not supported targets (DEC-004). |
 
-### 1.15 Tests (439 in the normal app run, plus 260 in the engine)
+### 1.15 Tests (464 in the normal app run, plus 260 in the engine)
 
 | File | Covers |
 | --- | --- |
@@ -273,7 +275,10 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | `test/architecture/layer_boundaries_test.dart` | The engine and domain layers stay free of Flutter |
 | `test/features/history/data/sqflite_history_repository_test.dart` | Storage: adds, lists newest first, exact results, deletes one, clears all, an unrecognized stored mode falls back to basic |
 | `test/features/history/application/history_notifier_test.dart` | The provider: starts empty, add/delete/clear update the state, a fresh container reloads what was saved |
-| `test/features/history/presentation/history_content_test.dart` | The empty state, a computed result appearing, reuse (with and without a page to pop back to), search (including no matches), copy, delete, clear all with confirmation, the disabled clear-all button |
+| `test/features/history/presentation/history_content_test.dart` | The empty state, a computed result appearing, reuse (with and without a page to pop back to), search (including no matches), copy, delete, clear all with confirmation, the disabled clear-all button, the 3-action row (save, copy, delete) fits at 200% text |
+| `test/features/saved_calculations/data/sqflite_saved_calculation_repository_test.dart` | Storage: adds, lists most recently updated first, exact results, rename (and that it re-sorts), deletes one, clears all |
+| `test/features/saved_calculations/application/saved_calculations_notifier_test.dart` | The provider: starts empty, add/rename/delete/clear update the state, a fresh container reloads what was saved |
+| `test/features/saved_calculations/presentation/saved_calculations_content_test.dart` | Saving a history entry (and that the save action requires a name), the empty state, reuse, rename, delete, search, clear all with confirmation, that switching tabs clears the search field |
 | `test/design_review/…` | The screenshot generator (skipped by default; §1.9) |
 
 Helpers:
@@ -312,13 +317,28 @@ Helpers:
   - `HistoryRepository`, the interface: `list`, `add`, `delete`, `clear`.
 - **data:** `SqfliteHistoryRepository`, over the `history` table (schema v1, DEC-023). `expression` is locale-neutral text (`ExpressionBuffer.toCanonicalText()`, §1.13); `result` is stored exactly (`CalcValue.toStorageString()`); `mode` is a fixed string (`CalculatorModeStorage.storageId`, not the enum name, added to `app/modes/calculator_mode.dart`). None of this is re-parsed (DEC-044).
 - **application:** `HistoryNotifier` (`AsyncNotifier<List<HistoryEntry>>`): loads on first read, and `add`/`delete`/`clear` update its state after the write succeeds.
-- **presentation:** `HistoryContent`, used by both `HistoryPage` (pushed, on compact and medium windows) and `HistoryPanel` (always visible, on expanded windows), replacing their Phase 1 placeholders:
-  - a search field filtering the loaded list client-side, and a clear-all action (disabled when empty, confirmed with `showConfirmationDialog`)
-  - each entry: the stored expression, the result in the region's format, a copy action (clipboard) and a delete action
+- **presentation:** `HistoryContent`, used by both `HistoryPage` (pushed, on compact and medium windows) and `HistoryPanel` (always visible, on expanded windows), replacing their Phase 1 placeholders. It's a tab toggle (`AppChoiceGroup`, History/Saved, DEC-046) over two sections:
+  - **`_HistorySection`:** a search field filtering the loaded list client-side, and a clear-all action (disabled when empty, confirmed with `showConfirmationDialog`); each entry shows the stored expression and the result in the region's format, with save (§1.18), copy (clipboard) and delete actions
   - tapping an entry inserts its exact result at the cursor via a new `CalculatorNotifier.useHistoryResult` (the same mechanism MR uses), then pops back to the calculator if there's a page to pop back to
   - empty states for no history at all, and for a search matching nothing
+  - switching tabs resets the search field
 - **Wiring into the calculator:** `CalculatorNotifier._evaluate()` adds a history entry after every successful `=` (not on an error), reading the current mode from `currentModeProvider`. This is the only change to `calculator/application/`; the approved calculator screen's layout is untouched.
 - **Not built, by decision (DEC-044):** grouping by Today/Yesterday/earlier, paging, swipe-to-delete with Undo, a result "tape," a retention limit — all *(Proposed)* in ROADMAP.md, not required by Phase 4's "Done when" gate.
+
+### 1.18 Saved calculations (`lib/features/saved_calculations/`, Phase 4)
+
+A calculation the user chose to keep under a name, rather than one every `=` produces automatically. DEC-046 records why it's shaped this way and why it has no UI of its own on the calculator screen.
+
+- **domain:**
+  - `SavedCalculation`: the row id, the user's name, the same locale-neutral expression and exact result a history entry holds, and when it was created and last updated.
+  - `SavedCalculationRepository`, the interface: `list`, `add`, `rename`, `delete`, `clear`.
+- **data:** `SqfliteSavedCalculationRepository`, over the `saved_calculations` table (schema v1, DEC-023). `kind` is always the fixed string `'basic'` (no other calculator can produce one yet); `inputs_json` holds `{"expression": ..., "result": ...}`, encoded and decoded with `dart:convert`. Sorted most-recently-updated first; a rename updates `updated_at` too, so it moves to the top.
+- **application:** `SavedCalculationsNotifier` (`AsyncNotifier<List<SavedCalculation>>`): loads on first read; `add`/`delete`/`clear` patch its state directly, `rename` re-fetches the list (simplest way to get the new sort order right).
+- **presentation:**
+  - The Saved tab of `HistoryContent` (`_SavedSection`, `_SavedTile`): its own search field and clear-all (independent of History's), an empty state, and a search-with-no-matches state.
+  - Each entry shows its name, the result and the expression it came from; tapping it reuses the result exactly like a history entry; rename and delete actions sit beside it.
+  - **Saving** is a third action on a *history* entry (`_HistoryTile`, a bookmark icon next to copy and delete): it opens `lib/features/saved_calculations/presentation/save_name_sheet.dart`'s `promptForName` (a bottom sheet with an `AppTextField`, its action disabled until the name is non-empty), also reused for renaming.
+- **Not built, by decision (DEC-046):** editing a saved calculation's expression or result (only its name can change — see DEC-046 for why), and anything beyond `kind: 'basic'` (no other calculator produces a saved calculation yet).
 
 ## 2. Confirmed Decisions
 
@@ -334,8 +354,8 @@ Decided by the user. The "Implemented" column reflects the state after Phase 4's
 | Version control | Local Git, `main`, never push | Yes | DEC-006 |
 | State management | Riverpod 3 without code generation | Foundation (§1.4) | DEC-007 |
 | Calculation engine | Pure-Dart `packages/calc_engine`; numeric library hidden; exact arithmetic | Yes, for the basic calculator (§1.12; `rational` only, DEC-038) | DEC-008 |
-| Persistence | `SharedPreferencesWithCache` for settings; `sqflite` for history and saved calculations | Preferences: theme and calculator memory (§1.10). Database: history implemented (§1.17); saved calculations still schema only. | DEC-009 |
-| Testing | 200+ engine tests before the calculator UI counts as complete; unit, widget and integration tests | Engine gate met (260 engine tests); 439 app tests; no integration tests yet | DEC-010 |
+| Persistence | `SharedPreferencesWithCache` for settings; `sqflite` for history and saved calculations | Preferences: theme and calculator memory (§1.10). Database: both tables implemented (§1.17, §1.18). | DEC-009 |
+| Testing | 200+ engine tests before the calculator UI counts as complete; unit, widget and integration tests | Engine gate met (260 engine tests); 464 app tests; no integration tests yet | DEC-010 |
 | UI/UX | "Quiet precision" | Design system (§1.7–1.9), approved; used by the calculator | DEC-011 |
 | Navigation UX | Phones: mode pill and sheet, no bottom nav. Tablets and landscape: rail and history panel | Yes (§1.6); the panel is hidden below 480 dp of height (DEC-042) | DEC-012 |
 | Shared state | Basic and scientific share one calculator state | Prepared: one `calculatorProvider`, used by Basic; Scientific comes in Phase 5 | DEC-013 |
@@ -346,6 +366,7 @@ Decided by the user. The "Implemented" column reflects the state after Phase 4's
 | Percent | Smart percent: `50+10%` = 55, `50×10%` = 5 | Yes (§1.12) | DEC-036 |
 | Number format | Follows the device region (12,34,567.89 on an India-region phone) | Yes (§1.13) | DEC-037 |
 | History | Stores the exact result and locale-neutral text; reuse inserts the result, like MR | Yes (§1.17) | DEC-044 |
+| Saved calculations | A History/Saved tab toggle; saving is a history-entry action, not new UI on the calculator screen; "rename" is "edit" for now | Yes (§1.18) | DEC-046 |
 
 ## 3. Proposed Architecture (target design — NOT implemented yet)
 
@@ -378,15 +399,14 @@ The basic engine is built (§1.12). Still to come:
 
 ### 3.4 State (Phase 4 onward)
 
-- `AsyncNotifier` for persisted lists.
+- `AsyncNotifier` for persisted lists. **Done:** `HistoryNotifier` and `SavedCalculationsNotifier` (§1.17, §1.18).
 - The keypad already rebuilds only when the number format changes; keep new keypads that way.
 
 ### 3.5 Persistence still to come
 
-- The saved-calculation repository (Phase 4; the history repository is done, §1.17). Its interface goes in domain; the sqflite implementation goes in data, the same shape as `SqfliteHistoryRepository`.
 - Paged queries.
 - A history retention limit and an off switch (values not decided).
-- Saved calculations reopen the right tool from `kind` plus `inputs_json`.
+- Saved calculations reopening the right *tool* from `kind` plus `inputs_json` (Phase 7 and later): only `kind: 'basic'` exists so far (§1.18), which just reuses the result; a future kind's own screen reopening from its saved inputs is still to come.
 - The last mode in preferences. Right now the current mode isn't persisted (DEC-021). The memory already is (§1.10).
 - If desktop is ever wanted, only the database setup would need a desktop SQLite driver.
 

@@ -13,7 +13,7 @@ Phase 0  Audit & architecture ............ COMPLETED 2026-09-28
 Phase 1  Foundation ...................... COMPLETED 2026-09-28
 Phase 2  Design system ................... COMPLETED 2026-09-28 (design approved)
 Phase 3  Basic calculator + engine + memory COMPLETED 2026-09-28, audited 2026-09-28
-Phase 4  History + saved calculations .... IN PROGRESS: History done 2026-09-29; saved calculations not started
+Phase 4  History + saved calculations .... COMPLETED 2026-09-29 (both halves; phone-tested)
 Phase 5  Scientific ...................... planned
 Phase 6  Converters ...................... planned
 Phase 7  Financial ....................... planned
@@ -124,25 +124,23 @@ The user approved it on 2026-09-28 ("phase 2 approv and start phase 3"), and cho
 
 ---
 
-## In Progress
+### Phase 4: History and saved calculations (complete, 2026-09-29)
 
-### Phase 4: History and saved calculations (History done 2026-09-29; saved calculations not started)
+The user approved Phase 4 on 2026-09-29. ARCHITECTURE.md §1.17 (history) and §1.18 (saved calculations) describe it; DEC-044, DEC-045 and DEC-046 record the decisions. Phone-tested on the user's device: computing, viewing, search, copy, delete, reuse, clear-all (cancel and confirm), the empty states, saving a history entry, renaming a saved one, and reusing it.
 
-The user approved Phase 4 on 2026-09-29. Commit for the History module: see CHANGELOG.md. ARCHITECTURE.md §1.17 describes it; DEC-044 and DEC-045 record the decisions.
-
-- **Start by** confirming the v1 table columns (DEC-023) before anything writes to them. **Done:** the existing schema (`expression`, `result`, `mode`, `created_at`) fit without a migration; see DEC-044 for what each column holds.
+- **Start by** confirming the v1 table columns (DEC-023) before anything writes to them. **Done:** the existing schema (`expression`, `result`, `mode`, `created_at`; `name`, `kind`, `inputs_json`, `created_at`, `updated_at`) fit both features without a migration; see DEC-044 and DEC-046 for what each column holds.
 - **History:**
   - Each item stores the expression, result, timestamp and mode. **Done.**
   - View, search, reuse, copy, delete an item, clear all. **Done** (DEC-044): reuse inserts the exact result, like MR; delete is a button, not swipe.
   - An empty state, and confirmation before destructive actions. **Done**: two empty states (no history; a search with no matches), and `showConfirmationDialog` before Clear all.
   - It persists locally. The history panel and page replace their Phase 1 placeholders. **Done.**
-- **Saved calculations:** save, rename, edit, reuse and delete. The master prompt's examples: mortgage, BMI, tax, monthly budget. **Not started.** Saving a calculation needs a new tap target on the calculator screen (a UI decision touching the approved Phase 2/3 design), which the user hasn't decided yet; the master prompt's example tools (mortgage, BMI, tax) don't exist until Phase 7 in any case (see "Deferred" below).
+- **Saved calculations:** save, rename, edit, reuse and delete. The master prompt's examples: mortgage, BMI, tax, monthly budget. **Done**, for the one calculator that exists (Basic): a History/Saved tab toggle inside the same screen, saving triggered from a history entry rather than the calculator screen (DEC-046, the user's UI decision delegated to Claude — "jaisa tum karo, waha karo"). "Rename" covers "edit" for now, since a basic saved calculation has no other input to change. The master prompt's example *tools* (mortgage, BMI, tax) don't exist until Phase 7 (see "Deferred" below); saving one of those will need `SavedCalculation` to grow beyond `kind: 'basic'`.
 - *(Proposed, not built, deferred by decision — DEC-044)*:
   - grouping by Today, Yesterday and earlier; paging
   - swipe-to-delete with Undo (a labelled delete button was used instead, for discoverability and easier accessibility)
   - a result "tape" on the calculator display
   - a retention limit and an off switch
-- **Done when:** the storage tests and widget tests pass. **History: done** — `test/features/history/` (repository, notifier, widget) plus the engine-side `ExpressionBuffer.toCanonicalText` tests, all passing.
+- **Done when:** the storage tests and widget tests pass. **Done** — `test/features/history/` and `test/features/saved_calculations/` (repository, notifier, widget, 48 tests together) plus the engine-side `ExpressionBuffer.toCanonicalText` tests, all passing; verified again on the user's phone.
 
 ---
 

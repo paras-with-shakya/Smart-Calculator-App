@@ -2,7 +2,7 @@
 
 This is the entry point for every Claude Code session on this project. Read it first, then follow the **Context Recovery Protocol** below before doing any work.
 
-**Snapshot (2026-09-29):** Phases 1–3 are complete (Phase 3 audited, see docs/DEVELOPMENT_STATUS.md "Phase 3 Audit"). **Phase 4 is approved and in progress: History is implemented** (not yet committed) **but blocked on two things the user must resolve first** — see docs/DEVELOPMENT_STATUS.md's "What happens next?" and Known Issues #13. Saved calculations hasn't started (blocked on P-12). Don't start Phase 5 without explicit approval. If this line disagrees with [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), check `git log` and the code, then fix the docs.
+**Snapshot (2026-09-29):** Phases 1–4 are complete. Phase 3 was audited (docs/DEVELOPMENT_STATUS.md, "Phase 3 Audit"). **Phase 4 (history and saved calculations) is done and phone-tested**; history is committed (`1604248`), saved calculations is built and QA-clean but not yet committed (nothing blocks that). Don't start Phase 5 without explicit approval. If this line disagrees with [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), check `git log` and the code, then fix the docs.
 
 ## Source of truth
 

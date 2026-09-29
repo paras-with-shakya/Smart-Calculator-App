@@ -68,7 +68,7 @@
   "@historyClearAllConfirmTitle": {
     "description": "Title of the dialog confirming that the whole calculation history should be cleared."
   },
-  "historyClearAllConfirmMessage": "This removes every saved calculation. This can't be undone.",
+  "historyClearAllConfirmMessage": "This removes every calculation in your history. This can't be undone.",
   "@historyClearAllConfirmMessage": {
     "description": "Message of the dialog confirming that the whole calculation history should be cleared."
   },
@@ -98,6 +98,110 @@
   "@historyEntrySemanticLabel": {
     "description": "Accessibility label of a history entry; tapping it reuses the result.",
     "placeholders": {
+      "expression": {
+        "type": "String",
+        "example": "5+3"
+      },
+      "result": {
+        "type": "String",
+        "example": "8"
+      }
+    }
+  },
+  "historyTabLabel": "History",
+  "@historyTabLabel": {
+    "description": "Label of the tab showing calculation history, next to the saved-calculations tab."
+  },
+  "savedTabLabel": "Saved",
+  "@savedTabLabel": {
+    "description": "Label of the tab showing saved calculations, next to the history tab."
+  },
+  "savedSaveTooltip": "Save calculation",
+  "@savedSaveTooltip": {
+    "description": "Tooltip and accessibility label of the button that saves a history entry as a named, kept calculation."
+  },
+  "savedSaveSheetTitle": "Save calculation",
+  "@savedSaveSheetTitle": {
+    "description": "Heading of the sheet where the user names a calculation before saving it."
+  },
+  "savedNameLabel": "Name",
+  "@savedNameLabel": {
+    "description": "Label of the text field for a saved calculation's name."
+  },
+  "savedNameHint": "e.g. Rent budget",
+  "@savedNameHint": {
+    "description": "Example text shown in the empty name field when saving or renaming a calculation."
+  },
+  "savedSaveAction": "Save",
+  "@savedSaveAction": {
+    "description": "Button that confirms saving a calculation under the name typed."
+  },
+  "savedSavedMessage": "Saved “{name}”",
+  "@savedSavedMessage": {
+    "description": "Shown briefly after saving a calculation.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Rent budget"
+      }
+    }
+  },
+  "savedRenameTooltip": "Rename",
+  "@savedRenameTooltip": {
+    "description": "Tooltip and accessibility label of the button that renames a saved calculation."
+  },
+  "savedRenameSheetTitle": "Rename",
+  "@savedRenameSheetTitle": {
+    "description": "Heading of the sheet where the user renames a saved calculation."
+  },
+  "savedRenameAction": "Rename",
+  "@savedRenameAction": {
+    "description": "Button that confirms renaming a saved calculation."
+  },
+  "savedDeleteTooltip": "Delete",
+  "@savedDeleteTooltip": {
+    "description": "Tooltip and accessibility label of the button that deletes one saved calculation."
+  },
+  "savedEmptyTitle": "No saved calculations yet",
+  "@savedEmptyTitle": {
+    "description": "Heading shown when there are no saved calculations."
+  },
+  "savedEmptyMessage": "Save a result from your history to find it here later.",
+  "@savedEmptyMessage": {
+    "description": "Message shown when there are no saved calculations."
+  },
+  "savedSearchLabel": "Search saved calculations",
+  "@savedSearchLabel": {
+    "description": "Label of the text field that filters saved calculations."
+  },
+  "savedSearchEmptyMessage": "No matching saved calculations.",
+  "@savedSearchEmptyMessage": {
+    "description": "Shown when a search of saved calculations matches nothing."
+  },
+  "savedClearAllTooltip": "Clear all saved calculations",
+  "@savedClearAllTooltip": {
+    "description": "Tooltip and accessibility label of the button that clears every saved calculation."
+  },
+  "savedClearAllConfirmTitle": "Clear all saved calculations?",
+  "@savedClearAllConfirmTitle": {
+    "description": "Title of the dialog confirming that every saved calculation should be cleared."
+  },
+  "savedClearAllConfirmMessage": "This removes every saved calculation. This can't be undone.",
+  "@savedClearAllConfirmMessage": {
+    "description": "Message of the dialog confirming that every saved calculation should be cleared."
+  },
+  "savedClearAllConfirmAction": "Clear all",
+  "@savedClearAllConfirmAction": {
+    "description": "Confirm button of the dialog that clears every saved calculation."
+  },
+  "savedEntrySemanticLabel": "{name}: {expression} equals {result}",
+  "@savedEntrySemanticLabel": {
+    "description": "Accessibility label of a saved calculation; tapping it reuses the result.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Rent budget"
+      },
       "expression": {
         "type": "String",
         "example": "5+3"

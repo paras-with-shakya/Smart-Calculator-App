@@ -199,7 +199,7 @@ abstract class AppLocalizations {
   /// Message of the dialog confirming that the whole calculation history should be cleared.
   ///
   /// In en, this message translates to:
-  /// **'This removes every saved calculation. This can\'t be undone.'**
+  /// **'This removes every calculation in your history. This can\'t be undone.'**
   String get historyClearAllConfirmMessage;
 
   /// Confirm button of the dialog that clears the whole calculation history.
@@ -231,6 +231,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{expression} equals {result}'**
   String historyEntrySemanticLabel(String expression, String result);
+
+  /// Label of the tab showing calculation history, next to the saved-calculations tab.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get historyTabLabel;
+
+  /// Label of the tab showing saved calculations, next to the history tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get savedTabLabel;
+
+  /// Tooltip and accessibility label of the button that saves a history entry as a named, kept calculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Save calculation'**
+  String get savedSaveTooltip;
+
+  /// Heading of the sheet where the user names a calculation before saving it.
+  ///
+  /// In en, this message translates to:
+  /// **'Save calculation'**
+  String get savedSaveSheetTitle;
+
+  /// Label of the text field for a saved calculation's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get savedNameLabel;
+
+  /// Example text shown in the empty name field when saving or renaming a calculation.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Rent budget'**
+  String get savedNameHint;
+
+  /// Button that confirms saving a calculation under the name typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get savedSaveAction;
+
+  /// Shown briefly after saving a calculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved “{name}”'**
+  String savedSavedMessage(String name);
+
+  /// Tooltip and accessibility label of the button that renames a saved calculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get savedRenameTooltip;
+
+  /// Heading of the sheet where the user renames a saved calculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get savedRenameSheetTitle;
+
+  /// Button that confirms renaming a saved calculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get savedRenameAction;
+
+  /// Tooltip and accessibility label of the button that deletes one saved calculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get savedDeleteTooltip;
+
+  /// Heading shown when there are no saved calculations.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved calculations yet'**
+  String get savedEmptyTitle;
+
+  /// Message shown when there are no saved calculations.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a result from your history to find it here later.'**
+  String get savedEmptyMessage;
+
+  /// Label of the text field that filters saved calculations.
+  ///
+  /// In en, this message translates to:
+  /// **'Search saved calculations'**
+  String get savedSearchLabel;
+
+  /// Shown when a search of saved calculations matches nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching saved calculations.'**
+  String get savedSearchEmptyMessage;
+
+  /// Tooltip and accessibility label of the button that clears every saved calculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all saved calculations'**
+  String get savedClearAllTooltip;
+
+  /// Title of the dialog confirming that every saved calculation should be cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all saved calculations?'**
+  String get savedClearAllConfirmTitle;
+
+  /// Message of the dialog confirming that every saved calculation should be cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes every saved calculation. This can\'t be undone.'**
+  String get savedClearAllConfirmMessage;
+
+  /// Confirm button of the dialog that clears every saved calculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get savedClearAllConfirmAction;
+
+  /// Accessibility label of a saved calculation; tapping it reuses the result.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {expression} equals {result}'**
+  String savedEntrySemanticLabel(String name, String expression, String result);
 
   /// Title of the settings page, and tooltip of the button that opens it.
   ///

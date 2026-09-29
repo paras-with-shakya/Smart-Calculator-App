@@ -209,4 +209,19 @@ void main() {
     // Both the display and the history row show 8 now.
     expect(find.text('8'), findsNWidgets(2));
   });
+
+  testWidgets(
+    'a phone-width entry with its 3 actions (save, copy, delete) fits at '
+    '200% text',
+    (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpWithOneEntry(tester, '5+3');
+
+      expect(tester.takeException(), isNull);
+      expect(find.byTooltip(l10n.savedSaveTooltip), findsOneWidget);
+      expect(find.byTooltip(l10n.historyCopyTooltip), findsOneWidget);
+      expect(find.byTooltip(l10n.historyDeleteTooltip), findsOneWidget);
+    },
+  );
 }

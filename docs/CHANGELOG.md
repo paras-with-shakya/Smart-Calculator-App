@@ -19,9 +19,36 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-09-29: Phase 4 (Saved calculations)
+
+The user approved Phase 4 (history had already landed earlier the same day — see the entry below) and delegated the saved-calculations UI design to Claude ("jaisa tum karo, waha karo" — P-12). No new UI was added to the calculator screen or the app shell; everything lives inside the screen History already owns.
+
+### Added
+
+- **Saved calculations** (`lib/features/saved_calculations/`): `SavedCalculation`, `SavedCalculationRepository`, `SqfliteSavedCalculationRepository` (over the existing `saved_calculations` table, schema v1 — no migration needed; `kind` is always `'basic'` for now), `SavedCalculationsNotifier`. DEC-046 records what's stored and why the UI is shaped this way.
+- **A History/Saved tab toggle** (`AppChoiceGroup`) inside `HistoryContent`, above the list; switching tabs resets the search field.
+- **Saving**, a new third action on a history entry (a bookmark icon, alongside copy and delete): opens `lib/features/saved_calculations/presentation/save_name_sheet.dart`'s `promptForName`, a bottom sheet with an `AppTextField` whose action button is disabled until the name is non-empty. The same sheet is reused for renaming a saved entry.
+- **The Saved tab:** its own search and clear-all (independent of History's), an empty state, and a search-with-no-matches state. Each entry shows its name, result and expression; tapping it reuses the result exactly like a history entry; rename and delete actions sit beside it.
+
+### Tests
+
+- **24 new tests**, all passing: `test/features/saved_calculations/data/sqflite_saved_calculation_repository_test.dart` (8), `test/features/saved_calculations/application/saved_calculations_notifier_test.dart` (6), `test/features/saved_calculations/presentation/saved_calculations_content_test.dart` (9), plus one in `test/features/history/presentation/history_content_test.dart` checking the history tile's new 3-action row (save, copy, delete) fits at 200% text.
+- **`flutter analyze`:** no issues. **`dart format --set-exit-if-changed`:** 119 files, 0 changed.
+- **`flutter test` (whole suite):** 464 passed, 1 skipped (the design-review generator), 0 failed.
+- **`dart test`, `packages/calc_engine`:** 260 passed, unchanged.
+- **`flutter build apk --debug`:** built (40.2 s). Installed on the user's phone (`23124RN87I`) and tested directly: saving a history entry (and that the Save button needs a name first), switching to the Saved tab, renaming an entry, reusing it (returns to the calculator with the exact result loaded), and deleting it (showing the "No saved calculations yet" empty state, with clear-all correctly disabled). Every check passed on the first try. Full detail in DEVELOPMENT_STATUS.md, "Test on the user's phone: saved calculations."
+
+### Notes
+
+- **Not built, by decision (DEC-046):** editing a saved calculation's expression or result — only its name can change, since the expression and result are a historical fact. Richer editing arrives with calculators that have real inputs to edit (Phase 7).
+- **The master prompt's example saved-calculation tools** (mortgage, BMI, tax, monthly budget) still don't exist — they're Phase 7 tools. `kind: 'basic'` is the only kind so far; a future kind will need `SavedCalculation` and its repository to grow.
+- Not yet committed as of this entry; see the "History module" entry below for the commit this built on top of.
+
+---
+
 ## 2026-09-29: Phase 4 (History module)
 
-The user approved Phase 4 ("phaes 4 start"). This entry covers the History half only — saved calculations hasn't started, blocked on a UI decision (see "Notes"). **Not committed yet**: a stray scaffold accidentally created inside `packages/calc_engine` this session needs the user to remove it first (see "Notes").
+The user approved Phase 4 ("phaes 4 start"). This entry covers the History half; see the entry above for saved calculations, built later the same day. Committed as `1604248`, after the user deleted a stray scaffold accidentally created inside `packages/calc_engine` this session (see "Notes").
 
 ### Added
 
@@ -50,14 +77,13 @@ Found while building this module, before anything was committed:
 
 - **27 new tests**, all passing: `test/features/history/data/sqflite_history_repository_test.dart` (9), `test/features/history/application/history_notifier_test.dart` (5), `test/features/history/presentation/history_content_test.dart` (10), `test/features/calculator/domain/expression_buffer_test.dart` (+3, `toCanonicalText`), `test/features/calculator/application/calculator_notifier_test.dart` (+5, writing and reusing history).
 - **`flutter analyze`:** no issues.
-- **`flutter test` (whole suite):** 438 passed, 1 skipped, 1 failed. **The 1 failure is `layer_boundaries_test.dart`, caused entirely by an unrelated environmental accident** (see "Notes"), not by anything in this entry — every History-specific test file passes cleanly in isolation.
+- **`flutter test` (whole suite):** 438 passed, 1 skipped, 1 failed at first — the failure was `layer_boundaries_test.dart`, caused entirely by an unrelated environmental accident (see "Notes"), not by anything in this entry. Clean (464 passed, 1 skipped, 0 failed — the higher count includes the saved-calculations entry above) once the user removed the stray files.
 - **`dart test`, `packages/calc_engine`:** 260 passed, unchanged (the engine wasn't touched).
 - **`flutter build apk --debug`:** built successfully despite the stray scaffold below (nothing imports `packages/calc_engine/lib/main.dart`, so it doesn't affect the build). Installed on the user's phone (`23124RN87I`, Android 15) at the user's request and tested directly: computing results, viewing history, copy, delete, reuse (loads the exact result back into the calculator and returns), search, clear-all (cancel and confirm), the empty state, and confirming a division-by-zero error does **not** get logged. Every check passed. A memory (MR) regression check confirmed History didn't disturb the existing memory feature. Full detail in DEVELOPMENT_STATUS.md, "Test on the user's phone."
 
 ### Notes
 
-- **A blocking accident, reported rather than worked around:** at some point this session, a full `flutter create`-style scaffold appeared inside `packages/calc_engine/` — `lib/main.dart` (imports `package:flutter/material.dart`), `android/`, `.metadata`, `analysis_options.yaml`, `.gitignore`, `.idea/`, `calc_engine.iml`, all untracked, all created within the same second. The triggering command isn't confirmed with certainty. Confirmed **unaffected**: `packages/calc_engine/pubspec.yaml` (`git diff` empty) and every real engine source file (all 260 engine tests still pass). Claude tried to delete the stray files; the sandbox's safety layer correctly refused a destructive operation on a directory, so this is now the user's decision — see DEVELOPMENT_STATUS.md's Known Issues #13 for the exact list to delete.
-- **Saved calculations not started.** It needs a new tap target on the calculator screen to trigger a save, which touches the already-approved Phase 2/3 design, so it wasn't added without asking (P-12 in DEVELOPMENT_STATUS.md).
+- **An accident, reported rather than worked around, now resolved:** at some point this session, a full `flutter create`-style scaffold appeared inside `packages/calc_engine/` — `lib/main.dart` (imports `package:flutter/material.dart`), `android/`, `.metadata`, `analysis_options.yaml`, `.gitignore`, `.idea/`, `calc_engine.iml`, all untracked, all created within the same second. The triggering command isn't confirmed with certainty. Confirmed **unaffected**: `packages/calc_engine/pubspec.yaml` (`git diff` empty) and every real engine source file (all 260 engine tests still pass). Claude tried to delete the stray files; the sandbox's safety layer correctly refused a destructive operation on a directory. The user deleted them ("okay delete"); see DEVELOPMENT_STATUS.md's Known Issues #13.
 - **Not built, by decision (DEC-044):** history grouping (Today/Yesterday/earlier), paging, swipe-to-delete with Undo, a result "tape," a retention limit — all `(Proposed)` in ROADMAP.md, not required by Phase 4's "Done when" gate.
 
 ---

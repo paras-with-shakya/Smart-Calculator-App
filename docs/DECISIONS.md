@@ -1344,3 +1344,36 @@ Then stop.
 - **Rejected:** a real temp-file database per test (more moving parts — directory creation and cleanup — for no benefit over true in-memory).
 
 **Impact:** Any future provider that owns a real resource (another database-backed feature, a future network client) follows this same pattern: override it through `AppRoot.overrides`/`pumpApp`, not a wrapping `ProviderScope`.
+
+---
+
+### [DEC-046] Saved calculations: where "save" lives, and what it means for now
+
+- **Status:** Adopted (Phase 4 implementation; the user delegated this design to Claude — "jaisa tum karo, waha karo," 2026-09-29)
+- **Date:** 2026-09-29
+- **Implemented:** Yes (`lib/features/saved_calculations/`, `lib/features/history/presentation/history_content.dart`)
+
+**Context:** ROADMAP.md's Phase 4 scope: "save, rename, edit, reuse and delete" a calculation. P-12 asked how saving should be triggered from the calculator screen; the user's answer was to let Claude decide ("however you do it, do it there"). The constraint carried into that decision: the calculator screen and the app shell (mode pill, history/settings icons) are the *already-approved* Phase 2/3 UI (DEC-011, DEC-012, DEC-022), and shouldn't gain new tap targets without being asked for.
+
+**Decision:**
+
+- **No new UI on the calculator screen or the shell header.** Saved calculations live entirely inside the screen History already owns.
+- **A tab toggle** (`AppChoiceGroup`, History/Saved) sits above `HistoryContent`'s list, shared by the history page and panel. Switching tabs resets the search field.
+- **Saving is triggered from a history entry**, not the calculator: a third action (a bookmark icon, alongside copy and delete) opens a name sheet (`showAppBottomSheet` with an `AppTextField`; the action button is disabled until the name is non-empty).
+- **`SavedCalculation`** mirrors `HistoryEntry`'s shape (name plus the same exact expression/result), stored in the existing `saved_calculations` table's `inputs_json` as `{"expression": ..., "result": ...}`. `kind` is a fixed `'basic'` for now — no other calculator produces a saved calculation yet.
+- **"Rename" is "edit," for now.** A basic saved calculation has no inputs to edit beyond its name; richer editing (loan amount, interest rate, and so on) arrives with the calculators that need it (Phase 7).
+- **Reuse, search and clear-all** work exactly like History's (DEC-044): reuse inserts the exact result at the cursor; clear-all asks for confirmation first; each tab's search and clear-all act only on that tab's list.
+
+**Reason:**
+
+- Reusing the screen History already owns avoids a new navigation route and a new shell affordance for what is, functionally, "history you keep on purpose."
+- `AppChoiceGroup`, `showAppBottomSheet` and `AppTextField` already exist and fit exactly; no new reusable component was needed (unlike History, which needed `DisplayText` and a memory key kind in Phase 3 — DEC-043).
+- Triggering "save" from a history entry, rather than from the calculator mid-calculation, means the result is already known and exact by the time it's named — there's nothing to compute or validate.
+
+**Alternatives:**
+
+- **Rejected:** a third icon in the calculator header or the shell, next to history and settings. Touches the approved Phase 2/3 UI, which the user asked Claude not to do without being told to.
+- **Rejected:** a separate pushed page/route for saved calculations. Splits two closely related lists (things you've calculated; things you chose to keep) across two navigation destinations for no real benefit.
+- **Rejected:** letting "rename" also edit the expression or result directly. A saved basic calculation's expression and result are a historical fact (what was actually calculated); changing them would misrepresent what happened. A new calculation should be saved instead.
+
+**Impact:** When a future mode (Phase 7's EMI, GST, and so on) needs to save its own kind of calculation, `SavedCalculation`, the repository and the notifier will need to grow to hold that kind's inputs — this decision's "`kind` is always `'basic'`" note is the marker for where that change starts.

@@ -63,7 +63,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyClearAllConfirmMessage =>
-      'This removes every saved calculation. This can\'t be undone.';
+      'This removes every calculation in your history. This can\'t be undone.';
 
   @override
   String get historyClearAllConfirmAction => 'Clear all';
@@ -82,6 +82,79 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String historyEntrySemanticLabel(String expression, String result) {
     return '$expression equals $result';
+  }
+
+  @override
+  String get historyTabLabel => 'History';
+
+  @override
+  String get savedTabLabel => 'Saved';
+
+  @override
+  String get savedSaveTooltip => 'Save calculation';
+
+  @override
+  String get savedSaveSheetTitle => 'Save calculation';
+
+  @override
+  String get savedNameLabel => 'Name';
+
+  @override
+  String get savedNameHint => 'e.g. Rent budget';
+
+  @override
+  String get savedSaveAction => 'Save';
+
+  @override
+  String savedSavedMessage(String name) {
+    return 'Saved “$name”';
+  }
+
+  @override
+  String get savedRenameTooltip => 'Rename';
+
+  @override
+  String get savedRenameSheetTitle => 'Rename';
+
+  @override
+  String get savedRenameAction => 'Rename';
+
+  @override
+  String get savedDeleteTooltip => 'Delete';
+
+  @override
+  String get savedEmptyTitle => 'No saved calculations yet';
+
+  @override
+  String get savedEmptyMessage =>
+      'Save a result from your history to find it here later.';
+
+  @override
+  String get savedSearchLabel => 'Search saved calculations';
+
+  @override
+  String get savedSearchEmptyMessage => 'No matching saved calculations.';
+
+  @override
+  String get savedClearAllTooltip => 'Clear all saved calculations';
+
+  @override
+  String get savedClearAllConfirmTitle => 'Clear all saved calculations?';
+
+  @override
+  String get savedClearAllConfirmMessage =>
+      'This removes every saved calculation. This can\'t be undone.';
+
+  @override
+  String get savedClearAllConfirmAction => 'Clear all';
+
+  @override
+  String savedEntrySemanticLabel(
+    String name,
+    String expression,
+    String result,
+  ) {
+    return '$name: $expression equals $result';
   }
 
   @override
