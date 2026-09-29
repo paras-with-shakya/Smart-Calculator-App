@@ -14,7 +14,7 @@ Phase 1  Foundation ...................... COMPLETED 2026-09-28
 Phase 2  Design system ................... COMPLETED 2026-09-28 (design approved)
 Phase 3  Basic calculator + engine + memory COMPLETED 2026-09-28, audited 2026-09-28
 Phase 4  History + saved calculations .... COMPLETED 2026-09-29 (both halves; phone-tested)
-Phase 5  Scientific ...................... in progress (engine module done 2026-09-29, not committed; keypad and input logic not started)
+Phase 5  Scientific ...................... in progress (engine module done and committed 2026-09-29, `ef7b0ba`; keypad and input logic not started)
 Phase 6  Converters ...................... planned
 Phase 7  Financial ....................... planned
 Phase 8  Date calculator ................. planned
@@ -144,9 +144,9 @@ The user approved Phase 4 on 2026-09-29. ARCHITECTURE.md §1.17 (history) and §
 
 ---
 
-### Phase 5: Scientific (in progress — engine module done 2026-09-29, not committed)
+### Phase 5: Scientific (in progress — engine module done and committed 2026-09-29)
 
-The user approved Phase 5 on 2026-09-29 ("phase 5 start"). ARCHITECTURE.md §1.12 describes the engine; DEC-047 records the decisions, including a flagged deviation (the P-6 defaults below were implemented before being put back to the user, not after — see DEC-047's "Deviation" note and DEVELOPMENT_STATUS.md).
+The user approved Phase 5 on 2026-09-29 ("phase 5 start"). ARCHITECTURE.md §1.12 describes the engine; DEC-047 records the decisions, including a flagged deviation (the P-6 defaults below were implemented before being put back to the user, not after — see DEC-047's "Deviation" note and DEVELOPMENT_STATUS.md). Committed as `ef7b0ba`.
 
 | Scope item | Result |
 | --- | --- |

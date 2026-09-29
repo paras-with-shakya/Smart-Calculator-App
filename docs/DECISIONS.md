@@ -1384,7 +1384,7 @@ Then stop.
 
 - **Status:** Adopted (Phase 5, Module 1 implementation; open to the user's review — see DEVELOPMENT_STATUS.md's "Deviation" note, since this was built before the user confirmed the P-6 defaults, not after)
 - **Date:** 2026-09-29
-- **Implemented:** Yes (`packages/calc_engine`; 377 engine tests)
+- **Implemented:** Yes (`packages/calc_engine`, commit `ef7b0ba`; 377 engine tests)
 
 **Context:** ROADMAP.md's Phase 5 scope needs `^`, `!`, π, e, sin/cos/tan/asin/acos/atan/sinh/cosh/tanh, log/ln, sqrt/cbrt, abs, and degree/radian mode. P-6 left five defaults open before this could be built: `−3²`, `2^3^2`, `0^0`, `(−8)^(1/3)`, `tan 90°`. DEVELOPMENT_STATUS.md's own "Instructions For Next Session" said to settle P-6 *before* building the function registry; that didn't happen — see the deviation note below.
 

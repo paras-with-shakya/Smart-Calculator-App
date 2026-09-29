@@ -2,7 +2,7 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-09-29, end of Phase 5 Module 1 (the scientific engine: built, tested, QA-clean; not yet committed; the user has not yet reviewed the P-6 defaults — see "Deviation" below).
+**Last updated:** 2026-09-29, end of Phase 5 Module 1 (the scientific engine: built, tested, QA-clean, committed `ef7b0ba`; the user has not yet reviewed the P-6 defaults — see "Deviation" below).
 
 ## At a Glance
 
@@ -12,7 +12,7 @@
 | What exists in code? | Everything from Phase 3–4, plus the engine's power operator, factorial, constants (π, e), 14 functions, exact/approximate `CalcValue`, and degree/radian mode. See ARCHITECTURE.md §1.12, DEC-047. No app-facing scientific UI exists yet. |
 | What is being worked on? | Nothing. Waiting on the user's review of the P-6 defaults (see "Deviation" and "Pending Decisions") before Module 2 starts. |
 | What happens next? | The user reviews the five P-6 defaults DEC-047 implemented. If approved as-is (or after adjustment), Module 2 (calculator input logic) starts, then Module 3 (the scientific keypad). |
-| Git? | `main` is ahead of `origin/main`. The Phase 3 audit (`453af28`), the History module (`1604248`) and saved calculations are committed (see "Completed Work"). **Phase 5's engine module is not committed yet** — this session's newest work. **Claude never pushes; the user pushes themselves.** |
+| Git? | `main` is ahead of `origin/main` by 3. The Phase 3 audit (`453af28`), the History module (`1604248`), saved calculations (`f02b23a`) and Phase 5's engine module (`ef7b0ba`) are all committed (see "Completed Work"). **Claude never pushes; the user pushes themselves.** |
 | What must not be repeated? | See "Do NOT Repeat" |
 | Known issues? | See "Known Issues". #13 (the stray scaffold) is **resolved** — the user deleted it 2026-09-29. |
 | Pending decisions? | P-5, P-7, P-9, P-10, and **P-6 needs the user's review** — not because it's undecided, but because Claude implemented it before asking (a deviation; see below), not after. **P-12 resolved:** the user delegated the saved-calculations UI to Claude ("jaisa tum karo, waha karo") — see DEC-046. |
@@ -78,7 +78,7 @@ The user approved Phase 5 with "phase 5 start". Full detail: ARCHITECTURE.md §1
 - **377 engine tests** (260 + 117 new, in `packages/calc_engine/test/scientific_test.dart`), all verified against actual computed output (via throwaway `bin/probeN.dart` scripts, deleted after use) rather than hand-calculated, since several hand-calculated expected values initially turned out wrong (`2^2%`, `2^3!`, `sin(90)!`). The robustness fuzz test's alphabet was extended to include `^ ! π e` and function-name letters.
 - **Full app QA gate re-run and clean:** `flutter analyze` (no issues), `dart format lib test packages/calc_engine/lib packages/calc_engine/test` (4 files needed formatting, applied), `flutter test` (465 passed, 1 skipped, 0 failed), `dart test` in `packages/calc_engine` (377 passed), `flutter build apk --debug` (built).
 - **Not started:** Module 2 (the calculator's own input logic for scientific mode — inserting function calls, the `^`/`!` keys, degree/radian mode as persisted app state) and Module 3 (the scientific keypad UI).
-- **Not committed yet.**
+- **Committed as `ef7b0ba`.**
 
 ## Phase Status
 
@@ -90,7 +90,7 @@ The user approved Phase 5 with "phase 5 start". Full detail: ARCHITECTURE.md §1
 | 2 | Design system | Completed 2026-09-28 (commit `0fc15ef`; device fix `950493b`); design approved by the user |
 | 3 | Basic calculator (engine, memory) | **Complete and audited** (commits `4fec0b6`, `57a1e73`, `85c6c84`; audit `453af28`) |
 | 4 | History and saved calculations | **Complete.** History (`1604248`) and saved calculations (`f02b23a`) both committed, phone-tested. |
-| 5 | Scientific | **In progress.** Module 1 (engine) done 2026-09-29, tested, not yet committed. Modules 2–3 not started. |
+| 5 | Scientific | **In progress.** Module 1 (engine) done and committed 2026-09-29 (`ef7b0ba`). Modules 2–3 not started. |
 | 6 | Converters | Not started |
 | 7 | Financial | Not started |
 | 8 | Date calculator | Not started |
@@ -226,11 +226,11 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.12; decision DEC-047 (records th
 - New `CalcError.undefined`, which forced a (purely mechanical) fix to the app's exhaustive `CalcError` switch and a new l10n string.
 - 377 engine tests (117 new), 465 app tests, `flutter analyze`/format/build all clean.
 - **Not phone-tested:** there's no scientific UI yet for a phone test to exercise; Module 1 is engine-only.
-- **Not committed.** Waiting on the user's review of the P-6 defaults before Module 2 starts.
+- **Committed as `ef7b0ba`.** Module 2 waits on the user's review of the P-6 defaults.
 
 ## Work In Progress
 
-None to hand off mid-task. Phase 5's Module 1 (the engine) is complete, its full QA gate is clean, and **it is not committed yet** — nothing blocks that commit itself, but per this phase's own gate, Module 2 must not start until the user has reviewed the P-6 defaults (see "Current Task").
+None to hand off mid-task. Phase 5's Module 1 (the engine) is complete, tested and committed (`ef7b0ba`). Per this phase's own gate, Module 2 must not start until the user has reviewed the P-6 defaults (see "Current Task").
 
 ## Current Task
 
@@ -241,9 +241,8 @@ The user reviews the five P-6 defaults DEC-047 implemented (see "Current Phase" 
 
 ## Next Task
 
-1. **Commit the Phase 5 engine module locally.** Nothing blocks this — it can happen regardless of the P-6 review, since committing isn't the same as building on top of it.
-2. **Report the P-6 defaults to the user and wait** — don't start Module 2 in the same session without that checkpoint, per CLAUDE.md's module-by-module gate.
-3. **Once reviewed:** build Module 2 (buffer support for function calls, `^`/`!` keys, degree/radian mode as persisted state, wired into `CalculatorNotifier`), then Module 3 (the scientific keypad UI, sharing state with Basic per DEC-013), each with its own test pass and stop-and-report.
+1. **Report the P-6 defaults to the user and wait** — don't start Module 2 without that checkpoint, per CLAUDE.md's module-by-module gate.
+2. **Once reviewed:** build Module 2 (buffer support for function calls, `^`/`!` keys, degree/radian mode as persisted state, wired into `CalculatorNotifier`), then Module 3 (the scientific keypad UI, sharing state with Basic per DEC-013), each with its own test pass and stop-and-report.
 
 ## Do NOT Repeat
 
@@ -465,7 +464,8 @@ None technically. Phase 5's Module 1 (the engine) is complete; the next step nee
 5. Extended the robustness fuzz test's alphabet to actually exercise the new syntax (`^ ! π e`, function-name letters); it still found no crashes.
 6. **Ran the full `flutter test` suite for the first time since starting Phase 5** and hit a real compile error: `calculator_display_formatter.dart`'s exhaustive `switch (CalcError)` didn't have a case for the new `CalcError.undefined`. Added the case and a new `errorUndefined` l10n string, regenerated `app_localizations*.dart` with `flutter gen-l10n`. This is the only app-facing (non-engine) code this session touched.
 7. Full QA gate: `flutter analyze` clean, `dart format` (4 engine files needed it, applied), `flutter test` (465 passed, 1 skipped), `dart test` in `packages/calc_engine` (377 passed), `flutter build apk --debug` (built).
-8. **Docs:** this file, ARCHITECTURE.md (§1.12, §3.3), DECISIONS.md (DEC-047, including the deviation note), ROADMAP.md (Phase 5 moved out of "Planned" into its own in-progress section) updated. CHANGELOG.md and CLAUDE.md's snapshot line still need updating (do that next, before ending the session). **Not committed yet** — waiting on the P-6 review per this phase's module gate, though the commit itself isn't blocked by that (see "Next Task").
+8. **Docs:** this file, ARCHITECTURE.md (§1.12, §3.3), DECISIONS.md (DEC-047, including the deviation note), ROADMAP.md (Phase 5 moved out of "Planned" into its own in-progress section), CHANGELOG.md and CLAUDE.md's snapshot line, all updated.
+9. **Committed locally as `ef7b0ba`.** Waiting on the user's review of the P-6 defaults before Module 2 starts (see "Next Task").
 
 **2026-09-29, Phase 4 session** (for earlier sessions, see below and [CHANGELOG.md](CHANGELOG.md)).
 
@@ -517,7 +517,7 @@ None technically. Phase 5's Module 1 (the engine) is complete; the next step nee
 ## Instructions For Next Session
 
 1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md). **Reply to the user in Hinglish** (CLAUDE.md rule 13).
-2. **If the Phase 5 engine module still isn't committed** (`git status -s` shows `packages/calc_engine/` and the related `lib/` changes as uncommitted), commit it — nothing blocks this, it was just the last thing built.
+2. **The Phase 5 engine module is already committed** (`ef7b0ba`). If `git status -s` shows engine or `expression_buffer.dart` changes again, that's new work from this session, not a leftover to finish.
 3. **If the user hasn't reviewed the P-6 defaults yet** (DEC-047: `−3²=−9`, `2^3^2=512`, `0^0=1`, `(−8)^(1/3)=−2`, `tan 90°→undefined`), ask for that review before starting Module 2 — this is the one thing this session should have asked *before* building and didn't; don't compound the deviation by also skipping the checkpoint on the way out. If the user wants a default changed, it's a small, isolated change in `packages/calc_engine/lib/src/eval/evaluator.dart` (each case is exercised by name in `test/scientific_test.dart`'s "power" groups) — not a redesign.
 4. **Once reviewed, build Module 2** (the calculator's scientific input logic): `ExpressionBuffer` support for inserting function calls, the `^`/`!` keys, degree/radian mode as persisted app state reaching `CalculatorNotifier`'s call to `CalcEngine.evaluate`. Then, separately, **Module 3** (the scientific keypad UI, sharing state with Basic per DEC-013) — stop and report after each module, per the phase gate (CLAUDE.md rule 9).
 5. **Watch for the stray-scaffold issue recurring** (Known Issues #13, resolved but cause unconfirmed): check `git status -s packages/calc_engine/` is empty before trusting `flutter analyze`/`flutter test`.
