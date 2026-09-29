@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_calculator/core/widgets/app_header.dart';
-import 'package:smart_calculator/features/history/presentation/history_placeholder.dart';
+import 'package:smart_calculator/features/history/presentation/history_content.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// The history page, pushed on windows that have no history panel.
@@ -11,6 +11,6 @@ class HistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppHeader(title: Text(AppLocalizations.of(context).historyTitle)),
-    body: const SafeArea(top: false, child: HistoryPlaceholder()),
+    body: const SafeArea(top: false, child: HistoryContent()),
   );
 }

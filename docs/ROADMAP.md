@@ -12,8 +12,8 @@ Phase 0  Audit & architecture ............ COMPLETED 2026-09-28
   —      Project-memory system ........... COMPLETED 2026-09-28
 Phase 1  Foundation ...................... COMPLETED 2026-09-28
 Phase 2  Design system ................... COMPLETED 2026-09-28 (design approved)
-Phase 3  Basic calculator + engine + memory IMPLEMENTED 2026-09-28, awaiting the user's review
-Phase 4  History + saved calculations .... planned
+Phase 3  Basic calculator + engine + memory COMPLETED 2026-09-28, audited 2026-09-28
+Phase 4  History + saved calculations .... IN PROGRESS: History done 2026-09-29; saved calculations not started
 Phase 5  Scientific ...................... planned
 Phase 6  Converters ...................... planned
 Phase 7  Financial ....................... planned
@@ -98,11 +98,9 @@ The user approved the phase and, on 2026-09-28, the design review (P-11 resolved
 | Debug-only gallery | Done: `lib/main_gallery.dart` (DEC-032) |
 | Review in light and dark at 200% text | Done by Claude on 33 generated screenshots (DEC-033), with 4 issues fixed. Tested on the user's phone, where 1 more issue was found and fixed (DEC-035). **Signed off by the user.** |
 
-## In Progress
+### Phase 3: Basic calculator (implemented and audited 2026-09-28)
 
-### Phase 3: Basic calculator (implemented 2026-09-28, awaiting the user's review)
-
-The user approved it on 2026-09-28 ("phase 2 approv and start phase 3"), and chose smart percent (DEC-036) and the region number format (DEC-037). The code is in commits `4fec0b6`, `57a1e73` and `85c6c84`; ARCHITECTURE.md §1.12–1.13 describes it. **It counts as complete once the user approves it.**
+The user approved it on 2026-09-28 ("phase 2 approv and start phase 3"), and chose smart percent (DEC-036) and the region number format (DEC-037). The code is in commits `4fec0b6`, `57a1e73` and `85c6c84`; ARCHITECTURE.md §1.12–1.13 describes it. A strict code-level audit (2026-09-28) found one documentation error (corrected) and no code bugs; see DEVELOPMENT_STATUS.md's "Phase 3 Audit". **Complete**, and the user approved Phase 4 on 2026-09-29.
 
 | Scope item | Result |
 | --- | --- |
@@ -126,24 +124,29 @@ The user approved it on 2026-09-28 ("phase 2 approv and start phase 3"), and cho
 
 ---
 
-## Planned
+## In Progress
 
+### Phase 4: History and saved calculations (History done 2026-09-29; saved calculations not started)
 
-### Phase 4: History and saved calculations
+The user approved Phase 4 on 2026-09-29. Commit for the History module: see CHANGELOG.md. ARCHITECTURE.md §1.17 describes it; DEC-044 and DEC-045 record the decisions.
 
-- **Start by** confirming the v1 table columns (DEC-023) before anything writes to them.
+- **Start by** confirming the v1 table columns (DEC-023) before anything writes to them. **Done:** the existing schema (`expression`, `result`, `mode`, `created_at`) fit without a migration; see DEC-044 for what each column holds.
 - **History:**
-  - Each item stores the expression, result, timestamp and mode.
-  - View, search, reuse, copy, delete an item, clear all.
-  - An empty state, and confirmation before destructive actions.
-  - It persists locally. The history panel and page replace their Phase 1 placeholders.
-- **Saved calculations:** save, rename, edit, reuse and delete. The master prompt's examples: mortgage, BMI, tax, monthly budget.
-- *(Proposed):*
+  - Each item stores the expression, result, timestamp and mode. **Done.**
+  - View, search, reuse, copy, delete an item, clear all. **Done** (DEC-044): reuse inserts the exact result, like MR; delete is a button, not swipe.
+  - An empty state, and confirmation before destructive actions. **Done**: two empty states (no history; a search with no matches), and `showConfirmationDialog` before Clear all.
+  - It persists locally. The history panel and page replace their Phase 1 placeholders. **Done.**
+- **Saved calculations:** save, rename, edit, reuse and delete. The master prompt's examples: mortgage, BMI, tax, monthly budget. **Not started.** Saving a calculation needs a new tap target on the calculator screen (a UI decision touching the approved Phase 2/3 design), which the user hasn't decided yet; the master prompt's example tools (mortgage, BMI, tax) don't exist until Phase 7 in any case (see "Deferred" below).
+- *(Proposed, not built, deferred by decision — DEC-044)*:
   - grouping by Today, Yesterday and earlier; paging
-  - swipe-to-delete with Undo, while Clear all asks for confirmation
+  - swipe-to-delete with Undo (a labelled delete button was used instead, for discoverability and easier accessibility)
   - a result "tape" on the calculator display
   - a retention limit and an off switch
-- **Done when:** the storage tests and widget tests pass.
+- **Done when:** the storage tests and widget tests pass. **History: done** — `test/features/history/` (repository, notifier, widget) plus the engine-side `ExpressionBuffer.toCanonicalText` tests, all passing.
+
+---
+
+## Planned
 
 ### Phase 5: Scientific
 

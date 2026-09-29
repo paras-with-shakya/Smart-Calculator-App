@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_calculator/app/navigation/app_route.dart';
 import 'package:smart_calculator/app/shell/app_shell.dart';
+import 'package:smart_calculator/features/history/presentation/history_content.dart';
 import 'package:smart_calculator/features/history/presentation/history_page.dart';
 import 'package:smart_calculator/features/settings/presentation/settings_page.dart';
 
@@ -38,7 +39,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(HistoryPage), findsOneWidget);
     expect(routeNameOf(tester, HistoryPage), const HistoryRoute().name);
-    expect(find.text(l10n.historyNotAvailableYet), findsOneWidget);
+    expect(find.byType(HistoryContent), findsOneWidget);
 
     await tester.pageBack();
     await tester.pumpAndSettle();

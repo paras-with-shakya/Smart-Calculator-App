@@ -89,7 +89,9 @@ The widget tests start the app through the same `AppRoot`, so they run the real 
 | `memoryRepositoryProvider` | `Provider<MemoryRepository>` | calculator/data | A `PreferencesMemoryRepository` |
 | `numberFormatProvider` | `Provider<LocalizedNumberFormat>` | core/formatting | The device region's number format, read from the platform locale |
 | `databaseFactoryProvider` | `Provider<DatabaseFactory>` | core/persistence | The sqflite plugin factory; tests use an FFI factory instead |
-| `appDatabaseProvider` | `FutureProvider<Database>` | core/persistence | Opened on first read, closed on dispose. It has no consumers until Phase 4. |
+| `appDatabaseProvider` | `FutureProvider<Database>` | core/persistence | Opened on first read, closed on dispose. Read by `historyRepositoryProvider` (§1.17). |
+| `historyRepositoryProvider` | `Provider<HistoryRepository>` | history/data | A `SqfliteHistoryRepository` |
+| `historyProvider` | `AsyncNotifierProvider<HistoryNotifier, List<HistoryEntry>>` | history/application | The history, newest first (§1.17) |
 
 Conventions:
 
@@ -248,7 +250,7 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | iOS | Bundle ID `com.parasshakya.smartcalculator` (tests: `.RunnerTests`), `CFBundleName` and `CFBundleDisplayName` "Smart Calculator" | Can't be built on Windows (P-5) |
 | web, Windows, Linux, macOS | Template identifiers (DEC-025) | Not built. Not supported targets (DEC-004). |
 
-### 1.15 Tests (408 in the normal app run, plus 260 in the engine)
+### 1.15 Tests (439 in the normal app run, plus 260 in the engine)
 
 | File | Covers |
 | --- | --- |
@@ -269,6 +271,9 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | `test/core/persistence/app_database_test.dart` | Schema, reopening, provider lifecycle |
 | `test/core/layout/window_size_class_test.dart` | Breakpoints |
 | `test/architecture/layer_boundaries_test.dart` | The engine and domain layers stay free of Flutter |
+| `test/features/history/data/sqflite_history_repository_test.dart` | Storage: adds, lists newest first, exact results, deletes one, clears all, an unrecognized stored mode falls back to basic |
+| `test/features/history/application/history_notifier_test.dart` | The provider: starts empty, add/delete/clear update the state, a fresh container reloads what was saved |
+| `test/features/history/presentation/history_content_test.dart` | The empty state, a computed result appearing, reuse (with and without a page to pop back to), search (including no matches), copy, delete, clear all with confirmation, the disabled clear-all button |
 | `test/design_review/…` | The screenshot generator (skipped by default; §1.9) |
 
 Helpers:
@@ -298,10 +303,26 @@ Helpers:
   - `dart test`, inside `packages/calc_engine`
   - `flutter build apk --debug`
   - after visual changes: the design-review screenshots (§1.9)
+- **Add a database-backed feature:** a repository interface in `domain/`, a sqflite implementation in `data/` reading `appDatabaseProvider` (see `history/data/sqflite_history_repository.dart`), and an `AsyncNotifier` in `application/` for the loaded state. Give widget tests an isolated database the same way `test/helpers/test_app.dart` does for history: override `appDatabaseProvider` through `AppRoot.overrides`/`pumpApp` with `AppDatabase.open(..., singleInstance: false)` (DEC-045) — never wrap `AppRoot` in a second `ProviderScope`, which breaks its own overrides (DEC-045).
+
+### 1.17 History (`lib/features/history/`, Phase 4)
+
+- **domain:**
+  - `HistoryEntry`: the row id, locale-neutral display text for what was typed, the exact result, the mode, and when.
+  - `HistoryRepository`, the interface: `list`, `add`, `delete`, `clear`.
+- **data:** `SqfliteHistoryRepository`, over the `history` table (schema v1, DEC-023). `expression` is locale-neutral text (`ExpressionBuffer.toCanonicalText()`, §1.13); `result` is stored exactly (`CalcValue.toStorageString()`); `mode` is a fixed string (`CalculatorModeStorage.storageId`, not the enum name, added to `app/modes/calculator_mode.dart`). None of this is re-parsed (DEC-044).
+- **application:** `HistoryNotifier` (`AsyncNotifier<List<HistoryEntry>>`): loads on first read, and `add`/`delete`/`clear` update its state after the write succeeds.
+- **presentation:** `HistoryContent`, used by both `HistoryPage` (pushed, on compact and medium windows) and `HistoryPanel` (always visible, on expanded windows), replacing their Phase 1 placeholders:
+  - a search field filtering the loaded list client-side, and a clear-all action (disabled when empty, confirmed with `showConfirmationDialog`)
+  - each entry: the stored expression, the result in the region's format, a copy action (clipboard) and a delete action
+  - tapping an entry inserts its exact result at the cursor via a new `CalculatorNotifier.useHistoryResult` (the same mechanism MR uses), then pops back to the calculator if there's a page to pop back to
+  - empty states for no history at all, and for a search matching nothing
+- **Wiring into the calculator:** `CalculatorNotifier._evaluate()` adds a history entry after every successful `=` (not on an error), reading the current mode from `currentModeProvider`. This is the only change to `calculator/application/`; the approved calculator screen's layout is untouched.
+- **Not built, by decision (DEC-044):** grouping by Today/Yesterday/earlier, paging, swipe-to-delete with Undo, a result "tape," a retention limit — all *(Proposed)* in ROADMAP.md, not required by Phase 4's "Done when" gate.
 
 ## 2. Confirmed Decisions
 
-Decided by the user. The "Implemented" column reflects the state after Phase 3.
+Decided by the user. The "Implemented" column reflects the state after Phase 4's History module.
 
 | Area | Decision | Implemented | Record |
 | --- | --- | --- | --- |
@@ -313,8 +334,8 @@ Decided by the user. The "Implemented" column reflects the state after Phase 3.
 | Version control | Local Git, `main`, never push | Yes | DEC-006 |
 | State management | Riverpod 3 without code generation | Foundation (§1.4) | DEC-007 |
 | Calculation engine | Pure-Dart `packages/calc_engine`; numeric library hidden; exact arithmetic | Yes, for the basic calculator (§1.12; `rational` only, DEC-038) | DEC-008 |
-| Persistence | `SharedPreferencesWithCache` for settings; `sqflite` for history and saved calculations | Preferences: theme and calculator memory (§1.10). Database: schema only. | DEC-009 |
-| Testing | 200+ engine tests before the calculator UI counts as complete; unit, widget and integration tests | Engine gate met (260 engine tests); unit and widget tests; no integration tests yet | DEC-010 |
+| Persistence | `SharedPreferencesWithCache` for settings; `sqflite` for history and saved calculations | Preferences: theme and calculator memory (§1.10). Database: history implemented (§1.17); saved calculations still schema only. | DEC-009 |
+| Testing | 200+ engine tests before the calculator UI counts as complete; unit, widget and integration tests | Engine gate met (260 engine tests); 439 app tests; no integration tests yet | DEC-010 |
 | UI/UX | "Quiet precision" | Design system (§1.7–1.9), approved; used by the calculator | DEC-011 |
 | Navigation UX | Phones: mode pill and sheet, no bottom nav. Tablets and landscape: rail and history panel | Yes (§1.6); the panel is hidden below 480 dp of height (DEC-042) | DEC-012 |
 | Shared state | Basic and scientific share one calculator state | Prepared: one `calculatorProvider`, used by Basic; Scientific comes in Phase 5 | DEC-013 |
@@ -324,6 +345,7 @@ Decided by the user. The "Implemented" column reflects the state after Phase 3.
 | Reusable widgets | Screens use only the shared components and tokens | Yes (§1.2, §1.8); the calculator added `DisplayText` and a memory key kind (DEC-043) | DEC-034 |
 | Percent | Smart percent: `50+10%` = 55, `50×10%` = 5 | Yes (§1.12) | DEC-036 |
 | Number format | Follows the device region (12,34,567.89 on an India-region phone) | Yes (§1.13) | DEC-037 |
+| History | Stores the exact result and locale-neutral text; reuse inserts the result, like MR | Yes (§1.17) | DEC-044 |
 
 ## 3. Proposed Architecture (target design — NOT implemented yet)
 
@@ -361,7 +383,7 @@ The basic engine is built (§1.12). Still to come:
 
 ### 3.5 Persistence still to come
 
-- The history and saved-calculation repositories (Phase 4). Their interfaces go in domain; the sqflite implementations go in data.
+- The saved-calculation repository (Phase 4; the history repository is done, §1.17). Its interface goes in domain; the sqflite implementation goes in data, the same shape as `SqfliteHistoryRepository`.
 - Paged queries.
 - A history retention limit and an off switch (values not decided).
 - Saved calculations reopen the right tool from `kind` plus `inputs_json`.

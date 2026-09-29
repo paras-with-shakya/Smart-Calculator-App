@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:calc_engine/calc_engine.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smart_calculator/app/modes/current_mode_notifier.dart';
 import 'package:smart_calculator/features/calculator/application/memory_notifier.dart';
 import 'package:smart_calculator/features/calculator/domain/calculator_key.dart';
 import 'package:smart_calculator/features/calculator/domain/expression_buffer.dart';
+import 'package:smart_calculator/features/history/application/history_notifier.dart';
 
 /// What the calculator shows.
 ///
@@ -152,6 +156,11 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
     _edit(_freshBuffer, (buffer) => buffer.insertValue(memory));
   }
 
+  /// Reuses a history entry: inserts its exact result at the cursor (a new
+  /// expression after `=`), the same way MR inserts the memory.
+  void useHistoryResult(CalcValue result) =>
+      _edit(_freshBuffer, (buffer) => buffer.insertValue(result));
+
   /// MC: empties the memory.
   Future<void> memoryClear() => ref.read(memoryProvider.notifier).clear();
 
@@ -203,9 +212,19 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
     if (state.showsResult || state.buffer.isEmpty) return;
     switch (_evaluateBuffer(state.buffer)) {
       case CalcSuccess(:final value):
+        final evaluatedExpression = state.buffer.withBracketsClosed;
         state = CalculatorState(
           result: value,
-          evaluatedExpression: state.buffer.withBracketsClosed,
+          evaluatedExpression: evaluatedExpression,
+        );
+        unawaited(
+          ref
+              .read(historyProvider.notifier)
+              .add(
+                expression: evaluatedExpression.toCanonicalText(),
+                result: value,
+                mode: ref.read(currentModeProvider),
+              ),
         );
       case CalcFailure(error: CalcError.empty):
         return;

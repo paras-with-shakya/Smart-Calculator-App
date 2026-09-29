@@ -146,6 +146,22 @@ final class ExpressionBuffer {
       const SymbolUnit(CalculatorSymbols.closeBracket),
   ]);
 
+  /// This buffer as locale-neutral text, purely for display (a history
+  /// entry's label): every value unit is written as its own decimal text,
+  /// not as a reusable variable. Never re-parsed — the same way a history
+  /// entry is "reused" through its exact [ValueUnit.value], not by
+  /// reconstructing the expression that produced it (mirrors how
+  /// continuing after `=` acts on the exact result, not the expression
+  /// text it came from).
+  String toCanonicalText() => units
+      .map(
+        (unit) => switch (unit) {
+          SymbolUnit(:final symbol) => symbol,
+          ValueUnit(:final value) => value.toDecimalString(),
+        },
+      )
+      .join();
+
   /// The text and variables to evaluate. Each value becomes a letter-only
   /// variable, so it is evaluated exactly. The variable is bracketed, so a
   /// value next to another operand multiplies it, as it would after `)`.

@@ -314,6 +314,27 @@ void main() {
     });
   });
 
+  group('canonical text (for history)', () {
+    test('typed symbols pass through as they are', () {
+      expect(type('(5+3)×2÷−4%').toCanonicalText(), '(5+3)×2÷−4%');
+    });
+
+    test('a value is written as its decimal text, not a variable', () {
+      expect(type('v').toCanonicalText(), '0.333333333333');
+      expect(type('v+w').toCanonicalText(), '0.333333333333+0.5');
+    });
+
+    test('never re-parsed as engine input: it is display only', () {
+      // "1e5" and similar formats aren't decimal literals the engine
+      // accepts, unlike toEngineInput's bracketed variables.
+      final text = ExpressionBuffer.of([
+        ValueUnit(CalcValue.parse('123456789012345678')),
+      ]).toCanonicalText();
+
+      expect(text, '1.23456789012e17');
+    });
+  });
+
   group('the buffer as a value', () {
     test('is equal to a buffer with the same units and cursor', () {
       expect(type('5+3'), type('5+3'));

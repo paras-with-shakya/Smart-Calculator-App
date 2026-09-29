@@ -19,6 +19,49 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-09-29: Phase 4 (History module)
+
+The user approved Phase 4 ("phaes 4 start"). This entry covers the History half only — saved calculations hasn't started, blocked on a UI decision (see "Notes"). **Not committed yet**: a stray scaffold accidentally created inside `packages/calc_engine` this session needs the user to remove it first (see "Notes").
+
+### Added
+
+- **History** (`lib/features/history/`): `HistoryEntry`, `HistoryRepository`, `SqfliteHistoryRepository` (over the existing `history` table, schema v1 — no migration needed), `HistoryNotifier` (`AsyncNotifier<List<HistoryEntry>>`), `HistoryContent` (search, the entry list, an empty state, a no-matches state, clear-all with confirmation). DEC-044 records what's stored and what reuse/copy do.
+- `ExpressionBuffer.toCanonicalText()`: locale-neutral display text for a history entry, never re-parsed.
+- `CalculatorModeStorage`: a fixed-string storage id for `CalculatorMode` (the same convention `ThemePreference` uses).
+- `CalculatorNotifier.useHistoryResult`: inserts a history entry's exact result at the cursor, the same way MR inserts the memory.
+- `AppDatabase.open` gained an optional `singleInstance` parameter (default `true`; tests pass `false` for isolation). `AppRoot` gained an optional `overrides` parameter. Both are test-infrastructure additions; DEC-045 explains why.
+
+### Changed
+
+- **`CalculatorNotifier._evaluate()`:** every successful `=` now also adds a history entry (not on an error).
+- **`HistoryPage` and `HistoryPanel`:** now show `HistoryContent` instead of the Phase 1 placeholder. `HistoryPlaceholder` removed.
+- **`test/helpers/test_app.dart`:** `pumpApp` now gives every widget test an isolated in-memory database.
+- **Dependencies:** added `riverpod` ^3.4.3 directly (DEC-045; already resolved transitively through `flutter_riverpod`).
+
+### Fixed
+
+Found while building this module, before anything was committed:
+
+- **Test hang / wrong-container error:** wrapping `AppRoot` in a second `ProviderScope` to add a database override broke `AppRoot`'s own `sharedPreferencesProvider` override, because Riverpod resolves unscoped providers at the app's one root scope, not the nearest ancestor with an override. Fixed via `AppRoot.overrides` instead of a wrapping scope.
+- **Cross-test data leakage:** every test in `calculator_notifier_test.dart` was sharing one in-memory database, because sqflite caches a database by path unless `singleInstance: false` is passed. Fixed by adding that option to `AppDatabase.open` and using it in every test that opens more than one in-memory database per process.
+- **Test hang on clipboard copy:** `Clipboard.setData`/`getData` never resolve in the test environment without a mock `SystemChannels.platform` handler (the existing paste tests in `calculator_view_test.dart` already needed this; the new copy tests needed the same fix).
+
+### Tests
+
+- **27 new tests**, all passing: `test/features/history/data/sqflite_history_repository_test.dart` (9), `test/features/history/application/history_notifier_test.dart` (5), `test/features/history/presentation/history_content_test.dart` (10), `test/features/calculator/domain/expression_buffer_test.dart` (+3, `toCanonicalText`), `test/features/calculator/application/calculator_notifier_test.dart` (+5, writing and reusing history).
+- **`flutter analyze`:** no issues.
+- **`flutter test` (whole suite):** 438 passed, 1 skipped, 1 failed. **The 1 failure is `layer_boundaries_test.dart`, caused entirely by an unrelated environmental accident** (see "Notes"), not by anything in this entry — every History-specific test file passes cleanly in isolation.
+- **`dart test`, `packages/calc_engine`:** 260 passed, unchanged (the engine wasn't touched).
+- **`flutter build apk --debug`:** built successfully despite the stray scaffold below (nothing imports `packages/calc_engine/lib/main.dart`, so it doesn't affect the build). Installed on the user's phone (`23124RN87I`, Android 15) at the user's request and tested directly: computing results, viewing history, copy, delete, reuse (loads the exact result back into the calculator and returns), search, clear-all (cancel and confirm), the empty state, and confirming a division-by-zero error does **not** get logged. Every check passed. A memory (MR) regression check confirmed History didn't disturb the existing memory feature. Full detail in DEVELOPMENT_STATUS.md, "Test on the user's phone."
+
+### Notes
+
+- **A blocking accident, reported rather than worked around:** at some point this session, a full `flutter create`-style scaffold appeared inside `packages/calc_engine/` — `lib/main.dart` (imports `package:flutter/material.dart`), `android/`, `.metadata`, `analysis_options.yaml`, `.gitignore`, `.idea/`, `calc_engine.iml`, all untracked, all created within the same second. The triggering command isn't confirmed with certainty. Confirmed **unaffected**: `packages/calc_engine/pubspec.yaml` (`git diff` empty) and every real engine source file (all 260 engine tests still pass). Claude tried to delete the stray files; the sandbox's safety layer correctly refused a destructive operation on a directory, so this is now the user's decision — see DEVELOPMENT_STATUS.md's Known Issues #13 for the exact list to delete.
+- **Saved calculations not started.** It needs a new tap target on the calculator screen to trigger a save, which touches the already-approved Phase 2/3 design, so it wasn't added without asking (P-12 in DEVELOPMENT_STATUS.md).
+- **Not built, by decision (DEC-044):** history grouping (Today/Yesterday/earlier), paging, swipe-to-delete with Undo, a result "tape," a retention limit — all `(Proposed)` in ROADMAP.md, not required by Phase 4's "Done when" gate.
+
+---
+
 ## 2026-09-28: Phase 3 final audit
 
 A strict, code-level audit requested by the user before approving Phase 4. No feature code changed; the input system was not redesigned, per the user's instruction.

@@ -160,11 +160,77 @@ abstract class AppLocalizations {
   /// **'History'**
   String get historyTitle;
 
-  /// Shown in place of the calculation history, which has not been built yet.
+  /// Heading shown when the calculation history is empty.
   ///
   /// In en, this message translates to:
-  /// **'History isn\'t available yet.'**
-  String get historyNotAvailableYet;
+  /// **'No history yet'**
+  String get historyEmptyTitle;
+
+  /// Message shown when the calculation history is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Every result you calculate with “=” appears here.'**
+  String get historyEmptyMessage;
+
+  /// Label of the text field that filters the calculation history.
+  ///
+  /// In en, this message translates to:
+  /// **'Search history'**
+  String get historySearchLabel;
+
+  /// Shown when a history search matches nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching calculations.'**
+  String get historySearchEmptyMessage;
+
+  /// Tooltip and accessibility label of the button that clears the whole calculation history.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all history'**
+  String get historyClearAllTooltip;
+
+  /// Title of the dialog confirming that the whole calculation history should be cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all history?'**
+  String get historyClearAllConfirmTitle;
+
+  /// Message of the dialog confirming that the whole calculation history should be cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes every saved calculation. This can\'t be undone.'**
+  String get historyClearAllConfirmMessage;
+
+  /// Confirm button of the dialog that clears the whole calculation history.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get historyClearAllConfirmAction;
+
+  /// Tooltip and accessibility label of the button that deletes one history entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get historyDeleteTooltip;
+
+  /// Tooltip and accessibility label of the button that copies one history entry's result.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy result'**
+  String get historyCopyTooltip;
+
+  /// Shown briefly after copying a history entry's result.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied {value}'**
+  String historyCopiedMessage(String value);
+
+  /// Accessibility label of a history entry; tapping it reuses the result.
+  ///
+  /// In en, this message translates to:
+  /// **'{expression} equals {result}'**
+  String historyEntrySemanticLabel(String expression, String result);
 
   /// Title of the settings page, and tooltip of the button that opens it.
   ///

@@ -2,11 +2,18 @@ import 'package:calc_engine/calc_engine.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smart_calculator/app/modes/calculator_mode.dart';
+import 'package:smart_calculator/app/modes/current_mode_notifier.dart';
+import 'package:smart_calculator/core/persistence/app_database.dart';
+import 'package:smart_calculator/core/persistence/database_providers.dart';
 import 'package:smart_calculator/core/persistence/preference_keys.dart';
 import 'package:smart_calculator/core/persistence/preferences.dart';
 import 'package:smart_calculator/features/calculator/application/calculator_notifier.dart';
 import 'package:smart_calculator/features/calculator/application/memory_notifier.dart';
 import 'package:smart_calculator/features/calculator/domain/calculator_key.dart';
+import 'package:smart_calculator/features/history/application/history_notifier.dart';
+import 'package:smart_calculator/features/history/domain/history_entry.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../../../helpers/expression_text.dart';
 import '../../../helpers/test_app.dart';
@@ -34,11 +41,22 @@ const Map<String, CalculatorKey> _keys = {
 };
 
 void main() {
+  setUpAll(sqfliteFfiInit);
+
   late SharedPreferencesWithCache preferences;
   late ProviderContainer container;
 
   ProviderContainer newContainer() => ProviderContainer.test(
-    overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+    overrides: [
+      sharedPreferencesProvider.overrideWithValue(preferences),
+      appDatabaseProvider.overrideWith(
+        (ref) => AppDatabase.open(
+          databaseFactoryFfiNoIsolate,
+          inMemoryDatabasePath,
+          singleInstance: false,
+        ),
+      ),
+    ],
   );
 
   setUp(() async {
@@ -51,6 +69,8 @@ void main() {
       container.read(calculatorProvider.notifier);
   CalculatorState state() => container.read(calculatorProvider);
   CalcValue? memory() => container.read(memoryProvider);
+  Future<List<HistoryEntry>> history() =>
+      container.read(historyProvider.future);
 
   /// Presses [keys]: digits, and the symbols in [_keys].
   void press(String keys) {
@@ -160,6 +180,57 @@ void main() {
 
       press('1÷3=');
       expect(state().result, third);
+    });
+  });
+
+  group('history', () {
+    test('a successful "=" adds an entry, newest first', () async {
+      press('5+3=');
+      await pumpEventQueue();
+      press('C1÷3=');
+      await pumpEventQueue();
+
+      final entries = await history();
+      expect(entries, hasLength(2));
+      expect(entries[0].result, third);
+      expect(entries[0].expression, '1÷3');
+      expect(entries[0].mode, CalculatorMode.basic);
+      expect(entries[1].result, n('8'));
+      expect(entries[1].expression, '5+3');
+    });
+
+    test('an error does not add an entry', () async {
+      press('5÷0=');
+      await pumpEventQueue();
+
+      expect(await history(), isEmpty);
+    });
+
+    test('reflects the mode "=" was pressed in', () async {
+      container
+          .read(currentModeProvider.notifier)
+          .select(CalculatorMode.scientific);
+      press('5+3=');
+      await pumpEventQueue();
+
+      expect((await history()).single.mode, CalculatorMode.scientific);
+    });
+  });
+
+  group('reusing a history entry', () {
+    test('inserts the exact result, like MR', () {
+      calculator().useHistoryResult(third);
+
+      expect(show(state().buffer), '{1/3}|');
+      expect(state().value, third);
+    });
+
+    test('starts a new expression after a result', () {
+      press('5+3=');
+
+      calculator().useHistoryResult(n('2'));
+
+      expect(show(state().buffer), '{2}|');
     });
   });
 

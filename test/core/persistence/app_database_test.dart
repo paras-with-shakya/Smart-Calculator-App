@@ -12,7 +12,11 @@ void main() {
   final factory = databaseFactoryFfiNoIsolate;
 
   Future<Database> openInMemory() async {
-    final database = await AppDatabase.open(factory, inMemoryDatabasePath);
+    final database = await AppDatabase.open(
+      factory,
+      inMemoryDatabasePath,
+      singleInstance: false,
+    );
     addTearDown(database.close);
     return database;
   }

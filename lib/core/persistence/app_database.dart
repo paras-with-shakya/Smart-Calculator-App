@@ -13,15 +13,25 @@ abstract final class AppDatabase {
 
   /// Opens the database at [path] with [factory], creating it or migrating it
   /// to [schemaVersion].
-  static Future<Database> open(DatabaseFactory factory, String path) =>
-      factory.openDatabase(
-        path,
-        options: OpenDatabaseOptions(
-          version: schemaVersion,
-          onCreate: (db, version) => _migrate(db, 0, version),
-          onUpgrade: _migrate,
-        ),
-      );
+  ///
+  /// [singleInstance] defaults to true, so the real app never opens its one
+  /// database file twice. Tests that open an in-memory database more than
+  /// once in the same process (one per test, for isolation) pass `false`,
+  /// otherwise sqflite's cache-by-path would hand back the same in-memory
+  /// database, and test data would leak from one test to the next.
+  static Future<Database> open(
+    DatabaseFactory factory,
+    String path, {
+    bool singleInstance = true,
+  }) => factory.openDatabase(
+    path,
+    options: OpenDatabaseOptions(
+      version: schemaVersion,
+      onCreate: (db, version) => _migrate(db, 0, version),
+      onUpgrade: _migrate,
+      singleInstance: singleInstance,
+    ),
+  );
 
   /// Applies the migrations that take the schema from [fromVersion] to
   /// [toVersion]. sqflite runs this inside a transaction.

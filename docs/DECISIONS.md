@@ -1280,3 +1280,67 @@ Then stop.
 - **Rejected:** memory keys as `AppButton`s. Their labels could break mid-word at large text sizes (the DEC-035 bug).
 
 **Impact:** Both additions have tests and gallery entries.
+
+---
+
+### [DEC-044] History: what's stored, and what "reuse" and "copy" do
+
+- **Status:** Adopted (Phase 4 implementation; open to the user's review)
+- **Date:** 2026-09-29
+- **Implemented:** Yes (`lib/features/history/`, `packages/calc_engine` untouched)
+
+**Context:** ROADMAP.md's Phase 4 scope: each history item stores the expression, result, timestamp and mode; view, search, reuse, copy, delete one, clear all. The `history` table (schema v1, DEC-023) already fixes the columns: `expression`, `result`, `mode`, `created_at`, all `TEXT`/`INTEGER`. Nothing had decided yet exactly what those columns hold or what tapping an entry does.
+
+**Decision:**
+
+- **`expression`** is locale-neutral display text only, built by a new `ExpressionBuffer.toCanonicalText()`: typed symbols pass through as-is, and any inserted value (a previous result or the memory) is written as its own decimal text, not as a reusable variable. It is **never re-parsed**.
+- **`result`** is stored exactly, the same way the calculator memory is (`CalcValue.toStorageString()`, DEC-041), so it survives a restart exactly.
+- **`mode`** is a new `CalculatorModeStorage.storageId` extension on `CalculatorMode` (fixed strings, not enum names, the same convention `ThemePreference` uses) — not the schema's job to invent, but needed the moment anything writes to it.
+- **Reuse** (tapping an entry) inserts the entry's exact `result` at the cursor, exactly like MR inserts the memory (a new `CalculatorNotifier.useHistoryResult`). It does **not** try to restore the original editable expression. On a pushed page (compact and medium windows) it also pops back to the calculator; on the always-visible panel (expanded windows) it doesn't, since there's nothing to pop.
+- **Copy** puts the entry's formatted result on the clipboard (`Clipboard.setData`), with a brief confirmation.
+- **Delete** removes one entry immediately (a trailing icon button, not swipe). **Clear all** asks for confirmation first (`showConfirmationDialog`, `isDestructive: true`).
+- **Every successful `=`** adds an entry; a failed `=` does not. Repeated identical results are **not** deduplicated — history is a log, not a set.
+- **Search** filters client-side over the loaded list, matching the stored expression text or the formatted result.
+- **Not built, by decision:** grouping by Today/Yesterday/earlier, paging, swipe-to-delete with Undo, a result "tape," and a retention limit — all explicitly marked *(Proposed)* in ROADMAP.md's Phase 4 section, not required by its "Done when" gate.
+
+**Reason:**
+
+- Storing only the exact result (not a re-editable expression) mirrors a precedent the engine already established: after `=`, continuing an expression or recalling the memory both act on the exact `CalcValue`, never on re-parsed expression text (DEC-040). A second serialization scheme for "restore the whole editable expression" would be new complexity solving a problem the app doesn't otherwise have, and reusing the MR mechanism means no new engine-facing code path at all.
+- Keeping `expression` locale-neutral and display-only (rather than trying to re-localize a stored mixed string of symbols and numbers) avoids a second, partial number-formatting path outside `LocalizedNumberFormat`.
+
+**Alternatives:**
+
+- **Rejected:** serializing the full expression buffer (units and cursor) so reuse restores it editable. More moving parts, and no existing precedent in this codebase to build on; deferred unless the user asks for it.
+- **Rejected:** deduplicating repeated identical calculations. Users may deliberately recompute the same thing at different times, and a log is simpler to reason about than a merged set.
+- **Rejected:** swipe-to-delete for v1. A visible, labelled icon button is more discoverable and easier to get right for accessibility than a gesture, and the "Done when" gate doesn't ask for it.
+
+**Impact:** `ExpressionBuffer` gained one pure, side-effect-free method (`toCanonicalText`); `CalculatorNotifier` gained `useHistoryResult` and a call into `historyProvider` on a successful `=`. No changes to `packages/calc_engine` or to the approved calculator screen's layout.
+
+---
+
+### [DEC-045] Every widget test gets an isolated in-memory database
+
+- **Status:** Adopted (Phase 4 test-infrastructure fix; open to the user's review)
+- **Date:** 2026-09-29
+- **Implemented:** Yes (`test/helpers/test_app.dart`, `lib/app/app_root.dart`, `lib/core/persistence/app_database.dart`)
+
+**Context:** Until Phase 4, nothing read `appDatabaseProvider` (DEVELOPMENT_STATUS.md, Known Issue #10), so no widget test ever needed a database. Wiring history into the calculator and the shell's history panel meant every `pumpApp`-based test could now reach it, including ones that never mention history (any test at an expanded window size touches `HistoryPanel`, which is always visible there).
+
+**Decision:**
+
+- `AppRoot` takes an optional `overrides` parameter (`List<Override>`), applied after its own preferences override, so tests can override further providers without wrapping `AppRoot` in a second `ProviderScope`.
+- `pumpApp` overrides `appDatabaseProvider` with a fresh in-memory database (`sqflite_common_ffi`, `inMemoryDatabasePath`) for every test.
+- `AppDatabase.open` gained an optional `singleInstance` parameter (default `true`, unchanged for the real app). Tests pass `false`, because sqflite caches a database by path for `singleInstance: true` (the correct choice for the app's one real file) — without it, every test in a process would share the *same* in-memory database, and history from one test would leak into the next.
+- The app depends on `riverpod` directly (already resolved transitively through `flutter_riverpod`, same publisher), because `flutter_riverpod`'s public API doesn't re-export the `Override` type `AppRoot.overrides` needs to be typed with.
+
+**Reason:**
+
+- A `ProviderScope` nested around `AppRoot` doesn't work for this: Riverpod resolves an unscoped provider (everything in this app; none use explicit `dependencies:` scoping) at the *root* `ProviderScope`, wherever that provider's override happens to be set — not at the nearest ancestor. Wrapping `AppRoot` in an outer `ProviderScope` with a database override made the *root* become that outer scope, which broke `AppRoot`'s own `sharedPreferencesProvider` override (verified: it throws "must be overridden," reproducibly, until the fix). Every override the app needs has to be in the single list `AppRoot` builds.
+- Verified directly (not assumed): without `singleInstance: false`, `calculator_notifier_test.dart`'s history tests accumulated rows across unrelated tests in the same file; with it, each test starts empty.
+
+**Alternatives:**
+
+- **Rejected:** a second `ProviderScope` wrapped around `AppRoot`, for the reason above.
+- **Rejected:** a real temp-file database per test (more moving parts — directory creation and cleanup — for no benefit over true in-memory).
+
+**Impact:** Any future provider that owns a real resource (another database-backed feature, a future network client) follows this same pattern: override it through `AppRoot.overrides`/`pumpApp`, not a wrapping `ProviderScope`.

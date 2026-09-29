@@ -4,8 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:smart_calculator/app/app_root.dart';
+import 'package:smart_calculator/core/persistence/app_database.dart';
+import 'package:smart_calculator/core/persistence/database_providers.dart';
 import 'package:smart_calculator/core/persistence/preferences.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 /// English strings, so tests do not hard-code copy.
 final AppLocalizations l10n = lookupAppLocalizations(const Locale('en'));
@@ -34,20 +37,44 @@ void useInMemoryPreferences() {
       InMemorySharedPreferencesAsync.empty();
 }
 
+bool _databaseFfiReady = false;
+
+/// Every history/saved-calculation-backed feature gets a fresh, isolated
+/// in-memory database per test, through the FFI factory (no real files, and
+/// no cross-test leakage the way a real database file would have).
+void _ensureInMemoryDatabase() {
+  if (_databaseFfiReady) return;
+  sqfliteFfiInit();
+  _databaseFfiReady = true;
+}
+
 /// Starts the app the way `main` does, in a window of [size].
 ///
 /// Uses [preferences] if given, otherwise opens them from the current store.
+/// The database (history, saved calculations) is a fresh in-memory one.
 Future<void> pumpApp(
   WidgetTester tester, {
   Size size = TestWindows.phonePortrait,
   SharedPreferencesWithCache? preferences,
 }) async {
+  _ensureInMemoryDatabase();
   tester.view
     ..physicalSize = size
     ..devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
-    AppRoot(preferences: preferences ?? await openPreferences()),
+    AppRoot(
+      preferences: preferences ?? await openPreferences(),
+      overrides: [
+        appDatabaseProvider.overrideWith(
+          (ref) => AppDatabase.open(
+            databaseFactoryFfiNoIsolate,
+            inMemoryDatabasePath,
+            singleInstance: false,
+          ),
+        ),
+      ],
+    ),
   );
   await tester.pumpAndSettle();
 }

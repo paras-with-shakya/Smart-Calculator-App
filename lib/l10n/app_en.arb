@@ -44,9 +44,69 @@
   "@historyTitle": {
     "description": "Title of the calculation history page and panel, and tooltip of the button that opens it."
   },
-  "historyNotAvailableYet": "History isn't available yet.",
-  "@historyNotAvailableYet": {
-    "description": "Shown in place of the calculation history, which has not been built yet."
+  "historyEmptyTitle": "No history yet",
+  "@historyEmptyTitle": {
+    "description": "Heading shown when the calculation history is empty."
+  },
+  "historyEmptyMessage": "Every result you calculate with “=” appears here.",
+  "@historyEmptyMessage": {
+    "description": "Message shown when the calculation history is empty."
+  },
+  "historySearchLabel": "Search history",
+  "@historySearchLabel": {
+    "description": "Label of the text field that filters the calculation history."
+  },
+  "historySearchEmptyMessage": "No matching calculations.",
+  "@historySearchEmptyMessage": {
+    "description": "Shown when a history search matches nothing."
+  },
+  "historyClearAllTooltip": "Clear all history",
+  "@historyClearAllTooltip": {
+    "description": "Tooltip and accessibility label of the button that clears the whole calculation history."
+  },
+  "historyClearAllConfirmTitle": "Clear all history?",
+  "@historyClearAllConfirmTitle": {
+    "description": "Title of the dialog confirming that the whole calculation history should be cleared."
+  },
+  "historyClearAllConfirmMessage": "This removes every saved calculation. This can't be undone.",
+  "@historyClearAllConfirmMessage": {
+    "description": "Message of the dialog confirming that the whole calculation history should be cleared."
+  },
+  "historyClearAllConfirmAction": "Clear all",
+  "@historyClearAllConfirmAction": {
+    "description": "Confirm button of the dialog that clears the whole calculation history."
+  },
+  "historyDeleteTooltip": "Delete",
+  "@historyDeleteTooltip": {
+    "description": "Tooltip and accessibility label of the button that deletes one history entry."
+  },
+  "historyCopyTooltip": "Copy result",
+  "@historyCopyTooltip": {
+    "description": "Tooltip and accessibility label of the button that copies one history entry's result."
+  },
+  "historyCopiedMessage": "Copied {value}",
+  "@historyCopiedMessage": {
+    "description": "Shown briefly after copying a history entry's result.",
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "12,345.6"
+      }
+    }
+  },
+  "historyEntrySemanticLabel": "{expression} equals {result}",
+  "@historyEntrySemanticLabel": {
+    "description": "Accessibility label of a history entry; tapping it reuses the result.",
+    "placeholders": {
+      "expression": {
+        "type": "String",
+        "example": "5+3"
+      },
+      "result": {
+        "type": "String",
+        "example": "8"
+      }
+    }
   },
   "settingsTitle": "Settings",
   "@settingsTitle": {

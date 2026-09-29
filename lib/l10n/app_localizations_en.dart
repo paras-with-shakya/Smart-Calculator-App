@@ -43,7 +43,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyTitle => 'History';
 
   @override
-  String get historyNotAvailableYet => 'History isn\'t available yet.';
+  String get historyEmptyTitle => 'No history yet';
+
+  @override
+  String get historyEmptyMessage =>
+      'Every result you calculate with “=” appears here.';
+
+  @override
+  String get historySearchLabel => 'Search history';
+
+  @override
+  String get historySearchEmptyMessage => 'No matching calculations.';
+
+  @override
+  String get historyClearAllTooltip => 'Clear all history';
+
+  @override
+  String get historyClearAllConfirmTitle => 'Clear all history?';
+
+  @override
+  String get historyClearAllConfirmMessage =>
+      'This removes every saved calculation. This can\'t be undone.';
+
+  @override
+  String get historyClearAllConfirmAction => 'Clear all';
+
+  @override
+  String get historyDeleteTooltip => 'Delete';
+
+  @override
+  String get historyCopyTooltip => 'Copy result';
+
+  @override
+  String historyCopiedMessage(String value) {
+    return 'Copied $value';
+  }
+
+  @override
+  String historyEntrySemanticLabel(String expression, String result) {
+    return '$expression equals $result';
+  }
 
   @override
   String get settingsTitle => 'Settings';
