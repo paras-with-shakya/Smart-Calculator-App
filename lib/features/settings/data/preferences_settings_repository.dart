@@ -1,3 +1,4 @@
+import 'package:calc_engine/calc_engine.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_calculator/core/persistence/preference_keys.dart';
@@ -34,6 +35,19 @@ final class PreferencesSettingsRepository implements SettingsRepository {
   @override
   Future<void> setThemePreference(ThemePreference preference) => _preferences
       .setString(PreferenceKeys.themePreference, _storedValue(preference));
+
+  @override
+  AngleMode get angleMode =>
+      _preferences.getString(PreferenceKeys.angleMode) == 'radians'
+      ? AngleMode.radians
+      : AngleMode.degrees;
+
+  @override
+  Future<void> setAngleMode(AngleMode mode) =>
+      _preferences.setString(PreferenceKeys.angleMode, switch (mode) {
+        AngleMode.degrees => 'degrees',
+        AngleMode.radians => 'radians',
+      });
 
   static String _storedValue(ThemePreference preference) =>
       switch (preference) {

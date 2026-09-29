@@ -1,3 +1,4 @@
+import 'package:calc_engine/calc_engine.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_calculator/core/persistence/preference_keys.dart';
@@ -45,4 +46,28 @@ void main() {
       expect(repository.themePreference, ThemePreference.system);
     },
   );
+  group('angle mode', () {
+    test('is degrees when nothing is saved', () {
+      expect(repository.angleMode, AngleMode.degrees);
+    });
+
+    test('saves and reads back both modes', () async {
+      for (final mode in AngleMode.values) {
+        await repository.setAngleMode(mode);
+        expect(repository.angleMode, mode);
+      }
+    });
+
+    test('is stored as a fixed string under its settings key', () async {
+      await repository.setAngleMode(AngleMode.radians);
+
+      expect(preferences.getString(PreferenceKeys.angleMode), 'radians');
+    });
+
+    test('falls back to degrees for an unrecognised stored value', () async {
+      await preferences.setString(PreferenceKeys.angleMode, 'gradians');
+
+      expect(repository.angleMode, AngleMode.degrees);
+    });
+  });
 }

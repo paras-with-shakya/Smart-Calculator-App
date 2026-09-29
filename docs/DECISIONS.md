@@ -1382,7 +1382,7 @@ Then stop.
 
 ### [DEC-047] Scientific engine: exact/approximate values, the power operator, and every function's domain (settles the rest of P-6)
 
-- **Status:** Adopted (Phase 5, Module 1 implementation; open to the user's review — see DEVELOPMENT_STATUS.md's "Deviation" note, since this was built before the user confirmed the P-6 defaults, not after)
+- **Status:** Adopted; **accepted by the user 2026-09-29** ("okay", in reply to the five defaults being listed; recorded in DEC-048). Originally: Adopted (Phase 5, Module 1 implementation; open to the user's review — see DEVELOPMENT_STATUS.md's "Deviation" note, since this was built before the user confirmed the P-6 defaults, not after)
 - **Date:** 2026-09-29
 - **Implemented:** Yes (`packages/calc_engine`, commit `ef7b0ba`; 377 engine tests)
 
@@ -1412,3 +1412,37 @@ Then stop.
 **Deviation, flagged rather than silent:** DEVELOPMENT_STATUS.md's "Instructions For Next Session" (written at the end of the Phase 4 session) explicitly said to settle the rest of P-6 *before* building the engine's function registry. That didn't happen — Claude built the whole engine module (registry, power operator, all five P-6 defaults, and every scientific function) in the same pass, without first taking the five specific defaults back to the user for a yes/no. The defaults chosen are recorded above, exactly as implemented and tested; nothing about them requires more engine work to change if the user wants a different one (the specific case a different default would touch is footnoted directly in the code and this entry). Flagged here, and repeated in the session's chat report, so the user reviews these five decisions specifically rather than the module simply landing as a fait accompli.
 
 **Impact:** `packages/calc_engine`'s public API (`calc_engine.dart`) now also exports `AngleMode`; `CalcEngine.evaluate` gained the `angleMode` parameter (default `AngleMode.degrees`, so every Phase 3/4 call site is unaffected). `lib/features/calculator/presentation/calculator_display_formatter.dart` needed a new switch case for `CalcError.undefined` (a new `errorUndefined` string in `app_en.arb`) purely to keep the existing exhaustive-switch compiling — this is not new scientific-mode UI, just what a non-exhaustive `switch` on the enum demanded the moment the engine gained the new error. Module 2 (the calculator's scientific input logic — buffer support for function calls, `^`/`!` keys, angle-mode state and persistence) and Module 3 (the scientific keypad) are not built yet.
+
+
+---
+
+### [DEC-048] Scientific input logic (Phase 5, Module 2): units, keys, angle mode, and how wrong input is handled
+
+- **Status:** Adopted (Phase 5, Module 2 implementation; open to the user's review)
+- **Date:** 2026-09-29
+- **Implemented:** Yes (`lib/features/calculator/`, `lib/features/settings/`, one engine fix; 592 app tests + 387 engine tests)
+
+**Context:** The user replied to the list of five P-6 defaults with "okay lekin mera app shi se work krna chahiye, koi galat and wrong equation ka kre, proper sb handle". Claude took that as (a) acceptance of the DEC-047 defaults and (b) a requirement that invalid, impossible and hostile input is handled properly. If they meant something else, DEC-047's defaults are cheap to change (see its "Deviation" note).
+
+**Decision:**
+
+- **Units.** `^`, `!`, `π` and `e` are single `SymbolUnit`s. A function opener (`sin(`, `sqrt(` …) is also **one** `SymbolUnit` whose symbol ends in `(`, so backspace removes the name and its bracket together and the engine reads the symbol text unchanged. `CalculatorSymbols.opensBracket` treats `(` and every function opener alike, so bracket counting, auto-closing at `=`, the smart bracket key, unary-minus detection and line-breaking all work for calls with no special cases.
+- **Input rules** (extending DEC-040): `^` is a binary operator, and `−` after it is a sign (`2^−3`); `!` needs an operand before it and is refused after another `!`; a constant, a function opener or an inserted value next to an operand gets an **explicit** `×` (`2π` is shown `2×π`, `π2` is `π×2`), so nothing can be misread (the engine reads `2e3` as a syntax error but `2e` as 2×e, so leaving it implicit would be a trap); a typed number before an existing constant/function/value gets a `×` after it. Rejected keys return the same buffer, as before.
+- **Keys.** `CalculatorKey` gained `power`, `factorial`, `pi`, `euler` and one key per `CalcFunction` (`CalculatorKey.function` gives the function). After `=`, an operator, `^`, `!` or `%` continues from the exact answer; a digit, constant, function or bracket starts a new expression (the existing DEC-040 rule).
+- **Typed / pasted text** accepts `^`, `!` and `π`. It does **not** accept letters (`sin(30)`, `1.5e12`): the all-or-nothing rule stays, because reading a letter could silently change a number. Function names are keypad-only.
+- **Angle mode** is `angleModeProvider` (`lib/features/settings/application/angle_mode_notifier.dart`), saved under `settings.angle_mode` as the fixed strings `degrees`/`radians` (unknown becomes degrees) through `SettingsRepository`. The calculator passes it to every `CalcEngine.evaluate`. Changing it applies at once and recomputes the live value and any error (`tan(90)` is undefined in degrees, fine in radians); an answer already shown is **not** recomputed. A failed save leaves the choice applied but not remembered.
+- **Display.** `sqrt(`/`cbrt(` are shown as `√(` and `∛(`; everything else as typed. Screen readers get words (`square root of`, `to the power of`, `factorial`, `pi`) through 18 new `spoken*` strings.
+- **Wrong and impossible input.** The input rules refuse what can be refused (a leading `^`/`!`, `)` without a bracket, `!!`), and `=` reports the rest as a typed error with the expression left editable (incomplete `sin(5+`, syntax, `tan 90°`/`√−1`/`ln 0`/`3.5!` undefined, `÷0`, overflow). Verified by a table of 21 such expressions and two seeded fuzz tests (400 runs of 30-40 random keys each) that check nothing throws, the state stays consistent (never a result and an error together, brackets never negative, at most 100 units) and the engine accepts whatever the buffer builds, in both angle modes.
+- **One engine fix, found by stress-testing.** Powers with an exponent beyond ±2000 were always "overflow", including ones with an ordinary answer (`1.0000001^100000000` is about 22026.45). They now fall back to a double: a finite non-zero result is returned (approximate); infinity or underflow to zero is still overflow. No hang or exception was found for `99999999!`, `9^9^9^9`, `10^1000000` and similar (each under 40 ms).
+- **`CalcFunction` is now exported** from `calc_engine.dart` (the keypad needs it).
+
+**Alternatives:**
+
+- **Rejected:** a separate `FunctionUnit` type. A symbol ending in `(` needs no new class and no change to the engine text.
+- **Rejected:** implicit `×` for constants (`2π`): the engine accepts it, but `2e`/`e2`/`2e3` show why a visible `×` is safer.
+- **Rejected:** accepting function names and `e` in pasted text (see above).
+- **Left for Module 3:** where the degree/radian toggle sits on the keypad, and whether a function key after `=` should wrap the answer (today it starts fresh).
+
+**Known limitation (same class as Phase 3's):** backspacing a constant or value can leave the `×` that was added next to it (`|×sin(`); `=` then reports "Invalid expression" and the expression stays editable.
+
+**Impact:** `SettingsRepository` gained `angleMode`/`setAngleMode`; `PreferenceKeys.all` gained `settings.angle_mode`. `CalculatorNotifier` reads `angleModeProvider` and listens to it. No screen, widget or layout changed; the keypad has no scientific keys yet (Module 3).

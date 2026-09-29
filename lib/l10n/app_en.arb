@@ -386,6 +386,78 @@
   "@spokenCloseBracket": {
     "description": "How screen readers say ) inside an expression."
   },
+  "spokenPower": "to the power of",
+  "@spokenPower": {
+    "description": "How screen readers say ^ inside an expression, such as '2 to the power of 3'."
+  },
+  "spokenFactorial": "factorial",
+  "@spokenFactorial": {
+    "description": "How screen readers say ! after a number, such as '5 factorial'."
+  },
+  "spokenPi": "pi",
+  "@spokenPi": {
+    "description": "How screen readers say the constant π."
+  },
+  "spokenEuler": "e",
+  "@spokenEuler": {
+    "description": "How screen readers say the constant e (Euler's number)."
+  },
+  "spokenFunctionSin": "sine of",
+  "@spokenFunctionSin": {
+    "description": "How screen readers say the sin( function opener."
+  },
+  "spokenFunctionCos": "cosine of",
+  "@spokenFunctionCos": {
+    "description": "How screen readers say the cos( function opener."
+  },
+  "spokenFunctionTan": "tangent of",
+  "@spokenFunctionTan": {
+    "description": "How screen readers say the tan( function opener."
+  },
+  "spokenFunctionAsin": "inverse sine of",
+  "@spokenFunctionAsin": {
+    "description": "How screen readers say the asin( function opener."
+  },
+  "spokenFunctionAcos": "inverse cosine of",
+  "@spokenFunctionAcos": {
+    "description": "How screen readers say the acos( function opener."
+  },
+  "spokenFunctionAtan": "inverse tangent of",
+  "@spokenFunctionAtan": {
+    "description": "How screen readers say the atan( function opener."
+  },
+  "spokenFunctionSinh": "hyperbolic sine of",
+  "@spokenFunctionSinh": {
+    "description": "How screen readers say the sinh( function opener."
+  },
+  "spokenFunctionCosh": "hyperbolic cosine of",
+  "@spokenFunctionCosh": {
+    "description": "How screen readers say the cosh( function opener."
+  },
+  "spokenFunctionTanh": "hyperbolic tangent of",
+  "@spokenFunctionTanh": {
+    "description": "How screen readers say the tanh( function opener."
+  },
+  "spokenFunctionLog": "log base 10 of",
+  "@spokenFunctionLog": {
+    "description": "How screen readers say the log( function opener."
+  },
+  "spokenFunctionLn": "natural log of",
+  "@spokenFunctionLn": {
+    "description": "How screen readers say the ln( function opener."
+  },
+  "spokenFunctionSqrt": "square root of",
+  "@spokenFunctionSqrt": {
+    "description": "How screen readers say the sqrt( function opener."
+  },
+  "spokenFunctionCbrt": "cube root of",
+  "@spokenFunctionCbrt": {
+    "description": "How screen readers say the cbrt( function opener."
+  },
+  "spokenFunctionAbs": "absolute value of",
+  "@spokenFunctionAbs": {
+    "description": "How screen readers say the abs( function opener."
+  },
   "errorIncomplete": "Incomplete expression",
   "@errorIncomplete": {
     "description": "Calculator error: the expression ends too early, such as '5+'."

@@ -119,4 +119,64 @@ void main() {
     expect(indian.error(CalcError.divisionByZero), l10n.errorDivisionByZero);
     expect(indian.error(CalcError.overflow), l10n.errorOverflow);
   });
+  group('scientific expressions', () {
+    ExpressionBuffer units(List<String> symbols) =>
+        ExpressionBuffer.of([for (final symbol in symbols) SymbolUnit(symbol)]);
+
+    test('show symbols, constants and function openers as typed', () {
+      final buffer = units(['2', '^', '3', '!', '×', 'π', '+', 'sin(', '3']);
+
+      expect(
+        indian.expression(buffer).text,
+        '2^${zwsp}3!×$zwsp'
+        'π+$zwsp'
+        'sin(3',
+      );
+    });
+
+    test('show the root functions with their signs', () {
+      expect(indian.expression(units(['sqrt(', '9', ')'])).text, '√(9)');
+      expect(indian.expression(units(['cbrt(', '8'])).text, '∛(8');
+    });
+
+    test('a minus after ^ or a function opener is a sign, not a break', () {
+      expect(indian.expression(units(['2', '^', '−', '3'])).text, '2^$zwsp−3');
+      expect(indian.expression(units(['sin(', '−', '3'])).text, 'sin(−3');
+    });
+
+    test('keep one cursor position per unit', () {
+      final shown = indian.expression(units(['sqrt(', '9', ')']));
+
+      expect(shown.boundaries, [0, 2, 3, 4]);
+    });
+
+    test('are spoken in words', () {
+      expect(
+        indian.spokenExpression(units(['2', '^', '3', '!'])),
+        '2 to the power of 3 factorial',
+      );
+      expect(
+        indian.spokenExpression(units(['sqrt(', 'π', ')'])),
+        'square root of pi close bracket',
+      );
+      expect(
+        indian.spokenExpression(units(['sin(', '3', '0', ')', '+', 'e'])),
+        'sine of 30 close bracket plus e',
+      );
+    });
+
+    test('every function opener has a spoken name', () {
+      for (final function in CalcFunction.values) {
+        final spoken = indian.spokenExpression(
+          units([CalculatorSymbols.functionOpener(function)]),
+        );
+        expect(spoken, endsWith(' of'), reason: function.name);
+      }
+    });
+
+    test('name every scientific error', () {
+      expect(indian.error(CalcError.undefined), isNotEmpty);
+      expect(indian.error(CalcError.overflow), isNotEmpty);
+    });
+  });
 }

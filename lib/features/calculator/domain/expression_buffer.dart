@@ -21,6 +21,18 @@ abstract final class CalculatorSymbols {
   /// Opening bracket.
   static const String openBracket = '(';
 
+  /// Power, `xʸ`.
+  static const String power = '^';
+
+  /// Postfix factorial.
+  static const String factorial = '!';
+
+  /// The constant π.
+  static const String pi = 'π';
+
+  /// The constant e (Euler's number).
+  static const String euler = 'e';
+
   /// Closing bracket.
   static const String closeBracket = ')';
 
@@ -28,7 +40,22 @@ abstract final class CalculatorSymbols {
   static const String decimalPoint = '.';
 
   /// The binary operators.
-  static const Set<String> operators = {plus, minus, times, divide};
+  static const Set<String> operators = {plus, minus, times, divide, power};
+
+  /// The constants, which stand for a number.
+  static const Set<String> constants = {pi, euler};
+
+  /// The symbol that opens a call to [function]: `sin(`, `sqrt(`. It is one
+  /// unit, so backspace removes the name and its bracket together.
+  static String functionOpener(CalcFunction function) => '${function.name}(';
+
+  /// Whether [symbol] opens a function call, such as `sin(`.
+  static bool isFunctionOpener(String symbol) =>
+      symbol.length > 1 && symbol.endsWith('(');
+
+  /// Whether [symbol] opens a bracket: `(` or a function call.
+  static bool opensBracket(String symbol) =>
+      symbol == openBracket || isFunctionOpener(symbol);
 
   /// Whether [symbol] is a digit, 0-9.
   static bool isDigit(String symbol) =>
@@ -43,8 +70,8 @@ sealed class ExpressionUnit {
   const ExpressionUnit();
 }
 
-/// A typed symbol: a digit, the decimal point, an operator, `%` or a
-/// bracket.
+/// A typed symbol: a digit, the decimal point, an operator, `%`, `!`, a
+/// constant, a bracket or a function opener such as `sin(`.
 final class SymbolUnit extends ExpressionUnit {
   /// Creates a unit for [symbol].
   const SymbolUnit(this.symbol);
@@ -94,7 +121,11 @@ final class ValueUnit extends ExpressionUnit {
 /// - a closing bracket only when a bracket is open;
 /// - `×` is inserted when a number, a bracket or a value follows `)`, `%` or
 ///   a value, and between a value and a number typed next to it, so two
-///   operands never look like one number.
+///   operands never look like one number;
+/// - a constant, function or value next to an operand gets an explicit `×`,
+///   so `2π` reads as `2×π` and `π2` cannot be misread;
+/// - `!` and `%` only after an operand, and `−` after `^` is a sign
+///   (`2^−3`).
 ///
 /// Edits the rules reject return the same buffer.
 final class ExpressionBuffer {
@@ -219,23 +250,20 @@ final class ExpressionBuffer {
     final isMinus = operator == CalculatorSymbols.minus;
     final previous = _symbolAt(cursor - 1);
     if (previous == null && cursor == 0 ||
-        previous == CalculatorSymbols.openBracket) {
+        previous != null && CalculatorSymbols.opensBracket(previous)) {
       return isMinus
           ? _insert([const SymbolUnit(CalculatorSymbols.minus)])
           : this;
     }
     if (previous != null && CalculatorSymbols.operators.contains(previous)) {
-      final multiplicative =
-          previous == CalculatorSymbols.times ||
-          previous == CalculatorSymbols.divide;
+      final multiplicative = _isMultiplicative(previous);
       if (isMinus && multiplicative) {
         return _insert([const SymbolUnit(CalculatorSymbols.minus)]);
       }
       if (previous == CalculatorSymbols.minus && _isUnaryMinusAt(cursor - 1)) {
         final beforeMinus = _symbolAt(cursor - 2);
         final afterMultiplicative =
-            beforeMinus == CalculatorSymbols.times ||
-            beforeMinus == CalculatorSymbols.divide;
+            beforeMinus != null && _isMultiplicative(beforeMinus);
         if (isMinus || !afterMultiplicative) return this;
         return _replaceBefore(2, [SymbolUnit(operator)]);
       }
@@ -251,6 +279,35 @@ final class ExpressionBuffer {
       return this;
     }
     return _insert([const SymbolUnit(CalculatorSymbols.percent)]);
+  }
+
+  /// Types `!`, which must follow a number, `)`, `%`, a constant or a value.
+  ExpressionBuffer insertFactorial() {
+    if (!_endsWithOperand ||
+        _symbolAt(cursor - 1) == CalculatorSymbols.factorial) {
+      return this;
+    }
+    return _insert([const SymbolUnit(CalculatorSymbols.factorial)]);
+  }
+
+  /// Types the constant [symbol] (π or e), with a `×` before it after an
+  /// operand and after it before one.
+  ExpressionBuffer insertConstant(String symbol) {
+    assert(
+      CalculatorSymbols.constants.contains(symbol),
+      'Not a constant: $symbol',
+    );
+    return _insertOperand(SymbolUnit(symbol));
+  }
+
+  /// Types the opener of a call to [function], such as `sin(`, with a `×`
+  /// before it after an operand. The call is closed by `)`, or when the
+  /// expression is evaluated.
+  ExpressionBuffer insertFunction(CalcFunction function) {
+    final opener = SymbolUnit(CalculatorSymbols.functionOpener(function));
+    return _endsWithOperand
+        ? _insert([const SymbolUnit(CalculatorSymbols.times), opener])
+        : _insert([opener]);
   }
 
   /// Types `(`, with an implied `×` after an operand.
@@ -272,17 +329,8 @@ final class ExpressionBuffer {
       _canCloseBracket ? insertCloseBracket() : insertOpenBracket();
 
   /// Inserts the exact [value], with an implied `×` next to an operand.
-  ExpressionBuffer insertValue(CalcValue value) {
-    final nextStartsOperand =
-        _isNumberSymbolAt(cursor) ||
-        _symbolAt(cursor) == CalculatorSymbols.openBracket ||
-        _isValueAt(cursor);
-    return _replaceBefore(0, [
-      if (_endsWithOperand) const SymbolUnit(CalculatorSymbols.times),
-      ValueUnit(value),
-      if (nextStartsOperand) const SymbolUnit(CalculatorSymbols.times),
-    ], cursorBack: nextStartsOperand ? 1 : 0);
-  }
+  ExpressionBuffer insertValue(CalcValue value) =>
+      _insertOperand(ValueUnit(value));
 
   /// Removes the unit before the cursor.
   ExpressionBuffer backspace() =>
@@ -293,10 +341,21 @@ final class ExpressionBuffer {
   ExpressionBuffer _insert(List<ExpressionUnit> inserted) =>
       _replaceBefore(0, inserted);
 
+  /// Inserts a whole operand (a value or a constant), with a `×` before it
+  /// after an operand and after it before one.
+  ExpressionBuffer _insertOperand(ExpressionUnit operand) {
+    final nextStartsOperand = _startsOperandAt(cursor);
+    return _replaceBefore(0, [
+      if (_endsWithOperand) const SymbolUnit(CalculatorSymbols.times),
+      operand,
+      if (nextStartsOperand) const SymbolUnit(CalculatorSymbols.times),
+    ], cursorBack: nextStartsOperand ? 1 : 0);
+  }
+
   /// Inserts digits or a point, with a `×` before them after `)`, `%` or a
   /// value, and after them before a value. The cursor stays in the number.
   ExpressionBuffer _insertNumberPart(List<ExpressionUnit> part) {
-    final valueNext = _isValueAt(cursor);
+    final valueNext = _isWholeOperandAt(cursor);
     return _replaceBefore(0, [
       if (_endsWithNonNumberOperand) const SymbolUnit(CalculatorSymbols.times),
       ...part,
@@ -333,6 +392,28 @@ final class ExpressionBuffer {
   bool _isValueAt(int index) =>
       index >= 0 && index < units.length && units[index] is ValueUnit;
 
+  /// Whether the unit at [index] is a value, a constant or a function
+  /// opener: an operand a typed number must not run into.
+  bool _isWholeOperandAt(int index) {
+    if (_isValueAt(index)) return true;
+    final symbol = _symbolAt(index);
+    return symbol != null &&
+        (CalculatorSymbols.constants.contains(symbol) ||
+            CalculatorSymbols.isFunctionOpener(symbol));
+  }
+
+  /// Whether an operand starts at [index].
+  bool _startsOperandAt(int index) =>
+      _isNumberSymbolAt(index) ||
+      _isWholeOperandAt(index) ||
+      _symbolAt(index) == CalculatorSymbols.openBracket;
+
+  /// Whether [symbol] is an operator after which `−` is a sign.
+  static bool _isMultiplicative(String symbol) =>
+      symbol == CalculatorSymbols.times ||
+      symbol == CalculatorSymbols.divide ||
+      symbol == CalculatorSymbols.power;
+
   bool _isDigitUnitAt(int index) =>
       index >= 0 && index < units.length && _isDigitUnit(units[index]);
 
@@ -353,7 +434,7 @@ final class ExpressionBuffer {
     if (units[index - 1] is ValueUnit) return false;
     final before = _symbolAt(index - 1)!;
     return CalculatorSymbols.operators.contains(before) ||
-        before == CalculatorSymbols.openBracket;
+        CalculatorSymbols.opensBracket(before);
   }
 
   /// Whether the unit before the cursor ends an operand.
@@ -365,11 +446,13 @@ final class ExpressionBuffer {
     return CalculatorSymbols.isDigit(symbol) ||
         symbol == CalculatorSymbols.decimalPoint ||
         symbol == CalculatorSymbols.closeBracket ||
-        symbol == CalculatorSymbols.percent;
+        symbol == CalculatorSymbols.percent ||
+        symbol == CalculatorSymbols.factorial ||
+        CalculatorSymbols.constants.contains(symbol);
   }
 
   /// Whether the unit before the cursor ends an operand that is not a typed
-  /// number: `)`, `%` or a value.
+  /// number: `)`, `%`, `!`, a constant or a value.
   bool get _endsWithNonNumberOperand =>
       _endsWithOperand && !_isNumberSymbol(units[cursor - 1]);
 
@@ -394,8 +477,9 @@ final class ExpressionBuffer {
   int _depthBefore(int index) {
     var depth = 0;
     for (final unit in units.take(index)) {
-      if (unit == const SymbolUnit(CalculatorSymbols.openBracket)) depth++;
-      if (unit == const SymbolUnit(CalculatorSymbols.closeBracket)) depth--;
+      if (unit is! SymbolUnit) continue;
+      if (CalculatorSymbols.opensBracket(unit.symbol)) depth++;
+      if (unit.symbol == CalculatorSymbols.closeBracket) depth--;
     }
     return depth;
   }

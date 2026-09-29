@@ -7,6 +7,7 @@ import 'package:smart_calculator/features/calculator/application/memory_notifier
 import 'package:smart_calculator/features/calculator/domain/calculator_key.dart';
 import 'package:smart_calculator/features/calculator/domain/expression_buffer.dart';
 import 'package:smart_calculator/features/history/application/history_notifier.dart';
+import 'package:smart_calculator/features/settings/application/angle_mode_notifier.dart';
 
 /// What the calculator shows.
 ///
@@ -90,7 +91,16 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
   static const CalcEngine _engine = CalcEngine();
 
   @override
-  CalculatorState build() => const CalculatorState();
+  CalculatorState build() {
+    // A new angle mode changes what `sin(30)` is worth, so the live value is
+    // worked out again. An answer already shown stays as it was computed.
+    ref.listen(angleModeProvider, (_, _) {
+      if (state.showsResult) return;
+      final buffer = state.buffer;
+      state = CalculatorState(buffer: buffer, value: _valueOf(buffer));
+    });
+    return const CalculatorState();
+  }
 
   /// Handles one key press.
   void press(CalculatorKey key) {
@@ -109,6 +119,8 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
           CalculatorKey.subtract ||
           CalculatorKey.multiply ||
           CalculatorKey.divide ||
+          CalculatorKey.power ||
+          CalculatorKey.factorial ||
           CalculatorKey.percent:
         _edit(_continuingBuffer, (buffer) => _apply(buffer, key));
       case _:
@@ -237,7 +249,7 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
     }
   }
 
-  static CalcValue? _valueOf(ExpressionBuffer buffer) {
+  CalcValue? _valueOf(ExpressionBuffer buffer) {
     if (buffer.isEmpty) return null;
     return switch (_evaluateBuffer(buffer)) {
       CalcSuccess(:final value) => value,
@@ -248,7 +260,7 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
   /// Evaluates [buffer] with its open brackets closed. When closing them
   /// makes an unfinished expression invalid (`(5+` becomes `(5+)`), the
   /// failure is reported as incomplete, which is what it is.
-  static CalcResult _evaluateBuffer(ExpressionBuffer buffer) {
+  CalcResult _evaluateBuffer(ExpressionBuffer buffer) {
     final closed = _evaluateUnits(buffer.withBracketsClosed);
     if (closed case CalcFailure(error: CalcError.syntax)
         when buffer.openBrackets > 0) {
@@ -258,9 +270,13 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
     return closed;
   }
 
-  static CalcResult _evaluateUnits(ExpressionBuffer buffer) {
+  CalcResult _evaluateUnits(ExpressionBuffer buffer) {
     final input = buffer.toEngineInput();
-    return _engine.evaluate(input.expression, variables: input.variables);
+    return _engine.evaluate(
+      input.expression,
+      variables: input.variables,
+      angleMode: ref.read(angleModeProvider),
+    );
   }
 
   static ExpressionBuffer _apply(ExpressionBuffer buffer, CalculatorKey key) {
@@ -274,6 +290,11 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
       CalculatorKey.multiply => buffer.insertOperator(CalculatorSymbols.times),
       CalculatorKey.divide => buffer.insertOperator(CalculatorSymbols.divide),
       CalculatorKey.percent => buffer.insertPercent(),
+      CalculatorKey.power => buffer.insertOperator(CalculatorSymbols.power),
+      CalculatorKey.factorial => buffer.insertFactorial(),
+      CalculatorKey.pi => buffer.insertConstant(CalculatorSymbols.pi),
+      CalculatorKey.euler => buffer.insertConstant(CalculatorSymbols.euler),
+      _ when key.function != null => buffer.insertFunction(key.function!),
       CalculatorKey.brackets => buffer.insertBracket(),
       CalculatorKey.openBracket => buffer.insertOpenBracket(),
       CalculatorKey.closeBracket => buffer.insertCloseBracket(),
@@ -295,6 +316,9 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
     '/': CalculatorKey.divide,
     '÷': CalculatorKey.divide,
     '%': CalculatorKey.percent,
+    '^': CalculatorKey.power,
+    '!': CalculatorKey.factorial,
+    'π': CalculatorKey.pi,
     '(': CalculatorKey.openBracket,
     ')': CalculatorKey.closeBracket,
     '=': CalculatorKey.equals,

@@ -10,7 +10,8 @@ final CalcValue half = CalcValue.fromInt(1) / CalcValue.fromInt(2);
 /// Types [keys] into [start], one edit per character:
 /// digits, `.`, `+ − × ÷`, `%`, `(`, `)`, `b` (the smart bracket key),
 /// `<` (backspace), `L`/`R` (cursor left/right), `v` (one third as a value)
-/// and `w` (one half as a value).
+/// `w` (one half as a value), `^`, `!`, `p` (π), `E` (e), `s` (sin( ) and
+/// `q` (sqrt( ).
 ExpressionBuffer type(
   String keys, [
   ExpressionBuffer start = ExpressionBuffer.empty,
@@ -21,6 +22,12 @@ ExpressionBuffer type(
       '.' => buffer.insertDecimalPoint(),
       '+' || '−' || '×' || '÷' => buffer.insertOperator(key),
       '%' => buffer.insertPercent(),
+      '^' => buffer.insertOperator(CalculatorSymbols.power),
+      '!' => buffer.insertFactorial(),
+      'p' => buffer.insertConstant(CalculatorSymbols.pi),
+      'E' => buffer.insertConstant(CalculatorSymbols.euler),
+      's' => buffer.insertFunction(CalcFunction.sin),
+      'q' => buffer.insertFunction(CalcFunction.sqrt),
       '(' => buffer.insertOpenBracket(),
       ')' => buffer.insertCloseBracket(),
       'b' => buffer.insertBracket(),
@@ -354,6 +361,135 @@ void main() {
       ]).toCanonicalText();
 
       expect(text, '1.23456789012e17');
+    });
+  });
+
+  group('power', () {
+    expectTyping({
+      '2^3': '2^3|',
+      '^': '|',
+      '(^': '(|',
+      '2^^': '2^|',
+      '2×^': '2^|',
+      '2^×': '2×|',
+      '2^−3': '2^−3|',
+      '2^−−': '2^−|',
+      '2^−+': '2+|',
+      '2^−^': '2^|',
+      '2^3^2': '2^3^2|',
+      '2^(3': '2^(3|',
+      '2^3L^': '2^|3',
+      '−^': '−|',
+    });
+  });
+
+  group('factorial', () {
+    expectTyping({
+      '5!': '5!|',
+      '!': '|',
+      '(!': '(|',
+      '5+!': '5+|',
+      '5!!': '5!|',
+      '5%!': '5%!|',
+      '5.!': '5.!|',
+      '(5)!': '(5)!|',
+      'v!': '{1/3}!|',
+      '5!3': '5!×3|',
+      '5!(': '5!×(|',
+    });
+  });
+
+  group('constants', () {
+    expectTyping({
+      'p': 'π|',
+      'E': 'e|',
+      '2p': '2×π|',
+      'p2': 'π×2|',
+      'pp': 'π×π|',
+      'pE': 'π×e|',
+      'p(': 'π×(|',
+      '2+p': '2+π|',
+      'p!': 'π!|',
+      'p%': 'π%|',
+      'p.': 'π×0.|',
+      '(p)': '(π)|',
+      'pL': '|π',
+      'vp': '{1/3}×π|',
+      'pLp': 'π|×π',
+      'pL2': '2|×π',
+      'pL.': '0.|×π',
+      'pLv': '{1/3}|×π',
+    });
+
+    test('are backspaced one at a time', () {
+      expect(show(type('2p<')), '2×|');
+      expect(show(type('p<')), '|');
+    });
+  });
+
+  group('functions', () {
+    expectTyping({
+      's': 'sin(|',
+      's5': 'sin(5|',
+      '2s': '2×sin(|',
+      '(s': '(sin(|',
+      '+s': 'sin(|',
+      's)': 'sin(|',
+      's5)': 'sin(5)|',
+      's5)s': 'sin(5)×sin(|',
+      'ss': 'sin(sin(|',
+      'sq': 'sin(sqrt(|',
+      's+': 'sin(|',
+      's−': 'sin(−|',
+      's−5': 'sin(−5|',
+      's^': 'sin(|',
+      's×': 'sin(|',
+      's5b': 'sin(5)|',
+      'sb': 'sin((|',
+      's5+': 'sin(5+|',
+      'sL': '|sin(',
+      'sLp': 'π|×sin(',
+      'sLp<': '|×sin(',
+      's<': '|',
+      's5<': 'sin(|',
+      's5<<': '|',
+      'sp!': 'sin(π!|',
+    });
+
+    test('a function opener is one unit', () {
+      expect(type('sq').units.length, 2);
+      expect(type('2s').units.length, 3);
+    });
+
+    test('count as open brackets, and are closed by the buffer', () {
+      expect(type('sq5').openBrackets, 2);
+      expect(type('s5)').openBrackets, 0);
+      expect(show(type('sq5').withBracketsClosed), 'sin(sqrt(5))|');
+    });
+
+    test('a closing bracket needs an operand inside the call', () {
+      expect(show(type('s)')), 'sin(|');
+      expect(show(type('s5+)')), 'sin(5+|');
+    });
+  });
+
+  group('scientific input, engine text', () {
+    test('writes symbols, constants and function names for the engine', () {
+      expect(type('s9p)').toEngineInput().expression, 'sin(9×π)');
+      expect(type('2^3!').toEngineInput().expression, '2^3!');
+      expect(type('qE').toEngineInput().expression, 'sqrt(e');
+    });
+
+    test('a value next to π multiplies, never reads as a name', () {
+      final input = type('vp').toEngineInput();
+
+      expect(input.expression, '(a)×π');
+      expect(input.variables.keys, ['a']);
+    });
+
+    test('canonical text (history) keeps the engine names', () {
+      expect(type('s5)^2').toCanonicalText(), 'sin(5)^2');
+      expect(type('5!').toCanonicalText(), '5!');
     });
   });
 

@@ -246,6 +246,8 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
   - `CalculatorDisplayFormatter`: turns units into display text in the region's format. It keeps a map from cursor positions to text offsets (for the caret and taps), brackets negative values after the start, puts a zero-width space after binary operators as the only line-break points, and builds the spoken text for screen readers.
 - **Number format** (`lib/core/formatting/`, DEC-037): `LocalizedNumberFormat` reads the decimal separator, group separator and grouping sizes from `intl`'s data for the device locale (falling back to the language, then English). It formats locale-neutral number text: `formatTyped` (as typed, so `5.` keeps its point), `formatTypedWithOffsets`, `formatCanonical` (`−` and `×10ⁿ` superscripts), and `toPlainInput` for paste. `en_IN` groups as 12,34,567.
 
+**Scientific input (Phase 5, Module 2, DEC-048).** `ExpressionBuffer` also holds `^`, `!`, `π`, `e` and function openers (`sin(`, `sqrt(` …, one unit each, treated as open brackets), with `insertFactorial`, `insertConstant` and `insertFunction`; `CalculatorKey` has the matching keys (`CalculatorKey.function` names the `CalcFunction`). `CalculatorNotifier` reads `angleModeProvider` (`lib/features/settings/`, saved as `settings.angle_mode`) for every evaluation and listens to it, recomputing the live value/error when the mode changes. The formatter shows `√(`/`∛(` and speaks every new symbol. There are no scientific keys on screen yet (Module 3).
+
 ### 1.14 Platforms
 
 | Platform | Identity | Verification |
@@ -254,7 +256,7 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | iOS | Bundle ID `com.parasshakya.smartcalculator` (tests: `.RunnerTests`), `CFBundleName` and `CFBundleDisplayName` "Smart Calculator" | Can't be built on Windows (P-5) |
 | web, Windows, Linux, macOS | Template identifiers (DEC-025) | Not built. Not supported targets (DEC-004). |
 
-### 1.15 Tests (464 in the normal app run, plus 260 in the engine)
+### 1.15 Tests (592 passed in the normal app run, plus 387 in the engine)
 
 | File | Covers |
 | --- | --- |
@@ -392,7 +394,7 @@ Each feature has `domain/` (pure Dart), `data/`, `application/` and `presentatio
 
 The scientific engine (functions, `^`, exact/approximate values, angle mode, the P-6 defaults) is built and tested (§1.12, DEC-047). Still to come:
 
-- **The calculator's own scientific input logic (Phase 5, Module 2):** `ExpressionBuffer` support for inserting a function call (`sin(`), the `^` and `!` keys, and degree/radian mode as persisted state reaching `CalculatorNotifier`'s call to `CalcEngine.evaluate`.
+- **Built in Module 2, see §1.13 and DEC-048.** Original note on the calculator's scientific input logic: `ExpressionBuffer` support for inserting a function call (`sin(`), the `^` and `!` keys, and degree/radian mode as persisted state reaching `CalculatorNotifier`'s call to `CalcEngine.evaluate`.
 - **The scientific keypad (Phase 5, Module 3):** shares state with Basic (DEC-013); not designed yet.
 - **Editing:** backspace removes a function name such as `sin(` as one unit — a Module 2 concern, since it's the buffer's input rules that decide this, the same way DEC-040 did for Phase 3's units.
 - **Undefined-result messaging in the app:** `CalcError.undefined` has a generic translated message (`errorUndefined`) for now; whether specific domain errors (asin out of range vs. tan at 90°) deserve their own wording is a Module 2/3 question, not an engine one.

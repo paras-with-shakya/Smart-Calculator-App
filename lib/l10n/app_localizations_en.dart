@@ -281,6 +281,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String get spokenCloseBracket => 'close bracket';
 
   @override
+  String get spokenPower => 'to the power of';
+
+  @override
+  String get spokenFactorial => 'factorial';
+
+  @override
+  String get spokenPi => 'pi';
+
+  @override
+  String get spokenEuler => 'e';
+
+  @override
+  String get spokenFunctionSin => 'sine of';
+
+  @override
+  String get spokenFunctionCos => 'cosine of';
+
+  @override
+  String get spokenFunctionTan => 'tangent of';
+
+  @override
+  String get spokenFunctionAsin => 'inverse sine of';
+
+  @override
+  String get spokenFunctionAcos => 'inverse cosine of';
+
+  @override
+  String get spokenFunctionAtan => 'inverse tangent of';
+
+  @override
+  String get spokenFunctionSinh => 'hyperbolic sine of';
+
+  @override
+  String get spokenFunctionCosh => 'hyperbolic cosine of';
+
+  @override
+  String get spokenFunctionTanh => 'hyperbolic tangent of';
+
+  @override
+  String get spokenFunctionLog => 'log base 10 of';
+
+  @override
+  String get spokenFunctionLn => 'natural log of';
+
+  @override
+  String get spokenFunctionSqrt => 'square root of';
+
+  @override
+  String get spokenFunctionCbrt => 'cube root of';
+
+  @override
+  String get spokenFunctionAbs => 'absolute value of';
+
+  @override
   String get errorIncomplete => 'Incomplete expression';
 
   @override

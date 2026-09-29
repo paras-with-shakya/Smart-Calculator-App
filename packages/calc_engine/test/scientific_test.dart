@@ -54,6 +54,21 @@ void main() {
     _value('(2^3)^2', '64');
   });
 
+  group('power: exponents too big for exact arithmetic', () {
+    // A base near 1 has an ordinary answer however large the exponent is.
+    _value('1.0000001^100000000', '22026.4549102');
+    _value('0.9999999^100000000', '0.0000453999073015');
+    _value('1^99999999999', '1');
+    _value('(−1)^99999999999', '-1');
+    _value('(−1)^100000000000', '1');
+    // A result outside the range is an overflow, never a hang or a crash.
+    _error('2^100000', CalcError.overflow);
+    _error('2^−100000', CalcError.overflow, description: 'underflow');
+    _error('0.5^1000000', CalcError.overflow, description: 'underflow');
+    _error('9^9^9', CalcError.overflow);
+    _error('99999999999999999999^99999999999999999999', CalcError.overflow);
+  });
+
   group('power: exact integers', () {
     _value('2^10', '1024', exact: true);
     _value('10^2', '100', exact: true);

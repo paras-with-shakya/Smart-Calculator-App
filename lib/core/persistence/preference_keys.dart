@@ -6,10 +6,13 @@ abstract final class PreferenceKeys {
   /// The theme the user chose: system, light or dark.
   static const String themePreference = 'settings.theme_preference';
 
+  /// Whether trigonometric functions work in degrees or radians.
+  static const String angleMode = 'settings.angle_mode';
+
   /// The calculator memory, as an exact fraction (`CalcValue`'s storage
   /// form). Absent when the memory is empty.
   static const String calculatorMemory = 'calculator.memory';
 
   /// Every key above.
-  static const Set<String> all = {themePreference, calculatorMemory};
+  static const Set<String> all = {themePreference, angleMode, calculatorMemory};
 }

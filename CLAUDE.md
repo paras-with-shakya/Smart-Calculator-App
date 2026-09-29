@@ -2,7 +2,7 @@
 
 This is the entry point for every Claude Code session on this project. Read it first, then follow the **Context Recovery Protocol** below before doing any work.
 
-**Snapshot (2026-09-29):** Phases 1–4 are complete (history `1604248`, saved calculations `f02b23a`, both committed and phone-tested). **Phase 5 (Scientific) is approved and in progress: Module 1 (the engine) is built, tested (377 engine + 465 app tests) and committed (`ef7b0ba`); Modules 2–3 (the calculator's scientific input logic, and the scientific keypad) are not started.** The engine module was built before the user reviewed its five P-6 defaults, not after — a flagged deviation; see docs/DECISIONS.md DEC-047 and docs/DEVELOPMENT_STATUS.md's "Pending Decisions". Don't start Module 2 until that review happens. If this line disagrees with [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), check `git log` and the code, then fix the docs.
+**Snapshot (2026-09-29):** Phases 1–4 are complete (history `1604248`, saved calculations `f02b23a`, both committed and phone-tested). **Phase 5 (Scientific) is approved and in progress: Module 1 (the engine, `ef7b0ba`) and Module 2 (the calculator's scientific input logic, angle mode, wrong-input handling; DEC-048) are built, tested (387 engine + 592 app tests) and committed locally; Module 3 (the scientific keypad UI) is not started — ask the user before starting it.** The user accepted the P-6 defaults ("okay"). No scientific key is on screen yet. If this line disagrees with [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md), check `git log` and the code, then fix the docs.
 
 ## Source of truth
 

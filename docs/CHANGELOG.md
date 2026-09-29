@@ -19,6 +19,32 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-09-29: Phase 5, Module 2 (Scientific input logic)
+
+The user answered the five P-6 defaults with "okay", and added that the app must handle wrong and impossible equations properly. Module 2 was built with that as its main requirement. Not phone-tested (no scientific keys are on screen yet).
+
+### Added
+- `ExpressionBuffer`: `^`, `!`, `π`, `e` and function openers (`sin(` … `abs(`, one unit each, counted as open brackets); `insertFactorial`, `insertConstant`, `insertFunction`; explicit `×` between an operand and a constant/function/value.
+- `CalculatorKey`: `power`, `factorial`, `pi`, `euler` and 14 function keys. `CalculatorNotifier` handles them; pasted/typed `^ ! π` work.
+- Angle mode as app state: `angleModeProvider`, `SettingsRepository.angleMode/setAngleMode`, preference key `settings.angle_mode`. The calculator recomputes its live value/error when the mode changes.
+- Display and screen-reader support: `√(`/`∛(` on screen, 18 new `spoken*` strings.
+- `CalcFunction` exported from `calc_engine.dart`.
+
+### Fixed
+- Engine: a power with an exponent beyond ±2000 was always "overflow", even when the answer is ordinary (`1.0000001^100000000` is about 22026.45). It now falls back to a double; real overflow and underflow are still overflow. Found by stress-testing hostile input (no hang or exception was found: `99999999!`, `9^9^9^9`, `10^1000000` … each under 40 ms).
+
+### Decisions
+- DEC-048 (this module). DEC-047's defaults recorded as accepted.
+
+### Tests
+- `flutter analyze`: No issues found. `dart format lib test packages`: clean. `flutter test`: 592 passed, 1 skipped, 0 failed. `dart test` in `packages/calc_engine`: 387 passed. `flutter build apk --debug`: built.
+- New: 10 engine tests; 75 buffer cases; 41 in `calculator_scientific_test.dart` (keys, angle mode, 21 wrong-input cases, two seeded fuzz tests); 4 settings-repository; 7 formatter.
+
+### Notes
+- Backspacing a constant or value can leave the `×` next to it (`|×sin(`); `=` then says "Invalid expression" and the expression stays editable (same class as Phase 3's known limitation).
+
+---
+
 ## 2026-09-29: Phase 5, Module 1 (Scientific engine)
 
 The user approved Phase 5 ("phase 5 start"). This session built the whole engine module — the power operator, factorial, constants, 14 functions, exact/approximate values, angle mode — in one pass, without first taking the five P-6 defaults back to the user, which is a deviation from the previous session's own "Instructions For Next Session." Flagged in full in DEC-047 and DEVELOPMENT_STATUS.md, not silently absorbed. Not committed by the end of this entry's session; not phone-tested (no scientific UI exists yet).

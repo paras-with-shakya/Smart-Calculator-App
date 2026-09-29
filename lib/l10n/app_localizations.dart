@@ -592,6 +592,114 @@ abstract class AppLocalizations {
   /// **'close bracket'**
   String get spokenCloseBracket;
 
+  /// How screen readers say ^ inside an expression, such as '2 to the power of 3'.
+  ///
+  /// In en, this message translates to:
+  /// **'to the power of'**
+  String get spokenPower;
+
+  /// How screen readers say ! after a number, such as '5 factorial'.
+  ///
+  /// In en, this message translates to:
+  /// **'factorial'**
+  String get spokenFactorial;
+
+  /// How screen readers say the constant π.
+  ///
+  /// In en, this message translates to:
+  /// **'pi'**
+  String get spokenPi;
+
+  /// How screen readers say the constant e (Euler's number).
+  ///
+  /// In en, this message translates to:
+  /// **'e'**
+  String get spokenEuler;
+
+  /// How screen readers say the sin( function opener.
+  ///
+  /// In en, this message translates to:
+  /// **'sine of'**
+  String get spokenFunctionSin;
+
+  /// How screen readers say the cos( function opener.
+  ///
+  /// In en, this message translates to:
+  /// **'cosine of'**
+  String get spokenFunctionCos;
+
+  /// How screen readers say the tan( function opener.
+  ///
+  /// In en, this message translates to:
+  /// **'tangent of'**
+  String get spokenFunctionTan;
+
+  /// How screen readers say the asin( function opener.
+  ///
+  /// In en, this message translates to:
+  /// **'inverse sine of'**
+  String get spokenFunctionAsin;
+
+  /// How screen readers say the acos( function opener.
+  ///
+  /// In en, this message translates to:
+  /// **'inverse cosine of'**
+  String get spokenFunctionAcos;
+
+  /// How screen readers say the atan( function opener.
+  ///
+  /// In en, this message translates to:
+  /// **'inverse tangent of'**
+  String get spokenFunctionAtan;
+
+  /// How screen readers say the sinh( function opener.
+  ///
+  /// In en, this message translates to:
+  /// **'hyperbolic sine of'**
+  String get spokenFunctionSinh;
+
+  /// How screen readers say the cosh( function opener.
+  ///
+  /// In en, this message translates to:
+  /// **'hyperbolic cosine of'**
+  String get spokenFunctionCosh;
+
+  /// How screen readers say the tanh( function opener.
+  ///
+  /// In en, this message translates to:
+  /// **'hyperbolic tangent of'**
+  String get spokenFunctionTanh;
+
+  /// How screen readers say the log( function opener.
+  ///
+  /// In en, this message translates to:
+  /// **'log base 10 of'**
+  String get spokenFunctionLog;
+
+  /// How screen readers say the ln( function opener.
+  ///
+  /// In en, this message translates to:
+  /// **'natural log of'**
+  String get spokenFunctionLn;
+
+  /// How screen readers say the sqrt( function opener.
+  ///
+  /// In en, this message translates to:
+  /// **'square root of'**
+  String get spokenFunctionSqrt;
+
+  /// How screen readers say the cbrt( function opener.
+  ///
+  /// In en, this message translates to:
+  /// **'cube root of'**
+  String get spokenFunctionCbrt;
+
+  /// How screen readers say the abs( function opener.
+  ///
+  /// In en, this message translates to:
+  /// **'absolute value of'**
+  String get spokenFunctionAbs;
+
   /// Calculator error: the expression ends too early, such as '5+'.
   ///
   /// In en, this message translates to:

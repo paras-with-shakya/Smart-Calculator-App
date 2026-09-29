@@ -144,7 +144,7 @@ The user approved Phase 4 on 2026-09-29. ARCHITECTURE.md §1.17 (history) and §
 
 ---
 
-### Phase 5: Scientific (in progress — engine module done and committed 2026-09-29)
+### Phase 5: Scientific (in progress — Module 1 engine and Module 2 input logic done 2026-09-29; Module 3 keypad not started)
 
 The user approved Phase 5 on 2026-09-29 ("phase 5 start"). ARCHITECTURE.md §1.12 describes the engine; DEC-047 records the decisions, including a flagged deviation (the P-6 defaults below were implemented before being put back to the user, not after — see DEC-047's "Deviation" note and DEVELOPMENT_STATUS.md). Committed as `ef7b0ba`.
 
@@ -155,12 +155,12 @@ The user approved Phase 5 on 2026-09-29 ("phase 5 start"). ARCHITECTURE.md §1.1
 | 10ˣ, eˣ | Not yet — no dedicated function/node; achievable as `10^x` / `e^x` once Module 2/3 exist, or as dedicated keypad buttons that insert that text. Revisit if the user wants a one-key `10ˣ`/`eˣ`. |
 | factorial, absolute value | **Done** (engine): `!` postfix operator, `abs` function |
 | π, e, brackets | **Done** (engine): always the constants, never a variable (DEC-047) |
-| degree/radian mode | **Done in the engine** (`AngleMode`, `CalcEngine.evaluate`'s new parameter); **not yet in the app** — no UI toggle or persisted setting (Module 2/3) |
+| degree/radian mode | **Done in the engine and in the app's state** (`AngleMode`; `angleModeProvider`, saved under `settings.angle_mode`, DEC-048); **no UI toggle yet** (Module 3) |
 | Engine: an extensible function registry | **Done** — `CalcFunction` enum + a name→function lookup map in the parser; adding a function needs no grammar changes, just a new enum case and evaluator branch. |
 | Engine: approximate values for irrational results | **Done** — `CalcValue` is now a sealed exact/approximate hierarchy (DEC-047) |
-| Engine: the remaining P-6 defaults (`−3²`, `2^3^2`, `0^0`, `(−8)^(1/3)`, `tan 90°`) | **Implemented** (DEC-047) — **awaiting the user's explicit review**, since this was built before asking, not after (see the deviation note) |
+| Engine: the remaining P-6 defaults (`−3²`, `2^3^2`, `0^0`, `(−8)^(1/3)`, `tan 90°`) | **Implemented** (DEC-047) and **accepted by the user 2026-09-29** ("okay"; see DEC-048) |
 | Keypad: a clean scientific keypad, sharing state with Basic (DEC-013) | **Not started** (Module 3) |
-| Calculator input logic: buffer support for `^`/`!`/function calls, angle-mode state | **Not started** (Module 2) |
+| Calculator input logic: buffer support for `^`/`!`/function calls, angle-mode state | **Done** (Module 2, DEC-048): keys, input rules, persisted angle mode, robust handling of wrong input, a 21-case error table and 2 fuzz tests. No screen change. |
 | *(Proposed)* a scientific tray, a 2nd/inverse toggle, a landscape layout | Not started; still proposed, not committed to |
 | **Done when:** tests cover the edge cases of every function | **Done for the engine** — 117 new tests in `test/scientific_test.dart` (377 total in `packages/calc_engine`); the fuzz test's alphabet now also covers `^ ! π e` and function-name letters. App-level (Module 2/3) tests don't exist yet, since that code doesn't either. |
 

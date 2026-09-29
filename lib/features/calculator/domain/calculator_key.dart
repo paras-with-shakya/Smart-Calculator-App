@@ -1,3 +1,5 @@
+import 'package:calc_engine/calc_engine.dart';
+
 /// The inputs of the calculator: the keypad's keys, plus explicit brackets
 /// for a hardware keyboard.
 enum CalculatorKey {
@@ -65,7 +67,67 @@ enum CalculatorKey {
   backspace,
 
   /// Evaluates the expression.
-  equals;
+  equals,
+
+  /// `^`, the power.
+  power,
+
+  /// `!`, the factorial.
+  factorial,
+
+  /// The constant π.
+  pi,
+
+  /// The constant e.
+  euler,
+
+  /// `sin(`
+  sin(CalcFunction.sin),
+
+  /// `cos(`
+  cos(CalcFunction.cos),
+
+  /// `tan(`
+  tan(CalcFunction.tan),
+
+  /// `asin(`
+  asin(CalcFunction.asin),
+
+  /// `acos(`
+  acos(CalcFunction.acos),
+
+  /// `atan(`
+  atan(CalcFunction.atan),
+
+  /// `sinh(`
+  sinh(CalcFunction.sinh),
+
+  /// `cosh(`
+  cosh(CalcFunction.cosh),
+
+  /// `tanh(`
+  tanh(CalcFunction.tanh),
+
+  /// `log(`, base 10.
+  log(CalcFunction.log),
+
+  /// `ln(`, natural.
+  ln(CalcFunction.ln),
+
+  /// `sqrt(`
+  sqrt(CalcFunction.sqrt),
+
+  /// `cbrt(`
+  cbrt(CalcFunction.cbrt),
+
+  /// `abs(`
+  abs(CalcFunction.abs);
+
+  const CalculatorKey([this.function]);
+
+  /// The function this key opens a call to, or null if it isn't a function
+  /// key.
+  final CalcFunction? function;
 
   /// The key for [digit] (0-9).
   static CalculatorKey digit(int digit) {

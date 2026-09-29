@@ -321,7 +321,14 @@ class _Evaluator {
       return exponent == BigInt.zero ? _one : CalcValue.zero;
     }
     if (exponent.abs() > BigInt.from(_maxIntegerMagnitude)) {
-      throw const EvaluationException(CalcError.overflow);
+      // Too big to compute exactly. A base very near 1 (`1.0000001^100000000`)
+      // still has an ordinary answer, so ask a double; a result that leaves
+      // the double range, or underflows to zero, is out of range.
+      final approximate = math.pow(base.toDouble(), exponent.toDouble());
+      if (approximate.isNaN || approximate.isInfinite || approximate == 0) {
+        throw const EvaluationException(CalcError.overflow);
+      }
+      return CalcValue.approximate(approximate.toDouble());
     }
     final exactBase = base.exactValue;
     if (exactBase != null) {

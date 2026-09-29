@@ -61,7 +61,7 @@ final class CalculatorDisplayFormatter {
       text.write(switch (unit) {
         SymbolUnit(:final symbol) when _isBinaryOperatorAt(units, i) =>
           '$symbol$lineBreakOpportunity',
-        SymbolUnit(:final symbol) => symbol,
+        SymbolUnit(:final symbol) => _displayedSymbol(symbol),
         ValueUnit(value: final unitValue) => _valueInExpression(unitValue, i),
       });
       i++;
@@ -87,7 +87,7 @@ final class CalculatorDisplayFormatter {
     return previous is ValueUnit ||
         previous is SymbolUnit &&
             !CalculatorSymbols.operators.contains(previous.symbol) &&
-            previous.symbol != CalculatorSymbols.openBracket;
+            !CalculatorSymbols.opensBracket(previous.symbol);
   }
 
   /// The cursor position (a unit index) nearest to text [offset] in
@@ -144,14 +144,40 @@ final class CalculatorDisplayFormatter {
     return negative && index > 0 ? '($shown)' : shown;
   }
 
+  /// A symbol as written on screen: the root functions use their signs, and
+  /// every other symbol is written as typed.
+  static String _displayedSymbol(String symbol) => switch (symbol) {
+    'sqrt(' => '√(',
+    'cbrt(' => '∛(',
+    _ => symbol,
+  };
+
   String _spokenSymbol(String symbol) => switch (symbol) {
     CalculatorSymbols.plus => l10n.spokenPlus,
     CalculatorSymbols.minus => l10n.spokenMinus,
     CalculatorSymbols.times => l10n.spokenTimes,
     CalculatorSymbols.divide => l10n.spokenDividedBy,
+    CalculatorSymbols.power => l10n.spokenPower,
     CalculatorSymbols.percent => l10n.spokenPercent,
+    CalculatorSymbols.factorial => l10n.spokenFactorial,
+    CalculatorSymbols.pi => l10n.spokenPi,
+    CalculatorSymbols.euler => l10n.spokenEuler,
     CalculatorSymbols.openBracket => l10n.spokenOpenBracket,
     CalculatorSymbols.closeBracket => l10n.spokenCloseBracket,
+    'sin(' => l10n.spokenFunctionSin,
+    'cos(' => l10n.spokenFunctionCos,
+    'tan(' => l10n.spokenFunctionTan,
+    'asin(' => l10n.spokenFunctionAsin,
+    'acos(' => l10n.spokenFunctionAcos,
+    'atan(' => l10n.spokenFunctionAtan,
+    'sinh(' => l10n.spokenFunctionSinh,
+    'cosh(' => l10n.spokenFunctionCosh,
+    'tanh(' => l10n.spokenFunctionTanh,
+    'log(' => l10n.spokenFunctionLog,
+    'ln(' => l10n.spokenFunctionLn,
+    'sqrt(' => l10n.spokenFunctionSqrt,
+    'cbrt(' => l10n.spokenFunctionCbrt,
+    'abs(' => l10n.spokenFunctionAbs,
     _ => symbol,
   };
 
