@@ -19,6 +19,27 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-09-29: Phase 5, Module 2 audit, and the orphaned-× fix
+
+A different Claude Code session (co-authored "Claude Sonnet 5.5") built and committed Module 2 (below, `856d175`) while this session was between turns — discovered from `git log`, not assumed. The user then explicitly confirmed the five P-6 defaults by name and asked for a focused Module 2 audit against a specific checklist, a fix for the orphaned-`×` limitation Module 2 had documented as accepted, and no start on Module 3. Not phone-tested (still no scientific keys on screen).
+
+### Fixed
+- `ExpressionBuffer.backspace()` no longer leaves a stranded `×` when a constant, function or inserted value is deleted (`|×sin(` → `|sin(`). Applies to values (MR, history reuse) as well as scientific units, since they share the same insertion path.
+
+### Decisions
+- DEC-049: the P-6 defaults formally confirmed and made binding; the Module 2 audit result; the orphaned-`×` fix.
+
+### Tests
+- `flutter analyze`: No issues found. `dart format`: clean (123 files). `flutter test`: 596 passed, 1 skipped, 0 failed (was 592). `dart test` in `packages/calc_engine`: 387 passed (unchanged). `flutter build apk --debug`: built.
+- New: 4 regression tests in `expression_buffer_test.dart` for the orphaned-`×` fix (the constant case, a value case, an open-bracket-adjacent case, and a negative case confirming an unfinished `5×` is left alone).
+
+### Notes
+- Every other checklist item (implied multiplication, `e`/`π` handling, `^`/`!`/every function, DEG/RAD, invalid/incomplete/overflow/undefined, screen-reader labels, reusable components) was verified against the actual code and tests and held up with no changes needed.
+- One minor, out-of-scope gap noted but not fixed: a base of exactly `1` or `−1` past the engine's ±2000-exponent overflow cutoff returns an approximate value, though the true answer is exact.
+- Module 3 (the scientific keypad UI) was not started, per the user's explicit instruction.
+
+---
+
 ## 2026-09-29: Phase 5, Module 2 (Scientific input logic)
 
 The user answered the five P-6 defaults with "okay", and added that the app must handle wrong and impossible equations properly. Module 2 was built with that as its main requirement. Not phone-tested (no scientific keys are on screen yet).
@@ -41,7 +62,7 @@ The user answered the five P-6 defaults with "okay", and added that the app must
 - New: 10 engine tests; 75 buffer cases; 41 in `calculator_scientific_test.dart` (keys, angle mode, 21 wrong-input cases, two seeded fuzz tests); 4 settings-repository; 7 formatter.
 
 ### Notes
-- Backspacing a constant or value can leave the `×` next to it (`|×sin(`); `=` then says "Invalid expression" and the expression stays editable (same class as Phase 3's known limitation).
+- ~~Backspacing a constant or value can leave the `×` next to it (`|×sin(`); `=` then says "Invalid expression" and the expression stays editable (same class as Phase 3's known limitation).~~ **Fixed** in the next entry above (2026-09-29, the Module 2 audit).
 
 ---
 

@@ -2,30 +2,29 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-09-29, end of Phase 5 Module 2 (the scientific input logic: built, tested, QA-clean, committed locally — see "Git?" below). Module 1 (the engine) is `ef7b0ba`. The user accepted the P-6 defaults ("okay") at the start of this session.
+**Last updated:** 2026-09-29, end of the Phase 5 Module 2 audit (audited, one real bug fixed — the orphaned-`×` limitation — tested, QA-clean; not yet committed). Module 1 (engine, `ef7b0ba`) and Module 2 as originally built (`856d175`, a different session) are both already committed.
 
 ## At a Glance
 
 | Question | Answer |
 | --- | --- |
-| Where are we? | **Phase 3 and Phase 4 are complete. Phase 5 (Scientific): Module 1 (the engine) and Module 2 (the calculator's scientific input logic) are built and tested; Module 3 (the scientific keypad UI) is not started.** |
-| What exists in code? | Everything from Phase 3–4, plus the engine's power operator, factorial, constants (π, e), 14 functions, exact/approximate `CalcValue`, degree/radian mode (ARCHITECTURE.md §1.12, DEC-047), and now the app-side input logic: `^ ! π e` and function keys in `ExpressionBuffer`/`CalculatorNotifier`, the persisted angle mode, and handling of wrong input (§1.13, DEC-048). **No scientific key is on screen yet** — the keypad is still the Basic one. |
-| What is being worked on? | Nothing. Module 2 is finished; Module 3 needs the user's go-ahead (phase/module gate). |
+| Where are we? | **Phase 3 and Phase 4 are complete. Phase 5 (Scientific): Module 1 (engine) and Module 2 (scientific input logic) are built, audited and tested; Module 3 (the scientific keypad UI) is not started, per the user's explicit instruction.** |
+| What exists in code? | Everything from Phase 3–4, plus the engine's power operator, factorial, constants (π, e), 14 functions, exact/approximate `CalcValue`, degree/radian mode (ARCHITECTURE.md §1.12, DEC-047); the app-side input logic — `^ ! π e` and function keys, persisted angle mode, wrong-input handling (§1.13, DEC-048); and this session's fix, backspacing a constant/function/value never leaves a stranded `×`. **No scientific key is on screen yet** — the keypad is still the Basic one. |
+| What is being worked on? | Nothing. The Module 2 audit is done; Module 3 needs the user's go-ahead and a design decision (see "Next Task"). |
 | What happens next? | Module 3: the scientific keypad UI (sharing state with Basic, DEC-013), with a degree/radian toggle. Ask the user before starting; it needs a design (see "Next Task"). |
-| Git? | Module 2 is committed locally on top of `0e4dba9` (the previous head). `main` is ahead of `origin/main` by 5 with that commit (was 4). **Claude never pushes; the user pushes themselves.** |
+| Git? | `ef7b0ba`, `0e4dba9` and `856d175` are committed (`main` ahead of `origin/main` by 5). **This session's orphan-× fix is not committed yet** — nothing blocks that. **Claude never pushes; the user pushes themselves.** |
 | What must not be repeated? | See "Do NOT Repeat" |
 | Known issues? | See "Known Issues". #13 (the stray scaffold) is **resolved** — the user deleted it 2026-09-29. |
-| Pending decisions? | P-5, P-7, P-9, P-10. **P-6 is resolved:** the user answered the five defaults with "okay" (2026-09-29; DEC-047, DEC-048) — Claude took that as acceptance, so mention it once if there is doubt. **P-12 resolved:** the user delegated the saved-calculations UI to Claude ("jaisa tum karo, waha karo") — see DEC-046. |
+| Pending decisions? | P-5, P-7, P-9, P-10. **P-6 is resolved:** the user explicitly approved all five defaults by name in this session (2026-09-29; DEC-047, DEC-048) — no more ambiguity to flag. **P-12 resolved:** the user delegated the saved-calculations UI to Claude ("jaisa tum karo, waha karo") — see DEC-046. |
 
 ## Current Phase
 
-**Phase 5 (Scientific): approved 2026-09-29 ("phase 5 start"). Module 1 (the engine) and Module 2 (the input logic, DEC-048) are complete and tested; Module 3 (the keypad UI) is not started.** The two paragraphs below describe Module 1 as it stood before the user's review; the review has since happened ("okay"), so the "must not start until reviewed" gate at the end of this section is **lifted** (Module 2 is done).
+**Phase 5 (Scientific): approved 2026-09-29 ("phase 5 start"). Module 1 (the engine) and Module 2 (the input logic, DEC-048, audited and fixed this session) are complete and tested; Module 3 (the keypad UI) is not started, and must not start without the user's explicit go-ahead.**
 
 - The user approved Phase 5 with "phase 5 start", after Phase 4.
-- **A deviation, flagged rather than silent:** the previous session's "Instructions For Next Session" said to settle the rest of P-6 (the power and trigonometry defaults) *before* building the engine's function registry. That didn't happen — the whole engine module (registry, `^`, all five P-6 defaults, every scientific function) was built in one pass, and the defaults below were chosen by Claude's own judgment rather than checked with the user first. Nothing is hidden: DEC-047 records exactly what was implemented and why, and this is called out here, in ROADMAP.md's Phase 5 table, and in this session's chat report so the user reviews it specifically.
-- **The five P-6 defaults, as implemented (DEC-047):** `−3² = −9` (unary minus binds looser than `^`); `2^3^2 = 512` (`^` is right-associative); `0^0 = 1` (the common convention); `(−8)^(1/3) = −2` (a negative base with an odd-denominator rational exponent has a real root); `tan 90° → CalcError.undefined` (an asymptote, not a huge finite number).
-- Engine tests: 377 in `packages/calc_engine` (260 Phase 3 + 117 new). App tests: 465 (`flutter test`), `flutter analyze` clean, formatting clean, debug APK builds.
-- **Module 2 and Module 3 must not start until the user has reviewed the P-6 defaults** — not a new approval gate, but this phase's existing one, since the module boundary is exactly where CLAUDE.md's phase-gate rule says to stop and report.
+- **The deviation from the Module 1 session is now fully resolved.** The previous session built the engine's five P-6 defaults before asking (flagged in DEC-047). This session, the user reviewed and approved all five **by name**: `−3² = −9`, `2^3^2 = 512`, `0^0 = 1`, `(−8)^(1/3) = −2`, `tan 90° → CalcError.undefined`. Their instruction: keep these semantics consistent across the calculator and future scientific/programmer work unless a later documented decision changes them; do not revert the already-implemented work.
+- **A second, independent session built Module 2 in between** (`856d175`, co-authored "Claude Sonnet 5.5") — see the "Phase 5: Module 2 final audit" entry below for how this was discovered and handled.
+- Engine tests: 387 in `packages/calc_engine`. App tests: 596 (`flutter test`), `flutter analyze` clean, formatting clean, debug APK builds.
 
 ## Phase 3 Audit (2026-09-28)
 
@@ -63,7 +62,7 @@ During this session, a full `flutter create`-style scaffold appeared inside `pac
 
 This is exactly what `test/architecture/layer_boundaries_test.dart` exists to catch, and it did: it's the **only** failure in the whole suite (438 passed, 1 skipped, 1 failed, of 440). Claude attempted to delete the stray files and was correctly refused by the sandbox's safety layer (an `rm` touching a directory), which is why this is now the user's decision, not a silent fix. See "Known Issues" #13 for the exact file list and Known Issues for what's confirmed unaffected.
 
-## Phase 5: the scientific engine (2026-09-29, this session, not yet committed)
+## Phase 5: the scientific engine (2026-09-29, committed `ef7b0ba`)
 
 The user approved Phase 5 with "phase 5 start". Full detail: ARCHITECTURE.md §1.12; decision: DEC-047 (which also records the deviation below in full).
 
@@ -88,9 +87,29 @@ Full detail: ARCHITECTURE.md §1.13 (last paragraph), DEC-048. The user's instru
 - **Angle mode:** `angleModeProvider` (`lib/features/settings/application/angle_mode_notifier.dart`), saved as `settings.angle_mode`; the live value/error is recomputed when it changes; an answer already shown is not.
 - **Display:** `√(`/`∛(`, and 18 new screen-reader strings (`flutter gen-l10n` was run).
 - **Wrong input, verified not assumed:** first stress-tested the engine with ~70 hostile expressions (no hang, no throw; each < 40 ms). That found one real bug — an exponent beyond ±2000 was always "overflow" even for `1.0000001^100000000` (≈ 22026.45) — fixed in `evaluator.dart` `_integerPower`. Then a 21-case error table (undefined / divide by zero / overflow / incomplete, each leaves the expression editable) and two seeded fuzz tests (400 runs each).
-- **Known limitation:** backspacing a constant or value can leave the `×` next to it (`|×sin(`); `=` says "Invalid expression" and the expression stays editable.
+- ~~**Known limitation:** backspacing a constant or value can leave the `×` next to it (`|×sin(`)~~ **Fixed in the audit below** (DEC-048 addendum): `backspace()` now removes that `×` in the same step.
 - **Not phone-tested:** there is no scientific key on screen to exercise.
 - **Tests:** 592 app (was 465), 387 engine (was 377). Analyze, format, debug build clean (see "Tests").
+
+## Phase 5: Module 2 final audit, and the orphaned-× fix (2026-09-29, this session)
+
+**Context this session started from:** a *different* Claude Code session (co-authored "Claude Sonnet 5.5") built and committed the whole of Module 2 above (`856d175`) while this session was between turns, after this session had committed Module 1 (`ef7b0ba`). Discovered by reading the actual file contents and `git log`, not assumed — `expression_buffer.dart` already had `insertFunction`/`insertConstant`/`insertFactorial` when this session next read it, which didn't match this session's own last report that Module 2 hadn't started. Treated the committed code as ground truth and audited *that*, rather than re-deriving Module 2 from scratch or trusting stale conversational memory. The user's audit request (below) already assumed Module 2 existed, which is what confirmed this.
+
+The user approved the five P-6 defaults exactly as DEC-047 documented them, and asked for a focused Module 2 audit before Module 3 — not a rebuild — covering: `2π`/`5sin(30)`/`2(3)`/`π2` implied multiplication, `e`/`π` constant handling, `^`, `!`, every scientific function, DEG/RAD, function backspace, invalid/incomplete expressions, overflow/undefined results, and screen-reader labels. Also: fix the orphaned-`×` limitation DEC-048 had just documented, with regression tests, rather than leaving it as an accepted limitation the way Phase 3's `5×+3` was.
+
+- **Audit result: Module 2 holds up.** Every checklist item was verified against the actual code and tests (not just read by name):
+  - `2π`, `5sin(30)`, `2(3)`, `π2`: the buffer inserts an **explicit** `×` for all of these (`expression_buffer_test.dart`'s `constants`/`functions`/`brackets` groups) — DEC-047's *engine-level* implied-multiplication extension is a safety net the app itself doesn't rely on, by design (DEC-048's "Rejected: implicit × for constants").
+  - `e`/`π` as constants: confirmed the engine never reads them as variables (DEC-047) and the buffer's `_variableName` never generates one named `e` (its own regression test).
+  - `^`, `!`, every function, DEG/RAD: table-driven and fuzz-tested in `calculator_scientific_test.dart` (angle-mode group: default degrees, live recompute on change, answer-already-shown not recomputed, persistence across a restart).
+  - Invalid/incomplete/overflow/undefined: the existing 21-case error table plus two 400-run fuzz tests (`calculator_scientific_test.dart`), re-run and passing.
+  - Screen-reader labels: 18 `spoken*` strings, one per operator/constant/function, each checked ends with "of" for functions (`calculator_display_formatter_test.dart`).
+  - Reusable components: no screen changed (Module 2 is domain/application only); the new code reuses the existing `SettingsRepository` interface (extended, not duplicated, matching how `ThemePreference` already works) and the existing `CalculatorKey`/`CalculatorDisplayFormatter` classes (extended via new enum cases and switch arms, not new classes). No violation found.
+  - **One genuine, minor gap noted, not fixed (out of the requested scope):** the evaluator's near-1-base overflow fix (`1.0000001^100000000`) always returns an *approximate* `CalcValue`, even for a base of exactly `1` or `−1`, where the true answer (`1` or `±1`) is exact. Cosmetically invisible (`toDecimalString()` still prints `1`), and only reachable past the ±2000 exponent-magnitude cutoff, so it wasn't touched without being asked.
+- **The orphan-× fix.** `ExpressionBuffer.backspace()` now checks the unit that ends up at the cursor after the removal: if it's a `×` with nothing before it that ends an operand (buffer start, or right after an operator/open bracket/function opener), that `×` is removed too, in the same backspace step. A `×` with a real operand before it (`5×`, mid-typing) is left alone — it's unfinished, not orphaned, exactly like a hand-typed `5×`. Implemented as `_withoutOrphanedTimes()`, reusing a new `_unitEndsOperand` helper factored out of the existing `_endsWithOperand` getter (a pure refactor, no behaviour change there). Applies to constants, functions **and inserted values** (MR, history reuse) alike, since they share the same insertion path — this also retroactively closes a latent version of the same bug in the Basic/Phase-4 memory-recall path, not just the new scientific one.
+- **Regression tests:** the existing `'sLp<'` case (previously asserting the buggy `'|×sin('`) now asserts the fixed `'|sin('`; a new `backspacing never strands an implied ×` group adds the value-unit case (`'sLv<'`), a case where the exposed `×` lands right after an open bracket rather than at the buffer's start (`'(3)LLp<'`), and a negative case confirming a real, unfinished `5×` is left alone.
+- **Full QA gate, re-run clean:** `flutter analyze` (no issues), `dart format lib test packages/calc_engine/lib packages/calc_engine/test` (0 changed), `flutter test` (596 passed, 1 skipped, 0 failed — was 592), `dart test` in `packages/calc_engine` (387 passed, unchanged — the fix is app-only), `flutter build apk --debug` (built, 35.5 s).
+- **Not phone-tested:** still no scientific key on screen (Module 3).
+- **Module 3 not started, as instructed.**
 
 ## Phase Status
 
@@ -229,7 +248,7 @@ Same device and method as the History phone test above, after building and insta
 - **Not separately re-tested on the phone:** search and clear-all-with-confirmation on the Saved tab specifically (only one entry existed by the time of this test); both are covered by the automated widget tests, and both are the same code path already verified for History.
 - **Phone settings:** auto-rotate was found on again after this pass; restored to off once more. No rotation-related action was taken in this test (nor in the previous one), so this doesn't appear to be caused by the app; still flagged here for the next session in case a pattern emerges.
 
-### Phase 5: Scientific engine, Module 1 (2026-09-29, this session, not yet committed)
+### Phase 5: Scientific engine, Module 1 (2026-09-29, committed `ef7b0ba`)
 
 Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.12; decision DEC-047 (records the deviation in full). See "Phase 5: the scientific engine" above for the full narrative.
 
@@ -238,22 +257,31 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.12; decision DEC-047 (records th
 - New `CalcError.undefined`, which forced a (purely mechanical) fix to the app's exhaustive `CalcError` switch and a new l10n string.
 - 377 engine tests (117 new), 465 app tests, `flutter analyze`/format/build all clean.
 - **Not phone-tested:** there's no scientific UI yet for a phone test to exercise; Module 1 is engine-only.
-- **Committed as `ef7b0ba`.** Module 2 waits on the user's review of the P-6 defaults.
+- **Committed as `ef7b0ba`.**
+
+### Phase 5: Scientific input logic, Module 2 (2026-09-29, committed `856d175`, by a different session)
+
+Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.13; decision DEC-048. Built and committed by a separate Claude Code session (co-authored "Claude Sonnet 5.5") that worked on this repository concurrently with this one — discovered via `git log`, not assumed; see "Phase 5: Module 2 final audit" above for how this was handled.
+
+- `ExpressionBuffer`/`CalculatorNotifier` gained `^`, `!`, π, e and function-call units; `angleModeProvider` persists degree/radian mode; a 21-case error table plus two fuzz tests cover wrong and impossible input; one engine bug fixed along the way (near-1 bases no longer falsely overflow past the exponent cutoff).
+- 592 app tests (127 new), 387 engine tests (10 new). Analyze, format, debug build clean.
+- Audited and one real bug fixed by this session — see "Phase 5: Module 2 final audit" above.
 
 ## Work In Progress
 
-None to hand off mid-task. Phase 5's Module 1 (engine, `ef7b0ba`) and Module 2 (input logic, DEC-048) are complete, tested and committed locally.
+None to hand off mid-task. Phase 5's Module 1 (engine, `ef7b0ba`) and Module 2 (input logic, `856d175`, audited and fixed this session) are complete, tested and committed. **This session's orphan-× fix itself is not committed yet** — nothing blocks that (see "Next Task").
 
 ## Current Task
 
-None. Module 2 is finished and reported; Module 3 waits for the user's go-ahead.
+None. The Module 2 audit is finished and reported (per the user's explicit request); Module 3 waits for the user's go-ahead and a design decision.
 
-- **Screenshots:** none — Module 2 changed no visible widget.
+- **Screenshots:** none — the audit changed no visible widget (the orphan-× fix is domain-layer only).
 - **On the phone:** not touched this session; still holds whatever the saved-calculations phone test left it at.
 
 ## Next Task
 
-**Module 3: the scientific keypad UI** — ask the user first (module gate, CLAUDE.md rule 9). It needs a design the user hasn't seen: how the scientific keys are laid out beside/above the Basic keypad (DEC-013 says the state is shared), where the degree/radian toggle goes (`angleModeProvider.toggle()` already exists), and whether a 2nd/inverse key is wanted. Build it only from `lib/core/widgets/` and the tokens (rule 12), reuse `CalculatorButton`, and screenshot it (`flutter test --tags design-review ...`) before reporting. Wire `CalculatorKey.sin` … `abs`, `power`, `factorial`, `pi`, `euler` to buttons; add a hardware-keyboard mapping for `^`/`!` if useful (`typeText` already accepts them). Then a phone test.
+1. **Commit this session's orphan-× fix** (`expression_buffer.dart`, its tests, and this doc round). Nothing blocks it.
+2. **Module 3: the scientific keypad UI** — ask the user first (module gate, CLAUDE.md rule 9), even though Phase 5 itself is approved; the user explicitly said not to start Module 3 without a further go-ahead this time. It needs a design the user hasn't seen: how the scientific keys are laid out beside/above the Basic keypad (DEC-013 says the state is shared), where the degree/radian toggle goes (`angleModeProvider.toggle()` already exists), and whether a 2nd/inverse key is wanted. Build it only from `lib/core/widgets/` and the tokens (rule 12), reuse `CalculatorButton`, and screenshot it (`flutter test --tags design-review ...`) before reporting. Wire `CalculatorKey.sin` … `abs`, `power`, `factorial`, `pi`, `euler` to buttons; add a hardware-keyboard mapping for `^`/`!` if useful (`typeText` already accepts them). Then a phone test.
 
 ## Do NOT Repeat
 
@@ -270,7 +298,8 @@ None. Module 2 is finished and reported; Module 3 waits for the user's go-ahead.
 - **Any test opening an in-memory database more than once in a process** (one per test) must pass `AppDatabase.open(..., singleInstance: false)`, or sqflite hands back the same cached database and tests leak into each other (DEC-045).
 - **Don't add a "save" button (or any new affordance) to the calculator screen or the app shell** without the user's explicit say-so — DEC-046 kept saved calculations entirely inside the History screen for exactly this reason.
 - **Watch the working directory before running `flutter`/`dart` commands.** A stray `flutter create`-style scaffold appeared inside `packages/calc_engine/` in the Phase 4 session from (probably) a command run with the wrong cwd; see "Known Issues" #13 (resolved, but watch for a repeat).
-- **Don't re-ask the user about the P-6 defaults or redo Module 2** — the defaults were accepted ("okay", 2026-09-29) and Module 2 is done (DEC-048). Don't start Module 3 without asking.
+- **Don't re-ask the user about the P-6 defaults or redo Module 2** — the defaults are formally confirmed and Module 2 is built, audited and fixed (DEC-048). Don't start Module 3 without asking.
+- **Trust `git log`, not the last thing this conversation remembers building.** This project has been worked on from more than one Claude Code session concurrently (a session co-authored "Claude Sonnet 5.5" built and committed all of Module 2, `856d175`, while this session was between turns). Before claiming a module "hasn't started," check `git log --oneline` and read the actual files — a stale internal summary said Module 2 didn't exist when it already did.
 - **Don't add letters or function names to `typeText`** (paste/keyboard): `1.5e12` would become `1.5×e×12`. Function names are keypad-only (DEC-048).
 - **A new function opener needs no buffer change** (one `SymbolUnit` ending in `(`), but it needs a `spoken*` string and a case in `CalculatorDisplayFormatter._spokenSymbol`; `test 'every function opener has a spoken name'` fails otherwise.
 - **In bash heredocs, avoid `<<` / `<<<` and triple quotes inside the body** — the tool mangled several `cat > file <<'EOF'` calls this session. Use the Write tool for files with such text.
@@ -293,9 +322,9 @@ None. Module 2 is finished and reported; Module 3 waits for the user's go-ahead.
 
 **Open to the user's review** (adopted by Claude during Phase 4): DEC-044 (what history stores; reuse inserts the exact result rather than restoring the editable expression; no dedup), DEC-045 (test infrastructure only, no product-facing effect), DEC-046 (the History/Saved tab toggle, and saving as a history-entry action — the user's own P-12 answer was to let Claude decide this).
 
-**Accepted by the user 2026-09-29 ("okay")** (adopted by Claude during Phase 5, Module 1, DEC-047, built before asking; now accepted) — **this was P-6**:
+**Resolved — P-6, formally confirmed by the user 2026-09-29**, first with a brief "okay" (to a different session), then explicitly by name (to this session: "I reviewed the original session summary and confirmed the context. Yes, I approve the five scientific engine defaults exactly as documented in DEC-047... Keep these semantics consistent across the entire calculator and future scientific/programmer functionality unless a later documented decision explicitly changes them... do not revert that work."):
 
-- `−3² = −9`, `2^3^2 = 512`, `0^0 = 1`, `(−8)^(1/3) = −2`, `tan 90° → CalcError.undefined` — see DEC-047 for the full reasoning behind each
+- `−3² = −9`, `2^3^2 = 512`, `0^0 = 1`, `(−8)^(1/3) = −2`, `tan 90° → CalcError.undefined` — see DEC-047 for the full reasoning behind each. **Binding going forward**: any future phase (Programmer mode's power operator, for instance) must match these unless a new, explicit decision changes them.
 - the `2π`/`5sin(30)` implied-multiplication grammar extension
 - the generic `errorUndefined` message ("Undefined result") for every domain error, rather than distinct wording per function
 
@@ -352,7 +381,19 @@ None. Module 2 is finished and reported; Module 3 waits for the user's go-ahead.
 
 ## Tests
 
-**Final, run in the Phase 5 Module 2 session (2026-09-29), in `smart_calculator/`:**
+**Final, run in the Phase 5 Module 2 audit session (2026-09-29), in `smart_calculator/`:**
+
+| Command | Result |
+| --- | --- |
+| `flutter analyze` | `No issues found!` |
+| `dart format --output=none --set-exit-if-changed lib test packages/calc_engine/lib packages/calc_engine/test` | `Formatted 123 files (0 changed)`, exit 0 |
+| `flutter test` (whole suite) | `+596 ~1: All tests passed!` (596 passed, 1 skipped — the design-review generator; 0 failed; was 592) |
+| `dart test` in `packages/calc_engine` | `+387: All tests passed!` (unchanged; the orphan-× fix is app-only) |
+| `flutter build apk --debug` | **Built** (Gradle `assembleDebug`, 35.5 s) |
+
+Not run this session: the release build, the design-review screenshots (nothing visual changed), a phone test (no scientific key on screen yet).
+
+**Earlier, run in the Phase 5 Module 2 session (2026-09-29, a different session, `856d175`), in `smart_calculator/`:**
 
 | Command | Result |
 | --- | --- |
@@ -410,34 +451,36 @@ Not run this session: the release build, the design-review screenshots (nothing 
 | `aapt dump badging` on the release APK | package `com.parasshakya.smartcalculator`, label "Smart Calculator"; **no INTERNET permission** (the only permission is AndroidX's `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`); **re-checked by reading `android/app/src/main/AndroidManifest.xml` directly this session — still no `INTERNET` permission** |
 | On the user's phone | See "Test on the user's phone" |
 
-**Where the tests are:**
+**Where the tests are** (rebuilt this session from a fresh per-file count, `flutter test <file>` for each — see Discrepancies Found #7; sums to the verified 596):
 
 | Area | Tests |
 | --- | --- |
-| Engine (`packages/calc_engine`) | 377 (260 through Phase 4, +117 this session: `scientific_test.dart`) |
-| Expression buffer | 144 (143 after Phase 4, +1 this session: the `'e'`-collision regression test) |
+| Engine (`packages/calc_engine`, `dart test`, separate from the app total below) | 387 |
+| Expression buffer | 223 |
 | Calculator notifier and memory | 66 |
+| Calculator scientific (power/factorial/constants/functions, angle mode, the 21-case wrong-input table, two fuzz tests) | 41 |
 | Number format | 33 |
 | Calculator screen | 24 |
-| Display formatter | 18 |
+| Display formatter (including 7 scientific-expression cases: display, spoken text, error names) | 25 |
 | `DisplayText` | 12 |
 | Gallery accessibility (10 sections × 4 themes) | 40 |
-| Earlier app tests (Phases 1–2), including 2 new `CalculatorButton` tests, 1 new app test and 1 new shell test | 80 |
+| Settings (theme preference, angle mode persistence) | 11 |
 | History repository | 9 |
 | History notifier | 5 |
 | History widget (`HistoryContent`), including the 3-action row at 200% text | 11 |
 | Saved-calculations repository | 8 |
 | Saved-calculations notifier | 6 |
 | Saved-calculations widget (saving, the Saved tab, rename, reuse, delete, search, clear all) | 9 |
-| **App total** (`flutter test`) | **465 passed, 1 skipped, 0 failed** |
+| Earlier app tests (app shell, navigation, theme, layout, persistence, reusable widgets, architecture boundary) | 73 |
+| **App total** (`flutter test`) | **596 passed, 1 skipped, 0 failed** |
 
 **Not run:**
 
 - the iOS build (Windows)
 - an emulator (the user doesn't want one; the app was tested on the user's phone)
 - integration tests (none yet)
-- the release build and the design-review screenshots, this session (nothing visual exists yet — Module 1 is engine-only)
-- a phone test (no scientific UI exists yet for one to exercise)
+- the release build and the design-review screenshots, this session (nothing visual changed — the orphan-× fix is domain-layer only)
+- a phone test (no scientific key is on screen yet — Module 3)
 
 ## Known Issues
 
@@ -463,10 +506,11 @@ Not run this session: the release build, the design-review screenshots (nothing 
     - `AppTextField`, `AppDialog`, `ErrorState` and `LoadingState` are used only by the gallery and tests until Phases 4–7.
 13. ~~Blocking: a stray Flutter app inside `packages/calc_engine`~~ **Resolved 2026-09-29.** A full `flutter create`-style scaffold appeared there during this session — `lib/main.dart` (imports `package:flutter/material.dart`), `android/`, `.metadata`, `analysis_options.yaml`, `.gitignore`, `.idea/`, `calc_engine.iml` — all untracked, all created in the same second. The triggering command was never confirmed with certainty. `packages/calc_engine/pubspec.yaml` and every real engine source file were confirmed unaffected throughout (`git diff` empty; all 260 engine tests kept passing). Claude tried to delete the files and was correctly refused by the sandbox's safety layer (a destructive operation on a directory); the user deleted them ("okay delete"). `flutter analyze` and `flutter test` are both clean afterwards (see "Tests"). **Watch for a repeat** — the exact cause is still unknown.
 14. **`.gitignore` doesn't cover `android/build/`** (only `/android/app/{debug,profile,release}`; `.gitignore`'s `/build/` is root-anchored, so it doesn't reach `android/build/`). Noticed because `flutter build apk --debug` this session left `android/build/` untracked in `git status`. Not a Phase 5 regression — this gap predates this session and every earlier `flutter build` hit it too, it just wasn't noticed. Not fixed: don't `git add -A`; stage files by name until this is deliberately addressed.
+15. **A base of exactly `1` or `−1` raised to an exponent past the ±2000 magnitude cutoff loses exactness** (`evaluator.dart`'s near-1-base overflow fix always returns an approximate `CalcValue`, even though `1^n=1` and `(−1)^n=±1` are exact for any `n`). Found during the Module 2 audit, not fixed — cosmetically invisible (`toDecimalString()` still prints `1`), narrow (only reachable past the exponent cutoff), and out of the audit's requested scope. Worth a one-line fix (`if base.exactValue is 1 or -1, return that base directly`) if anyone hits it.
 
 ## Blockers
 
-None technically. Phase 5's Module 1 (the engine) is complete; the next step needs the user's review of the P-6 defaults DEC-047 implemented (see "Pending Decisions") before Module 2 starts. iOS still can't be built on Windows, as always.
+None. Phase 5's Module 1 (engine) and Module 2 (input logic) are both complete, audited and tested. The next blocker is a design decision for Module 3 (the scientific keypad layout) — see "Next Task". iOS still can't be built on Windows, as always.
 
 ## Discrepancies Found
 
@@ -479,8 +523,20 @@ None technically. Phase 5's Module 1 (the engine) is complete; the next step nee
    - **Deviations from the plan, recorded rather than silent:** no `decimal` (DEC-038); no function registry and no "more" menu (ROADMAP Phase 3 table, DEC-041).
 5. **Phase 3 audit (2026-09-28):** the "Calculator limitations" known issue (#11 above) claimed that editing `5+3` into `5×+3` always shows "Invalid expression". Verified by direct engine evaluation that this is wrong: `5×+3` is valid (unary `+` is a no-op) and silently evaluates to `15`. A genuinely invalid case exists too (`5×%`), but it's a different example than the one the docs gave. Corrected, and both paths now have regression tests. This was the only discrepancy the audit found; every other checked claim (test counts once updated, the engine's independence from Flutter, the release manifest's permissions, the landscape and memory-badge fixes) held up against the code.
 6. **This file's own "Phase Status" table had gone stale:** it still said Phase 4 was "in progress" with saved calculations "not started, blocked", even though the "At a Glance" table (and `git log`) already showed both History and saved calculations committed. The end of the Phase 4 session evidently updated some sections but missed this row. Corrected in this session, and it's a reminder that the Session Handoff Protocol means rewriting the *whole* file to the current truth, not just the sections that feel most relevant at the time.
+7. **Phase 5, Module 2 audit session:** this session's very first action — reading `expression_buffer.dart` to make a small unrelated edit — found `insertFunction`/`insertConstant`/`insertFactorial` already there, contradicting this session's own last chat report ("Module 2 hasn't started"). `git log` explained it: a *different* Claude Code session (co-authored "Claude Sonnet 5.5") built and committed all of Module 2 (`856d175`) while this session was between turns. Treated the committed code as ground truth rather than re-deriving or distrusting it. Separately, the "Where the tests are" table (below, under "Tests") had the same staleness pattern as #6: the Module 2 session updated the headline pass count but not this row-by-row breakdown, so it still showed Module 1's 465-test-total shape under a section reporting 592. Rebuilt from freshly re-run per-file counts in this session, not guessed.
 
 ## Last Session Summary
+
+**2026-09-29, Phase 5 session 3 (the Module 2 audit, and the orphan-× fix).**
+
+1. Discovered a different Claude Code session had built and committed all of Module 2 (`856d175`) while this session was between turns — see Discrepancies Found #7.
+2. The user reviewed and explicitly approved all five P-6 defaults by name, and asked for a focused Module 2 audit before Module 3, not a rebuild: implied multiplication (`2π`, `5sin(30)`, `2(3)`, `π2`), `e`/`π` constant handling, `^`/`!`/every function/DEG-RAD, function backspace, invalid/incomplete/overflow/undefined handling, and screen-reader labels.
+3. Verified every checklist item against the actual code and tests, not just by reading test names. Found the codebase already covered all of it correctly, plus one minor, out-of-scope exactness gap (near-1-base overflow always returns approximate, even for base `1`/`−1` — Known Issues #15).
+4. **Fixed the orphan-`×` limitation** DEC-048 had documented as accepted: backspacing a constant, function or value that left an unanchored `×` (`|×sin(`) now removes that `×` too, in the same step. Implemented as `ExpressionBuffer._withoutOrphanedTimes()`, reusing a small `_unitEndsOperand` refactor of the existing `_endsWithOperand` getter. Applies to inserted values too (MR, history reuse), not just scientific constants/functions, since they share the same code path.
+5. Added regression tests for the exact scenario (the fixed `'sLp<'` case, plus new cases for a value instead of a constant, an orphan appearing after an open bracket rather than at the buffer's start, and a negative case confirming a real unfinished `5×` is left alone).
+6. Full QA gate re-run clean: `flutter analyze`, `dart format`, `flutter test` (596 passed, was 592), `dart test` in `packages/calc_engine` (387, unchanged), `flutter build apk --debug`.
+7. **Docs:** this file (including rebuilding the stale "Where the tests are" table from a fresh per-file count), DECISIONS.md (DEC-048 addendum), CHANGELOG.md, ROADMAP.md updated. **Not committed yet** — see "Next Task".
+8. **Module 3 not started, per the user's explicit instruction.**
 
 **2026-09-29, Phase 5 session 2 (Module 2, the scientific input logic).**
 
@@ -554,13 +610,14 @@ None technically. Phase 5's Module 1 (the engine) is complete; the next step nee
 ## Instructions For Next Session
 
 1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md). **Reply to the user in Hinglish** (CLAUDE.md rule 13).
-2. **Phase 5 Modules 1 and 2 are committed** (engine `ef7b0ba`; input logic is the commit after `0e4dba9` — check `git log`). If `git status -s` shows engine, `expression_buffer.dart` or notifier changes again, that's new work, not a leftover to finish.
-3. **The P-6 defaults were accepted** ("okay"). If the user later wants one changed, it's a small, isolated change in `packages/calc_engine/lib/src/eval/evaluator.dart` (each case is exercised by name in `test/scientific_test.dart`'s "power" groups) — not a redesign.
+2. **Phase 5 Modules 1 and 2 are committed** (engine `ef7b0ba`; input logic `856d175`). **This session's orphan-× fix on top of Module 2 may still be uncommitted** — check `git status -s` for `expression_buffer.dart`/its test before assuming it's done; if `git log` doesn't show a commit mentioning "orphan" after `856d175`, commit it (nothing blocks that).
+3. **The P-6 defaults are formally, explicitly approved by name** — not just "okay" to a vague list. Treat them as settled across the whole app, including future phases (Programmer mode, etc.), unless a new documented decision changes them. If the user does want one changed, it's a small, isolated change in `packages/calc_engine/lib/src/eval/evaluator.dart` (each case is exercised by name in `test/scientific_test.dart`'s "power" groups) — not a redesign.
 4. **Module 3 (the scientific keypad UI) is next, but ask the user first** (see "Next Task"). It needs a layout the user hasn't seen. Module 2 already provides every key (`CalculatorKey.sin` … `abs`, `power`, `factorial`, `pi`, `euler`) and `angleModeProvider.toggle()`.
-5. **Watch for the stray-scaffold issue recurring** (Known Issues #13, resolved but cause unconfirmed): check `git status -s packages/calc_engine/` is empty before trusting `flutter analyze`/`flutter test`.
-6. **Build every new screen only from `lib/core/widgets/` and the tokens** (rule 12, DEC-034). Don't add anything to the calculator screen or the app shell without the user asking for it first — see DEC-046 for why that mattered in Phase 4; it applies equally to the scientific keypad's own screen, not the Basic one, unless DEC-013's shared state requires otherwise.
-7. **If `CalcError` gains another case** (unlikely for Module 2/3, but worth remembering), `calculator_display_formatter.dart`'s `error()` switch needs a matching case or the app fails to compile — this bit this session, caught only by the full `flutter test`, not `dart test` in the engine alone.
-8. **Checks:**
+5. **Check `git log --oneline -10` at the start of every session, before trusting any internal summary of "what's built."** This project has been worked on by more than one Claude Code session concurrently at least once (Discrepancies Found #7) — a session's own conversational memory of what it built can be behind what's actually in the repository.
+6. **Watch for the stray-scaffold issue recurring** (Known Issues #13, resolved but cause unconfirmed): check `git status -s packages/calc_engine/` is empty before trusting `flutter analyze`/`flutter test`.
+7. **Build every new screen only from `lib/core/widgets/` and the tokens** (rule 12, DEC-034). Don't add anything to the calculator screen or the app shell without the user asking for it first — see DEC-046 for why that mattered in Phase 4; it applies equally to the scientific keypad's own screen, not the Basic one, unless DEC-013's shared state requires otherwise.
+8. **If `CalcError` gains another case** (unlikely for Module 2/3, but worth remembering), `calculator_display_formatter.dart`'s `error()` switch needs a matching case or the app fails to compile — this bit this session, caught only by the full `flutter test`, not `dart test` in the engine alone.
+9. **Checks:**
    - `flutter analyze`
    - `dart format lib test packages/calc_engine/lib packages/calc_engine/test` (not `dart format .`; it crashes on long paths inside `build/` — Known Issue #3)
    - `flutter test`
@@ -569,4 +626,4 @@ None technically. Phase 5's Module 1 (the engine) is complete; the next step nee
    - after visual changes, the screenshots
 
    Record the actual results.
-9. Finish with the Session Handoff Protocol.
+10. Finish with the Session Handoff Protocol.

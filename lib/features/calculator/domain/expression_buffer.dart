@@ -125,7 +125,10 @@ final class ValueUnit extends ExpressionUnit {
 /// - a constant, function or value next to an operand gets an explicit `×`,
 ///   so `2π` reads as `2×π` and `π2` cannot be misread;
 /// - `!` and `%` only after an operand, and `−` after `^` is a sign
-///   (`2^−3`).
+///   (`2^−3`);
+/// - backspacing a constant, function or value also removes a `×` it left
+///   with no operand before it, so deleting one never strands an operator
+///   the user didn't type (`backspace()`).
 ///
 /// Edits the rules reject return the same buffer.
 final class ExpressionBuffer {
@@ -332,9 +335,29 @@ final class ExpressionBuffer {
   ExpressionBuffer insertValue(CalcValue value) =>
       _insertOperand(ValueUnit(value));
 
-  /// Removes the unit before the cursor.
+  /// Removes the unit before the cursor. If that exposes a `×` the buffer
+  /// itself inserted with no operand before it — deleting a constant,
+  /// function or value can leave one, since the operand it multiplied is
+  /// gone but the operator it stood next to on the *other* side wasn't
+  /// typed by the user (`sin(`, cursor before it, then π then backspace
+  /// would otherwise leave `×sin(`) — that `×` is removed too, in the same
+  /// step. A `×` with a real operand before it (`5×`, mid-typing) is left
+  /// alone; it isn't orphaned, just unfinished.
   ExpressionBuffer backspace() =>
-      cursor == 0 ? this : _replaceBefore(1, const []);
+      cursor == 0 ? this : _replaceBefore(1, const [])._withoutOrphanedTimes();
+
+  /// Removes the `×` at the cursor if nothing before it ends an operand.
+  ExpressionBuffer _withoutOrphanedTimes() {
+    if (cursor >= units.length ||
+        _symbolAt(cursor) != CalculatorSymbols.times ||
+        _unitEndsOperand(cursor > 0 ? units[cursor - 1] : null)) {
+      return this;
+    }
+    return ExpressionBuffer._(
+      List.unmodifiable([...units.take(cursor), ...units.skip(cursor + 1)]),
+      cursor,
+    )._withoutOrphanedTimes();
+  }
 
   static const SymbolUnit _point = SymbolUnit(CalculatorSymbols.decimalPoint);
 
@@ -438,9 +461,13 @@ final class ExpressionBuffer {
   }
 
   /// Whether the unit before the cursor ends an operand.
-  bool get _endsWithOperand {
-    if (cursor == 0) return false;
-    final unit = units[cursor - 1];
+  bool get _endsWithOperand =>
+      cursor > 0 && _unitEndsOperand(units[cursor - 1]);
+
+  /// Whether [unit] ends an operand: a digit, the decimal point, `)`, `%`,
+  /// `!`, a constant or a value. Nothing there (`null`) does not.
+  static bool _unitEndsOperand(ExpressionUnit? unit) {
+    if (unit == null) return false;
     if (unit is ValueUnit) return true;
     final symbol = (unit as SymbolUnit).symbol;
     return CalculatorSymbols.isDigit(symbol) ||

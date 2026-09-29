@@ -14,7 +14,7 @@ Phase 1  Foundation ...................... COMPLETED 2026-09-28
 Phase 2  Design system ................... COMPLETED 2026-09-28 (design approved)
 Phase 3  Basic calculator + engine + memory COMPLETED 2026-09-28, audited 2026-09-28
 Phase 4  History + saved calculations .... COMPLETED 2026-09-29 (both halves; phone-tested)
-Phase 5  Scientific ...................... in progress (engine module done and committed 2026-09-29, `ef7b0ba`; keypad and input logic not started)
+Phase 5  Scientific ...................... in progress (Modules 1-2 done, audited, committed; Module 3 keypad not started)
 Phase 6  Converters ...................... planned
 Phase 7  Financial ....................... planned
 Phase 8  Date calculator ................. planned
@@ -144,9 +144,9 @@ The user approved Phase 4 on 2026-09-29. ARCHITECTURE.md §1.17 (history) and §
 
 ---
 
-### Phase 5: Scientific (in progress — Module 1 engine and Module 2 input logic done 2026-09-29; Module 3 keypad not started)
+### Phase 5: Scientific (in progress — Module 1 engine and Module 2 input logic done, audited and fixed 2026-09-29; Module 3 keypad not started, per the user's explicit instruction)
 
-The user approved Phase 5 on 2026-09-29 ("phase 5 start"). ARCHITECTURE.md §1.12 describes the engine; DEC-047 records the decisions, including a flagged deviation (the P-6 defaults below were implemented before being put back to the user, not after — see DEC-047's "Deviation" note and DEVELOPMENT_STATUS.md). Committed as `ef7b0ba`.
+The user approved Phase 5 on 2026-09-29 ("phase 5 start"). ARCHITECTURE.md §1.12 describes the engine; DEC-047 records the engine decisions (Module 1, `ef7b0ba`, including the now-resolved deviation), DEC-048 the input-logic decisions (Module 2, `856d175`, built by a separate concurrent session), and DEC-049 the user's formal, by-name confirmation of the five P-6 defaults, the Module 2 audit, and the orphaned-`×` fix.
 
 | Scope item | Result |
 | --- | --- |
@@ -158,11 +158,11 @@ The user approved Phase 5 on 2026-09-29 ("phase 5 start"). ARCHITECTURE.md §1.1
 | degree/radian mode | **Done in the engine and in the app's state** (`AngleMode`; `angleModeProvider`, saved under `settings.angle_mode`, DEC-048); **no UI toggle yet** (Module 3) |
 | Engine: an extensible function registry | **Done** — `CalcFunction` enum + a name→function lookup map in the parser; adding a function needs no grammar changes, just a new enum case and evaluator branch. |
 | Engine: approximate values for irrational results | **Done** — `CalcValue` is now a sealed exact/approximate hierarchy (DEC-047) |
-| Engine: the remaining P-6 defaults (`−3²`, `2^3^2`, `0^0`, `(−8)^(1/3)`, `tan 90°`) | **Implemented** (DEC-047) and **accepted by the user 2026-09-29** ("okay"; see DEC-048) |
-| Keypad: a clean scientific keypad, sharing state with Basic (DEC-013) | **Not started** (Module 3) |
-| Calculator input logic: buffer support for `^`/`!`/function calls, angle-mode state | **Done** (Module 2, DEC-048): keys, input rules, persisted angle mode, robust handling of wrong input, a 21-case error table and 2 fuzz tests. No screen change. |
+| Engine: the remaining P-6 defaults (`−3²`, `2^3^2`, `0^0`, `(−8)^(1/3)`, `tan 90°`) | **Implemented** (DEC-047) and **formally, explicitly approved by the user 2026-09-29 by name**, binding across future phases too (DEC-049) |
+| Keypad: a clean scientific keypad, sharing state with Basic (DEC-013) | **Not started** (Module 3) — explicitly not to start without the user's further go-ahead |
+| Calculator input logic: buffer support for `^`/`!`/function calls, angle-mode state | **Done, audited, and one bug fixed** (Module 2, DEC-048 + DEC-049): keys, input rules, persisted angle mode, robust handling of wrong input (21-case error table, 2 fuzz tests), backspacing a constant/function/value never leaves a stranded `×`. No screen change. |
 | *(Proposed)* a scientific tray, a 2nd/inverse toggle, a landscape layout | Not started; still proposed, not committed to |
-| **Done when:** tests cover the edge cases of every function | **Done for the engine** — 117 new tests in `test/scientific_test.dart` (377 total in `packages/calc_engine`); the fuzz test's alphabet now also covers `^ ! π e` and function-name letters. App-level (Module 2/3) tests don't exist yet, since that code doesn't either. |
+| **Done when:** tests cover the edge cases of every function | **Done for the engine and the app layer** — 387 engine tests, 596 app tests (`calculator_scientific_test.dart`'s 21-case table + 2 fuzz tests; `expression_buffer_test.dart`'s scientific-input and orphan-× groups; `calculator_display_formatter_test.dart`'s screen-reader coverage). Module 3 (the keypad UI) has no tests yet, since it doesn't exist yet. |
 
 ### Phase 6: Converters
 

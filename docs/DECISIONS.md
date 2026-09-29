@@ -1382,7 +1382,7 @@ Then stop.
 
 ### [DEC-047] Scientific engine: exact/approximate values, the power operator, and every function's domain (settles the rest of P-6)
 
-- **Status:** Adopted; **accepted by the user 2026-09-29** ("okay", in reply to the five defaults being listed; recorded in DEC-048). Originally: Adopted (Phase 5, Module 1 implementation; open to the user's review — see DEVELOPMENT_STATUS.md's "Deviation" note, since this was built before the user confirmed the P-6 defaults, not after)
+- **Status:** Adopted; **explicitly approved by the user 2026-09-29**, first with "okay" (to a different session), then by naming all five defaults individually and instructing that they stay binding across the app and future phases unless a later documented decision changes them (recorded in full in DEC-049). Originally: Adopted (Phase 5, Module 1 implementation; open to the user's review — see DEVELOPMENT_STATUS.md's "Deviation" note, since this was built before the user confirmed the P-6 defaults, not after)
 - **Date:** 2026-09-29
 - **Implemented:** Yes (`packages/calc_engine`, commit `ef7b0ba`; 377 engine tests)
 
@@ -1443,6 +1443,40 @@ Then stop.
 - **Rejected:** accepting function names and `e` in pasted text (see above).
 - **Left for Module 3:** where the degree/radian toggle sits on the keypad, and whether a function key after `=` should wrap the answer (today it starts fresh).
 
-**Known limitation (same class as Phase 3's):** backspacing a constant or value can leave the `×` that was added next to it (`|×sin(`); `=` then reports "Invalid expression" and the expression stays editable.
+~~**Known limitation (same class as Phase 3's):** backspacing a constant or value can leave the `×` that was added next to it (`|×sin(`); `=` then reports "Invalid expression" and the expression stays editable.~~ **Fixed in DEC-049**, at the user's explicit request: unlike Phase 3's accepted limitations, this one was cleanly fixable without touching the grammar, so it was.
 
 **Impact:** `SettingsRepository` gained `angleMode`/`setAngleMode`; `PreferenceKeys.all` gained `settings.angle_mode`. `CalculatorNotifier` reads `angleModeProvider` and listens to it. No screen, widget or layout changed; the keypad has no scientific keys yet (Module 3).
+
+---
+
+### [DEC-049] The P-6 defaults, formally confirmed; Module 2 audited; the orphaned-× limitation fixed
+
+- **Status:** Adopted
+- **Date:** 2026-09-29
+- **Implemented:** Yes (`lib/features/calculator/domain/expression_buffer.dart`, one fix; test-only otherwise)
+
+**Context:** Module 1 (DEC-047) was built before asking the user to confirm the five P-6 defaults, a flagged deviation. Module 2 (DEC-048) was then built and committed by a *different* Claude Code session (co-authored "Claude Sonnet 5.5") while this session was between turns — discovered by reading the actual file contents and `git log`, not assumed, since it contradicted this session's own prior belief that Module 2 hadn't started. The user's message that prompted this entry assumed Module 2 already existed, which is what confirmed it. That message: explicit, by-name approval of the five P-6 defaults, plus an instruction to audit Module 2 (not rebuild it) against a specific checklist, fix the orphaned-`×` limitation DEC-048 had documented as accepted, and not start Module 3.
+
+**Decision:**
+
+- **The five P-6 defaults are now formally confirmed, not merely "not objected to."** `−3² = −9`, `2^3^2 = 512`, `0^0 = 1`, `(−8)^(1/3) = −2`, `tan 90° → CalcError.undefined`. Per the user's explicit instruction, these are **binding across the whole app**, including future phases (a Programmer-mode power operator, for instance), unless a later decision explicitly changes them. The already-implemented DEC-047/048 work is **not to be reverted**.
+- **Module 2 audit: every requested item verified against the actual code and tests, not read by name.** All checked out:
+  - `2π`, `5sin(30)`, `2(3)`, `π2` all insert an **explicit** `×` in the buffer (DEC-048's own "Rejected: implicit × for constants" — the app doesn't lean on DEC-047's engine-level implied-multiplication grammar extension at all).
+  - `e`/`π` are never read as variables (DEC-047), and the buffer's variable-naming scheme never produces one named `e` (its own regression test, from the Module 1 session).
+  - `^`, `!`, every function, and degree/radian mode are table-driven and fuzz-tested end to end in `calculator_scientific_test.dart`, including that changing the mode recomputes a *live* value/error but not an answer already shown.
+  - Invalid/incomplete/overflow/undefined input: the existing 21-case table and two 400-run fuzz tests, re-run and still passing.
+  - Screen-reader labels: 18 `spoken*` strings, one per symbol/function, each verified to read sensibly.
+  - Reusable components: Module 2 changed no screen; the new code extends the existing `SettingsRepository`/`CalculatorKey`/`CalculatorDisplayFormatter` rather than duplicating them. No violation found.
+  - **One minor, genuinely out-of-scope gap noted, not fixed:** a base of exactly `1` or `−1` past the ±2000-exponent overflow cutoff returns an *approximate* `CalcValue` even though the true answer is exact (DEVELOPMENT_STATUS.md, Known Issues #15). Cosmetically invisible and narrow; left alone rather than expanding the audit's scope unasked.
+- **The orphaned-`×` limitation is fixed**, not merely documented as accepted (unlike Phase 3's analogous edge cases, which the user previously judged acceptable — this one had a clean fix, so the user asked for it instead). `ExpressionBuffer.backspace()` now removes a `×` that ends up with nothing before it that ends an operand (buffer start, or right after an operator/open bracket/function opener) in the same backspace step. A `×` with a real operand before it (`5×`, mid-typing) is untouched — it's unfinished, not orphaned. The fix applies to constants, functions **and inserted values** alike (they share one insertion path), so it also closes a latent version of the same bug in the Basic/Phase-4 memory-recall path.
+- **Module 3 was not started**, per the user's explicit instruction.
+
+**Reason:** The user's instruction was specific and sequential — confirm semantics, audit before extending, fix the one concrete bug named, then stop. Each part is a direct, traceable response to that instruction, not a judgment call.
+
+**Alternatives:**
+
+- **Rejected:** leaving the orphaned-`×` case as an accepted limitation, the way Phase 3's `5×+3`/"two operands adjacent" cases were. The user distinguished this one explicitly ("Do NOT simply rely on `=` showing 'Invalid expression'"), and it had a genuinely small, grammar-preserving fix available, unlike those.
+- **Rejected:** re-deriving or rebuilding Module 2 from scratch, on the theory that a different session's work should be distrusted. The committed code was read in full, understood, and audited on its own merits; it held up.
+- **Rejected:** fixing the near-1-base exactness gap unasked. It wasn't part of the requested checklist, and the project's own norm is not to expand scope without being asked.
+
+**Impact:** No engine or public-API change. `ExpressionBuffer` gains one new private helper (`_unitEndsOperand`, factored out of the existing `_endsWithOperand`) and a rewritten `backspace()`. Four regression tests added/updated in `expression_buffer_test.dart`. 596 app tests (was 592), 387 engine tests (unchanged).

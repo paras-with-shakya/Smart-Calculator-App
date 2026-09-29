@@ -449,7 +449,9 @@ void main() {
       's5+': 'sin(5+|',
       'sL': '|sin(',
       'sLp': 'π|×sin(',
-      'sLp<': '|×sin(',
+      // Backspacing π removes the × it left behind too, rather than
+      // stranding it (see "orphaned ×" below): back to plain "sin(".
+      'sLp<': '|sin(',
       's<': '|',
       's5<': 'sin(|',
       's5<<': '|',
@@ -470,6 +472,38 @@ void main() {
     test('a closing bracket needs an operand inside the call', () {
       expect(show(type('s)')), 'sin(|');
       expect(show(type('s5+)')), 'sin(5+|');
+    });
+  });
+
+  group('backspacing never strands an implied ×', () {
+    // A constant, function or value next to an operand gets an implied ×
+    // (DEC-039-style implied multiplication, applied by the buffer itself
+    // rather than typed). Backspacing the operand must take that × with
+    // it, or the buffer is left showing an operator the user never typed,
+    // sitting at the very start of the expression or right after another
+    // operator/open bracket — something no real calculator would show.
+    expectTyping({
+      // π inserted before "sin(" gets a trailing ×; backspacing π must
+      // remove it too, not just leave "×sin(".
+      'sLp<': '|sin(',
+      // Same shape, with an inserted value instead of a constant — the
+      // mechanism (MR, history reuse) is different, but it shares the same
+      // insertion/backspace code path.
+      'sLv<': '|sin(',
+      // The × can also land to the *left* of where a bracket used to open:
+      // inserting π right after "(" (before the "3") gets a trailing ×;
+      // backspacing π must remove that × even though it's not at the very
+      // start of the whole buffer.
+      '(3)LLp<': '(|3)',
+    });
+
+    test('a × with a real operand before it is left alone: it is '
+        'unfinished, not orphaned', () {
+      // "5×" here is exactly the same shape a hand-typed "5×" would be
+      // (see the "operators" group): a real operand precedes the ×, so
+      // it's mid-expression, not stranded. Deleting something later must
+      // not sweep it away too.
+      expect(show(type('5p<')), '5×|');
     });
   });
 

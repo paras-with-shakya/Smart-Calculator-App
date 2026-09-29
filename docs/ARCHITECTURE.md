@@ -246,7 +246,7 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
   - `CalculatorDisplayFormatter`: turns units into display text in the region's format. It keeps a map from cursor positions to text offsets (for the caret and taps), brackets negative values after the start, puts a zero-width space after binary operators as the only line-break points, and builds the spoken text for screen readers.
 - **Number format** (`lib/core/formatting/`, DEC-037): `LocalizedNumberFormat` reads the decimal separator, group separator and grouping sizes from `intl`'s data for the device locale (falling back to the language, then English). It formats locale-neutral number text: `formatTyped` (as typed, so `5.` keeps its point), `formatTypedWithOffsets`, `formatCanonical` (`−` and `×10ⁿ` superscripts), and `toPlainInput` for paste. `en_IN` groups as 12,34,567.
 
-**Scientific input (Phase 5, Module 2, DEC-048).** `ExpressionBuffer` also holds `^`, `!`, `π`, `e` and function openers (`sin(`, `sqrt(` …, one unit each, treated as open brackets), with `insertFactorial`, `insertConstant` and `insertFunction`; `CalculatorKey` has the matching keys (`CalculatorKey.function` names the `CalcFunction`). `CalculatorNotifier` reads `angleModeProvider` (`lib/features/settings/`, saved as `settings.angle_mode`) for every evaluation and listens to it, recomputing the live value/error when the mode changes. The formatter shows `√(`/`∛(` and speaks every new symbol. There are no scientific keys on screen yet (Module 3).
+**Scientific input (Phase 5, Module 2, DEC-048; audited and fixed, DEC-049).** `ExpressionBuffer` also holds `^`, `!`, `π`, `e` and function openers (`sin(`, `sqrt(` …, one unit each, treated as open brackets), with `insertFactorial`, `insertConstant` and `insertFunction`; `CalculatorKey` has the matching keys (`CalculatorKey.function` names the `CalcFunction`). `CalculatorNotifier` reads `angleModeProvider` (`lib/features/settings/`, saved as `settings.angle_mode`) for every evaluation and listens to it, recomputing the live value/error when the mode changes. The formatter shows `√(`/`∛(` and speaks every new symbol. `backspace()` also removes a `×` left with no operand before it (an orphan a constant/function/value can leave behind when deleted), via `_withoutOrphanedTimes()` and a shared `_unitEndsOperand` helper — applies to inserted values too, not just scientific units. There are no scientific keys on screen yet (Module 3).
 
 ### 1.14 Platforms
 
@@ -256,14 +256,15 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | iOS | Bundle ID `com.parasshakya.smartcalculator` (tests: `.RunnerTests`), `CFBundleName` and `CFBundleDisplayName` "Smart Calculator" | Can't be built on Windows (P-5) |
 | web, Windows, Linux, macOS | Template identifiers (DEC-025) | Not built. Not supported targets (DEC-004). |
 
-### 1.15 Tests (592 passed in the normal app run, plus 387 in the engine)
+### 1.15 Tests (596 passed in the normal app run, plus 387 in the engine)
 
 | File | Covers |
 | --- | --- |
-| `packages/calc_engine/test/*` | The engine (§1.12): 260 tests, run with `dart test` in the package |
-| `test/features/calculator/domain/expression_buffer_test.dart` | 140 input-rule cases (numbers, operators, percent, brackets, the smart bracket key, backspace, editing at the cursor, values), limits, engine input |
-| `test/features/calculator/application/calculator_notifier_test.dart` | 61 tests: typing and preview, `=`, smart percent, continuing after a result, errors, editing in the middle (Phase 3 audit, 2026-09-28), the cursor, paste, and memory (including exactness and a restart) |
-| `test/features/calculator/presentation/*` | The display formatter (18), and the screen (24): keypad names and layout, haptics, display lines and their semantics, errors, tap-to-move, hold ⌫, region formats (en_IN, de_DE), the memory row, the keyboard and paste, and layouts at 200% text on phones and tablets, including landscape under a status bar |
+| `packages/calc_engine/test/*` | The engine (§1.12): 387 tests, run with `dart test` in the package |
+| `test/features/calculator/domain/expression_buffer_test.dart` | 223 input-rule cases: numbers, operators, percent, brackets, the smart bracket key, backspace, editing at the cursor, values, limits, engine input, plus Phase 5's power/factorial/constants/functions groups and the orphaned-`×` backspace fix (DEC-049) |
+| `test/features/calculator/application/calculator_notifier_test.dart` | 66 tests: typing and preview, `=`, smart percent, continuing after a result, errors, editing in the middle (Phase 3 audit, 2026-09-28), the cursor, paste, and memory (including exactness and a restart) |
+| `test/features/calculator/application/calculator_scientific_test.dart` | 41 tests: scientific keys through the notifier, angle mode (default, live recompute, persistence, an answer already shown not recomputed), a 21-case wrong/impossible-input table, and two seeded fuzz tests (DEC-048) |
+| `test/features/calculator/presentation/*` | The display formatter (25, including 7 scientific-expression cases: display glyphs, spoken text, error names), and the screen (24): keypad names and layout, haptics, display lines and their semantics, errors, tap-to-move, hold ⌫, region formats (en_IN, de_DE), the memory row, the keyboard and paste, and layouts at 200% text on phones and tablets, including landscape under a status bar |
 | `test/core/formatting/localized_number_format_test.dart` | 33 tests: separators, grouping (en_US, en_IN, de_DE), fallbacks, scientific notation, offsets, paste |
 | `test/app/app_test.dart` | The app starts in Basic mode with the calculator, the system theme and the app title; modes not built yet show an empty state |
 | `test/app/shell/app_shell_test.dart` | Each window class's layout; the mode sheet grid (every mode, current one selected, switching); the rail; no bottom navigation; the shell and the mode sheet at 200% text; on a phone in landscape, no history panel and the rail scrolling |
@@ -273,7 +274,7 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | `test/app/font_licenses_test.dart` | The fonts are bundled; Manrope's OFL is registered |
 | `test/core/widgets/*` | Each component's behaviour, semantics, touch target, variants and colours, including high-contrast outlines, the confirmation results and loading states |
 | `test/gallery/gallery_accessibility_test.dart` | Flutter's contrast, tap-target and label guidelines on every gallery section, in four themes |
-| `test/features/settings/*` | The repository format and fallback; the theme choice surviving a restart |
+| `test/features/settings/*` | The repository format and fallback; the theme choice surviving a restart; the angle mode falling back to degrees for an unrecognized stored value |
 | `test/core/persistence/app_database_test.dart` | Schema, reopening, provider lifecycle |
 | `test/core/layout/window_size_class_test.dart` | Breakpoints |
 | `test/architecture/layer_boundaries_test.dart` | The engine and domain layers stay free of Flutter |
