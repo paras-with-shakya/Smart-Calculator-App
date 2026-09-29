@@ -2,7 +2,7 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-09-29, end of the Phase 5 Module 2 audit (audited, one real bug fixed — the orphaned-`×` limitation — tested, QA-clean; not yet committed). Module 1 (engine, `ef7b0ba`) and Module 2 as originally built (`856d175`, a different session) are both already committed.
+**Last updated:** 2026-09-29, end of the Phase 5 Module 2 audit (audited, one real bug fixed — the orphaned-`×` limitation — tested, QA-clean, committed `d42fa5f`). Module 1 (engine, `ef7b0ba`) and Module 2 as originally built (`856d175`, a different session) were already committed.
 
 ## At a Glance
 
@@ -12,7 +12,7 @@
 | What exists in code? | Everything from Phase 3–4, plus the engine's power operator, factorial, constants (π, e), 14 functions, exact/approximate `CalcValue`, degree/radian mode (ARCHITECTURE.md §1.12, DEC-047); the app-side input logic — `^ ! π e` and function keys, persisted angle mode, wrong-input handling (§1.13, DEC-048); and this session's fix, backspacing a constant/function/value never leaves a stranded `×`. **No scientific key is on screen yet** — the keypad is still the Basic one. |
 | What is being worked on? | Nothing. The Module 2 audit is done; Module 3 needs the user's go-ahead and a design decision (see "Next Task"). |
 | What happens next? | Module 3: the scientific keypad UI (sharing state with Basic, DEC-013), with a degree/radian toggle. Ask the user before starting; it needs a design (see "Next Task"). |
-| Git? | `ef7b0ba`, `0e4dba9` and `856d175` are committed (`main` ahead of `origin/main` by 5). **This session's orphan-× fix is not committed yet** — nothing blocks that. **Claude never pushes; the user pushes themselves.** |
+| Git? | `ef7b0ba`, `0e4dba9`, `856d175` and this session's orphan-× fix (`d42fa5f`) are all committed (`main` ahead of `origin/main` by 6). **Claude never pushes; the user pushes themselves.** |
 | What must not be repeated? | See "Do NOT Repeat" |
 | Known issues? | See "Known Issues". #13 (the stray scaffold) is **resolved** — the user deleted it 2026-09-29. |
 | Pending decisions? | P-5, P-7, P-9, P-10. **P-6 is resolved:** the user explicitly approved all five defaults by name in this session (2026-09-29; DEC-047, DEC-048) — no more ambiguity to flag. **P-12 resolved:** the user delegated the saved-calculations UI to Claude ("jaisa tum karo, waha karo") — see DEC-046. |
@@ -269,7 +269,7 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.13; decision DEC-048. Built and 
 
 ## Work In Progress
 
-None to hand off mid-task. Phase 5's Module 1 (engine, `ef7b0ba`) and Module 2 (input logic, `856d175`, audited and fixed this session) are complete, tested and committed. **This session's orphan-× fix itself is not committed yet** — nothing blocks that (see "Next Task").
+None to hand off mid-task. Phase 5's Module 1 (engine, `ef7b0ba`) and Module 2 (input logic, `856d175`, audited and fixed this session, `d42fa5f`) are complete, tested and committed.
 
 ## Current Task
 
@@ -280,8 +280,7 @@ None. The Module 2 audit is finished and reported (per the user's explicit reque
 
 ## Next Task
 
-1. **Commit this session's orphan-× fix** (`expression_buffer.dart`, its tests, and this doc round). Nothing blocks it.
-2. **Module 3: the scientific keypad UI** — ask the user first (module gate, CLAUDE.md rule 9), even though Phase 5 itself is approved; the user explicitly said not to start Module 3 without a further go-ahead this time. It needs a design the user hasn't seen: how the scientific keys are laid out beside/above the Basic keypad (DEC-013 says the state is shared), where the degree/radian toggle goes (`angleModeProvider.toggle()` already exists), and whether a 2nd/inverse key is wanted. Build it only from `lib/core/widgets/` and the tokens (rule 12), reuse `CalculatorButton`, and screenshot it (`flutter test --tags design-review ...`) before reporting. Wire `CalculatorKey.sin` … `abs`, `power`, `factorial`, `pi`, `euler` to buttons; add a hardware-keyboard mapping for `^`/`!` if useful (`typeText` already accepts them). Then a phone test.
+**Module 3: the scientific keypad UI** — ask the user first (module gate, CLAUDE.md rule 9), even though Phase 5 itself is approved; the user explicitly said not to start Module 3 without a further go-ahead this time. It needs a design the user hasn't seen: how the scientific keys are laid out beside/above the Basic keypad (DEC-013 says the state is shared), where the degree/radian toggle goes (`angleModeProvider.toggle()` already exists), and whether a 2nd/inverse key is wanted. Build it only from `lib/core/widgets/` and the tokens (rule 12), reuse `CalculatorButton`, and screenshot it (`flutter test --tags design-review ...`) before reporting. Wire `CalculatorKey.sin` … `abs`, `power`, `factorial`, `pi`, `euler` to buttons; add a hardware-keyboard mapping for `^`/`!` if useful (`typeText` already accepts them). Then a phone test.
 
 ## Do NOT Repeat
 
@@ -535,7 +534,7 @@ None. Phase 5's Module 1 (engine) and Module 2 (input logic) are both complete, 
 4. **Fixed the orphan-`×` limitation** DEC-048 had documented as accepted: backspacing a constant, function or value that left an unanchored `×` (`|×sin(`) now removes that `×` too, in the same step. Implemented as `ExpressionBuffer._withoutOrphanedTimes()`, reusing a small `_unitEndsOperand` refactor of the existing `_endsWithOperand` getter. Applies to inserted values too (MR, history reuse), not just scientific constants/functions, since they share the same code path.
 5. Added regression tests for the exact scenario (the fixed `'sLp<'` case, plus new cases for a value instead of a constant, an orphan appearing after an open bracket rather than at the buffer's start, and a negative case confirming a real unfinished `5×` is left alone).
 6. Full QA gate re-run clean: `flutter analyze`, `dart format`, `flutter test` (596 passed, was 592), `dart test` in `packages/calc_engine` (387, unchanged), `flutter build apk --debug`.
-7. **Docs:** this file (including rebuilding the stale "Where the tests are" table from a fresh per-file count), DECISIONS.md (DEC-048 addendum), CHANGELOG.md, ROADMAP.md updated. **Not committed yet** — see "Next Task".
+7. **Docs:** this file (including rebuilding the stale "Where the tests are" table from a fresh per-file count), DECISIONS.md (DEC-049), CHANGELOG.md, ROADMAP.md, ARCHITECTURE.md, CLAUDE.md updated. **Committed as `d42fa5f`.**
 8. **Module 3 not started, per the user's explicit instruction.**
 
 **2026-09-29, Phase 5 session 2 (Module 2, the scientific input logic).**
@@ -610,7 +609,7 @@ None. Phase 5's Module 1 (engine) and Module 2 (input logic) are both complete, 
 ## Instructions For Next Session
 
 1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md). **Reply to the user in Hinglish** (CLAUDE.md rule 13).
-2. **Phase 5 Modules 1 and 2 are committed** (engine `ef7b0ba`; input logic `856d175`). **This session's orphan-× fix on top of Module 2 may still be uncommitted** — check `git status -s` for `expression_buffer.dart`/its test before assuming it's done; if `git log` doesn't show a commit mentioning "orphan" after `856d175`, commit it (nothing blocks that).
+2. **Phase 5 Modules 1 and 2, and the orphan-× fix, are all committed** (engine `ef7b0ba`; input logic `856d175`; the fix `d42fa5f`). Confirm with `git log --oneline -6` if in doubt.
 3. **The P-6 defaults are formally, explicitly approved by name** — not just "okay" to a vague list. Treat them as settled across the whole app, including future phases (Programmer mode, etc.), unless a new documented decision changes them. If the user does want one changed, it's a small, isolated change in `packages/calc_engine/lib/src/eval/evaluator.dart` (each case is exercised by name in `test/scientific_test.dart`'s "power" groups) — not a redesign.
 4. **Module 3 (the scientific keypad UI) is next, but ask the user first** (see "Next Task"). It needs a layout the user hasn't seen. Module 2 already provides every key (`CalculatorKey.sin` … `abs`, `power`, `factorial`, `pi`, `euler`) and `angleModeProvider.toggle()`.
 5. **Check `git log --oneline -10` at the start of every session, before trusting any internal summary of "what's built."** This project has been worked on by more than one Claude Code session concurrently at least once (Discrepancies Found #7) — a session's own conversational memory of what it built can be behind what's actually in the repository.
