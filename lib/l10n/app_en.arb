@@ -681,5 +681,89 @@
   "scientificGroupOther": "Other",
   "@scientificGroupOther": {
     "description": "Heading for the group of remaining scientific keys (abs, factorial, pi, e) in the scientific key tray."
+  },
+  "keyToggleSignLabel": "Toggle sign",
+  "@keyToggleSignLabel": {
+    "description": "What screen readers say for the ± key that flips the typed amount's sign."
+  },
+  "converterCategoryLength": "Length",
+  "@converterCategoryLength": {
+    "description": "Name of the length conversion category."
+  },
+  "converterCategoryWeight": "Weight",
+  "@converterCategoryWeight": {
+    "description": "Name of the weight conversion category."
+  },
+  "converterCategoryTemperature": "Temperature",
+  "@converterCategoryTemperature": {
+    "description": "Name of the temperature conversion category."
+  },
+  "converterCategoryArea": "Area",
+  "@converterCategoryArea": {
+    "description": "Name of the area conversion category."
+  },
+  "converterCategoryVolume": "Volume",
+  "@converterCategoryVolume": {
+    "description": "Name of the volume conversion category."
+  },
+  "converterCategoryTime": "Time",
+  "@converterCategoryTime": {
+    "description": "Name of the time conversion category."
+  },
+  "converterCategoryCurrency": "Currency",
+  "@converterCategoryCurrency": {
+    "description": "Name of the currency conversion category."
+  },
+  "converterUnitPickerTitle": "Choose a unit",
+  "@converterUnitPickerTitle": {
+    "description": "Heading of the sheet listing a category's units to convert between."
+  },
+  "converterUnitSearchLabel": "Search units",
+  "@converterUnitSearchLabel": {
+    "description": "Label of the text field that filters the unit-picker sheet's list."
+  },
+  "converterUnitSearchNoMatches": "No matching units.",
+  "@converterUnitSearchNoMatches": {
+    "description": "Shown when a unit-picker search matches nothing."
+  },
+  "converterFromLabel": "From",
+  "@converterFromLabel": {
+    "description": "Label of the card showing the typed amount and its unit."
+  },
+  "converterToLabel": "To",
+  "@converterToLabel": {
+    "description": "Label of the card showing the converted result and its unit."
+  },
+  "converterEditRateTooltip": "Edit {currency} exchange rate",
+  "@converterEditRateTooltip": {
+    "description": "Tooltip and accessibility label of the button that edits a currency's exchange rate.",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "INR"
+      }
+    }
+  },
+  "converterEditRateTitle": "{currency} rate",
+  "@converterEditRateTitle": {
+    "description": "Title of the dialog editing a currency's exchange rate.",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "INR"
+      }
+    }
+  },
+  "converterEditRateLabel": "Units per 1 USD",
+  "@converterEditRateLabel": {
+    "description": "Label of the text field where the user types a currency's exchange rate, expressed as units per 1 USD."
+  },
+  "converterEditRateSaveAction": "Save",
+  "@converterEditRateSaveAction": {
+    "description": "Button that confirms an edited currency exchange rate."
+  },
+  "converterSwapTooltip": "Swap units",
+  "@converterSwapTooltip": {
+    "description": "Tooltip and accessibility label of the button that swaps the From and To units."
   }
 }

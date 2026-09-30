@@ -1035,6 +1035,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other'**
   String get scientificGroupOther;
+
+  /// What screen readers say for the ± key that flips the typed amount's sign.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle sign'**
+  String get keyToggleSignLabel;
+
+  /// Name of the length conversion category.
+  ///
+  /// In en, this message translates to:
+  /// **'Length'**
+  String get converterCategoryLength;
+
+  /// Name of the weight conversion category.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get converterCategoryWeight;
+
+  /// Name of the temperature conversion category.
+  ///
+  /// In en, this message translates to:
+  /// **'Temperature'**
+  String get converterCategoryTemperature;
+
+  /// Name of the area conversion category.
+  ///
+  /// In en, this message translates to:
+  /// **'Area'**
+  String get converterCategoryArea;
+
+  /// Name of the volume conversion category.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get converterCategoryVolume;
+
+  /// Name of the time conversion category.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get converterCategoryTime;
+
+  /// Name of the currency conversion category.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get converterCategoryCurrency;
+
+  /// Heading of the sheet listing a category's units to convert between.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a unit'**
+  String get converterUnitPickerTitle;
+
+  /// Label of the text field that filters the unit-picker sheet's list.
+  ///
+  /// In en, this message translates to:
+  /// **'Search units'**
+  String get converterUnitSearchLabel;
+
+  /// Shown when a unit-picker search matches nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching units.'**
+  String get converterUnitSearchNoMatches;
+
+  /// Label of the card showing the typed amount and its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get converterFromLabel;
+
+  /// Label of the card showing the converted result and its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get converterToLabel;
+
+  /// Tooltip and accessibility label of the button that edits a currency's exchange rate.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit {currency} exchange rate'**
+  String converterEditRateTooltip(String currency);
+
+  /// Title of the dialog editing a currency's exchange rate.
+  ///
+  /// In en, this message translates to:
+  /// **'{currency} rate'**
+  String converterEditRateTitle(String currency);
+
+  /// Label of the text field where the user types a currency's exchange rate, expressed as units per 1 USD.
+  ///
+  /// In en, this message translates to:
+  /// **'Units per 1 USD'**
+  String get converterEditRateLabel;
+
+  /// Button that confirms an edited currency exchange rate.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get converterEditRateSaveAction;
+
+  /// Tooltip and accessibility label of the button that swaps the From and To units.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap units'**
+  String get converterSwapTooltip;
 }
 
 class _AppLocalizationsDelegate

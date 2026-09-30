@@ -94,6 +94,7 @@ The widget tests start the app through the same `AppRoot`, so they run the real 
 | `historyProvider` | `AsyncNotifierProvider<HistoryNotifier, List<HistoryEntry>>` | history/application | The history, newest first (§1.17) |
 | `savedCalculationRepositoryProvider` | `Provider<SavedCalculationRepository>` | saved_calculations/data | A `SqfliteSavedCalculationRepository` |
 | `savedCalculationsProvider` | `AsyncNotifierProvider<SavedCalculationsNotifier, List<SavedCalculation>>` | saved_calculations/application | The saved calculations, most recently updated first (§1.18) |
+| `converterProvider` | `NotifierProvider<ConverterNotifier, ConverterState>` | converter/application | The current category, its two selected units, the typed amount and the live currency rates (§1.19) |
 
 Conventions:
 
@@ -258,7 +259,7 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | iOS | Bundle ID `com.parasshakya.smartcalculator` (tests: `.RunnerTests`), `CFBundleName` and `CFBundleDisplayName` "Smart Calculator" | Can't be built on Windows (P-5) |
 | web, Windows, Linux, macOS | Template identifiers (DEC-025) | Not built. Not supported targets (DEC-004). |
 
-### 1.15 Tests (645 passed in the normal app run, plus 387 in the engine)
+### 1.15 Tests (1252 passed in the normal app run, plus 387 in the engine)
 
 | File | Covers |
 | --- | --- |
@@ -277,8 +278,8 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | `test/app/theme/app_theme_test.dart` | Each theme uses Manrope and carries its tokens; tabular figures on the number styles; the platform's high-contrast switch; reduced motion |
 | `test/app/font_licenses_test.dart` | The fonts are bundled; Manrope's OFL is registered |
 | `test/core/widgets/*` | Each component's behaviour, semantics, touch target, variants and colours, including high-contrast outlines, the confirmation results and loading states, and `CalculatorButton.selected` (announced, toned with the accent and distinguishable from the resting tone in all four themes — DEC-050) |
-| `test/gallery/gallery_accessibility_test.dart` | Flutter's contrast, tap-target and label guidelines on every gallery section (11, since DEC-050), in four themes |
-| `test/features/settings/*` | The repository format and fallback; the theme choice surviving a restart; the angle mode falling back to degrees for an unrecognized stored value |
+| `test/gallery/gallery_accessibility_test.dart` | Flutter's contrast, tap-target and label guidelines on every gallery section (12, since DEC-051 added "Converter"), in four themes |
+| `test/features/settings/*` | The repository format and fallback; the theme choice surviving a restart; the angle mode falling back to degrees for an unrecognized stored value; the converter's last category, last unit pair and per-currency rate (DEC-051) |
 | `test/core/persistence/app_database_test.dart` | Schema, reopening, provider lifecycle |
 | `test/core/layout/window_size_class_test.dart` | Breakpoints |
 | `test/architecture/layer_boundaries_test.dart` | The engine and domain layers stay free of Flutter |
@@ -288,6 +289,11 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | `test/features/saved_calculations/data/sqflite_saved_calculation_repository_test.dart` | Storage: adds, lists most recently updated first, exact results, rename (and that it re-sorts), deletes one, clears all |
 | `test/features/saved_calculations/application/saved_calculations_notifier_test.dart` | The provider: starts empty, add/rename/delete/clear update the state, a fresh container reloads what was saved |
 | `test/features/saved_calculations/presentation/saved_calculations_content_test.dart` | Saving a history entry (and that the save action requires a name), the empty state, reuse, rename, delete, search, clear all with confirmation, that switching tabs clears the search field |
+| `test/features/converter/domain/conversion_category_test.dart` | 5 tests: `ConversionUnit.toBase`/`fromBase` on synthetic proportional and affine examples, `ConversionCategory.unit()` (found/throws) and `convert()` |
+| `test/features/converter/domain/conversion_tables_test.dart` | 542 tests: temperature fixed points (0/100/−40°C↔°F↔K, both directions — the exact case that catches the offset-sign bug, DEC-051), exact integer cross-checks (mile/yd/ft, lb/oz, acre/ft², hectare/m², US gallon/in³, hour/day/week), per-unit round-trip and full pairwise round-trip (every unit × every other unit × back) across all six physical categories, all with a combined absolute+relative tolerance, and `currencyCategory` (USD fixed, rate conversion, rate-change reactivity, every id has a default and a symbol) |
+| `test/features/converter/domain/number_entry_buffer_test.dart` | 18 tests: digits, decimal point, sign toggle (refused unless allowed), backspace/clear, `isEmpty`/`isNegative`/`value`, equality |
+| `test/features/converter/application/converter_notifier_test.dart` | 13 tests: initial state, typing computes the result, decimal/backspace/clear, switching category resets to fresh units, selecting a unit, swap (units exchange, typed text unchanged), the sign toggle (refused outside temperature, `−40°C=−40°F` for it), currency (default rates, live rate edits, a non-positive rate refused), and persistence across a restart |
+| `test/features/converter/presentation/converter_view_test.dart` | 14 tests: the whole screen — portrait/landscape layout and touch targets, 200%-text at four sizes, category switching, typing and the computed result, backspace, swap, the unit-picker sheet (open, search-filter, pick, no-matches), and the sign toggle enabled only for temperature (DEC-051) |
 | `test/design_review/…` | The screenshot generator (skipped by default; §1.9) |
 
 Helpers:
@@ -318,6 +324,7 @@ Helpers:
   - `flutter build apk --debug`
   - after visual changes: the design-review screenshots (§1.9)
 - **Add a database-backed feature:** a repository interface in `domain/`, a sqflite implementation in `data/` reading `appDatabaseProvider` (see `history/data/sqflite_history_repository.dart`), and an `AsyncNotifier` in `application/` for the loaded state. Give widget tests an isolated database the same way `test/helpers/test_app.dart` does for history: override `appDatabaseProvider` through `AppRoot.overrides`/`pumpApp` with `AppDatabase.open(..., singleInstance: false)` (DEC-045) — never wrap `AppRoot` in a second `ProviderScope`, which breaks its own overrides (DEC-045).
+- **Add a conversion category:** add one `const ConversionCategory` to `conversion_tables.dart` (a list of `ConversionUnit(id, symbol, scale, offset)`, `offset` in base-unit terms — see §1.19/DEC-051 for the temperature offset-sign pitfall) and one value to `ConversionCategoryId`; the UI, persistence and math all pick it up with no other change. Add fixed-point and exact-integer-cross-check tests for its scale constants, not just a round-trip test (a round-trip test alone can't catch a wrong constant).
 
 ### 1.17 History (`lib/features/history/`, Phase 4)
 
@@ -348,6 +355,24 @@ A calculation the user chose to keep under a name, rather than one every `=` pro
   - Each entry shows its name, the result and the expression it came from; tapping it reuses the result exactly like a history entry; rename and delete actions sit beside it.
   - **Saving** is a third action on a *history* entry (`_HistoryTile`, a bookmark icon next to copy and delete): it opens `lib/features/saved_calculations/presentation/save_name_sheet.dart`'s `promptForName` (a bottom sheet with an `AppTextField`, its action disabled until the name is non-empty), also reused for renaming.
 - **Not built, by decision (DEC-046):** editing a saved calculation's expression or result (only its name can change — see DEC-046 for why), and anything beyond `kind: 'basic'` (no other calculator produces a saved calculation yet).
+
+### 1.19 Converters (`lib/features/converter/`, Phase 6)
+
+Its own state (`converterProvider`, not `calculatorProvider` — DEC-013's reason for Basic/Scientific sharing state doesn't apply to a conversion, which has no expression, operators or memory recall). Full reasoning: DEC-051.
+
+- **domain:**
+  - `ConversionUnit`: `(id, symbol, scale, offset)`. `toBase(v) = v*scale + offset`, `fromBase(b) = (b-offset)/scale` — one affine transform covers every category, including temperature, whose `offset` is expressed in base-unit (Celsius) terms, not copied from the familiar `F = C×9/5+32` formula (that constant is `fromBase`'s, not `toBase`'s — DEC-051).
+  - `ConversionCategory`: `id`, `units`, `allowsNegative` (true only for temperature); `unit(id)` (throws if unknown — every unit id used anywhere, typed or persisted, is checked against the live table before being trusted) and `convert(value, {from, to})`.
+  - `conversion_tables.dart`: six `const ConversionCategory`s (length, weight, temperature, area, volume, time) with exact scale constants (`mile`/`yard`/`foot`/`inch` and `lb`/`oz` use the exact international definitions, so `1 mile = 5280 ft` and `1 lb = 16 oz` hold exactly); `currencyCategory(ratesPerUsd)`, a function (not `const`) building the currency category from live rates — USD fixed at `scale = 1`, every other currency's `scale = 1/rate`.
+  - `NumberEntryBuffer`: a plain, cursor-free "one optionally-negative number" buffer (digit/decimal-point/sign-toggle/backspace/clear) — deliberately simpler than `ExpressionBuffer`, since a conversion's input has no grammar beyond that. `toggleSign(allowed:)` refuses the minus sign at the buffer level for every category except temperature, not just by hiding the key.
+- **application:** `ConverterNotifier`/`ConverterState` — category, `fromUnitId`, `toUnitId`, the typed `amount`, and (for currency) the live `currencyRates` map. `table` resolves to the active category's live conversion table; `result` is `table.convert(...)` or null while nothing's typed. `swap()` exchanges `fromUnitId`/`toUnitId` only, leaving the typed text unchanged (re-typing the previous result would need its own number-to-text formatting, with its own edge cases — DEC-051). Persistence (last category, last from/to unit pair, each currency's rate) is folded directly into this notifier, reading/writing through `SettingsRepository` — no separate preferences notifier, since (unlike `AngleModeNotifier`) nothing else needs to read converter preferences (DEC-051).
+- **presentation:**
+  - `ConverterView`: the screen `app_shell.dart` renders for `CalculatorMode.converter`. One scrollable column in portrait; category picker and cards on the left, keypad on the right in landscape.
+  - `CategoryPicker`: a wrapping `AppCard` grid, one tile per `ConversionCategoryId`, `selected` tint on the active one — not `AppChoiceGroup`, which falls back to a vertical radio list once labels stop fitting a segmented row (likely with 7 options).
+  - `ConverterCard`: shows one side's amount and unit; tapping opens `unit_picker_sheet.dart`'s searchable bottom sheet (mirroring `history_content.dart`'s own search pattern). A non-USD currency unit also gets a small "edit rate" button opening a dialog (an `AppTextField` in an `AlertDialog` — `AppDialog` itself is message-only, so this one dialog is built directly rather than stretched to fit a form field).
+  - `ConverterKeypad`: digits, `.`, ⌫ (held clears) and a ± key (enabled only where the category allows a negative amount), built directly from `CalculatorButton` — not `CalculatorKeypad`, which is wired to the main calculator's own notifier and grammar.
+- **Reused as-is:** `AppCard`, `AppIconButton`, `showAppBottomSheet`/`AppTextField`, `CalculatorButton`, `LocalizedNumberFormat` (region-correct grouping/decimal separator for both the typed amount and the computed result).
+- **Not built, by decision (DEC-051):** the imperial gallon (only the US gallon, id `gallonUs`); live/fetched currency rates (typed and persisted locally only); history integration (a conversion showing up in the History tab).
 
 ## 2. Confirmed Decisions
 

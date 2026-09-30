@@ -13,6 +13,34 @@ abstract final class PreferenceKeys {
   /// form). Absent when the memory is empty.
   static const String calculatorMemory = 'calculator.memory';
 
+  /// The last conversion category used.
+  static const String converterLastCategory = 'converter.last_category';
+
+  /// The last from-unit id used, for whichever category was last active.
+  static const String converterLastFromUnit = 'converter.last_from_unit';
+
+  /// The last to-unit id used, for whichever category was last active.
+  static const String converterLastToUnit = 'converter.last_to_unit';
+
+  /// The saved "per 1 USD" rate for the INR currency unit.
+  static const String converterCurrencyRateInr = 'converter.currency_rate.inr';
+
+  /// The saved "per 1 USD" rate for the EUR currency unit.
+  static const String converterCurrencyRateEur = 'converter.currency_rate.eur';
+
+  /// The saved "per 1 USD" rate for the GBP currency unit.
+  static const String converterCurrencyRateGbp = 'converter.currency_rate.gbp';
+
   /// Every key above.
-  static const Set<String> all = {themePreference, angleMode, calculatorMemory};
+  static const Set<String> all = {
+    themePreference,
+    angleMode,
+    calculatorMemory,
+    converterLastCategory,
+    converterLastFromUnit,
+    converterLastToUnit,
+    converterCurrencyRateInr,
+    converterCurrencyRateEur,
+    converterCurrencyRateGbp,
+  };
 }

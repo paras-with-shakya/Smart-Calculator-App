@@ -15,7 +15,7 @@ Phase 2  Design system ................... COMPLETED 2026-09-28 (design approved
 Phase 3  Basic calculator + engine + memory COMPLETED 2026-09-28, audited 2026-09-28
 Phase 4  History + saved calculations .... COMPLETED 2026-09-29 (both halves; phone-tested)
 Phase 5  Scientific ...................... COMPLETED 2026-09-30 (all 3 modules built, audited, phone-tested)
-Phase 6  Converters ...................... planned
+Phase 6  Converters ...................... COMPLETED 2026-09-30
 Phase 7  Financial ....................... planned
 Phase 8  Date calculator ................. planned
 Phase 9  Programmer calculator ........... planned
@@ -167,9 +167,9 @@ The user approved Phase 5 on 2026-09-29 ("phase 5 start"). ARCHITECTURE.md §1.1
 
 **Found along the way, not part of this phase's scope:** a pre-existing Basic-calculator touch-target gap (`CalculatorMemoryKeys` narrows below 48 dp in landscape at 200% text) — reported, not fixed, since it belongs to the already-approved Basic screen (DEC-050, DEVELOPMENT_STATUS.md Known Issues).
 
-### Phase 6: Converters
+### Phase 6: Converters — COMPLETED 2026-09-30
 
-A modular conversion system where new categories are easy to add.
+A modular conversion system where new categories are easy to add: every category is a `const ConversionCategory` (a list of units, each just `(id, symbol, scale, offset)`) over one shared affine transform, so a new category is new data, not new code (DEC-051).
 
 | Category | Units |
 | --- | --- |
@@ -177,16 +177,17 @@ A modular conversion system where new categories are easy to add.
 | Weight | kg, g, mg, lb, oz |
 | Temperature | °C, °F, K |
 | Area | m², km², ft², acre, hectare |
-| Volume | L, mL, gallon, m³ |
+| Volume | L, mL, gallon (US), m³ |
 | Time | s, min, h, day, week |
+| Currency | USD, INR, EUR, GBP — user-editable rate, persisted locally, never fetched |
 
-- **Currency:** a design for currency conversion, with no network yet.
-- **Open question:** US or imperial gallon. The master prompt doesn't say; decide during Phase 6 design.
-- *(Proposed):*
-  - category chips, and From and To cards with a swap button
-  - an in-app number pad
-  - an "all units" list
-- **Done when:** round-trip conversion tests pass.
+- **Currency:** built as a real, working category (not a placeholder) — a short, curated list, USD the fixed base, every other rate typed in and persisted locally. No network call anywhere, matching the app's no-`INTERNET`-permission build (DEC-051).
+- **Resolved:** US gallon, not imperial — id `gallonUs`, labeled "(US)" (DEC-051).
+- *(Proposed, all built):*
+  - category chips (an `AppCard` grid), and From and To cards with a swap button
+  - an in-app number pad (`ConverterKeypad`, built directly from `CalculatorButton`)
+  - an "all units" list (the searchable unit-picker sheet, mirroring `history_content.dart`'s own search pattern)
+- **Done when:** round-trip conversion tests pass. **Done** — fixed-point temperature checks, exact integer cross-checks (mile/ft/yd, acre/ft², US gallon/in³, hour/s, …), per-unit and full pairwise round-trip tests across every category, all with a combined absolute+relative floating-point tolerance.
 
 ### Phase 7: Financial
 

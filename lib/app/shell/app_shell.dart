@@ -9,6 +9,7 @@ import 'package:smart_calculator/core/layout/window_size_class.dart';
 import 'package:smart_calculator/core/widgets/status_views.dart';
 import 'package:smart_calculator/features/calculator/presentation/calculator_view.dart';
 import 'package:smart_calculator/features/calculator/presentation/scientific_calculator_view.dart';
+import 'package:smart_calculator/features/converter/presentation/converter_view.dart';
 import 'package:smart_calculator/features/history/presentation/history_panel.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
@@ -100,6 +101,7 @@ class _CurrentModeView extends ConsumerWidget {
       switch (ref.watch(currentModeProvider)) {
         CalculatorMode.basic => const CalculatorView(),
         CalculatorMode.scientific => const ScientificCalculatorView(),
+        CalculatorMode.converter => const ConverterView(),
         final mode => EmptyState(
           icon: mode.icon,
           message: AppLocalizations.of(context).modeNotAvailableYet,

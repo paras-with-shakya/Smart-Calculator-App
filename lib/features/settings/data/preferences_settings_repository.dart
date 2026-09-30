@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_calculator/core/persistence/preference_keys.dart';
 import 'package:smart_calculator/core/persistence/preferences.dart';
+import 'package:smart_calculator/features/converter/domain/conversion_category.dart';
+import 'package:smart_calculator/features/converter/domain/conversion_tables.dart';
 import 'package:smart_calculator/features/settings/domain/settings_repository.dart';
 import 'package:smart_calculator/features/settings/domain/theme_preference.dart';
 
@@ -48,6 +50,71 @@ final class PreferencesSettingsRepository implements SettingsRepository {
         AngleMode.degrees => 'degrees',
         AngleMode.radians => 'radians',
       });
+
+  @override
+  ConversionCategoryId? get lastConverterCategory {
+    final stored = _preferences.getString(PreferenceKeys.converterLastCategory);
+    for (final category in ConversionCategoryId.values) {
+      if (_categoryStoredValue(category) == stored) return category;
+    }
+    return null;
+  }
+
+  @override
+  Future<void> setLastConverterCategory(ConversionCategoryId category) =>
+      _preferences.setString(
+        PreferenceKeys.converterLastCategory,
+        _categoryStoredValue(category),
+      );
+
+  @override
+  (String from, String to)? get lastConverterUnits {
+    final from = _preferences.getString(PreferenceKeys.converterLastFromUnit);
+    final to = _preferences.getString(PreferenceKeys.converterLastToUnit);
+    return from == null || to == null ? null : (from, to);
+  }
+
+  @override
+  Future<void> setLastConverterUnits(String from, String to) => Future.wait([
+    _preferences.setString(PreferenceKeys.converterLastFromUnit, from),
+    _preferences.setString(PreferenceKeys.converterLastToUnit, to),
+  ]);
+
+  @override
+  double currencyRate(String currencyId) {
+    final key = _currencyRateKey(currencyId);
+    final stored = key == null ? null : _preferences.getString(key);
+    return stored == null
+        ? defaultCurrencyRatesPerUsd[currencyId]!
+        : double.parse(stored);
+  }
+
+  @override
+  Future<void> setCurrencyRate(String currencyId, double rate) {
+    final key = _currencyRateKey(currencyId);
+    if (key == null) return Future.value();
+    return _preferences.setString(key, '$rate');
+  }
+
+  /// The fixed storage key for [currencyId]'s rate, or null for `usd`
+  /// (always fixed at 1, never stored) or an id this app doesn't offer.
+  static String? _currencyRateKey(String currencyId) => switch (currencyId) {
+    'inr' => PreferenceKeys.converterCurrencyRateInr,
+    'eur' => PreferenceKeys.converterCurrencyRateEur,
+    'gbp' => PreferenceKeys.converterCurrencyRateGbp,
+    _ => null,
+  };
+
+  static String _categoryStoredValue(ConversionCategoryId category) =>
+      switch (category) {
+        ConversionCategoryId.length => 'length',
+        ConversionCategoryId.weight => 'weight',
+        ConversionCategoryId.temperature => 'temperature',
+        ConversionCategoryId.area => 'area',
+        ConversionCategoryId.volume => 'volume',
+        ConversionCategoryId.time => 'time',
+        ConversionCategoryId.currency => 'currency',
+      };
 
   static String _storedValue(ThemePreference preference) =>
       switch (preference) {

@@ -501,4 +501,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scientificGroupOther => 'Other';
+
+  @override
+  String get keyToggleSignLabel => 'Toggle sign';
+
+  @override
+  String get converterCategoryLength => 'Length';
+
+  @override
+  String get converterCategoryWeight => 'Weight';
+
+  @override
+  String get converterCategoryTemperature => 'Temperature';
+
+  @override
+  String get converterCategoryArea => 'Area';
+
+  @override
+  String get converterCategoryVolume => 'Volume';
+
+  @override
+  String get converterCategoryTime => 'Time';
+
+  @override
+  String get converterCategoryCurrency => 'Currency';
+
+  @override
+  String get converterUnitPickerTitle => 'Choose a unit';
+
+  @override
+  String get converterUnitSearchLabel => 'Search units';
+
+  @override
+  String get converterUnitSearchNoMatches => 'No matching units.';
+
+  @override
+  String get converterFromLabel => 'From';
+
+  @override
+  String get converterToLabel => 'To';
+
+  @override
+  String converterEditRateTooltip(String currency) {
+    return 'Edit $currency exchange rate';
+  }
+
+  @override
+  String converterEditRateTitle(String currency) {
+    return '$currency rate';
+  }
+
+  @override
+  String get converterEditRateLabel => 'Units per 1 USD';
+
+  @override
+  String get converterEditRateSaveAction => 'Save';
+
+  @override
+  String get converterSwapTooltip => 'Swap units';
 }

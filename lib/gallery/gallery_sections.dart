@@ -51,7 +51,10 @@ enum GallerySection {
   states('States'),
 
   /// AppHeader, AppBottomSheet and AppDialog.
-  overlays('Header, sheet and dialog');
+  overlays('Header, sheet and dialog'),
+
+  /// The converter's category tiles and a From/To card pair.
+  converter('Converter');
 
   const GallerySection(this.title);
 
@@ -91,6 +94,7 @@ class GallerySectionView extends StatelessWidget {
           GallerySection.inputs => const _InputsSection(),
           GallerySection.states => const _StatesSection(),
           GallerySection.overlays => const _OverlaysSection(),
+          GallerySection.converter => const _ConverterSection(),
         },
       ),
     ],
@@ -854,4 +858,104 @@ class _OverlaysSection extends StatelessWidget {
       ),
     ],
   );
+}
+
+/// A static sample of the converter's category tiles and a From/To card
+/// pair. The working screen is `ConverterView`; these do nothing.
+class _ConverterSection extends StatelessWidget {
+  const _ConverterSection();
+
+  static void _noop() {}
+
+  static const double _tileWidth = 96;
+
+  static const List<(IconData, String)> _categories = [
+    (Icons.straighten, 'Length'),
+    (Icons.scale, 'Weight'),
+    (Icons.thermostat, 'Temperature'),
+    (Icons.crop_square, 'Area'),
+    (Icons.local_drink_outlined, 'Volume'),
+    (Icons.schedule, 'Time'),
+    (Icons.currency_exchange, 'Currency'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppTypography.of(context);
+    return Column(
+      crossAxisAlignment: .stretch,
+      children: [
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: [
+            for (final (index, (icon, label)) in _categories.indexed)
+              SizedBox(
+                width: _tileWidth,
+                child: AppCard(
+                  selected: index == 0,
+                  onTap: _noop,
+                  child: Column(
+                    children: [
+                      Icon(icon),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(label, textAlign: .center, style: t.label),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.md),
+        AppCard(
+          onTap: _noop,
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: .start,
+                  children: [
+                    Text('From', style: t.caption),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text('5', style: t.display),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text('m', style: t.label),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        const Center(
+          child: AppIconButton(
+            icon: Icons.swap_horiz,
+            tooltip: 'Swap units',
+            variant: AppIconButtonVariant.tonal,
+            onPressed: _noop,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        AppCard(
+          onTap: _noop,
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: .start,
+                  children: [
+                    Text('To', style: t.caption),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text('0.005', style: t.display),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text('km', style: t.label),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }

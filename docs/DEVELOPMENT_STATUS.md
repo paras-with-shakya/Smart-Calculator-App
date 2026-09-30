@@ -2,22 +2,30 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-09-30, end of Phase 5, Module 3 (the scientific keypad: planned, approved, built, tested, phone-tested, committed `8096bb4`). **Phase 5 (Scientific) is complete.**
+**Last updated:** 2026-09-30, end of Phase 6 (Converters: planned, independently reviewed, built, tested, not yet committed). **Phases 5 and 6 are both complete.**
 
 ## At a Glance
 
 | Question | Answer |
 | --- | --- |
-| Where are we? | **Phases 3, 4 and 5 are all complete.** Phase 5 (Scientific): engine (Module 1), input logic (Module 2, audited and fixed) and the keypad (Module 3) are all built, tested and phone-tested. |
-| What exists in code? | Everything from Phase 3–4, plus the full scientific engine (ARCHITECTURE.md §1.12, DEC-047), the input logic (§1.13, DEC-048/049), and now a working scientific keypad screen: a grouped, scrollable function tray, a DEG/RAD toggle and a 2nd/inverse toggle, in both portrait and landscape (§1.13, DEC-050). Scientific mode no longer shows the "not available yet" placeholder. |
-| What is being worked on? | Nothing. Phase 5 is done and reported; the next phase (6, Converters, or whichever the user picks) needs their explicit approval before starting. |
-| What happens next? | The user reviews Phase 5's Module 3 (and the phone test), then picks and approves the next phase. |
-| Git? | `ef7b0ba`, `0e4dba9`, `856d175`, `d42fa5f`, `19f666a` and `8096bb4` (Module 3) are all committed. **Claude never pushes; the user pushes themselves.** |
+| Where are we? | **Phases 3, 4, 5 and 6 are all complete.** Phase 6 (Converters): six physical categories plus a real working currency category, all built, tested (1252 app tests, 0 failed), `flutter analyze`/format/debug build all clean. Not phone-tested this session (not asked for). |
+| What exists in code? | Everything from Phase 3–5, plus a full unit converter (ARCHITECTURE.md §1.19, DEC-051): length/weight/temperature/area/volume/time, a user-editable currency category, a category-tile picker, From/To cards with a searchable unit-picker sheet and a swap button, and a compact numeric keypad. Converter mode no longer shows the "not available yet" placeholder. |
+| What is being worked on? | Nothing. Phase 6 is built, tested and documented; not yet committed (see "Next Task"). The next phase needs the user's explicit approval before starting. |
+| What happens next? | Report Phase 6 to the user (including the two flagged implementation simplifications and the gallon/currency scope decisions), commit locally, then wait for the user to pick and approve the next phase. |
+| Git? | Phase 5 (`ef7b0ba` … `8096bb4`, see below) is all committed. **Phase 6 is not committed yet.** **Claude never pushes; the user pushes themselves.** |
 | What must not be repeated? | See "Do NOT Repeat" |
-| Known issues? | See "Known Issues". #13 (the stray scaffold) is **resolved**. **New (#16):** a pre-existing Basic-calculator bug found while testing Module 3 — `CalculatorMemoryKeys` narrows below 48 dp in landscape at 200% text. Not fixed (not Module 3's to fix); reported. |
-| Pending decisions? | P-5, P-7, P-9, P-10 (all long-standing, unrelated to Phase 5). Phase 5's own questions (P-6, the Module 2 audit, the keypad design) are **all resolved** — see "Pending Decisions" for the full history. |
+| Known issues? | See "Known Issues". Nothing new found in Phase 6. #16 (Basic's memory-key touch-target gap, found during Phase 5) is still open, still not this phase's to fix. |
+| Pending decisions? | P-5, P-7, P-9, P-10 (all long-standing, unrelated to Phases 5–6). Phase 6's own open questions (the gallon, currency's scope) are **resolved** — see DEC-051 and "Pending Decisions." |
 
 ## Current Phase
+
+**Phase 6 (Converters): approved 2026-09-30 ("okay phase 5 approve and next phase start"). Complete as of 2026-09-30 — all six physical categories plus currency are built, tested and documented.**
+
+- No detailed brief was given for this phase (unlike Module 3's) — `ROADMAP.md` flagged two open design decisions (US vs. imperial gallon; how far the currency design should go), so a plan was written and independently reviewed before any code, matching this project's now-standard practice for a non-trivial feature (DEC-050 set the precedent).
+- **The independent review pass caught the classic temperature bug before any code existed:** the first draft copied `+32` straight from `F = C×9/5+32` into Fahrenheit's `offset`, which is the *wrong* direction's constant (`fromBase`'s, not `toBase`'s). Corrected to `scale=5/9, offset=−160/9` in the plan itself, then locked in by fixed-point tests.
+- **Built exactly as planned**, with two implementation simplifications made during coding and flagged, not asked about first: a single "last used units" pair instead of one per category, and no separate `ConverterPreferencesNotifier` (folded into `ConverterNotifier`). See DEC-051.
+- **The gallon and currency scope questions are resolved**: US gallon (`gallonUs`, "(US)"); currency is a real, working category (a curated USD/INR/EUR/GBP list, user-editable rate, persisted locally, never fetched), not a smaller placeholder.
+- Engine tests: 387 in `packages/calc_engine` (unchanged). App tests: 1252 (`flutter test`, was 645), `flutter analyze` clean, formatting clean, debug APK builds. **Not phone-tested** — the user didn't ask for it this session.
 
 **Phase 5 (Scientific): approved 2026-09-29 ("phase 5 start"). Complete as of 2026-09-30 — engine, input logic and the keypad are all built, tested and phone-tested.**
 
@@ -125,7 +133,23 @@ The user approved all five P-6 defaults by name (see "Current Phase") and asked 
 - **A pre-existing Basic bug found, not caused:** `expectTouchTargets` (a stricter check than Basic's own 200%-text test ever ran) found `CalculatorMemoryKeys` narrowing below 48 dp width in landscape at 200% text. Reproduced identically by pumping plain `CalculatorView` — confirmed pre-existing, not a Module 3 regression. Not fixed (out of scope: it's Basic's already-approved widget); recorded as Known Issue #16, and the new test explicitly excludes memory keys from this one check with a comment explaining why, rather than silently weakening the check for everything.
 - **Phone-tested** (`23124RN87I`, USB): switching to Scientific mode; sin/cos/tan computing correct degree-mode results (`sin(80°) ≈ 0.9848`); the 2nd toggle's solid-accent selected state and label swap (sin→sin⁻¹ etc.), confirmed the unmapped keys (sinh, cosh, …) stay unchanged; the DEG↔RAD flip; the x² composite key end to end (`4^2` → `16`, confirming the atomic-insert fix works on a real device, not just in tests); the tray's horizontal scroll; and the landscape layout (rail, display, both new rows, keypad, correctly no history panel). Every check passed. Rotation settings restored afterward.
 - **Full QA gate:** `flutter analyze` (no issues), `dart format` (clean), `flutter test` (645 passed, 1 skipped, 0 failed — was 596), `dart test` in `packages/calc_engine` (387, unchanged — no engine or buffer-grammar change), `flutter build apk --debug` (built, ~125 s).
-- **Phase 5 is now complete.** Not committed yet — see "Next Task".
+- **Phase 5 is now complete.** Committed as `8096bb4` (plus a doc-hash follow-up, `0a95ebb`).
+
+## Phase 6: Converters (2026-09-30, this session, not yet committed)
+
+The user approved Phase 5 and asked for the next phase to start ("okay phase 5 approve and next phase start"), with no detailed brief this time — unlike Module 3's. `ROADMAP.md`'s Phase 6 scope left two things explicitly open: US or imperial gallon, and how far the currency design should go. Full detail and reasoning: DEC-051.
+
+- **Plan written and independently reviewed before any code**, matching the practice DEC-050 established. The review pass caught the single most common bug in this exact kind of feature before it ever ran once: the first draft's temperature table copied `+32` straight from the familiar `F = C×9/5+32` formula into Fahrenheit's `offset` — but `offset` must be in *base-unit* (Celsius) terms for the `toBase` direction, and `+32` is `fromBase`'s constant. Corrected to `scale=5/9, offset=−160/9` in the plan itself, then locked in by fixed-point tests (0°C=32°F=273.15K, 100°C=212°F=373.15K, −40°C=−40°F) so this can't silently regress later.
+- **One shared affine transform for every category**, including temperature: `toBase(v)=v*scale+offset`, `fromBase(b)=(b-offset)/scale`. A new category is new data (one `const ConversionCategory`), not new code.
+- **Built exactly as planned:** domain (`ConversionUnit`, `ConversionCategory`, `conversion_tables.dart`'s six physical categories, `currencyCategory()`, `NumberEntryBuffer`), application (`ConverterNotifier`/`ConverterState`, its own state — DEC-013's reason for Basic/Scientific sharing state doesn't apply to a conversion), presentation (`ConverterView`, `CategoryPicker`, `ConverterCard`, `unit_picker_sheet.dart`, `ConverterKeypad`), `app_shell.dart` wired, a new gallery section. Full detail: ARCHITECTURE.md §1.19.
+- **The gallon and currency scope questions are resolved:** US gallon (`3.785411784 L`, id `gallonUs` — not a bare `gallon`, so an imperial gallon can be added later as a new id, never a rename of something that might already be persisted — labeled "(US)"). Currency is a real, working category: a curated USD/INR/EUR/GBP list, USD the fixed base, every other rate user-editable ("how many of this currency per 1 USD") and persisted locally through the same `SettingsRepository` pattern as everything else — never fetched, no network call anywhere.
+- **Two implementation simplifications made during coding, flagged here rather than asked about first:**
+  1. The plan specified per-category "last used units" (a separate remembered from/to pair for each of the 7 categories). Implemented as a single, category-independent pair instead, mirroring `AngleModeNotifier`'s own single-piece-of-state simplicity — needs 2 preference keys instead of 14+.
+  2. The plan specified a separate `ConverterPreferencesNotifier`, mirroring `AngleModeNotifier`/`SettingsRepository`. Persistence was folded directly into `ConverterNotifier` instead — `AngleModeNotifier` is separate mainly because *both* the settings screen and the calculator notifier need to read it; no second consumer exists here.
+- **A second design choice caught and self-corrected before shipping, not by the review pass:** an early `swap()` design tried to carry the computed result across as new typed text (an `insertRaw(double)` extension parsing a double back into digits), so swap would "continue from the result" the way the main calculator does after `=`. Dropped once it became clear this breaks on Dart's scientific-notation `toString()` output for very small/large values (`1e-10`) — `swap()` now only exchanges `fromUnitId`/`toUnitId`, leaving the typed amount's text unchanged.
+- **Full QA gate:** `flutter analyze` (no issues), `dart format` (clean; 9 files needed it, applied), `flutter test` (1252 passed, 1 skipped, 0 failed — was 645), `dart test` in `packages/calc_engine` (387, unchanged — no engine change), `flutter build apk --debug` (built, ~230 s).
+- **Not phone-tested this session** — the user didn't ask for it. Worth doing next session if wanted (the phone was used for both Phase 4 and Phase 5's Module 3, so there's precedent and a working method).
+- **Phase 6 is now complete. Not committed yet** — see "Next Task".
 
 ## Phase Status
 
@@ -138,7 +162,7 @@ The user approved all five P-6 defaults by name (see "Current Phase") and asked 
 | 3 | Basic calculator (engine, memory) | **Complete and audited** (commits `4fec0b6`, `57a1e73`, `85c6c84`; audit `453af28`) |
 | 4 | History and saved calculations | **Complete.** History (`1604248`) and saved calculations (`f02b23a`) both committed, phone-tested. |
 | 5 | Scientific | **Complete and phone-tested.** Module 1 (engine) `ef7b0ba`, Module 2 (input logic, DEC-048/049) `856d175`/`d42fa5f`, Module 3 (keypad, DEC-050) `8096bb4`. |
-| 6 | Converters | Not started |
+| 6 | Converters | **Complete, not yet committed.** Plan (DEC-051) independently reviewed before code; six physical categories plus currency built, tested (1252 app tests). Not phone-tested this session. |
 | 7 | Financial | Not started |
 | 8 | Date calculator | Not started |
 | 9 | Programmer calculator | Not started |
@@ -311,21 +335,31 @@ The phone was connected by USB at the user's request, immediately after Module 3
 - **Found and fixed during this pass:** none (all issues were caught by the automated test suite beforehand, not the phone test itself).
 - **Phone settings:** rotation was changed to test landscape (`user_rotation=1`) and restored afterward (`user_rotation=0`, `accelerometer_rotation=0`, matching the state found at the start). Screenshots and `uiautomator` dumps taken during the test were deleted from the phone afterward.
 
+### Phase 6: Converters, built and tested (2026-09-30, this session, not yet committed)
+
+Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.19; decision DEC-051 (the full plan, its independent review, the gallon/currency scope decisions, and the two implementation simplifications). See "Phase 6: Converters" above for the full narrative.
+
+- Planned first (independently reviewed before any code, catching the classic temperature offset-sign bug), then built exactly as planned: `lib/features/converter/{domain,application,presentation}/`, `app_shell.dart` wiring, a new gallery section, six new `SettingsRepository` members.
+- 607 new tests (domain: `ConversionUnit`/`ConversionCategory`, the six physical categories' fixed-point/exact-integer/round-trip checks and `currencyCategory`, `NumberEntryBuffer`; application: `ConverterNotifier`; presentation: the whole screen end to end; settings: converter persistence; gallery: the new "Converter" section × 4 themes). 1252 app tests (was 645), 387 engine tests (unchanged).
+- **Not phone-tested this session** — not asked for.
+
 ## Work In Progress
 
-None to hand off mid-task. Phase 5 is complete: Module 1 (engine, `ef7b0ba`), Module 2 (input logic, `856d175`, audited and fixed, `d42fa5f`) and Module 3 (the keypad, `8096bb4`) are all built, tested, phone-tested and committed.
+None to hand off mid-task. Phases 5 and 6 are both complete: Phase 5 (Module 1 `ef7b0ba`, Module 2 `856d175`/`d42fa5f`, Module 3 `8096bb4`) all built, tested, phone-tested and committed; Phase 6 (Converters, DEC-051) built, tested and documented, **not yet committed**.
 
 ## Current Task
 
-None. Phase 5 is finished and reported. The next phase needs the user's explicit choice and approval before starting — nothing should be assumed or started ahead of that.
+None. Phase 6 is finished and reported. The next phase needs the user's explicit choice and approval before starting — nothing should be assumed or started ahead of that.
 
-- **Screenshots:** none via the design-review generator this session (the phone test served as the visual review instead — see "Test on the user's phone: the scientific keypad"). Worth running the design-review generator for Scientific next session if a from-screenshots review is wanted too.
-- **On the phone:** the debug build with the scientific keypad is installed (`23124RN87I`); rotation restored to portrait/off; the calculator was left showing the x² test result (`16`) in Scientific mode.
+- **Screenshots:** none via the design-review generator this session — the new "Converter" gallery section is automatically covered by the existing generator loop (`test/design_review/design_review_screenshots_test.dart` iterates `GallerySection.values`) whenever it's next run, but it wasn't run this session.
+- **On the phone:** unchanged from the end of the Phase 5 Module 3 session — the debug build with the scientific keypad is still what's installed (`23124RN87I`); Phase 6 wasn't installed or tested on it this session.
+- **Not committed:** every Phase 6 file is new/modified in the working tree, untracked/uncommitted. See "Next Task".
 
 ## Next Task
 
-1. **Report Phase 5 complete to the user**, including the pre-existing Basic touch-target bug found (Known Issues #16), and ask whether they want it fixed now or left for a later pass.
-2. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 6 Converters, Phase 7 Financial, Phase 8 Date, Phase 9 Programmer, Phase 10 Settings — in that planned order, but the user may choose differently). Don't start any of them without that explicit approval, per the phase gate (CLAUDE.md rule 9).
+1. **Report Phase 6 complete to the user**, explicitly flagging: the gallon and currency scope decisions as implemented (DEC-051); the two implementation simplifications (a single last-used-units pair instead of one per category; no separate `ConverterPreferencesNotifier`); that it wasn't phone-tested this session.
+2. **Commit Phase 6 locally** (never push — the user pushes themselves).
+3. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 7 Financial, Phase 8 Date, Phase 9 Programmer, Phase 10 Settings — in that planned order, but the user may choose differently). Don't start any of them without that explicit approval, per the phase gate (CLAUDE.md rule 9).
 
 ## Do NOT Repeat
 
@@ -352,6 +386,9 @@ None. Phase 5 is finished and reported. The next phase needs the user's explicit
 - **A new function opener needs no buffer change** (one `SymbolUnit` ending in `(`), but it needs a `spoken*` string and a case in `CalculatorDisplayFormatter._spokenSymbol`; `test 'every function opener has a spoken name'` fails otherwise.
 - **In bash heredocs, avoid `<<` / `<<<` and triple quotes inside the body** — the tool mangled several `cat > file <<'EOF'` calls this session. Use the Write tool for files with such text.
 - **When `CalcError` gains a new case, `calculator_display_formatter.dart`'s `error()` switch must gain a matching case** (and a new `app_en.arb` string) or the app fails to compile — this bit in this session (`CalcError.undefined`), caught only by running the full `flutter test` suite, not by `dart test` in the engine package alone.
+- **For any affine unit conversion (`toBase(v) = v*scale + offset`), never copy a human-readable formula's constant directly into `offset`.** `offset` must be derived in *base-unit* terms for the `toBase` direction — the familiar `F = C×9/5+32` gives `fromBase`'s constant, not `toBase`'s (the correct pair is `scale=5/9, offset=−160/9`, not `offset=32`). This is the single most common bug in this kind of feature; a future category (Programmer mode's bases, if it's ever affine rather than purely a ratio) should get the same fixed-point-test treatment `conversion_tables_test.dart` uses, not just a round-trip test (DEC-051).
+- **A round-trip test alone can't catch a wrong conversion constant** — `fromBase(toBase(x)) ≈ x` holds even if `scale`/`offset` are both wrong by a consistent factor. Pair every round-trip test with independent fixed-point or exact-integer cross-checks (1 mile=5280 ft, 1 US gallon=231 in³, …) that don't depend on the same code path being self-consistent (DEC-051).
+- **A unit's persisted id must never be reused for a different real-world unit later** — `gallonUs`, not `gallon`, specifically so an imperial gallon can be added as a new id without a silent meaning-change for anyone whose "last used unit" preference already holds the old id (DEC-051).
 
 ## Pending Decisions
 
@@ -372,7 +409,11 @@ None. Phase 5 is finished and reported. The next phase needs the user's explicit
 
 **Open to the user's review** (Phase 5, Module 3, DEC-050 — built from a plan the user reviewed at the design-decision level, but not yet seen running except via this doc and the phone-test report): the single-scrollable-row tray (vs. the "pull-up fx tray" `ROADMAP.md` had proposed), the group order/composition (Trigonometry, Hyperbolic, Logarithms & powers, Roots, Other), 2nd's ephemeral (not persisted) state, and the exact visual treatment of keys with no 2nd role (currently simply unchanged, no dimming). All four were flagged as explicit open questions in the approved plan's "Remaining decisions" section — the user approved the plan without objecting to any of them, but hasn't seen the running result yet at the time of writing.
 
-**Resolved — P-6, formally confirmed by the user 2026-09-29**, first with a brief "okay" (to a different session), then explicitly by name (to this session: "I reviewed the original session summary and confirmed the context. Yes, I approve the five scientific engine defaults exactly as documented in DEC-047... Keep these semantics consistent across the entire calculator and future scientific/programmer functionality unless a later documented decision explicitly changes them... do not revert that work."):
+**Open to the user's review** (Phase 6, DEC-051 — no detailed brief was given for this phase, unlike Module 3's, so these are Claude's plan-level judgment calls within the phase's scope, not yet seen running or explicitly confirmed): the US gallon (not imperial); currency as a real, editable-rate category rather than a smaller "coming later" placeholder; the curated USD/INR/EUR/GBP list (not a longer one); a single last-used-units pair instead of one per category; folding persistence into `ConverterNotifier` rather than a separate preferences notifier; the "edit rate" affordance's exact placement (a small icon on a currency unit's From/To card, opening a plain dialog) — the plan's own §6 didn't fully spell out where this control should live, so this specific piece is a Claude judgment call made during implementation, more than the rest of the plan.
+
+**Resolved — P-13 (Phase 6's gallon and currency scope), 2026-09-30, this session:** US gallon (`gallonUs`, "(US)"); currency built as a real, working, editable-rate category, not a placeholder. See DEC-051.
+
+**Resolved — P-6 (the scientific-engine defaults), formally confirmed by the user 2026-09-29**, first with a brief "okay" (to a different session), then explicitly by name (to this session: "I reviewed the original session summary and confirmed the context. Yes, I approve the five scientific engine defaults exactly as documented in DEC-047... Keep these semantics consistent across the entire calculator and future scientific/programmer functionality unless a later documented decision explicitly changes them... do not revert that work."):
 
 - `−3² = −9`, `2^3^2 = 512`, `0^0 = 1`, `(−8)^(1/3) = −2`, `tan 90° → CalcError.undefined` — see DEC-047 for the full reasoning behind each. **Binding going forward**: any future phase (Programmer mode's power operator, for instance) must match these unless a new, explicit decision changes them.
 - the `2π`/`5sin(30)` implied-multiplication grammar extension
@@ -413,6 +454,10 @@ None. Phase 5 is finished and reported. The next phase needs the user's explicit
 | `packages/calc_engine/lib/src/ast/node.dart` | Now also `FactorialNode`, `CalcConstant`, `ConstantNode`, `CalcFunction`, `FunctionCallNode`, `BinaryOperator.power` |
 | `packages/calc_engine/test/scientific_test.dart` | New: 117 tests for `^`, `!`, constants and every function |
 | `lib/features/calculator/presentation/calculator_display_formatter.dart` | `error()` now also maps `CalcError.undefined` |
+| `lib/features/converter/domain/{unit,conversion_category,conversion_tables,number_entry_buffer}.dart` | The affine conversion model, the six physical categories, `currencyCategory()`, the plain-number entry buffer (Phase 6, DEC-051) |
+| `lib/features/converter/application/converter_notifier.dart` | `ConverterNotifier`/`ConverterState`, its own provider, persistence folded in directly |
+| `lib/features/converter/presentation/*` | `ConverterView`, `CategoryPicker`, `ConverterCard` (+ the currency edit-rate dialog), `unit_picker_sheet.dart`, `ConverterKeypad` |
+| `lib/features/settings/domain/settings_repository.dart`, `data/preferences_settings_repository.dart`, `lib/core/persistence/preference_keys.dart` | Now also converter's last category, last unit pair, and per-currency rates (additive; existing theme/angle-mode tests re-run unchanged) |
 | (Phase 1 files) | See ARCHITECTURE.md §1: startup, navigation, shell, persistence, l10n |
 
 ## Dependencies
@@ -423,6 +468,7 @@ None. Phase 5 is finished and reported. The next phase needs the user's explicit
 - **Added in Phase 4 (History):**
   - app: `riverpod` ^3.4.3 (DEC-045) — already resolved transitively through `flutter_riverpod`, same publisher; needed only so `AppRoot.overrides` can be typed `List<Override>`, which `flutter_riverpod` doesn't re-export.
 - **Added in Phase 5 (Module 1):** none. The scientific engine uses only `dart:math` (already available) and `rational` (already a dependency); no new package.
+- **Added in Phase 6 (Converters):** none. Plain `double` math (conversion factors are inherently approximate) and the existing `LocalizedNumberFormat`; no new package (DEC-051).
 - **Actually in `pubspec.yaml` and `pubspec.lock`:**
   - app: `flutter_riverpod` 3.4.3, `riverpod` 3.4.3, `shared_preferences` 2.5.5, `sqflite` 2.4.4, `path` 1.9.1, `intl` 0.20.3, `flutter_localizations`, `calc_engine`
   - dev: `flutter_test`, `flutter_lints` 6.0.0, `shared_preferences_platform_interface` 2.4.2, `sqflite_common_ffi` 2.4.3
@@ -431,7 +477,19 @@ None. Phase 5 is finished and reported. The next phase needs the user's explicit
 
 ## Tests
 
-**Final, run in the Phase 5 Module 3 session (2026-09-30), in `smart_calculator/`:**
+**Final, run in the Phase 6 session (2026-09-30), in `smart_calculator/`:**
+
+| Command | Result |
+| --- | --- |
+| `flutter analyze` | `No issues found!` |
+| `dart format lib test` | 9 files needed it (all Phase 6 files, not yet formatted when written), then re-run clean |
+| `flutter test` (whole suite) | `+1252 ~1: All tests passed!` (1252 passed, 1 skipped — the design-review generator; 0 failed; was 645) |
+| `dart test` in `packages/calc_engine` | `+387: All tests passed!` (unchanged; Phase 6 made no engine change) |
+| `flutter build apk --debug` | **Built** (Gradle `assembleDebug`, ~230 s) |
+
+Not run this session: the release build, the design-review screenshots, a phone test (not asked for this session).
+
+**Earlier, run in the Phase 5 Module 3 session (2026-09-30), in `smart_calculator/`:**
 
 | Command | Result |
 | --- | --- |
@@ -512,7 +570,7 @@ Not run this session: the release build, the design-review screenshots (nothing 
 | `aapt dump badging` on the release APK | package `com.parasshakya.smartcalculator`, label "Smart Calculator"; **no INTERNET permission** (the only permission is AndroidX's `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`); **re-checked by reading `android/app/src/main/AndroidManifest.xml` directly this session — still no `INTERNET` permission** |
 | On the user's phone | See "Test on the user's phone" |
 
-**Where the tests are** (per-file counts, re-verified this session; sums to the verified 645):
+**Where the tests are** (per-file counts, re-verified this session; sums to the verified 1252):
 
 | Area | Tests |
 | --- | --- |
@@ -526,16 +584,19 @@ Not run this session: the release build, the design-review screenshots (nothing 
 | Calculator screen | 24 |
 | Display formatter (including 7 scientific-expression cases: display, spoken text, error names) | 25 |
 | `DisplayText` | 12 |
-| Gallery accessibility (11 sections × 4 themes, since DEC-050 added "Scientific keys") | 44 |
-| Settings (theme preference, angle mode persistence) | 11 |
+| Gallery accessibility (12 sections × 4 themes, since DEC-051 added "Converter") | 48 |
+| Settings (theme preference, angle mode persistence, converter's last category/units/currency rates, DEC-051) | 22 |
 | History repository | 9 |
 | History notifier | 5 |
 | History widget (`HistoryContent`), including the 3-action row at 200% text | 11 |
 | Saved-calculations repository | 8 |
 | Saved-calculations notifier | 6 |
 | Saved-calculations widget (saving, the Saved tab, rename, reuse, delete, search, clear all) | 9 |
+| Converter domain (`ConversionUnit`/`ConversionCategory`, the six physical categories' fixed-point/exact-integer/round-trip checks and `currencyCategory`, `NumberEntryBuffer`, DEC-051) | 565 |
+| Converter application (`ConverterNotifier`: typing, category/unit selection, swap, sign toggle, currency rates, persistence) | 13 |
+| Converter presentation (the whole screen: layout, 200% text, category switching, typing/result, backspace, swap, the unit-picker sheet, the temperature-only sign toggle) | 14 |
 | Earlier app tests (app shell, navigation, theme, layout, persistence, reusable widgets, architecture boundary, including `CalculatorButton.selected` and the new "Scientific mode shows the scientific calculator" test) | 75 |
-| **App total** (`flutter test`) | **645 passed, 1 skipped, 0 failed** |
+| **App total** (`flutter test`) | **1252 passed, 1 skipped, 0 failed** |
 
 **Not run:**
 
@@ -573,7 +634,7 @@ Not run this session: the release build, the design-review screenshots (nothing 
 
 ## Blockers
 
-None. Phase 5 (all three modules) is complete, audited and phone-tested. The next blocker is the user choosing and approving the next phase — see "Next Task". iOS still can't be built on Windows, as always.
+None. Phase 6 is built, tested and documented; it just needs a local commit (see "Next Task"). The next blocker after that is the user choosing and approving the next phase. iOS still can't be built on Windows, as always.
 
 ## Discrepancies Found
 
@@ -589,6 +650,19 @@ None. Phase 5 (all three modules) is complete, audited and phone-tested. The nex
 7. **Phase 5, Module 2 audit session:** this session's very first action — reading `expression_buffer.dart` to make a small unrelated edit — found `insertFunction`/`insertConstant`/`insertFactorial` already there, contradicting this session's own last chat report ("Module 2 hasn't started"). `git log` explained it: a *different* Claude Code session (co-authored "Claude Sonnet 5.5") built and committed all of Module 2 (`856d175`) while this session was between turns. Treated the committed code as ground truth rather than re-deriving or distrusting it. Separately, the "Where the tests are" table (below, under "Tests") had the same staleness pattern as #6: the Module 2 session updated the headline pass count but not this row-by-row breakdown, so it still showed Module 1's 465-test-total shape under a section reporting 592. Rebuilt from freshly re-run per-file counts in this session, not guessed.
 
 ## Last Session Summary
+
+**2026-09-30, Phase 6 session (Converters — plan, build, test; not phone-tested).**
+
+1. The user approved Phase 5 and asked for the next phase to start ("okay phase 5 approve and next phase start"), with no detailed brief this time. `ROADMAP.md`'s Phase 6 scope left two things explicitly open: US or imperial gallon, and how far the currency design should go.
+2. **Wrote and independently reviewed a plan before any code**, matching the practice DEC-050 established. The review pass caught the classic temperature-conversion bug before it ever ran once: the first draft's Fahrenheit `offset` was copied from the wrong direction's formula constant (`+32` from `fromBase`, not the `toBase`-direction `−160/9` the code actually needed). Fixed in the plan itself, then locked in by fixed-point tests.
+3. **Built exactly as planned:** `lib/features/converter/{domain,application,presentation}/` (six physical categories plus a real, editable-rate currency category, all sharing one affine `toBase`/`fromBase` mechanism), `ConverterNotifier`/`ConverterState` (its own state, not `calculatorProvider`), `ConverterView`/`CategoryPicker`/`ConverterCard`/`unit_picker_sheet.dart`/`ConverterKeypad`, `app_shell.dart` wired, a new gallery section, six additive `SettingsRepository` members.
+4. **Resolved the plan's own flagged open questions:** US gallon (`gallonUs`, "(US)"), not imperial; currency built as a real working category (curated USD/INR/EUR/GBP list, user-editable rate, persisted locally, never fetched), not a smaller placeholder.
+5. **Two implementation simplifications made during coding, flagged rather than asked about first:** a single "last used units" pair instead of one per category; no separate `ConverterPreferencesNotifier` (folded into `ConverterNotifier`, since nothing else needs to read converter preferences the way angle mode does).
+6. **A design choice self-corrected before shipping:** an early `swap()` draft tried to re-type the previous result as new typed text, which breaks on Dart's scientific-notation `toString()` for very small/large values. Simplified to just exchange the units, leaving the typed text unchanged.
+7. Full QA gate clean: `flutter analyze`, `dart format` (9 files needed it, applied), `flutter test` (1252 passed, was 645), `dart test` in `packages/calc_engine` (387, unchanged), `flutter build apk --debug` (~230 s).
+8. **Not phone-tested this session** — not asked for.
+9. **Docs:** this file, ARCHITECTURE.md (§1.19, provider table, test counts), DECISIONS.md (DEC-051), ROADMAP.md (Phase 6 moved to Completed), CHANGELOG.md updated. **Not committed yet** — see "Next Task".
+10. **Phase 6 is now complete.** The next phase needs the user's explicit choice and approval before starting.
 
 **2026-09-30, Phase 5 session 4 (Module 3, the scientific keypad — plan, build, phone test).**
 
@@ -686,17 +760,19 @@ None. Phase 5 (all three modules) is complete, audited and phone-tested. The nex
 ## Instructions For Next Session
 
 1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md). **Reply to the user in Hinglish** (CLAUDE.md rule 13).
-2. **All of Phase 5 is committed, including Module 3** (`8096bb4`). Confirm with `git log --oneline -8` if in doubt.
-3. **Phase 5 is complete — all three modules.** Don't redo the engine, the input logic or the keypad. If the user wants a specific default, mapping or layout choice changed, it's a targeted edit (see DEC-047/048/049/050 for exactly what to touch), not a rebuild.
-4. **Don't start Phase 6 (or any other phase) without the user's explicit choice and approval** — ROADMAP.md lists Phase 6 (Converters) next in the planned order, but the user may pick differently. Ask, don't assume.
-5. **A pre-existing Basic bug is now known but not fixed:** `CalculatorMemoryKeys` narrows below 48 dp in landscape at 200% text (Known Issues #16). It's Basic's widget, not the next phase's to fix unless the user asks for it specifically.
+2. **Phase 6 is NOT committed yet.** Commit it first (see "Next Task") before doing anything else, unless the user says otherwise. Confirm with `git status`/`git log --oneline -8` if in doubt.
+3. **Phases 5 and 6 are both complete.** Don't redo the engine, the input logic, the keypad or the converter. If the user wants a specific default, mapping or scope choice changed, it's a targeted edit (see DEC-047/048/049/050/051 for exactly what to touch), not a rebuild.
+4. **Don't start Phase 7 (or any other phase) without the user's explicit choice and approval** — ROADMAP.md lists Phase 7 (Financial) next in the planned order, but the user may pick differently. Ask, don't assume.
+5. **A pre-existing Basic bug is still known but not fixed:** `CalculatorMemoryKeys` narrows below 48 dp in landscape at 200% text (Known Issues #16). It's Basic's widget, not any later phase's to fix unless the user asks for it specifically.
 6. **For any future toggle-style key** (a persisted or ephemeral on/off shown on a button), reuse `CalculatorButton.selected` (tinted `primary`/`onPrimary`) rather than inventing a new pattern — and re-verify the tint is distinct from the button's resting tone in all four palettes before picking a color, the way DEC-050 had to.
 7. **For any future "composite" key** (one press, multiple buffer operations), give it its own small, atomic `ExpressionBuffer` method, tested directly — chaining existing methods at the notifier level has already been shown to silently misbehave in several positions (DEC-050).
-8. **Check `git log --oneline -10` at the start of every session, before trusting any internal summary of "what's built."** This project has been worked on by more than one Claude Code session concurrently at least once (Discrepancies Found #7) — a session's own conversational memory of what it built can be behind what's actually in the repository.
-9. **Watch for the stray-scaffold issue recurring** (Known Issues #13, resolved but cause unconfirmed): check `git status -s packages/calc_engine/` is empty before trusting `flutter analyze`/`flutter test`.
-10. **Build every new screen only from `lib/core/widgets/` and the tokens** (rule 12, DEC-034). Don't add anything to the calculator screen or the app shell without the user asking for it first — see DEC-046/050 for why that's mattered every phase so far.
-11. **If `CalcError` gains another case**, `calculator_display_formatter.dart`'s `error()` switch needs a matching case or the app fails to compile — this bit a previous session, caught only by the full `flutter test`, not `dart test` in the engine alone.
-12. **Checks:**
+8. **For any future affine unit conversion, derive `offset` in base-unit terms — never copy a human formula's constant directly.** The temperature offset-sign bug (DEC-051) is the single most common mistake in this kind of feature; pair every round-trip test with an independent fixed-point or exact-integer cross-check, since a round-trip test alone can't catch a wrong constant.
+9. **Check `git log --oneline -10` at the start of every session, before trusting any internal summary of "what's built."** This project has been worked on by more than one Claude Code session concurrently at least once (Discrepancies Found #7) — a session's own conversational memory of what it built can be behind what's actually in the repository.
+10. **Watch for the stray-scaffold issue recurring** (Known Issues #13, resolved but cause unconfirmed): check `git status -s packages/calc_engine/` is empty before trusting `flutter analyze`/`flutter test`.
+11. **Build every new screen only from `lib/core/widgets/` and the tokens** (rule 12, DEC-034). Don't add anything to the calculator screen or the app shell without the user asking for it first — see DEC-046/050/051 for why that's mattered every phase so far.
+12. **If `CalcError` gains another case**, `calculator_display_formatter.dart`'s `error()` switch needs a matching case or the app fails to compile — this bit a previous session, caught only by the full `flutter test`, not `dart test` in the engine alone.
+13. **For a genuinely non-trivial feature with no detailed user brief, write a plan and have it independently reviewed before writing code, or before showing the user if one was requested.** This has now caught a real, ship-blocking bug twice running (Module 3's silent-failure composite keys and colour collision; Phase 6's temperature offset sign) — see DEC-050's and DEC-051's "Context."
+14. **Checks:**
     - `flutter analyze`
     - `dart format lib test packages/calc_engine/lib packages/calc_engine/test` (not `dart format .`; it crashes on long paths inside `build/` — Known Issue #3)
     - `flutter test`
@@ -705,4 +781,4 @@ None. Phase 5 (all three modules) is complete, audited and phone-tested. The nex
     - after visual changes, the screenshots
 
     Record the actual results.
-13. Finish with the Session Handoff Protocol.
+15. Finish with the Session Handoff Protocol.

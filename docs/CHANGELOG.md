@@ -19,6 +19,43 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-09-30: Phase 6 (Converters) — Phase 6 complete
+
+The user approved Phase 5 and asked for the next phase to start, with no detailed brief this time. A plan was written and independently reviewed before any code (this project's now-standard practice for a non-trivial feature) — the review pass caught the classic temperature offset-sign bug before it ever ran once. Built exactly as planned, plus two flagged implementation simplifications; not phone-tested this session.
+
+### Added
+
+- **A new feature, `lib/features/converter/`**, fully additive — no existing screen, notifier or the engine was touched.
+- **domain:** `ConversionUnit` (`toBase`/`fromBase` via one shared affine transform), `ConversionCategory` (`unit()`, `convert()`), `conversion_tables.dart` (six `const` physical categories — length, weight, temperature, area, volume, time — plus `currencyCategory(ratesPerUsd)`, built at runtime from live rates), `NumberEntryBuffer` (a plain, cursor-free "one optionally-negative number" buffer, refusing the minus sign at the buffer level outside temperature).
+- **application:** `ConverterNotifier`/`ConverterState` — its own state, not `calculatorProvider` (DEC-013 doesn't apply to a conversion). Persistence (last category, last unit pair, each currency's rate) folded directly into the notifier via `SettingsRepository`.
+- **presentation:** `ConverterView` (the screen; `app_shell.dart` gained one switch arm), `CategoryPicker` (an `AppCard` grid), `ConverterCard` (From/To, tap-to-open unit picker, a currency unit's "edit rate" dialog), `unit_picker_sheet.dart` (a searchable bottom sheet, mirroring `history_content.dart`'s own search), `ConverterKeypad` (built directly from `CalculatorButton`).
+- A new gallery section, "Converter", demonstrating the category tiles and a From/To card pair.
+- `~20` new `app_en.arb` strings (category labels, the sign-toggle semantic label, the unit-picker sheet, the From/To labels, the edit-rate dialog).
+- `SettingsRepository`/`PreferencesSettingsRepository`/`PreferenceKeys` gained six new members (last category, last unit pair, three currency rates) — additive; existing theme/angle-mode tests re-run unchanged to confirm no regression.
+
+### Fixed (found by the plan's independent review, before any code)
+
+- The first draft's temperature table copied `+32` from the familiar `F = C×9/5+32` formula directly into Fahrenheit's `offset` — but `offset` must be in *base-unit* (Celsius) terms for the `toBase` direction, and `+32` is `fromBase`'s constant. Corrected to `scale = 5/9`, `offset = −160/9` before any code was written, then locked in by fixed-point tests (0°C=32°F=273.15K, 100°C=212°F=373.15K, −40°C=−40°F).
+- An early `swap()` design tried to carry the previous result across as new typed text (parsing a `double` back into digits), which breaks on Dart's scientific-notation `toString()` output for very small/large values. Simplified before it shipped: `swap()` now only exchanges the units, leaving the typed text unchanged.
+
+### Notes
+
+- **Resolved, per the plan's flagged open questions:** the gallon is US (`gallonUs`, "(US)"), not imperial; currency is a real, working category (a curated USD/INR/EUR/GBP list, user-editable rate, persisted locally, never fetched) — not a smaller placeholder.
+- **Two implementation simplifications, flagged here rather than asked about first:** a single, category-independent "last used units" pair instead of one per category (mirroring `AngleModeNotifier`'s own single-piece-of-state simplicity); no separate `ConverterPreferencesNotifier` (folded into `ConverterNotifier`, since — unlike angle mode — nothing else needs to read converter preferences).
+- **Not built, by decision:** the imperial gallon, live/fetched currency rates, history integration for conversions (`HistoryEntry` has no notion of a category/unit pair).
+- **Not phone-tested this session** — the user didn't ask for it this time; worth doing next session if wanted.
+
+### Decisions
+
+- DEC-051: the affine conversion model, the gallon and currency scope decisions, and the two implementation simplifications.
+
+### Tests
+
+- `flutter analyze`: No issues found. `dart format`: clean. `flutter test`: 1252 passed, 1 skipped, 0 failed (was 645). `dart test` in `packages/calc_engine`: 387 passed (unchanged — no engine change). `flutter build apk --debug`: built (~230 s).
+- New: 5 (`conversion_category_test.dart`) + 542 (`conversion_tables_test.dart` — fixed-point temperature checks, exact integer cross-checks, per-unit and full pairwise round-trip, currency) + 18 (`number_entry_buffer_test.dart`) + 13 (`converter_notifier_test.dart`) + 14 (`converter_view_test.dart`, the whole screen: layout, 200% text, category switching, typing/result, backspace, swap, the unit-picker sheet, the temperature-only sign toggle) + 11 new in `preferences_settings_repository_test.dart` (converter persistence) + 4 new in `gallery_accessibility_test.dart` (the new "Converter" section × 4 themes) = 607 new tests.
+
+---
+
 ## 2026-09-30: Phase 5, Module 3 (the scientific keypad) — Phase 5 complete
 
 The user gave a detailed brief and asked for a written, reviewed plan before any code. The plan was drafted from three research passes, independently stress-tested (catching two real bugs before implementation), approved, then built exactly as planned. Phone-tested; this closes out Phase 5.
