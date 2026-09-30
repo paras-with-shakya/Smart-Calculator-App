@@ -8,7 +8,7 @@
 
 | Question | Answer |
 | --- | --- |
-| Where are we? | **Phases 3, 4, 5 and 6 are all complete.** Phase 6 (Converters): six physical categories plus a real working currency category, all built, tested (1252 app tests, 0 failed), `flutter analyze`/format/debug build all clean. Not phone-tested this session (not asked for). |
+| Where are we? | **Phases 3, 4, 5 and 6 are all complete.** Phase 6 (Converters): six physical categories plus a real working currency category, all built, tested (1252 app tests, 0 failed), `flutter analyze`/format/debug build all clean, and now phone-tested too — every check passed, no bugs found. |
 | What exists in code? | Everything from Phase 3–5, plus a full unit converter (ARCHITECTURE.md §1.19, DEC-051): length/weight/temperature/area/volume/time, a user-editable currency category, a category-tile picker, From/To cards with a searchable unit-picker sheet and a swap button, and a compact numeric keypad. Converter mode no longer shows the "not available yet" placeholder. |
 | What is being worked on? | Nothing. Phase 6 is built, tested, documented and committed. The next phase needs the user's explicit approval before starting. |
 | What happens next? | Report Phase 6 to the user (including the two flagged implementation simplifications and the gallon/currency scope decisions), then wait for the user to pick and approve the next phase. |
@@ -25,7 +25,7 @@
 - **The independent review pass caught the classic temperature bug before any code existed:** the first draft copied `+32` straight from `F = C×9/5+32` into Fahrenheit's `offset`, which is the *wrong* direction's constant (`fromBase`'s, not `toBase`'s). Corrected to `scale=5/9, offset=−160/9` in the plan itself, then locked in by fixed-point tests.
 - **Built exactly as planned**, with two implementation simplifications made during coding and flagged, not asked about first: a single "last used units" pair instead of one per category, and no separate `ConverterPreferencesNotifier` (folded into `ConverterNotifier`). See DEC-051.
 - **The gallon and currency scope questions are resolved**: US gallon (`gallonUs`, "(US)"); currency is a real, working category (a curated USD/INR/EUR/GBP list, user-editable rate, persisted locally, never fetched), not a smaller placeholder.
-- Engine tests: 387 in `packages/calc_engine` (unchanged). App tests: 1252 (`flutter test`, was 645), `flutter analyze` clean, formatting clean, debug APK builds. **Not phone-tested** — the user didn't ask for it this session.
+- Engine tests: 387 in `packages/calc_engine` (unchanged). App tests: 1252 (`flutter test`, was 645), `flutter analyze` clean, formatting clean, debug APK builds. **Phone-tested** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`) in a follow-up pass after the report — every check passed.
 
 **Phase 5 (Scientific): approved 2026-09-29 ("phase 5 start"). Complete as of 2026-09-30 — engine, input logic and the keypad are all built, tested and phone-tested.**
 
@@ -148,8 +148,30 @@ The user approved Phase 5 and asked for the next phase to start ("okay phase 5 a
   2. The plan specified a separate `ConverterPreferencesNotifier`, mirroring `AngleModeNotifier`/`SettingsRepository`. Persistence was folded directly into `ConverterNotifier` instead — `AngleModeNotifier` is separate mainly because *both* the settings screen and the calculator notifier need to read it; no second consumer exists here.
 - **A second design choice caught and self-corrected before shipping, not by the review pass:** an early `swap()` design tried to carry the computed result across as new typed text (an `insertRaw(double)` extension parsing a double back into digits), so swap would "continue from the result" the way the main calculator does after `=`. Dropped once it became clear this breaks on Dart's scientific-notation `toString()` output for very small/large values (`1e-10`) — `swap()` now only exchanges `fromUnitId`/`toUnitId`, leaving the typed amount's text unchanged.
 - **Full QA gate:** `flutter analyze` (no issues), `dart format` (clean; 9 files needed it, applied), `flutter test` (1252 passed, 1 skipped, 0 failed — was 645), `dart test` in `packages/calc_engine` (387, unchanged — no engine change), `flutter build apk --debug` (built, ~230 s).
-- **Not phone-tested this session** — the user didn't ask for it. Worth doing next session if wanted (the phone was used for both Phase 4 and Phase 5's Module 3, so there's precedent and a working method).
+- **Phone-tested** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`, USB, a follow-up pass after the report above): mode switching, every category, typed conversion, swap, the unit-picker sheet's search, the temperature-only sign toggle (negative conversion), the currency edit-rate dialog and its live recompute, and persistence across a force-stop/relaunch (category, units and the edited rate all survived). Every check passed — see "Test on the user's phone: the converter" below.
 - **Phase 6 is now complete. Committed as `a119f9c`.**
+
+## Test on the user's phone: the converter (2026-09-30, this session)
+
+The phone was connected by USB at the user's request ("ek bar phone testing kro"), after Phase 6 was already built, tested and committed.
+
+- **Device:** `4DEEEUKF6HNFHEIJ`, model `23124RN87I`, Android, 720×1600 px. **Method:** `adb install -r` (the debug build from the QA gate, unchanged since), `adb shell input tap`/`swipe`/`text`, `screencap`.
+
+| Check | Result |
+| --- | --- |
+| Switching to Converter mode | Shows the new screen (category tiles, From/To cards, swap, keypad), not the old placeholder |
+| Typing `80` (Length, m→km) | From shows `80 m`, To live-updates to `0.08 km` |
+| Swap | Units exchange (From becomes `km`, To becomes `m`); the typed `80` stays as-is; To recomputes to `80,000 m` |
+| Unit-picker sheet | Opens from tapping a card; search `mile` filters the 8-unit list down to just `mile`; picking it updates the From unit and recomputes: `80 mile` → `1,28,747.52 m` (Indian grouping, matching the device's region) |
+| Switching to Temperature | Resets to fresh `°C`/`°F`; the ± key changes from disabled to enabled |
+| `−44` (±, then `4` `4`) | From shows `−44 °C`, To shows `−47.2 °F` — matches `−44×9/5+32` exactly |
+| Switching to Currency | Resets to fresh `USD`/`INR`; the ± key is disabled again; an edit (pencil) icon appears next to INR, not next to USD |
+| `1` USD | To shows the starting example rate, `83 INR` |
+| Tapping the edit icon, changing the rate to `90`, Save | The dialog's field is pre-filled with the current rate (`83`); after saving, `1 USD` immediately recomputes to `90 INR` |
+| Force-stop and relaunch | The app reopens in Basic mode (the current *mode* isn't persisted app-wide — Known Issues #8, pre-existing, unrelated to this phase); switching back to Converter shows **Currency still selected**, `USD`/`INR` still selected, and typing `1` again shows `90 INR` — the edited rate survived the restart |
+
+- **Found and fixed during this pass:** none — every check passed on the first try.
+- **Phone settings:** rotation was not touched this pass (no landscape testing done); `accelerometer_rotation`/`user_rotation` were `0`/`0` both before and after. All screenshots taken during the test were deleted from the phone afterward.
 
 ## Phase Status
 
@@ -162,7 +184,7 @@ The user approved Phase 5 and asked for the next phase to start ("okay phase 5 a
 | 3 | Basic calculator (engine, memory) | **Complete and audited** (commits `4fec0b6`, `57a1e73`, `85c6c84`; audit `453af28`) |
 | 4 | History and saved calculations | **Complete.** History (`1604248`) and saved calculations (`f02b23a`) both committed, phone-tested. |
 | 5 | Scientific | **Complete and phone-tested.** Module 1 (engine) `ef7b0ba`, Module 2 (input logic, DEC-048/049) `856d175`/`d42fa5f`, Module 3 (keypad, DEC-050) `8096bb4`. |
-| 6 | Converters | **Complete, committed `a119f9c`.** Plan (DEC-051) independently reviewed before code; six physical categories plus currency built, tested (1252 app tests). Not phone-tested this session. |
+| 6 | Converters | **Complete, committed `a119f9c`, phone-tested.** Plan (DEC-051) independently reviewed before code; six physical categories plus currency built, tested (1252 app tests), every on-device check passed. |
 | 7 | Financial | Not started |
 | 8 | Date calculator | Not started |
 | 9 | Programmer calculator | Not started |
@@ -341,18 +363,18 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.19; decision DEC-051 (the full p
 
 - Planned first (independently reviewed before any code, catching the classic temperature offset-sign bug), then built exactly as planned: `lib/features/converter/{domain,application,presentation}/`, `app_shell.dart` wiring, a new gallery section, six new `SettingsRepository` members.
 - 607 new tests (domain: `ConversionUnit`/`ConversionCategory`, the six physical categories' fixed-point/exact-integer/round-trip checks and `currencyCategory`, `NumberEntryBuffer`; application: `ConverterNotifier`; presentation: the whole screen end to end; settings: converter persistence; gallery: the new "Converter" section × 4 themes). 1252 app tests (was 645), 387 engine tests (unchanged).
-- **Not phone-tested this session** — not asked for.
+- **Phone-tested** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`, USB, a follow-up pass after the QA gate): every category, typing and live conversion, swap, the unit-picker sheet's search, the temperature sign toggle, the currency edit-rate dialog, and persistence across a restart. Every check passed. See "Test on the user's phone: the converter" above.
 
 ## Work In Progress
 
-None to hand off mid-task. Phases 5 and 6 are both complete: Phase 5 (Module 1 `ef7b0ba`, Module 2 `856d175`/`d42fa5f`, Module 3 `8096bb4`) all built, tested, phone-tested and committed; Phase 6 (Converters, DEC-051, `a119f9c`) built, tested, documented and committed.
+None to hand off mid-task. Phases 5 and 6 are both complete and phone-tested: Phase 5 (Module 1 `ef7b0ba`, Module 2 `856d175`/`d42fa5f`, Module 3 `8096bb4`) all built, tested, phone-tested and committed; Phase 6 (Converters, DEC-051, `a119f9c`) built, tested, documented, committed and now phone-tested too.
 
 ## Current Task
 
-None. Phase 6 is finished, tested, documented and committed (`a119f9c`). The next phase needs the user's explicit choice and approval before starting — nothing should be assumed or started ahead of that.
+None. Phase 6 is finished, tested, phone-tested, documented and committed (`a119f9c`). The next phase needs the user's explicit choice and approval before starting — nothing should be assumed or started ahead of that.
 
-- **Screenshots:** none via the design-review generator this session — the new "Converter" gallery section is automatically covered by the existing generator loop (`test/design_review/design_review_screenshots_test.dart` iterates `GallerySection.values`) whenever it's next run, but it wasn't run this session.
-- **On the phone:** unchanged from the end of the Phase 5 Module 3 session — the debug build with the scientific keypad is still what's installed (`23124RN87I`); Phase 6 wasn't installed or tested on it this session.
+- **Screenshots:** none via the design-review generator this session — the new "Converter" gallery section is automatically covered by the existing generator loop (`test/design_review/design_review_screenshots_test.dart` iterates `GallerySection.values`) whenever it's next run, but it wasn't run this session (the phone test served as the visual review instead).
+- **On the phone:** the debug build with the converter is now installed (`4DEEEUKF6HNFHEIJ`/`23124RN87I`); rotation is unchanged (`0`/`0`); the app was left on the Converter screen, Currency category, `1 USD` typed, showing `90 INR` (the rate edited during testing).
 
 ## Next Task
 
@@ -484,8 +506,9 @@ None. Phase 6 is finished, tested, documented and committed (`a119f9c`). The nex
 | `flutter test` (whole suite) | `+1252 ~1: All tests passed!` (1252 passed, 1 skipped — the design-review generator; 0 failed; was 645) |
 | `dart test` in `packages/calc_engine` | `+387: All tests passed!` (unchanged; Phase 6 made no engine change) |
 | `flutter build apk --debug` | **Built** (Gradle `assembleDebug`, ~230 s) |
+| On the user's phone (`4DEEEUKF6HNFHEIJ`/`23124RN87I`, USB, a follow-up pass requested after the report) | See "Test on the user's phone: the converter" above. Every check passed. |
 
-Not run this session: the release build, the design-review screenshots, a phone test (not asked for this session).
+Not run this session: the release build, the design-review screenshots.
 
 **Earlier, run in the Phase 5 Module 3 session (2026-09-30), in `smart_calculator/`:**
 
@@ -649,7 +672,7 @@ None. Phase 6 is built, tested and documented; it just needs a local commit (see
 
 ## Last Session Summary
 
-**2026-09-30, Phase 6 session (Converters — plan, build, test; not phone-tested).**
+**2026-09-30, Phase 6 session (Converters — plan, build, test, phone test).**
 
 1. The user approved Phase 5 and asked for the next phase to start ("okay phase 5 approve and next phase start"), with no detailed brief this time. `ROADMAP.md`'s Phase 6 scope left two things explicitly open: US or imperial gallon, and how far the currency design should go.
 2. **Wrote and independently reviewed a plan before any code**, matching the practice DEC-050 established. The review pass caught the classic temperature-conversion bug before it ever ran once: the first draft's Fahrenheit `offset` was copied from the wrong direction's formula constant (`+32` from `fromBase`, not the `toBase`-direction `−160/9` the code actually needed). Fixed in the plan itself, then locked in by fixed-point tests.
@@ -658,8 +681,8 @@ None. Phase 6 is built, tested and documented; it just needs a local commit (see
 5. **Two implementation simplifications made during coding, flagged rather than asked about first:** a single "last used units" pair instead of one per category; no separate `ConverterPreferencesNotifier` (folded into `ConverterNotifier`, since nothing else needs to read converter preferences the way angle mode does).
 6. **A design choice self-corrected before shipping:** an early `swap()` draft tried to re-type the previous result as new typed text, which breaks on Dart's scientific-notation `toString()` for very small/large values. Simplified to just exchange the units, leaving the typed text unchanged.
 7. Full QA gate clean: `flutter analyze`, `dart format` (9 files needed it, applied), `flutter test` (1252 passed, was 645), `dart test` in `packages/calc_engine` (387, unchanged), `flutter build apk --debug` (~230 s).
-8. **Not phone-tested this session** — not asked for.
-9. **Docs:** this file, ARCHITECTURE.md (§1.19, provider table, test counts), DECISIONS.md (DEC-051), ROADMAP.md (Phase 6 moved to Completed), CHANGELOG.md updated. **Committed as `a119f9c`.**
+8. **Docs written and committed** (`a119f9c`, then `ae2781e` recording the hash): this file, ARCHITECTURE.md (§1.19, provider table, test counts), DECISIONS.md (DEC-051), ROADMAP.md (Phase 6 moved to Completed), CHANGELOG.md, CLAUDE.md's snapshot.
+9. **The user then asked for a phone test** ("ek bar phone testing kro"). Installed the already-built debug APK on `4DEEEUKF6HNFHEIJ`/`23124RN87I` and checked every category, typing/live conversion, swap, the unit-picker sheet's search, the temperature-only sign toggle (a real negative conversion, `−44°C=−47.2°F`), the currency edit-rate dialog and its live recompute, and persistence across a force-stop/relaunch (category, units and the edited rate all survived). Every check passed on the first try — no bugs found. See "Test on the user's phone: the converter" above.
 10. **Phase 6 is now complete.** The next phase needs the user's explicit choice and approval before starting.
 
 **2026-09-30, Phase 5 session 4 (Module 3, the scientific keypad — plan, build, phone test).**

@@ -21,7 +21,7 @@ When one date has more than one entry, each heading names its session.
 
 ## 2026-09-30: Phase 6 (Converters) — Phase 6 complete
 
-The user approved Phase 5 and asked for the next phase to start, with no detailed brief this time. A plan was written and independently reviewed before any code (this project's now-standard practice for a non-trivial feature) — the review pass caught the classic temperature offset-sign bug before it ever ran once. Built exactly as planned, plus two flagged implementation simplifications; not phone-tested this session.
+The user approved Phase 5 and asked for the next phase to start, with no detailed brief this time. A plan was written and independently reviewed before any code (this project's now-standard practice for a non-trivial feature) — the review pass caught the classic temperature offset-sign bug before it ever ran once. Built exactly as planned, plus two flagged implementation simplifications; phone-tested in a follow-up pass after the report.
 
 ### Added
 
@@ -43,7 +43,7 @@ The user approved Phase 5 and asked for the next phase to start, with no detaile
 - **Resolved, per the plan's flagged open questions:** the gallon is US (`gallonUs`, "(US)"), not imperial; currency is a real, working category (a curated USD/INR/EUR/GBP list, user-editable rate, persisted locally, never fetched) — not a smaller placeholder.
 - **Two implementation simplifications, flagged here rather than asked about first:** a single, category-independent "last used units" pair instead of one per category (mirroring `AngleModeNotifier`'s own single-piece-of-state simplicity); no separate `ConverterPreferencesNotifier` (folded into `ConverterNotifier`, since — unlike angle mode — nothing else needs to read converter preferences).
 - **Not built, by decision:** the imperial gallon, live/fetched currency rates, history integration for conversions (`HistoryEntry` has no notion of a category/unit pair).
-- **Not phone-tested this session** — the user didn't ask for it this time; worth doing next session if wanted.
+- **Phone-tested** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`, USB, requested right after the completion report): every category, typed conversion and live recompute, swap (units exchange, typed text unchanged), the unit-picker sheet's search, the temperature-only sign toggle (a real negative conversion, `−44°C=−47.2°F`), the currency edit-rate dialog and its live recompute, and persistence across a force-stop/relaunch (category, units and the edited rate all survived). Every check passed, no bugs found.
 
 ### Decisions
 
