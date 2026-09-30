@@ -2,7 +2,7 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-09-30, end of Phase 5, Module 3 (the scientific keypad: planned, approved, built, tested, phone-tested; not yet committed — see "Next Task"). **Phase 5 (Scientific) is complete.**
+**Last updated:** 2026-09-30, end of Phase 5, Module 3 (the scientific keypad: planned, approved, built, tested, phone-tested, committed `8096bb4`). **Phase 5 (Scientific) is complete.**
 
 ## At a Glance
 
@@ -12,7 +12,7 @@
 | What exists in code? | Everything from Phase 3–4, plus the full scientific engine (ARCHITECTURE.md §1.12, DEC-047), the input logic (§1.13, DEC-048/049), and now a working scientific keypad screen: a grouped, scrollable function tray, a DEG/RAD toggle and a 2nd/inverse toggle, in both portrait and landscape (§1.13, DEC-050). Scientific mode no longer shows the "not available yet" placeholder. |
 | What is being worked on? | Nothing. Phase 5 is done and reported; the next phase (6, Converters, or whichever the user picks) needs their explicit approval before starting. |
 | What happens next? | The user reviews Phase 5's Module 3 (and the phone test), then picks and approves the next phase. |
-| Git? | `ef7b0ba`, `0e4dba9`, `856d175` and `d42fa5f`/`19f666a` are committed. **Module 3 (the keypad) is not committed yet** — nothing blocks that, see "Next Task". |
+| Git? | `ef7b0ba`, `0e4dba9`, `856d175`, `d42fa5f`, `19f666a` and `8096bb4` (Module 3) are all committed. **Claude never pushes; the user pushes themselves.** |
 | What must not be repeated? | See "Do NOT Repeat" |
 | Known issues? | See "Known Issues". #13 (the stray scaffold) is **resolved**. **New (#16):** a pre-existing Basic-calculator bug found while testing Module 3 — `CalculatorMemoryKeys` narrows below 48 dp in landscape at 200% text. Not fixed (not Module 3's to fix); reported. |
 | Pending decisions? | P-5, P-7, P-9, P-10 (all long-standing, unrelated to Phase 5). Phase 5's own questions (P-6, the Module 2 audit, the keypad design) are **all resolved** — see "Pending Decisions" for the full history. |
@@ -112,7 +112,7 @@ The user approved the five P-6 defaults exactly as DEC-047 documented them, and 
 - **Not phone-tested:** still no scientific key on screen (Module 3).
 - **Module 3 not started, as instructed.**
 
-## Phase 5: Module 3, the scientific keypad (2026-09-30, this session, not yet committed)
+## Phase 5: Module 3, the scientific keypad (2026-09-30, committed `8096bb4`)
 
 The user approved all five P-6 defaults by name (see "Current Phase") and asked for a detailed, written Module 3 plan — covering the phone/landscape layout, DEG/RAD placement, the 2nd/inverse interaction model, reusable components, the exact engine-function-to-key mapping, accessibility, and a test plan — with an explicit instruction not to write code until the plan was approved.
 
@@ -137,7 +137,7 @@ The user approved all five P-6 defaults by name (see "Current Phase") and asked 
 | 2 | Design system | Completed 2026-09-28 (commit `0fc15ef`; device fix `950493b`); design approved by the user |
 | 3 | Basic calculator (engine, memory) | **Complete and audited** (commits `4fec0b6`, `57a1e73`, `85c6c84`; audit `453af28`) |
 | 4 | History and saved calculations | **Complete.** History (`1604248`) and saved calculations (`f02b23a`) both committed, phone-tested. |
-| 5 | Scientific | **Complete and phone-tested.** Module 1 (engine) `ef7b0ba`, Module 2 (input logic, DEC-048/049) `856d175`/`d42fa5f`, Module 3 (keypad, DEC-050) built 2026-09-30, not yet committed. |
+| 5 | Scientific | **Complete and phone-tested.** Module 1 (engine) `ef7b0ba`, Module 2 (input logic, DEC-048/049) `856d175`/`d42fa5f`, Module 3 (keypad, DEC-050) `8096bb4`. |
 | 6 | Converters | Not started |
 | 7 | Financial | Not started |
 | 8 | Date calculator | Not started |
@@ -283,7 +283,7 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.13; decision DEC-048. Built and 
 - 592 app tests (127 new), 387 engine tests (10 new). Analyze, format, debug build clean.
 - Audited and one real bug fixed by this session — see "Phase 5: Module 2 final audit" above.
 
-### Phase 5: Scientific keypad, Module 3 (2026-09-30, this session, not yet committed)
+### Phase 5: Scientific keypad, Module 3 (2026-09-30, committed `8096bb4`)
 
 Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.13; decision DEC-050 (the full plan, its independent review, and what was built). See "Phase 5: Module 3, the scientific keypad" above for the full narrative.
 
@@ -313,7 +313,7 @@ The phone was connected by USB at the user's request, immediately after Module 3
 
 ## Work In Progress
 
-None to hand off mid-task. Phase 5 is complete: Module 1 (engine, `ef7b0ba`), Module 2 (input logic, `856d175`, audited and fixed, `d42fa5f`) and Module 3 (the keypad) are all built, tested and phone-tested. **Module 3 itself is not committed yet** — nothing blocks that, see "Next Task".
+None to hand off mid-task. Phase 5 is complete: Module 1 (engine, `ef7b0ba`), Module 2 (input logic, `856d175`, audited and fixed, `d42fa5f`) and Module 3 (the keypad, `8096bb4`) are all built, tested, phone-tested and committed.
 
 ## Current Task
 
@@ -324,9 +324,8 @@ None. Phase 5 is finished and reported. The next phase needs the user's explicit
 
 ## Next Task
 
-1. **Commit Module 3.** Nothing blocks this.
-2. **Report Phase 5 complete to the user**, including the pre-existing Basic touch-target bug found (Known Issues #16) and ask whether they want it fixed now or left for a later pass.
-3. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 6 Converters, Phase 7 Financial, Phase 8 Date, Phase 9 Programmer, Phase 10 Settings — in that planned order, but the user may choose differently). Don't start any of them without that explicit approval, per the phase gate (CLAUDE.md rule 9).
+1. **Report Phase 5 complete to the user**, including the pre-existing Basic touch-target bug found (Known Issues #16), and ask whether they want it fixed now or left for a later pass.
+2. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 6 Converters, Phase 7 Financial, Phase 8 Date, Phase 9 Programmer, Phase 10 Settings — in that planned order, but the user may choose differently). Don't start any of them without that explicit approval, per the phase gate (CLAUDE.md rule 9).
 
 ## Do NOT Repeat
 
@@ -687,7 +686,7 @@ None. Phase 5 (all three modules) is complete, audited and phone-tested. The nex
 ## Instructions For Next Session
 
 1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md). **Reply to the user in Hinglish** (CLAUDE.md rule 13).
-2. **If Module 3 (the scientific keypad) still isn't committed** (`git status -s` shows `lib/features/calculator/presentation/scientific_*.dart` etc. as untracked/uncommitted), commit it — nothing blocks that.
+2. **All of Phase 5 is committed, including Module 3** (`8096bb4`). Confirm with `git log --oneline -8` if in doubt.
 3. **Phase 5 is complete — all three modules.** Don't redo the engine, the input logic or the keypad. If the user wants a specific default, mapping or layout choice changed, it's a targeted edit (see DEC-047/048/049/050 for exactly what to touch), not a rebuild.
 4. **Don't start Phase 6 (or any other phase) without the user's explicit choice and approval** — ROADMAP.md lists Phase 6 (Converters) next in the planned order, but the user may pick differently. Ask, don't assume.
 5. **A pre-existing Basic bug is now known but not fixed:** `CalculatorMemoryKeys` narrows below 48 dp in landscape at 200% text (Known Issues #16). It's Basic's widget, not the next phase's to fix unless the user asks for it specifically.
