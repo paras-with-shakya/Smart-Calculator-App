@@ -2,7 +2,7 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-09-30, end of Phase 6 (Converters: planned, independently reviewed, built, tested, not yet committed). **Phases 5 and 6 are both complete.**
+**Last updated:** 2026-09-30, end of Phase 6 (Converters: planned, independently reviewed, built, tested, committed `a119f9c`). **Phases 5 and 6 are both complete.**
 
 ## At a Glance
 
@@ -10,9 +10,9 @@
 | --- | --- |
 | Where are we? | **Phases 3, 4, 5 and 6 are all complete.** Phase 6 (Converters): six physical categories plus a real working currency category, all built, tested (1252 app tests, 0 failed), `flutter analyze`/format/debug build all clean. Not phone-tested this session (not asked for). |
 | What exists in code? | Everything from Phase 3–5, plus a full unit converter (ARCHITECTURE.md §1.19, DEC-051): length/weight/temperature/area/volume/time, a user-editable currency category, a category-tile picker, From/To cards with a searchable unit-picker sheet and a swap button, and a compact numeric keypad. Converter mode no longer shows the "not available yet" placeholder. |
-| What is being worked on? | Nothing. Phase 6 is built, tested and documented; not yet committed (see "Next Task"). The next phase needs the user's explicit approval before starting. |
-| What happens next? | Report Phase 6 to the user (including the two flagged implementation simplifications and the gallon/currency scope decisions), commit locally, then wait for the user to pick and approve the next phase. |
-| Git? | Phase 5 (`ef7b0ba` … `8096bb4`, see below) is all committed. **Phase 6 is not committed yet.** **Claude never pushes; the user pushes themselves.** |
+| What is being worked on? | Nothing. Phase 6 is built, tested, documented and committed. The next phase needs the user's explicit approval before starting. |
+| What happens next? | Report Phase 6 to the user (including the two flagged implementation simplifications and the gallon/currency scope decisions), then wait for the user to pick and approve the next phase. |
+| Git? | Phase 5 (`ef7b0ba` … `8096bb4`) and Phase 6 (`a119f9c`) are all committed. **Claude never pushes; the user pushes themselves.** |
 | What must not be repeated? | See "Do NOT Repeat" |
 | Known issues? | See "Known Issues". Nothing new found in Phase 6. #16 (Basic's memory-key touch-target gap, found during Phase 5) is still open, still not this phase's to fix. |
 | Pending decisions? | P-5, P-7, P-9, P-10 (all long-standing, unrelated to Phases 5–6). Phase 6's own open questions (the gallon, currency's scope) are **resolved** — see DEC-051 and "Pending Decisions." |
@@ -135,7 +135,7 @@ The user approved all five P-6 defaults by name (see "Current Phase") and asked 
 - **Full QA gate:** `flutter analyze` (no issues), `dart format` (clean), `flutter test` (645 passed, 1 skipped, 0 failed — was 596), `dart test` in `packages/calc_engine` (387, unchanged — no engine or buffer-grammar change), `flutter build apk --debug` (built, ~125 s).
 - **Phase 5 is now complete.** Committed as `8096bb4` (plus a doc-hash follow-up, `0a95ebb`).
 
-## Phase 6: Converters (2026-09-30, this session, not yet committed)
+## Phase 6: Converters (2026-09-30, committed `a119f9c`)
 
 The user approved Phase 5 and asked for the next phase to start ("okay phase 5 approve and next phase start"), with no detailed brief this time — unlike Module 3's. `ROADMAP.md`'s Phase 6 scope left two things explicitly open: US or imperial gallon, and how far the currency design should go. Full detail and reasoning: DEC-051.
 
@@ -149,7 +149,7 @@ The user approved Phase 5 and asked for the next phase to start ("okay phase 5 a
 - **A second design choice caught and self-corrected before shipping, not by the review pass:** an early `swap()` design tried to carry the computed result across as new typed text (an `insertRaw(double)` extension parsing a double back into digits), so swap would "continue from the result" the way the main calculator does after `=`. Dropped once it became clear this breaks on Dart's scientific-notation `toString()` output for very small/large values (`1e-10`) — `swap()` now only exchanges `fromUnitId`/`toUnitId`, leaving the typed amount's text unchanged.
 - **Full QA gate:** `flutter analyze` (no issues), `dart format` (clean; 9 files needed it, applied), `flutter test` (1252 passed, 1 skipped, 0 failed — was 645), `dart test` in `packages/calc_engine` (387, unchanged — no engine change), `flutter build apk --debug` (built, ~230 s).
 - **Not phone-tested this session** — the user didn't ask for it. Worth doing next session if wanted (the phone was used for both Phase 4 and Phase 5's Module 3, so there's precedent and a working method).
-- **Phase 6 is now complete. Not committed yet** — see "Next Task".
+- **Phase 6 is now complete. Committed as `a119f9c`.**
 
 ## Phase Status
 
@@ -162,7 +162,7 @@ The user approved Phase 5 and asked for the next phase to start ("okay phase 5 a
 | 3 | Basic calculator (engine, memory) | **Complete and audited** (commits `4fec0b6`, `57a1e73`, `85c6c84`; audit `453af28`) |
 | 4 | History and saved calculations | **Complete.** History (`1604248`) and saved calculations (`f02b23a`) both committed, phone-tested. |
 | 5 | Scientific | **Complete and phone-tested.** Module 1 (engine) `ef7b0ba`, Module 2 (input logic, DEC-048/049) `856d175`/`d42fa5f`, Module 3 (keypad, DEC-050) `8096bb4`. |
-| 6 | Converters | **Complete, not yet committed.** Plan (DEC-051) independently reviewed before code; six physical categories plus currency built, tested (1252 app tests). Not phone-tested this session. |
+| 6 | Converters | **Complete, committed `a119f9c`.** Plan (DEC-051) independently reviewed before code; six physical categories plus currency built, tested (1252 app tests). Not phone-tested this session. |
 | 7 | Financial | Not started |
 | 8 | Date calculator | Not started |
 | 9 | Programmer calculator | Not started |
@@ -335,7 +335,7 @@ The phone was connected by USB at the user's request, immediately after Module 3
 - **Found and fixed during this pass:** none (all issues were caught by the automated test suite beforehand, not the phone test itself).
 - **Phone settings:** rotation was changed to test landscape (`user_rotation=1`) and restored afterward (`user_rotation=0`, `accelerometer_rotation=0`, matching the state found at the start). Screenshots and `uiautomator` dumps taken during the test were deleted from the phone afterward.
 
-### Phase 6: Converters, built and tested (2026-09-30, this session, not yet committed)
+### Phase 6: Converters, built and tested (2026-09-30, committed `a119f9c`)
 
 Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.19; decision DEC-051 (the full plan, its independent review, the gallon/currency scope decisions, and the two implementation simplifications). See "Phase 6: Converters" above for the full narrative.
 
@@ -345,21 +345,19 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.19; decision DEC-051 (the full p
 
 ## Work In Progress
 
-None to hand off mid-task. Phases 5 and 6 are both complete: Phase 5 (Module 1 `ef7b0ba`, Module 2 `856d175`/`d42fa5f`, Module 3 `8096bb4`) all built, tested, phone-tested and committed; Phase 6 (Converters, DEC-051) built, tested and documented, **not yet committed**.
+None to hand off mid-task. Phases 5 and 6 are both complete: Phase 5 (Module 1 `ef7b0ba`, Module 2 `856d175`/`d42fa5f`, Module 3 `8096bb4`) all built, tested, phone-tested and committed; Phase 6 (Converters, DEC-051, `a119f9c`) built, tested, documented and committed.
 
 ## Current Task
 
-None. Phase 6 is finished and reported. The next phase needs the user's explicit choice and approval before starting — nothing should be assumed or started ahead of that.
+None. Phase 6 is finished, tested, documented and committed (`a119f9c`). The next phase needs the user's explicit choice and approval before starting — nothing should be assumed or started ahead of that.
 
 - **Screenshots:** none via the design-review generator this session — the new "Converter" gallery section is automatically covered by the existing generator loop (`test/design_review/design_review_screenshots_test.dart` iterates `GallerySection.values`) whenever it's next run, but it wasn't run this session.
 - **On the phone:** unchanged from the end of the Phase 5 Module 3 session — the debug build with the scientific keypad is still what's installed (`23124RN87I`); Phase 6 wasn't installed or tested on it this session.
-- **Not committed:** every Phase 6 file is new/modified in the working tree, untracked/uncommitted. See "Next Task".
 
 ## Next Task
 
 1. **Report Phase 6 complete to the user**, explicitly flagging: the gallon and currency scope decisions as implemented (DEC-051); the two implementation simplifications (a single last-used-units pair instead of one per category; no separate `ConverterPreferencesNotifier`); that it wasn't phone-tested this session.
-2. **Commit Phase 6 locally** (never push — the user pushes themselves).
-3. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 7 Financial, Phase 8 Date, Phase 9 Programmer, Phase 10 Settings — in that planned order, but the user may choose differently). Don't start any of them without that explicit approval, per the phase gate (CLAUDE.md rule 9).
+2. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 7 Financial, Phase 8 Date, Phase 9 Programmer, Phase 10 Settings — in that planned order, but the user may choose differently). Don't start any of them without that explicit approval, per the phase gate (CLAUDE.md rule 9).
 
 ## Do NOT Repeat
 
@@ -661,7 +659,7 @@ None. Phase 6 is built, tested and documented; it just needs a local commit (see
 6. **A design choice self-corrected before shipping:** an early `swap()` draft tried to re-type the previous result as new typed text, which breaks on Dart's scientific-notation `toString()` for very small/large values. Simplified to just exchange the units, leaving the typed text unchanged.
 7. Full QA gate clean: `flutter analyze`, `dart format` (9 files needed it, applied), `flutter test` (1252 passed, was 645), `dart test` in `packages/calc_engine` (387, unchanged), `flutter build apk --debug` (~230 s).
 8. **Not phone-tested this session** — not asked for.
-9. **Docs:** this file, ARCHITECTURE.md (§1.19, provider table, test counts), DECISIONS.md (DEC-051), ROADMAP.md (Phase 6 moved to Completed), CHANGELOG.md updated. **Not committed yet** — see "Next Task".
+9. **Docs:** this file, ARCHITECTURE.md (§1.19, provider table, test counts), DECISIONS.md (DEC-051), ROADMAP.md (Phase 6 moved to Completed), CHANGELOG.md updated. **Committed as `a119f9c`.**
 10. **Phase 6 is now complete.** The next phase needs the user's explicit choice and approval before starting.
 
 **2026-09-30, Phase 5 session 4 (Module 3, the scientific keypad — plan, build, phone test).**
@@ -760,7 +758,7 @@ None. Phase 6 is built, tested and documented; it just needs a local commit (see
 ## Instructions For Next Session
 
 1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md). **Reply to the user in Hinglish** (CLAUDE.md rule 13).
-2. **Phase 6 is NOT committed yet.** Commit it first (see "Next Task") before doing anything else, unless the user says otherwise. Confirm with `git status`/`git log --oneline -8` if in doubt.
+2. **All of Phase 6 is committed** (`a119f9c`). Confirm with `git log --oneline -8` if in doubt.
 3. **Phases 5 and 6 are both complete.** Don't redo the engine, the input logic, the keypad or the converter. If the user wants a specific default, mapping or scope choice changed, it's a targeted edit (see DEC-047/048/049/050/051 for exactly what to touch), not a rebuild.
 4. **Don't start Phase 7 (or any other phase) without the user's explicit choice and approval** — ROADMAP.md lists Phase 7 (Financial) next in the planned order, but the user may pick differently. Ask, don't assume.
 5. **A pre-existing Basic bug is still known but not fixed:** `CalculatorMemoryKeys` narrows below 48 dp in landscape at 200% text (Known Issues #16). It's Basic's widget, not any later phase's to fix unless the user asks for it specifically.
