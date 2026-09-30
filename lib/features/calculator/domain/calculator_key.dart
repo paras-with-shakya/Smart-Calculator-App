@@ -121,7 +121,19 @@ enum CalculatorKey {
   cbrt(CalcFunction.cbrt),
 
   /// `abs(`
-  abs(CalcFunction.abs);
+  abs(CalcFunction.abs),
+
+  /// `x²`: `^2`, applied to whatever operand precedes the cursor.
+  square,
+
+  /// `x³`: `^3`, applied to whatever operand precedes the cursor.
+  cube,
+
+  /// `10ˣ`: `10^`, ready for the exponent.
+  powerOfTen,
+
+  /// `eˣ`: `e^`, ready for the exponent.
+  powerOfE;
 
   const CalculatorKey([this.function]);
 

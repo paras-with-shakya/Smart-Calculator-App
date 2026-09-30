@@ -173,7 +173,7 @@ All tokens live in `lib/app/theme/`. Components and screens read them from the t
 ### 1.9 Component gallery and design review (Phase 2)
 
 - **Gallery:** `lib/main_gallery.dart` (`flutter run -t lib/main_gallery.dart`) shows every token and component. Switches toggle light/dark, high contrast and text size (100%, 150%, 200%). It is a separate entry point, so `main.dart` never includes it in app builds. The gallery's demo copy is not localized (it is a developer tool).
-- **Accessibility checks:** `test/gallery/gallery_accessibility_test.dart` runs Flutter's `textContrastGuideline`, `androidTapTargetGuideline` and `labeledTapTargetGuideline` over every gallery section in all four themes (40 tests).
+- **Accessibility checks:** `test/gallery/gallery_accessibility_test.dart` runs Flutter's `textContrastGuideline`, `androidTapTargetGuideline` and `labeledTapTargetGuideline` over every gallery section in all four themes (44 tests, 11 sections × 4 themes since DEC-050 added "Scientific keys").
 - **Screenshots:** `test/design_review/design_review_screenshots_test.dart` (tag `design-review`, skipped by default through `dart_test.yaml`) renders 50 PNGs with the real fonts into `build/design_review/`:
   - every section, in light and dark
   - some sections at 200% text and in high contrast
@@ -246,7 +246,9 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
   - `CalculatorDisplayFormatter`: turns units into display text in the region's format. It keeps a map from cursor positions to text offsets (for the caret and taps), brackets negative values after the start, puts a zero-width space after binary operators as the only line-break points, and builds the spoken text for screen readers.
 - **Number format** (`lib/core/formatting/`, DEC-037): `LocalizedNumberFormat` reads the decimal separator, group separator and grouping sizes from `intl`'s data for the device locale (falling back to the language, then English). It formats locale-neutral number text: `formatTyped` (as typed, so `5.` keeps its point), `formatTypedWithOffsets`, `formatCanonical` (`−` and `×10ⁿ` superscripts), and `toPlainInput` for paste. `en_IN` groups as 12,34,567.
 
-**Scientific input (Phase 5, Module 2, DEC-048; audited and fixed, DEC-049).** `ExpressionBuffer` also holds `^`, `!`, `π`, `e` and function openers (`sin(`, `sqrt(` …, one unit each, treated as open brackets), with `insertFactorial`, `insertConstant` and `insertFunction`; `CalculatorKey` has the matching keys (`CalculatorKey.function` names the `CalcFunction`). `CalculatorNotifier` reads `angleModeProvider` (`lib/features/settings/`, saved as `settings.angle_mode`) for every evaluation and listens to it, recomputing the live value/error when the mode changes. The formatter shows `√(`/`∛(` and speaks every new symbol. `backspace()` also removes a `×` left with no operand before it (an orphan a constant/function/value can leave behind when deleted), via `_withoutOrphanedTimes()` and a shared `_unitEndsOperand` helper — applies to inserted values too, not just scientific units. There are no scientific keys on screen yet (Module 3).
+**Scientific input (Phase 5, Module 2, DEC-048; audited and fixed, DEC-049).** `ExpressionBuffer` also holds `^`, `!`, `π`, `e` and function openers (`sin(`, `sqrt(` …, one unit each, treated as open brackets), with `insertFactorial`, `insertConstant` and `insertFunction`; `CalculatorKey` has the matching keys (`CalculatorKey.function` names the `CalcFunction`). `CalculatorNotifier` reads `angleModeProvider` (`lib/features/settings/`, saved as `settings.angle_mode`) for every evaluation and listens to it, recomputing the live value/error when the mode changes. The formatter shows `√(`/`∛(` and speaks every new symbol. `backspace()` also removes a `×` left with no operand before it (an orphan a constant/function/value can leave behind when deleted), via `_withoutOrphanedTimes()` and a shared `_unitEndsOperand` helper — applies to inserted values too, not just scientific units. `ExpressionBuffer` also has three composite inserts for keys with no direct engine node: `insertPowerOf(digit)` (x²/x³, refused with no operand before the cursor), `insertPowerOfTen()`/`insertPowerOfE()` (10ˣ/eˣ, refused when an operand already starts right after the cursor) — see DEC-050.
+
+**The scientific keypad (Phase 5, Module 3, DEC-050).** `ScientificCalculatorView` (`lib/features/calculator/presentation/`) is what `app_shell.dart` shows for `CalculatorMode.scientific` (previously `EmptyState`); it reuses `CalculatorDisplay`/`CalculatorMemoryKeys`/`CalculatorKeypad` exactly as Basic does, adding a DEG/RAD + 2nd toggle row and `ScientificFunctionTray` above the memory row (portrait), or stacked into Basic's existing display column (landscape — the keypad column is untouched). `CalculatorKey` gained `square`, `cube`, `powerOfTen`, `powerOfE` for the four composite keys. `lib/features/calculator/domain/scientific_keys.dart` is a pure-data table (`scientificKeyGroups`) of five key groups and the seven engine-backed 2nd/inverse pairs (sin↔asin, cos↔acos, tan↔atan, sqrt↔square, cbrt↔cube, log↔powerOfTen, ln↔powerOfE); keys with no engine-backed inverse (sinh, cosh, tanh, abs, `!`, π, e) are unaffected by 2nd. `CalculatorButton` gained an optional `selected` parameter (default `false`), toned with `AppColors.primary`/`onPrimary`, for the 2nd key's toggled-on state. 2nd's own on/off state is ephemeral widget state, not persisted.
 
 ### 1.14 Platforms
 
@@ -256,14 +258,16 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | iOS | Bundle ID `com.parasshakya.smartcalculator` (tests: `.RunnerTests`), `CFBundleName` and `CFBundleDisplayName` "Smart Calculator" | Can't be built on Windows (P-5) |
 | web, Windows, Linux, macOS | Template identifiers (DEC-025) | Not built. Not supported targets (DEC-004). |
 
-### 1.15 Tests (596 passed in the normal app run, plus 387 in the engine)
+### 1.15 Tests (645 passed in the normal app run, plus 387 in the engine)
 
 | File | Covers |
 | --- | --- |
 | `packages/calc_engine/test/*` | The engine (§1.12): 387 tests, run with `dart test` in the package |
-| `test/features/calculator/domain/expression_buffer_test.dart` | 223 input-rule cases: numbers, operators, percent, brackets, the smart bracket key, backspace, editing at the cursor, values, limits, engine input, plus Phase 5's power/factorial/constants/functions groups and the orphaned-`×` backspace fix (DEC-049) |
+| `test/features/calculator/domain/expression_buffer_test.dart` | 246 input-rule cases: numbers, operators, percent, brackets, the smart bracket key, backspace, editing at the cursor, values, limits, engine input, Phase 5's power/factorial/constants/functions groups, the orphaned-`×` backspace fix (DEC-049), and the x²/x³/10ˣ/eˣ composite inserts (DEC-050) |
+| `test/features/calculator/domain/scientific_keys_test.dart` | 5 tests: every group is non-empty, no key is a primary twice, the seven engine-backed 2nd mappings, the unaffected keys stay unaffected, `keyFor(second: false)` always returns the primary (DEC-050) |
 | `test/features/calculator/application/calculator_notifier_test.dart` | 66 tests: typing and preview, `=`, smart percent, continuing after a result, errors, editing in the middle (Phase 3 audit, 2026-09-28), the cursor, paste, and memory (including exactness and a restart) |
-| `test/features/calculator/application/calculator_scientific_test.dart` | 41 tests: scientific keys through the notifier, angle mode (default, live recompute, persistence, an answer already shown not recomputed), a 21-case wrong/impossible-input table, and two seeded fuzz tests (DEC-048) |
+| `test/features/calculator/application/calculator_scientific_test.dart` | 46 tests: scientific keys through the notifier, the power-of composite keys (continuing vs. fresh, refused where there's no operand or one already follows), angle mode (default, live recompute, persistence, an answer already shown not recomputed), a 21-case wrong/impossible-input table, and two seeded fuzz tests (DEC-048, DEC-050) |
+| `test/features/calculator/presentation/scientific_calculator_view_test.dart` | 10 tests: portrait and landscape layout (matching Basic's keypad width formula, Display kept to a sane minimum height), 200%-text at four sizes, the DEG/RAD and 2nd toggles' visible/semantic state, that 2nd swaps only the mapped keys (DEC-050) |
 | `test/features/calculator/presentation/*` | The display formatter (25, including 7 scientific-expression cases: display glyphs, spoken text, error names), and the screen (24): keypad names and layout, haptics, display lines and their semantics, errors, tap-to-move, hold ⌫, region formats (en_IN, de_DE), the memory row, the keyboard and paste, and layouts at 200% text on phones and tablets, including landscape under a status bar |
 | `test/core/formatting/localized_number_format_test.dart` | 33 tests: separators, grouping (en_US, en_IN, de_DE), fallbacks, scientific notation, offsets, paste |
 | `test/app/app_test.dart` | The app starts in Basic mode with the calculator, the system theme and the app title; modes not built yet show an empty state |
@@ -272,8 +276,8 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | `test/app/theme/app_colors_test.dart` | WCAG contrast for all four palettes (AA, and AAA for high contrast) |
 | `test/app/theme/app_theme_test.dart` | Each theme uses Manrope and carries its tokens; tabular figures on the number styles; the platform's high-contrast switch; reduced motion |
 | `test/app/font_licenses_test.dart` | The fonts are bundled; Manrope's OFL is registered |
-| `test/core/widgets/*` | Each component's behaviour, semantics, touch target, variants and colours, including high-contrast outlines, the confirmation results and loading states |
-| `test/gallery/gallery_accessibility_test.dart` | Flutter's contrast, tap-target and label guidelines on every gallery section, in four themes |
+| `test/core/widgets/*` | Each component's behaviour, semantics, touch target, variants and colours, including high-contrast outlines, the confirmation results and loading states, and `CalculatorButton.selected` (announced, toned with the accent and distinguishable from the resting tone in all four themes — DEC-050) |
+| `test/gallery/gallery_accessibility_test.dart` | Flutter's contrast, tap-target and label guidelines on every gallery section (11, since DEC-050), in four themes |
 | `test/features/settings/*` | The repository format and fallback; the theme choice surviving a restart; the angle mode falling back to degrees for an unrecognized stored value |
 | `test/core/persistence/app_database_test.dart` | Schema, reopening, provider lifecycle |
 | `test/core/layout/window_size_class_test.dart` | Breakpoints |
@@ -391,14 +395,11 @@ Each feature has `domain/` (pure Dart), `data/`, `application/` and `presentatio
 - **Pages to add:** saved calculations, the settings subpages (About, licenses, privacy) and the finance tools.
 - **Android predictive back gesture:** not scheduled yet (see ROADMAP.md).
 
-### 3.3 Calculation engine: still to come (Phase 5 UI/logic, and later)
+### 3.3 Calculation engine: still to come (later phases)
 
-The scientific engine (functions, `^`, exact/approximate values, angle mode, the P-6 defaults) is built and tested (§1.12, DEC-047). Still to come:
+The scientific engine (functions, `^`, exact/approximate values, angle mode, the P-6 defaults, §1.12, DEC-047), the input logic (§1.13, DEC-048/049) and the keypad (§1.13, DEC-050) are all built and tested — Phase 5 is complete. Still to come:
 
-- **Built in Module 2, see §1.13 and DEC-048.** Original note on the calculator's scientific input logic: `ExpressionBuffer` support for inserting a function call (`sin(`), the `^` and `!` keys, and degree/radian mode as persisted state reaching `CalculatorNotifier`'s call to `CalcEngine.evaluate`.
-- **The scientific keypad (Phase 5, Module 3):** shares state with Basic (DEC-013); not designed yet.
-- **Editing:** backspace removes a function name such as `sin(` as one unit — a Module 2 concern, since it's the buffer's input rules that decide this, the same way DEC-040 did for Phase 3's units.
-- **Undefined-result messaging in the app:** `CalcError.undefined` has a generic translated message (`errorUndefined`) for now; whether specific domain errors (asin out of range vs. tan at 90°) deserve their own wording is a Module 2/3 question, not an engine one.
+- **Undefined-result messaging in the app:** `CalcError.undefined` has a generic translated message (`errorUndefined`) for now; whether specific domain errors (asin out of range vs. tan at 90°) deserve their own wording is a future-phase question, not an engine one.
 - **Programmer mode:** a separate `BigInt` evaluator with a set word size and two's complement.
 
 ### 3.4 State (Phase 4 onward)

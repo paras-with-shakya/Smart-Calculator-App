@@ -37,6 +37,10 @@ const Map<String, CalculatorKey> _keys = {
   'g': CalculatorKey.log,
   'r': CalculatorKey.cbrt,
   'v': CalculatorKey.abs,
+  'x': CalculatorKey.square,
+  'y': CalculatorKey.cube,
+  'T': CalculatorKey.powerOfTen,
+  'F': CalculatorKey.powerOfE,
   '(': CalculatorKey.openBracket,
   ')': CalculatorKey.closeBracket,
   'b': CalculatorKey.brackets,
@@ -134,6 +138,55 @@ void main() {
       final entries = await container.read(historyProvider.future);
       expect(entries.single.expression, '5!');
       expect(entries.single.result.toDecimalString(), '120');
+    });
+  });
+
+  group('power-of keys (x², x³, 10ˣ, eˣ)', () {
+    test('square and cube apply to what was already typed', () {
+      press('5x');
+      expect(show(state().buffer), '5^2|');
+      expect(valueText(), '25');
+
+      press('C5y');
+      expect(show(state().buffer), '5^3|');
+      expect(valueText(), '125');
+    });
+
+    test('10ˣ and eˣ start a fresh value, ready for the exponent', () {
+      press('T2');
+      expect(show(state().buffer), '{10}^2|');
+      expect(valueText(), '100');
+
+      press('CF0');
+      expect(show(state().buffer), 'e^0|');
+      expect(valueText(), '1');
+    });
+
+    test('square and cube continue from the answer, like ^ and !', () {
+      press('2×3=');
+      press('x=');
+      expect(resultText(), '36');
+    });
+
+    test('10ˣ and eˣ start a new expression after =, like a function key', () {
+      press('2+3=');
+      press('T');
+
+      expect(show(state().buffer), '{10}^|');
+      expect(state().showsResult, isFalse);
+    });
+
+    test('refused where there is no operand, or one already follows', () {
+      press('Cx');
+      expect(state().buffer.isEmpty, isTrue);
+
+      press('C(x');
+      expect(show(state().buffer), '(|');
+
+      press('C5');
+      calculator().moveCursor(-1);
+      press('T');
+      expect(show(state().buffer), '|5');
     });
   });
 
@@ -291,7 +344,7 @@ void main() {
 
     test('random key sequences never throw, and keep the state sane', () {
       final random = Random(20260929);
-      const alphabet = '0123456789.+−×÷%^!pEsctaqlgrv()b<=';
+      const alphabet = '0123456789.+−×÷%^!pEsctaqlgrvxyTF()b<=';
 
       for (var run = 0; run < 400; run++) {
         press('C');
@@ -320,7 +373,7 @@ void main() {
 
     test('anything the buffer builds, the engine reads without throwing', () {
       final random = Random(7);
-      const alphabet = '0123456789.+−×÷%^!pEsctaqlgrv()b<';
+      const alphabet = '0123456789.+−×÷%^!pEsctaqlgrvxyTF()b<';
       const engine = CalcEngine();
 
       for (var run = 0; run < 400; run++) {

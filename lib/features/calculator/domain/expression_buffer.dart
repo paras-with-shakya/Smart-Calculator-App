@@ -128,7 +128,10 @@ final class ValueUnit extends ExpressionUnit {
 ///   (`2^−3`);
 /// - backspacing a constant, function or value also removes a `×` it left
 ///   with no operand before it, so deleting one never strands an operator
-///   the user didn't type (`backspace()`).
+///   the user didn't type (`backspace()`);
+/// - `x²`/`x³`/`10ˣ`/`eˣ` (`insertPowerOf`, `insertPowerOfTen`,
+///   `insertPowerOfE`) are each `^` plus an operand in one step, refused
+///   wherever inserting either half alone wouldn't make sense.
 ///
 /// Edits the rules reject return the same buffer.
 final class ExpressionBuffer {
@@ -334,6 +337,41 @@ final class ExpressionBuffer {
   /// Inserts the exact [value], with an implied `×` next to an operand.
   ExpressionBuffer insertValue(CalcValue value) =>
       _insertOperand(ValueUnit(value));
+
+  /// Types `^` followed by [digit] (x² is `insertPowerOf('2')`, x³ is
+  /// `insertPowerOf('3')`), only when an operand precedes the cursor.
+  /// Without that guard, `^` alone silently does nothing wherever it isn't
+  /// allowed (an empty buffer, right after `(`, right after a function
+  /// opener), and [digit] would then be inserted on its own instead of
+  /// being silently dropped along with it — this refuses the whole thing
+  /// in that case, the same way [insertFactorial] does.
+  ExpressionBuffer insertPowerOf(String digit) {
+    assert(CalculatorSymbols.isDigit(digit), 'Not a digit: $digit');
+    if (!_endsWithOperand) return this;
+    return insertOperator(CalculatorSymbols.power).insertDigit(digit);
+  }
+
+  /// Types `10^`, ready for the exponent (`10ˣ`).
+  ExpressionBuffer insertPowerOfTen() =>
+      _insertOperandThenPower(ValueUnit(CalcValue.fromInt(10)));
+
+  /// Types `e^`, ready for the exponent (`eˣ`).
+  ExpressionBuffer insertPowerOfE() =>
+      _insertOperandThenPower(const SymbolUnit(CalculatorSymbols.euler));
+
+  /// Inserts [operand] then `^` as one step, with a `×` before [operand]
+  /// after an existing operand. Refused, like every operand insert, when an
+  /// operand already starts right after the cursor: unlike a plain value or
+  /// constant, `^` must bind to the exponent typed next, so there is no
+  /// sensible place to put an implied `×` between it and existing content.
+  ExpressionBuffer _insertOperandThenPower(ExpressionUnit operand) {
+    if (_startsOperandAt(cursor)) return this;
+    return _replaceBefore(0, [
+      if (_endsWithOperand) const SymbolUnit(CalculatorSymbols.times),
+      operand,
+      const SymbolUnit(CalculatorSymbols.power),
+    ]);
+  }
 
   /// Removes the unit before the cursor. If that exposes a `×` the buffer
   /// itself inserted with no operand before it — deleting a constant,

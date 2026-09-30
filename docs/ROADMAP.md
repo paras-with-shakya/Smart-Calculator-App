@@ -14,7 +14,7 @@ Phase 1  Foundation ...................... COMPLETED 2026-09-28
 Phase 2  Design system ................... COMPLETED 2026-09-28 (design approved)
 Phase 3  Basic calculator + engine + memory COMPLETED 2026-09-28, audited 2026-09-28
 Phase 4  History + saved calculations .... COMPLETED 2026-09-29 (both halves; phone-tested)
-Phase 5  Scientific ...................... in progress (Modules 1-2 done, audited, committed; Module 3 keypad not started)
+Phase 5  Scientific ...................... COMPLETED 2026-09-30 (all 3 modules built, audited, phone-tested)
 Phase 6  Converters ...................... planned
 Phase 7  Financial ....................... planned
 Phase 8  Date calculator ................. planned
@@ -144,25 +144,28 @@ The user approved Phase 4 on 2026-09-29. ARCHITECTURE.md §1.17 (history) and §
 
 ---
 
-### Phase 5: Scientific (in progress — Module 1 engine and Module 2 input logic done, audited and fixed 2026-09-29; Module 3 keypad not started, per the user's explicit instruction)
+### Phase 5: Scientific (complete, 2026-09-30; phone-tested)
 
-The user approved Phase 5 on 2026-09-29 ("phase 5 start"). ARCHITECTURE.md §1.12 describes the engine; DEC-047 records the engine decisions (Module 1, `ef7b0ba`, including the now-resolved deviation), DEC-048 the input-logic decisions (Module 2, `856d175`, built by a separate concurrent session), and DEC-049 the user's formal, by-name confirmation of the five P-6 defaults, the Module 2 audit, and the orphaned-`×` fix.
+The user approved Phase 5 on 2026-09-29 ("phase 5 start"). ARCHITECTURE.md §1.12–1.13 describe the engine, input logic and keypad; DEC-047 records the engine decisions (Module 1, `ef7b0ba`, including the now-resolved deviation), DEC-048 the input-logic decisions (Module 2, `856d175`, built by a separate concurrent session), DEC-049 the user's formal, by-name confirmation of the five P-6 defaults plus the Module 2 audit and the orphaned-`×` fix, and DEC-050 the scientific keypad (Module 3) — built from a detailed plan the user reviewed and approved before any code was written.
 
 | Scope item | Result |
 | --- | --- |
-| Functions: sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, log, ln, sqrt, cbrt, abs | **Done** (engine) |
-| x², xʸ | **Done**, both via the general `^` operator — no separate x² key/node; the keypad (Module 3) will just insert `^2`. |
-| 10ˣ, eˣ | Not yet — no dedicated function/node; achievable as `10^x` / `e^x` once Module 2/3 exist, or as dedicated keypad buttons that insert that text. Revisit if the user wants a one-key `10ˣ`/`eˣ`. |
-| factorial, absolute value | **Done** (engine): `!` postfix operator, `abs` function |
-| π, e, brackets | **Done** (engine): always the constants, never a variable (DEC-047) |
-| degree/radian mode | **Done in the engine and in the app's state** (`AngleMode`; `angleModeProvider`, saved under `settings.angle_mode`, DEC-048); **no UI toggle yet** (Module 3) |
+| Functions: sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, log, ln, sqrt, cbrt, abs | **Done**, engine and keypad (grouped into the scientific tray, DEC-050) |
+| x², xʸ | **Done.** xʸ via the general `^` operator; x² (and x³) is a dedicated 2nd-of-√/∛ tray key, via a new composite `ExpressionBuffer` insert (DEC-050) — not just "insert `^2`" as originally sketched, since that alone silently breaks in a few positions (DEC-050's insert methods). |
+| 10ˣ, eˣ | **Done** — dedicated 2nd-of-log/ln tray keys, each a small atomic `ExpressionBuffer` insert (DEC-050), not achieved via literal text insertion as first proposed. |
+| factorial, absolute value | **Done**, engine and keypad: `!` postfix operator, `abs` function, both in the tray's "Other" group |
+| π, e, brackets | **Done** (engine): always the constants, never a variable (DEC-047); π/e are keypad tray keys too |
+| degree/radian mode | **Done end to end**: `AngleMode`; `angleModeProvider`, saved under `settings.angle_mode` (DEC-048); a compact DEG/RAD toggle key on the scientific screen (DEC-050) |
 | Engine: an extensible function registry | **Done** — `CalcFunction` enum + a name→function lookup map in the parser; adding a function needs no grammar changes, just a new enum case and evaluator branch. |
 | Engine: approximate values for irrational results | **Done** — `CalcValue` is now a sealed exact/approximate hierarchy (DEC-047) |
-| Engine: the remaining P-6 defaults (`−3²`, `2^3^2`, `0^0`, `(−8)^(1/3)`, `tan 90°`) | **Implemented** (DEC-047) and **formally, explicitly approved by the user 2026-09-29 by name**, binding across future phases too (DEC-049) |
-| Keypad: a clean scientific keypad, sharing state with Basic (DEC-013) | **Not started** (Module 3) — explicitly not to start without the user's further go-ahead |
-| Calculator input logic: buffer support for `^`/`!`/function calls, angle-mode state | **Done, audited, and one bug fixed** (Module 2, DEC-048 + DEC-049): keys, input rules, persisted angle mode, robust handling of wrong input (21-case error table, 2 fuzz tests), backspacing a constant/function/value never leaves a stranded `×`. No screen change. |
-| *(Proposed)* a scientific tray, a 2nd/inverse toggle, a landscape layout | Not started; still proposed, not committed to |
-| **Done when:** tests cover the edge cases of every function | **Done for the engine and the app layer** — 387 engine tests, 596 app tests (`calculator_scientific_test.dart`'s 21-case table + 2 fuzz tests; `expression_buffer_test.dart`'s scientific-input and orphan-× groups; `calculator_display_formatter_test.dart`'s screen-reader coverage). Module 3 (the keypad UI) has no tests yet, since it doesn't exist yet. |
+| Engine: the remaining P-6 defaults (`−3²`, `2^3^2`, `0^0`, `(−8)^(1/3)`, `tan 90°`) | **Implemented** (DEC-047) and **formally, explicitly approved by the user by name**, binding across future phases too (DEC-049) |
+| Keypad: a clean scientific keypad, sharing state with Basic (DEC-013) | **Done** (Module 3, DEC-050): a horizontally-scrollable, grouped function tray, reusing Basic's display/memory row/keypad unchanged, in both portrait and landscape |
+| Calculator input logic: buffer support for `^`/`!`/function calls, angle-mode state | **Done, audited, and one bug fixed** (Module 2, DEC-048 + DEC-049): keys, input rules, persisted angle mode, robust handling of wrong input (21-case error table, 2 fuzz tests), backspacing a constant/function/value never leaves a stranded `×`. |
+| A 2nd/inverse toggle | **Done** (DEC-050): 7 engine-backed pairs (sin↔asin, cos↔acos, tan↔atan, sqrt↔square, cbrt↔cube, log↔powerOfTen, ln↔powerOfE); the other tray keys have no 2nd role, since the engine has no inverse-hyperbolic functions or nCr/nPr to map to — nothing was invented to fill that gap |
+| *(Proposed)* a scientific tray pulled up from an "fx" handle | Not built; a single always-visible scrollable row was built instead as the smaller first pass (DEC-050). Could still happen later as a presentation-only refinement. |
+| **Done when:** tests cover the edge cases of every function | **Done** — 387 engine tests, 645 app tests, phone-tested (mode switching, every function group, both toggles, the composite keys, both layouts). |
+
+**Found along the way, not part of this phase's scope:** a pre-existing Basic-calculator touch-target gap (`CalculatorMemoryKeys` narrows below 48 dp in landscape at 200% text) — reported, not fixed, since it belongs to the already-approved Basic screen (DEC-050, DEVELOPMENT_STATUS.md Known Issues).
 
 ### Phase 6: Converters
 

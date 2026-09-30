@@ -12,6 +12,7 @@ void main() {
     CalculatorButtonKind kind = CalculatorButtonKind.operator,
     VoidCallback? onPressed,
     VoidCallback? onLongPress,
+    bool selected = false,
   }) => SizedBox.square(
     dimension: 80,
     child: CalculatorButton(
@@ -20,6 +21,7 @@ void main() {
       semanticLabel: 'Divide',
       onPressed: onPressed,
       onLongPress: onLongPress,
+      selected: selected,
     ),
   );
 
@@ -59,6 +61,74 @@ void main() {
         reason: '$kind label',
       );
     }
+  });
+
+  testWidgets('selected is announced and toned with the accent, not the kind, '
+      'in every palette', (tester) async {
+    Color materialColorOf(WidgetTester tester) => tester
+        .widget<Material>(
+          find.descendant(
+            of: find.byType(CalculatorButton),
+            matching: find.byType(Material),
+          ),
+        )
+        .color!;
+
+    for (final theme in [
+      AppTheme.light,
+      AppTheme.dark,
+      AppTheme.highContrastLight,
+      AppTheme.highContrastDark,
+    ]) {
+      await pumpThemed(
+        tester,
+        key(kind: CalculatorButtonKind.function, onPressed: () {}),
+        theme: theme,
+      );
+      final resting = materialColorOf(tester);
+
+      await pumpThemed(
+        tester,
+        key(
+          kind: CalculatorButtonKind.function,
+          onPressed: () {},
+          selected: true,
+        ),
+        theme: theme,
+      );
+      expect(
+        materialColorOf(tester),
+        isNot(resting),
+        reason: '$theme: selected must not match the resting function tone',
+      );
+    }
+
+    await pumpThemed(
+      tester,
+      key(kind: CalculatorButtonKind.function, onPressed: () {}),
+    );
+    expect(
+      tester.getSemantics(find.byType(CalculatorButton)),
+      isSemantics(label: 'Divide', isButton: true, isEnabled: true),
+    );
+
+    await pumpThemed(
+      tester,
+      key(
+        kind: CalculatorButtonKind.function,
+        onPressed: () {},
+        selected: true,
+      ),
+    );
+    expect(
+      tester.getSemantics(find.byType(CalculatorButton)),
+      isSemantics(
+        label: 'Divide',
+        isButton: true,
+        isEnabled: true,
+        isSelected: true,
+      ),
+    );
   });
 
   testWidgets('memory keys have no fill and a muted label', (tester) async {

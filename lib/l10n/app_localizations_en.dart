@@ -348,4 +348,157 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorUndefined => 'Undefined result';
+
+  @override
+  String get keySin => 'sin';
+
+  @override
+  String get keySinLabel => 'Sine';
+
+  @override
+  String get keyCos => 'cos';
+
+  @override
+  String get keyCosLabel => 'Cosine';
+
+  @override
+  String get keyTan => 'tan';
+
+  @override
+  String get keyTanLabel => 'Tangent';
+
+  @override
+  String get keyAsin => 'sin⁻¹';
+
+  @override
+  String get keyAsinLabel => 'Inverse sine';
+
+  @override
+  String get keyAcos => 'cos⁻¹';
+
+  @override
+  String get keyAcosLabel => 'Inverse cosine';
+
+  @override
+  String get keyAtan => 'tan⁻¹';
+
+  @override
+  String get keyAtanLabel => 'Inverse tangent';
+
+  @override
+  String get keySinh => 'sinh';
+
+  @override
+  String get keySinhLabel => 'Hyperbolic sine';
+
+  @override
+  String get keyCosh => 'cosh';
+
+  @override
+  String get keyCoshLabel => 'Hyperbolic cosine';
+
+  @override
+  String get keyTanh => 'tanh';
+
+  @override
+  String get keyTanhLabel => 'Hyperbolic tangent';
+
+  @override
+  String get keyLog => 'log';
+
+  @override
+  String get keyLogLabel => 'Log base 10';
+
+  @override
+  String get keyLn => 'ln';
+
+  @override
+  String get keyLnLabel => 'Natural log';
+
+  @override
+  String get keySqrt => '√';
+
+  @override
+  String get keySqrtLabel => 'Square root';
+
+  @override
+  String get keyCbrt => '∛';
+
+  @override
+  String get keyCbrtLabel => 'Cube root';
+
+  @override
+  String get keyAbs => 'abs';
+
+  @override
+  String get keyAbsLabel => 'Absolute value';
+
+  @override
+  String get keySquare => 'x²';
+
+  @override
+  String get keySquareLabel => 'Square';
+
+  @override
+  String get keyCube => 'x³';
+
+  @override
+  String get keyCubeLabel => 'Cube';
+
+  @override
+  String get keyPowerOfTen => '10ˣ';
+
+  @override
+  String get keyPowerOfTenLabel => 'Power of ten';
+
+  @override
+  String get keyPowerOfE => 'eˣ';
+
+  @override
+  String get keyPowerOfELabel => 'Power of e';
+
+  @override
+  String get keyPowerLabel => 'Power';
+
+  @override
+  String get keyFactorialLabel => 'Factorial';
+
+  @override
+  String get keyPiLabel => 'Pi';
+
+  @override
+  String get keyEulerLabel => 'Euler\'s number';
+
+  @override
+  String get keyAngleModeDegrees => 'DEG';
+
+  @override
+  String get keyAngleModeDegreesLabel => 'Angle mode, degrees';
+
+  @override
+  String get keyAngleModeRadians => 'RAD';
+
+  @override
+  String get keyAngleModeRadiansLabel => 'Angle mode, radians';
+
+  @override
+  String get keySecond => '2nd';
+
+  @override
+  String get keySecondLabel => 'Second function';
+
+  @override
+  String get scientificGroupTrigonometry => 'Trigonometry';
+
+  @override
+  String get scientificGroupHyperbolic => 'Hyperbolic';
+
+  @override
+  String get scientificGroupLogarithmsAndPowers => 'Logarithms and powers';
+
+  @override
+  String get scientificGroupRoots => 'Roots';
+
+  @override
+  String get scientificGroupOther => 'Other';
 }

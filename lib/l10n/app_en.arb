@@ -477,5 +477,209 @@
   "errorUndefined": "Undefined result",
   "@errorUndefined": {
     "description": "Calculator error: a function argument is outside its domain, such as the square root of a negative number, log of zero, or the factorial of a negative number."
+  },
+  "keySin": "sin",
+  "@keySin": {
+    "description": "Visible label of the sine key in the scientific tray."
+  },
+  "keySinLabel": "Sine",
+  "@keySinLabel": {
+    "description": "What screen readers say for the sine key."
+  },
+  "keyCos": "cos",
+  "@keyCos": {
+    "description": "Visible label of the cosine key in the scientific tray."
+  },
+  "keyCosLabel": "Cosine",
+  "@keyCosLabel": {
+    "description": "What screen readers say for the cosine key."
+  },
+  "keyTan": "tan",
+  "@keyTan": {
+    "description": "Visible label of the tangent key in the scientific tray."
+  },
+  "keyTanLabel": "Tangent",
+  "@keyTanLabel": {
+    "description": "What screen readers say for the tangent key."
+  },
+  "keyAsin": "sin⁻¹",
+  "@keyAsin": {
+    "description": "Visible label of the inverse sine key (2nd of sin)."
+  },
+  "keyAsinLabel": "Inverse sine",
+  "@keyAsinLabel": {
+    "description": "What screen readers say for the inverse sine key."
+  },
+  "keyAcos": "cos⁻¹",
+  "@keyAcos": {
+    "description": "Visible label of the inverse cosine key (2nd of cos)."
+  },
+  "keyAcosLabel": "Inverse cosine",
+  "@keyAcosLabel": {
+    "description": "What screen readers say for the inverse cosine key."
+  },
+  "keyAtan": "tan⁻¹",
+  "@keyAtan": {
+    "description": "Visible label of the inverse tangent key (2nd of tan)."
+  },
+  "keyAtanLabel": "Inverse tangent",
+  "@keyAtanLabel": {
+    "description": "What screen readers say for the inverse tangent key."
+  },
+  "keySinh": "sinh",
+  "@keySinh": {
+    "description": "Visible label of the hyperbolic sine key in the scientific tray."
+  },
+  "keySinhLabel": "Hyperbolic sine",
+  "@keySinhLabel": {
+    "description": "What screen readers say for the hyperbolic sine key."
+  },
+  "keyCosh": "cosh",
+  "@keyCosh": {
+    "description": "Visible label of the hyperbolic cosine key in the scientific tray."
+  },
+  "keyCoshLabel": "Hyperbolic cosine",
+  "@keyCoshLabel": {
+    "description": "What screen readers say for the hyperbolic cosine key."
+  },
+  "keyTanh": "tanh",
+  "@keyTanh": {
+    "description": "Visible label of the hyperbolic tangent key in the scientific tray."
+  },
+  "keyTanhLabel": "Hyperbolic tangent",
+  "@keyTanhLabel": {
+    "description": "What screen readers say for the hyperbolic tangent key."
+  },
+  "keyLog": "log",
+  "@keyLog": {
+    "description": "Visible label of the base-10 logarithm key in the scientific tray."
+  },
+  "keyLogLabel": "Log base 10",
+  "@keyLogLabel": {
+    "description": "What screen readers say for the base-10 logarithm key."
+  },
+  "keyLn": "ln",
+  "@keyLn": {
+    "description": "Visible label of the natural logarithm key in the scientific tray."
+  },
+  "keyLnLabel": "Natural log",
+  "@keyLnLabel": {
+    "description": "What screen readers say for the natural logarithm key."
+  },
+  "keySqrt": "√",
+  "@keySqrt": {
+    "description": "Visible label of the square root key in the scientific tray."
+  },
+  "keySqrtLabel": "Square root",
+  "@keySqrtLabel": {
+    "description": "What screen readers say for the square root key."
+  },
+  "keyCbrt": "∛",
+  "@keyCbrt": {
+    "description": "Visible label of the cube root key in the scientific tray."
+  },
+  "keyCbrtLabel": "Cube root",
+  "@keyCbrtLabel": {
+    "description": "What screen readers say for the cube root key."
+  },
+  "keyAbs": "abs",
+  "@keyAbs": {
+    "description": "Visible label of the absolute value key in the scientific tray."
+  },
+  "keyAbsLabel": "Absolute value",
+  "@keyAbsLabel": {
+    "description": "What screen readers say for the absolute value key."
+  },
+  "keySquare": "x²",
+  "@keySquare": {
+    "description": "Visible label of the square key (2nd of square root)."
+  },
+  "keySquareLabel": "Square",
+  "@keySquareLabel": {
+    "description": "What screen readers say for the square key."
+  },
+  "keyCube": "x³",
+  "@keyCube": {
+    "description": "Visible label of the cube key (2nd of cube root)."
+  },
+  "keyCubeLabel": "Cube",
+  "@keyCubeLabel": {
+    "description": "What screen readers say for the cube key."
+  },
+  "keyPowerOfTen": "10ˣ",
+  "@keyPowerOfTen": {
+    "description": "Visible label of the power-of-ten key (2nd of log)."
+  },
+  "keyPowerOfTenLabel": "Power of ten",
+  "@keyPowerOfTenLabel": {
+    "description": "What screen readers say for the power-of-ten key."
+  },
+  "keyPowerOfE": "eˣ",
+  "@keyPowerOfE": {
+    "description": "Visible label of the power-of-e key (2nd of ln)."
+  },
+  "keyPowerOfELabel": "Power of e",
+  "@keyPowerOfELabel": {
+    "description": "What screen readers say for the power-of-e key."
+  },
+  "keyPowerLabel": "Power",
+  "@keyPowerLabel": {
+    "description": "What screen readers say for the ^ key in the scientific tray."
+  },
+  "keyFactorialLabel": "Factorial",
+  "@keyFactorialLabel": {
+    "description": "What screen readers say for the ! key in the scientific tray."
+  },
+  "keyPiLabel": "Pi",
+  "@keyPiLabel": {
+    "description": "What screen readers say for the π key in the scientific tray."
+  },
+  "keyEulerLabel": "Euler's number",
+  "@keyEulerLabel": {
+    "description": "What screen readers say for the e key in the scientific tray."
+  },
+  "keyAngleModeDegrees": "DEG",
+  "@keyAngleModeDegrees": {
+    "description": "Visible label of the angle-mode key when in degrees."
+  },
+  "keyAngleModeDegreesLabel": "Angle mode, degrees",
+  "@keyAngleModeDegreesLabel": {
+    "description": "What screen readers say for the angle-mode key when in degrees."
+  },
+  "keyAngleModeRadians": "RAD",
+  "@keyAngleModeRadians": {
+    "description": "Visible label of the angle-mode key when in radians."
+  },
+  "keyAngleModeRadiansLabel": "Angle mode, radians",
+  "@keyAngleModeRadiansLabel": {
+    "description": "What screen readers say for the angle-mode key when in radians."
+  },
+  "keySecond": "2nd",
+  "@keySecond": {
+    "description": "Visible label of the 2nd (inverse-function) toggle key."
+  },
+  "keySecondLabel": "Second function",
+  "@keySecondLabel": {
+    "description": "What screen readers say for the 2nd toggle key."
+  },
+  "scientificGroupTrigonometry": "Trigonometry",
+  "@scientificGroupTrigonometry": {
+    "description": "Heading for the trigonometry group in the scientific key tray."
+  },
+  "scientificGroupHyperbolic": "Hyperbolic",
+  "@scientificGroupHyperbolic": {
+    "description": "Heading for the hyperbolic-functions group in the scientific key tray."
+  },
+  "scientificGroupLogarithmsAndPowers": "Logarithms and powers",
+  "@scientificGroupLogarithmsAndPowers": {
+    "description": "Heading for the logarithms-and-powers group in the scientific key tray."
+  },
+  "scientificGroupRoots": "Roots",
+  "@scientificGroupRoots": {
+    "description": "Heading for the roots group in the scientific key tray."
+  },
+  "scientificGroupOther": "Other",
+  "@scientificGroupOther": {
+    "description": "Heading for the group of remaining scientific keys (abs, factorial, pi, e) in the scientific key tray."
   }
 }

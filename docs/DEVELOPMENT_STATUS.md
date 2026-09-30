@@ -2,29 +2,30 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-09-29, end of the Phase 5 Module 2 audit (audited, one real bug fixed — the orphaned-`×` limitation — tested, QA-clean, committed `d42fa5f`). Module 1 (engine, `ef7b0ba`) and Module 2 as originally built (`856d175`, a different session) were already committed.
+**Last updated:** 2026-09-30, end of Phase 5, Module 3 (the scientific keypad: planned, approved, built, tested, phone-tested; not yet committed — see "Next Task"). **Phase 5 (Scientific) is complete.**
 
 ## At a Glance
 
 | Question | Answer |
 | --- | --- |
-| Where are we? | **Phase 3 and Phase 4 are complete. Phase 5 (Scientific): Module 1 (engine) and Module 2 (scientific input logic) are built, audited and tested; Module 3 (the scientific keypad UI) is not started, per the user's explicit instruction.** |
-| What exists in code? | Everything from Phase 3–4, plus the engine's power operator, factorial, constants (π, e), 14 functions, exact/approximate `CalcValue`, degree/radian mode (ARCHITECTURE.md §1.12, DEC-047); the app-side input logic — `^ ! π e` and function keys, persisted angle mode, wrong-input handling (§1.13, DEC-048); and this session's fix, backspacing a constant/function/value never leaves a stranded `×`. **No scientific key is on screen yet** — the keypad is still the Basic one. |
-| What is being worked on? | Nothing. The Module 2 audit is done; Module 3 needs the user's go-ahead and a design decision (see "Next Task"). |
-| What happens next? | Module 3: the scientific keypad UI (sharing state with Basic, DEC-013), with a degree/radian toggle. Ask the user before starting; it needs a design (see "Next Task"). |
-| Git? | `ef7b0ba`, `0e4dba9`, `856d175` and this session's orphan-× fix (`d42fa5f`) are all committed (`main` ahead of `origin/main` by 6). **Claude never pushes; the user pushes themselves.** |
+| Where are we? | **Phases 3, 4 and 5 are all complete.** Phase 5 (Scientific): engine (Module 1), input logic (Module 2, audited and fixed) and the keypad (Module 3) are all built, tested and phone-tested. |
+| What exists in code? | Everything from Phase 3–4, plus the full scientific engine (ARCHITECTURE.md §1.12, DEC-047), the input logic (§1.13, DEC-048/049), and now a working scientific keypad screen: a grouped, scrollable function tray, a DEG/RAD toggle and a 2nd/inverse toggle, in both portrait and landscape (§1.13, DEC-050). Scientific mode no longer shows the "not available yet" placeholder. |
+| What is being worked on? | Nothing. Phase 5 is done and reported; the next phase (6, Converters, or whichever the user picks) needs their explicit approval before starting. |
+| What happens next? | The user reviews Phase 5's Module 3 (and the phone test), then picks and approves the next phase. |
+| Git? | `ef7b0ba`, `0e4dba9`, `856d175` and `d42fa5f`/`19f666a` are committed. **Module 3 (the keypad) is not committed yet** — nothing blocks that, see "Next Task". |
 | What must not be repeated? | See "Do NOT Repeat" |
-| Known issues? | See "Known Issues". #13 (the stray scaffold) is **resolved** — the user deleted it 2026-09-29. |
-| Pending decisions? | P-5, P-7, P-9, P-10. **P-6 is resolved:** the user explicitly approved all five defaults by name in this session (2026-09-29; DEC-047, DEC-048) — no more ambiguity to flag. **P-12 resolved:** the user delegated the saved-calculations UI to Claude ("jaisa tum karo, waha karo") — see DEC-046. |
+| Known issues? | See "Known Issues". #13 (the stray scaffold) is **resolved**. **New (#16):** a pre-existing Basic-calculator bug found while testing Module 3 — `CalculatorMemoryKeys` narrows below 48 dp in landscape at 200% text. Not fixed (not Module 3's to fix); reported. |
+| Pending decisions? | P-5, P-7, P-9, P-10 (all long-standing, unrelated to Phase 5). Phase 5's own questions (P-6, the Module 2 audit, the keypad design) are **all resolved** — see "Pending Decisions" for the full history. |
 
 ## Current Phase
 
-**Phase 5 (Scientific): approved 2026-09-29 ("phase 5 start"). Module 1 (the engine) and Module 2 (the input logic, DEC-048, audited and fixed this session) are complete and tested; Module 3 (the keypad UI) is not started, and must not start without the user's explicit go-ahead.**
+**Phase 5 (Scientific): approved 2026-09-29 ("phase 5 start"). Complete as of 2026-09-30 — engine, input logic and the keypad are all built, tested and phone-tested.**
 
 - The user approved Phase 5 with "phase 5 start", after Phase 4.
-- **The deviation from the Module 1 session is now fully resolved.** The previous session built the engine's five P-6 defaults before asking (flagged in DEC-047). This session, the user reviewed and approved all five **by name**: `−3² = −9`, `2^3^2 = 512`, `0^0 = 1`, `(−8)^(1/3) = −2`, `tan 90° → CalcError.undefined`. Their instruction: keep these semantics consistent across the calculator and future scientific/programmer work unless a later documented decision changes them; do not revert the already-implemented work.
-- **A second, independent session built Module 2 in between** (`856d175`, co-authored "Claude Sonnet 5.5") — see the "Phase 5: Module 2 final audit" entry below for how this was discovered and handled.
-- Engine tests: 387 in `packages/calc_engine`. App tests: 596 (`flutter test`), `flutter analyze` clean, formatting clean, debug APK builds.
+- **The Module 1 deviation is fully resolved.** The engine session built the five P-6 defaults before asking (flagged in DEC-047); the user later reviewed and approved all five **by name**, binding across future phases too, in the same session that requested the Module 2 audit.
+- **A second, independent session built Module 2** (`856d175`, co-authored "Claude Sonnet 5.5") while this session was between turns — discovered via `git log`, audited on its own merits, and fixed (one real bug: the orphaned-`×` limitation, `d42fa5f`) rather than rebuilt.
+- **Module 3 (the keypad) was built from a detailed, written plan** the user explicitly asked for before any code — covering the tray's layout (portrait and landscape), the DEG/RAD and 2nd controls, the exact engine-function-to-key mapping, reusable components, accessibility and a test plan. The plan was independently reviewed before being shown to the user, catching two real bugs in the first draft (a silent-failure case in the composite-key logic, and a color-token collision for the 2nd toggle's selected state in two of the four palettes) — both fixed before the plan was presented, and both held up in the actual implementation and the phone test. See DEC-050.
+- Engine tests: 387 in `packages/calc_engine`. App tests: 645 (`flutter test`), `flutter analyze` clean, formatting clean, debug APK builds, phone-tested on the user's device.
 
 ## Phase 3 Audit (2026-09-28)
 
@@ -111,6 +112,21 @@ The user approved the five P-6 defaults exactly as DEC-047 documented them, and 
 - **Not phone-tested:** still no scientific key on screen (Module 3).
 - **Module 3 not started, as instructed.**
 
+## Phase 5: Module 3, the scientific keypad (2026-09-30, this session, not yet committed)
+
+The user approved all five P-6 defaults by name (see "Current Phase") and asked for a detailed, written Module 3 plan — covering the phone/landscape layout, DEG/RAD placement, the 2nd/inverse interaction model, reusable components, the exact engine-function-to-key mapping, accessibility, and a test plan — with an explicit instruction not to write code until the plan was approved.
+
+- **Plan written and reviewed before any code.** Three parallel research passes (design tokens, the exact Basic-calculator layout math, the engine's full function registry and existing test conventions) fed a draft plan, which was then independently stress-tested by a second pass before being shown to the user. That review caught two real bugs the first draft would have shipped:
+  1. Chaining existing `ExpressionBuffer` methods at the notifier level (`insertOperator('^')` then `insertDigit`) silently degrades to "just type a bare digit" wherever `insertOperator` already no-ops (empty buffer, right after `(`, right after a function opener) — the digit gets typed but the `^` never appears, with no error or exception to notice it by.
+  2. The planned `selected` tint for the 2nd toggle (`primaryContainer`) is byte-identical to the resting `functionKey` tone in the light and high-contrast-light palettes — the toggle would have looked unchanged when pressed in half the app's themes.
+  Both were fixed in the plan itself (three small additive `ExpressionBuffer` methods instead of notifier-level chaining; `primary`/`onPrimary` instead of `primaryContainer`) before the user ever saw it. The plan was then approved as written.
+- **Built exactly as planned:** `ScientificCalculatorView` (new; `calculator_view.dart` untouched) reusing `CalculatorDisplay`/`CalculatorMemoryKeys`/`CalculatorKeypad` unchanged; `ScientificFunctionTray`, a horizontally-scrollable, grouped row over a new pure-data table (`scientific_keys.dart`); a DEG/RAD toggle and a 2nd toggle (each a single `CalculatorButton`, not `AppChoiceGroup` — see DEC-050 for why); four new composite `CalculatorKey`s (`square`, `cube`, `powerOfTen`, `powerOfE`) backed by the three new buffer methods; a new `selected` parameter on `CalculatorButton`; `app_shell.dart` now routes Scientific mode to the new screen; a new gallery section. Full detail and reasoning: DEC-050.
+- **A second real bug found during testing, not just the planning review:** my own first test for "the keypad width matches Basic's landscape formula" hand-computed the expected pixel width and got it wrong — it didn't account for the navigation rail's width at this window size. Fixed by comparing against Basic's own measured width in the identical scenario instead of re-deriving the shell's layout by hand.
+- **A pre-existing Basic bug found, not caused:** `expectTouchTargets` (a stricter check than Basic's own 200%-text test ever ran) found `CalculatorMemoryKeys` narrowing below 48 dp width in landscape at 200% text. Reproduced identically by pumping plain `CalculatorView` — confirmed pre-existing, not a Module 3 regression. Not fixed (out of scope: it's Basic's already-approved widget); recorded as Known Issue #16, and the new test explicitly excludes memory keys from this one check with a comment explaining why, rather than silently weakening the check for everything.
+- **Phone-tested** (`23124RN87I`, USB): switching to Scientific mode; sin/cos/tan computing correct degree-mode results (`sin(80°) ≈ 0.9848`); the 2nd toggle's solid-accent selected state and label swap (sin→sin⁻¹ etc.), confirmed the unmapped keys (sinh, cosh, …) stay unchanged; the DEG↔RAD flip; the x² composite key end to end (`4^2` → `16`, confirming the atomic-insert fix works on a real device, not just in tests); the tray's horizontal scroll; and the landscape layout (rail, display, both new rows, keypad, correctly no history panel). Every check passed. Rotation settings restored afterward.
+- **Full QA gate:** `flutter analyze` (no issues), `dart format` (clean), `flutter test` (645 passed, 1 skipped, 0 failed — was 596), `dart test` in `packages/calc_engine` (387, unchanged — no engine or buffer-grammar change), `flutter build apk --debug` (built, ~125 s).
+- **Phase 5 is now complete.** Not committed yet — see "Next Task".
+
 ## Phase Status
 
 | Phase | Name | Status |
@@ -121,7 +137,7 @@ The user approved the five P-6 defaults exactly as DEC-047 documented them, and 
 | 2 | Design system | Completed 2026-09-28 (commit `0fc15ef`; device fix `950493b`); design approved by the user |
 | 3 | Basic calculator (engine, memory) | **Complete and audited** (commits `4fec0b6`, `57a1e73`, `85c6c84`; audit `453af28`) |
 | 4 | History and saved calculations | **Complete.** History (`1604248`) and saved calculations (`f02b23a`) both committed, phone-tested. |
-| 5 | Scientific | **In progress.** Module 1 (engine) `ef7b0ba` and Module 2 (input logic, DEC-048) done 2026-09-29. Module 3 (keypad UI) not started. |
+| 5 | Scientific | **Complete and phone-tested.** Module 1 (engine) `ef7b0ba`, Module 2 (input logic, DEC-048/049) `856d175`/`d42fa5f`, Module 3 (keypad, DEC-050) built 2026-09-30, not yet committed. |
 | 6 | Converters | Not started |
 | 7 | Financial | Not started |
 | 8 | Date calculator | Not started |
@@ -267,20 +283,50 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.13; decision DEC-048. Built and 
 - 592 app tests (127 new), 387 engine tests (10 new). Analyze, format, debug build clean.
 - Audited and one real bug fixed by this session — see "Phase 5: Module 2 final audit" above.
 
+### Phase 5: Scientific keypad, Module 3 (2026-09-30, this session, not yet committed)
+
+Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.13; decision DEC-050 (the full plan, its independent review, and what was built). See "Phase 5: Module 3, the scientific keypad" above for the full narrative.
+
+- Planned first (a written, reviewed plan the user approved before any code), then built exactly as planned: `ScientificCalculatorView`, `ScientificFunctionTray`, `scientific_keys.dart`'s pure-data key/group table, four new composite `CalculatorKey`s backed by three new `ExpressionBuffer` methods, `CalculatorButton.selected`, `app_shell.dart` wiring, a new gallery section.
+- 49 new tests (expression-buffer composite inserts, `scientific_keys_test.dart`, notifier-level composite-key wiring, `CalculatorButton.selected`, the new screen's layout/accessibility/toggle tests). 645 app tests, 387 engine tests (unchanged).
+- Phone-tested: mode switching, every function group, both toggles (including the composite x² key end to end), both layouts. Every check passed.
+- **Found, not fixed:** a pre-existing Basic-calculator touch-target gap (Known Issues #16).
+
+### Test on the user's phone: the scientific keypad (2026-09-30, this session)
+
+The phone was connected by USB at the user's request, immediately after Module 3 was built and its automated tests passed.
+
+- **Device:** `23124RN87I`, Android 15. **Method:** `adb install -r` (debug build), `adb shell input tap`/`swipe`, `screencap`, and a `uiautomator dump` to find exact on-screen button bounds when a screenshot's timing lagged the animation.
+
+| Check | Result |
+| --- | --- |
+| Switching to Scientific mode | Shows the new keypad, not the old placeholder |
+| `sin(80)=` (DEG, default) | `0.984807753012` — matches `sin(80°)` exactly |
+| 2nd toggle | Turns solid accent-coloured when on; tray relabels sin/cos/tan to sin⁻¹/cos⁻¹/tan⁻¹ (superscript rendered correctly); sinh/cosh (no 2nd mapping) stay unchanged |
+| DEG → RAD toggle | Label flips from "DEG" to "RAD" on tap |
+| `4` then x² (2nd of √) then `=` | Shows `4^2` above the result, computes `16` — confirms the atomic composite-insert fix works on-device |
+| Tray horizontal scroll | Swiping reveals the Logarithms & powers and Roots groups (`log`, `ln`, `^`, `√`, then `10ˣ`/`eˣ`/`x²` once 2nd is on) |
+| Landscape | Navigation rail, display, both new rows and the keypad all render; no history panel (medium window class) |
+
+- **Found and fixed during this pass:** none (all issues were caught by the automated test suite beforehand, not the phone test itself).
+- **Phone settings:** rotation was changed to test landscape (`user_rotation=1`) and restored afterward (`user_rotation=0`, `accelerometer_rotation=0`, matching the state found at the start). Screenshots and `uiautomator` dumps taken during the test were deleted from the phone afterward.
+
 ## Work In Progress
 
-None to hand off mid-task. Phase 5's Module 1 (engine, `ef7b0ba`) and Module 2 (input logic, `856d175`, audited and fixed this session, `d42fa5f`) are complete, tested and committed.
+None to hand off mid-task. Phase 5 is complete: Module 1 (engine, `ef7b0ba`), Module 2 (input logic, `856d175`, audited and fixed, `d42fa5f`) and Module 3 (the keypad) are all built, tested and phone-tested. **Module 3 itself is not committed yet** — nothing blocks that, see "Next Task".
 
 ## Current Task
 
-None. The Module 2 audit is finished and reported (per the user's explicit request); Module 3 waits for the user's go-ahead and a design decision.
+None. Phase 5 is finished and reported. The next phase needs the user's explicit choice and approval before starting — nothing should be assumed or started ahead of that.
 
-- **Screenshots:** none — the audit changed no visible widget (the orphan-× fix is domain-layer only).
-- **On the phone:** not touched this session; still holds whatever the saved-calculations phone test left it at.
+- **Screenshots:** none via the design-review generator this session (the phone test served as the visual review instead — see "Test on the user's phone: the scientific keypad"). Worth running the design-review generator for Scientific next session if a from-screenshots review is wanted too.
+- **On the phone:** the debug build with the scientific keypad is installed (`23124RN87I`); rotation restored to portrait/off; the calculator was left showing the x² test result (`16`) in Scientific mode.
 
 ## Next Task
 
-**Module 3: the scientific keypad UI** — ask the user first (module gate, CLAUDE.md rule 9), even though Phase 5 itself is approved; the user explicitly said not to start Module 3 without a further go-ahead this time. It needs a design the user hasn't seen: how the scientific keys are laid out beside/above the Basic keypad (DEC-013 says the state is shared), where the degree/radian toggle goes (`angleModeProvider.toggle()` already exists), and whether a 2nd/inverse key is wanted. Build it only from `lib/core/widgets/` and the tokens (rule 12), reuse `CalculatorButton`, and screenshot it (`flutter test --tags design-review ...`) before reporting. Wire `CalculatorKey.sin` … `abs`, `power`, `factorial`, `pi`, `euler` to buttons; add a hardware-keyboard mapping for `^`/`!` if useful (`typeText` already accepts them). Then a phone test.
+1. **Commit Module 3.** Nothing blocks this.
+2. **Report Phase 5 complete to the user**, including the pre-existing Basic touch-target bug found (Known Issues #16) and ask whether they want it fixed now or left for a later pass.
+3. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 6 Converters, Phase 7 Financial, Phase 8 Date, Phase 9 Programmer, Phase 10 Settings — in that planned order, but the user may choose differently). Don't start any of them without that explicit approval, per the phase gate (CLAUDE.md rule 9).
 
 ## Do NOT Repeat
 
@@ -297,7 +343,11 @@ None. The Module 2 audit is finished and reported (per the user's explicit reque
 - **Any test opening an in-memory database more than once in a process** (one per test) must pass `AppDatabase.open(..., singleInstance: false)`, or sqflite hands back the same cached database and tests leak into each other (DEC-045).
 - **Don't add a "save" button (or any new affordance) to the calculator screen or the app shell** without the user's explicit say-so — DEC-046 kept saved calculations entirely inside the History screen for exactly this reason.
 - **Watch the working directory before running `flutter`/`dart` commands.** A stray `flutter create`-style scaffold appeared inside `packages/calc_engine/` in the Phase 4 session from (probably) a command run with the wrong cwd; see "Known Issues" #13 (resolved, but watch for a repeat).
-- **Don't re-ask the user about the P-6 defaults or redo Module 2** — the defaults are formally confirmed and Module 2 is built, audited and fixed (DEC-048). Don't start Module 3 without asking.
+- **Don't re-ask the user about the P-6 defaults or redo Module 2** — the defaults are formally confirmed and Module 2 is built, audited and fixed (DEC-048). Phase 5 (all 3 modules) is now complete.
+- **For a fixed-height row of toggle-style buttons, use `CalculatorButton` (with the new `selected` param), not `AppChoiceGroup`.** `AppChoiceGroup` switches to a vertical radio list at 200% text or long labels, which overflows a fixed-height container — fine for a persistent, always-both-options choice shown its own space (theme picker, History/Saved tabs), wrong for a compact toggle row. Found by an independent plan-review pass before it shipped (DEC-050).
+- **`CalculatorButton.selected`'s tint is `primary`/`onPrimary`, never `primaryContainer`.** `primaryContainer` is byte-identical to `functionKey` in the light and high-contrast-light palettes — a `function`-kind key tinted with it would look unchanged when selected in half the app's themes. Checked against all four palettes before picking `primary` (DEC-050).
+- **Chaining existing `ExpressionBuffer` methods at the notifier level to build a "composite" key is not safe** — several existing methods (`insertOperator`, `insertValue`, `insertConstant`) silently no-op or reposition the cursor in ways a naive two-call chain doesn't account for, producing a *different* silent wrong-answer, not an exception. Any future composite key (Programmer mode, etc.) should get its own small, atomic `ExpressionBuffer` method, tested directly, the way `insertPowerOf`/`insertPowerOfTen`/`insertPowerOfE` are (DEC-050).
+- **For a genuinely non-trivial UI feature, write a plan and get it approved before writing code — and have the plan itself independently reviewed before showing the user.** Both passes caught real, ship-blocking bugs in Module 3 before any code existed (see DEC-050's "Context").
 - **Trust `git log`, not the last thing this conversation remembers building.** This project has been worked on from more than one Claude Code session concurrently (a session co-authored "Claude Sonnet 5.5" built and committed all of Module 2, `856d175`, while this session was between turns). Before claiming a module "hasn't started," check `git log --oneline` and read the actual files — a stale internal summary said Module 2 didn't exist when it already did.
 - **Don't add letters or function names to `typeText`** (paste/keyboard): `1.5e12` would become `1.5×e×12`. Function names are keypad-only (DEC-048).
 - **A new function opener needs no buffer change** (one `SymbolUnit` ending in `(`), but it needs a `spoken*` string and a case in `CalculatorDisplayFormatter._spokenSymbol`; `test 'every function opener has a spoken name'` fails otherwise.
@@ -320,6 +370,8 @@ None. The Module 2 audit is finished and reported (per the user's explicit reque
 - no history panel on phones in landscape (DEC-042)
 
 **Open to the user's review** (adopted by Claude during Phase 4): DEC-044 (what history stores; reuse inserts the exact result rather than restoring the editable expression; no dedup), DEC-045 (test infrastructure only, no product-facing effect), DEC-046 (the History/Saved tab toggle, and saving as a history-entry action — the user's own P-12 answer was to let Claude decide this).
+
+**Open to the user's review** (Phase 5, Module 3, DEC-050 — built from a plan the user reviewed at the design-decision level, but not yet seen running except via this doc and the phone-test report): the single-scrollable-row tray (vs. the "pull-up fx tray" `ROADMAP.md` had proposed), the group order/composition (Trigonometry, Hyperbolic, Logarithms & powers, Roots, Other), 2nd's ephemeral (not persisted) state, and the exact visual treatment of keys with no 2nd role (currently simply unchanged, no dimming). All four were flagged as explicit open questions in the approved plan's "Remaining decisions" section — the user approved the plan without objecting to any of them, but hasn't seen the running result yet at the time of writing.
 
 **Resolved — P-6, formally confirmed by the user 2026-09-29**, first with a brief "okay" (to a different session), then explicitly by name (to this session: "I reviewed the original session summary and confirmed the context. Yes, I approve the five scientific engine defaults exactly as documented in DEC-047... Keep these semantics consistent across the entire calculator and future scientific/programmer functionality unless a later documented decision explicitly changes them... do not revert that work."):
 
@@ -380,7 +432,18 @@ None. The Module 2 audit is finished and reported (per the user's explicit reque
 
 ## Tests
 
-**Final, run in the Phase 5 Module 2 audit session (2026-09-29), in `smart_calculator/`:**
+**Final, run in the Phase 5 Module 3 session (2026-09-30), in `smart_calculator/`:**
+
+| Command | Result |
+| --- | --- |
+| `flutter analyze` | `No issues found!` |
+| `dart format` (project directories) | Clean |
+| `flutter test` (whole suite) | `+645 ~1: All tests passed!` (645 passed, 1 skipped — the design-review generator; 0 failed; was 596) |
+| `dart test` in `packages/calc_engine` | `+387: All tests passed!` (unchanged; Module 3 made no engine or buffer-grammar change) |
+| `flutter build apk --debug` | **Built** (Gradle `assembleDebug`, ~125 s) |
+| On the user's phone (`23124RN87I`, USB) | See "Test on the user's phone: the scientific keypad" above. Every check passed. |
+
+**Earlier, run in the Phase 5 Module 2 audit session (2026-09-29), in `smart_calculator/`:**
 
 | Command | Result |
 | --- | --- |
@@ -450,19 +513,21 @@ Not run this session: the release build, the design-review screenshots (nothing 
 | `aapt dump badging` on the release APK | package `com.parasshakya.smartcalculator`, label "Smart Calculator"; **no INTERNET permission** (the only permission is AndroidX's `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`); **re-checked by reading `android/app/src/main/AndroidManifest.xml` directly this session — still no `INTERNET` permission** |
 | On the user's phone | See "Test on the user's phone" |
 
-**Where the tests are** (rebuilt this session from a fresh per-file count, `flutter test <file>` for each — see Discrepancies Found #7; sums to the verified 596):
+**Where the tests are** (per-file counts, re-verified this session; sums to the verified 645):
 
 | Area | Tests |
 | --- | --- |
 | Engine (`packages/calc_engine`, `dart test`, separate from the app total below) | 387 |
-| Expression buffer | 223 |
+| Expression buffer (including the x²/x³/10ˣ/eˣ composite-insert group, DEC-050) | 246 |
+| `scientific_keys.dart`'s key/group table (pure data, no widgets) | 5 |
 | Calculator notifier and memory | 66 |
-| Calculator scientific (power/factorial/constants/functions, angle mode, the 21-case wrong-input table, two fuzz tests) | 41 |
+| Calculator scientific (power/factorial/constants/functions, the power-of composite keys, angle mode, the 21-case wrong-input table, two fuzz tests) | 46 |
+| Scientific calculator screen (layout, DEG/RAD, 2nd, accessibility, DEC-050) | 10 |
 | Number format | 33 |
 | Calculator screen | 24 |
 | Display formatter (including 7 scientific-expression cases: display, spoken text, error names) | 25 |
 | `DisplayText` | 12 |
-| Gallery accessibility (10 sections × 4 themes) | 40 |
+| Gallery accessibility (11 sections × 4 themes, since DEC-050 added "Scientific keys") | 44 |
 | Settings (theme preference, angle mode persistence) | 11 |
 | History repository | 9 |
 | History notifier | 5 |
@@ -470,16 +535,15 @@ Not run this session: the release build, the design-review screenshots (nothing 
 | Saved-calculations repository | 8 |
 | Saved-calculations notifier | 6 |
 | Saved-calculations widget (saving, the Saved tab, rename, reuse, delete, search, clear all) | 9 |
-| Earlier app tests (app shell, navigation, theme, layout, persistence, reusable widgets, architecture boundary) | 73 |
-| **App total** (`flutter test`) | **596 passed, 1 skipped, 0 failed** |
+| Earlier app tests (app shell, navigation, theme, layout, persistence, reusable widgets, architecture boundary, including `CalculatorButton.selected` and the new "Scientific mode shows the scientific calculator" test) | 75 |
+| **App total** (`flutter test`) | **645 passed, 1 skipped, 0 failed** |
 
 **Not run:**
 
 - the iOS build (Windows)
 - an emulator (the user doesn't want one; the app was tested on the user's phone)
 - integration tests (none yet)
-- the release build and the design-review screenshots, this session (nothing visual changed — the orphan-× fix is domain-layer only)
-- a phone test (no scientific key is on screen yet — Module 3)
+- the release build and the design-review screenshots, this session (the phone test served as the visual review instead)
 
 ## Known Issues
 
@@ -506,10 +570,11 @@ Not run this session: the release build, the design-review screenshots (nothing 
 13. ~~Blocking: a stray Flutter app inside `packages/calc_engine`~~ **Resolved 2026-09-29.** A full `flutter create`-style scaffold appeared there during this session — `lib/main.dart` (imports `package:flutter/material.dart`), `android/`, `.metadata`, `analysis_options.yaml`, `.gitignore`, `.idea/`, `calc_engine.iml` — all untracked, all created in the same second. The triggering command was never confirmed with certainty. `packages/calc_engine/pubspec.yaml` and every real engine source file were confirmed unaffected throughout (`git diff` empty; all 260 engine tests kept passing). Claude tried to delete the files and was correctly refused by the sandbox's safety layer (a destructive operation on a directory); the user deleted them ("okay delete"). `flutter analyze` and `flutter test` are both clean afterwards (see "Tests"). **Watch for a repeat** — the exact cause is still unknown.
 14. **`.gitignore` doesn't cover `android/build/`** (only `/android/app/{debug,profile,release}`; `.gitignore`'s `/build/` is root-anchored, so it doesn't reach `android/build/`). Noticed because `flutter build apk --debug` this session left `android/build/` untracked in `git status`. Not a Phase 5 regression — this gap predates this session and every earlier `flutter build` hit it too, it just wasn't noticed. Not fixed: don't `git add -A`; stage files by name until this is deliberately addressed.
 15. **A base of exactly `1` or `−1` raised to an exponent past the ±2000 magnitude cutoff loses exactness** (`evaluator.dart`'s near-1-base overflow fix always returns an approximate `CalcValue`, even though `1^n=1` and `(−1)^n=±1` are exact for any `n`). Found during the Module 2 audit, not fixed — cosmetically invisible (`toDecimalString()` still prints `1`), narrow (only reachable past the exponent cutoff), and out of the audit's requested scope. Worth a one-line fix (`if base.exactValue is 1 or -1, return that base directly`) if anyone hits it.
+16. **`CalculatorMemoryKeys` (Basic, unchanged since Phase 3) narrows its 5 keys below 48 dp width in landscape at 200% text.** Found while writing a stricter touch-target test for the scientific keypad (Module 3) — reproduced identically with plain `CalculatorView`, confirming it predates Phase 5 and isn't something Module 3 introduced. Not fixed: `calculator_memory_keys.dart` is Basic's already-approved widget, and this wasn't part of what Module 3 was asked to do. The Scientific screen's own test excludes memory keys from this one check, with a comment explaining why, so the gap is documented rather than silently accepted or silently patched.
 
 ## Blockers
 
-None. Phase 5's Module 1 (engine) and Module 2 (input logic) are both complete, audited and tested. The next blocker is a design decision for Module 3 (the scientific keypad layout) — see "Next Task". iOS still can't be built on Windows, as always.
+None. Phase 5 (all three modules) is complete, audited and phone-tested. The next blocker is the user choosing and approving the next phase — see "Next Task". iOS still can't be built on Windows, as always.
 
 ## Discrepancies Found
 
@@ -525,6 +590,19 @@ None. Phase 5's Module 1 (engine) and Module 2 (input logic) are both complete, 
 7. **Phase 5, Module 2 audit session:** this session's very first action — reading `expression_buffer.dart` to make a small unrelated edit — found `insertFunction`/`insertConstant`/`insertFactorial` already there, contradicting this session's own last chat report ("Module 2 hasn't started"). `git log` explained it: a *different* Claude Code session (co-authored "Claude Sonnet 5.5") built and committed all of Module 2 (`856d175`) while this session was between turns. Treated the committed code as ground truth rather than re-deriving or distrusting it. Separately, the "Where the tests are" table (below, under "Tests") had the same staleness pattern as #6: the Module 2 session updated the headline pass count but not this row-by-row breakdown, so it still showed Module 1's 465-test-total shape under a section reporting 592. Rebuilt from freshly re-run per-file counts in this session, not guessed.
 
 ## Last Session Summary
+
+**2026-09-30, Phase 5 session 4 (Module 3, the scientific keypad — plan, build, phone test).**
+
+1. The user gave a detailed brief for the scientific keypad (retain Basic as the foundation; a dedicated, grouped function area, not one overloaded keypad; a compact DEG/RAD control reusing the persisted angle mode; a 2nd/inverse toggle mapped only to engine-backed functions; a dedicated landscape layout that never forces in the history panel; reuse components; stay inside the Phase 2 design system) and an explicit instruction: write and get the plan approved before any code.
+2. **Researched before designing**: three parallel passes over the design tokens, the exact Basic-calculator layout math, and the engine's full function registry plus existing test conventions.
+3. **Had the draft plan independently reviewed before showing the user** — this caught two real bugs that would otherwise have shipped: (a) chaining existing `ExpressionBuffer` methods at the notifier level for the composite keys silently degrades to "just type a bare digit" in several positions, with no error to notice it by; (b) the planned `selected` tint for the 2nd toggle (`primaryContainer`) is byte-identical to the resting tone in two of the four palettes. Both fixed in the plan itself before the user ever saw it.
+4. **The plan was approved**, then built exactly as planned: `ScientificCalculatorView`, `ScientificFunctionTray`, `scientific_keys.dart`'s pure-data key/group table, four new composite `CalculatorKey`s backed by three new, atomic `ExpressionBuffer` methods, `CalculatorButton.selected`, `app_shell.dart` wiring Scientific mode to the new screen, a new gallery section. See DEC-050.
+5. **A second real bug found while writing tests, not during planning**: a hand-computed expected keypad width for a landscape test didn't account for the navigation rail's width at that window size. Fixed by comparing against Basic's own measured width in the identical scenario instead.
+6. **A pre-existing Basic bug found, not caused**: a stricter touch-target test (checking 200%-text landscape specifically) found `CalculatorMemoryKeys` already narrows below 48 dp width there — reproduced identically with plain `CalculatorView`, confirming Module 3 didn't cause it. Not fixed (out of scope); recorded as Known Issues #16.
+7. Full QA gate clean: `flutter analyze`, `dart format`, `flutter test` (645 passed, was 596), `dart test` in `packages/calc_engine` (387, unchanged), `flutter build apk --debug`.
+8. **Phone-tested** (`23124RN87I`, USB): mode switching, sin/cos/tan computing correct results, the 2nd toggle (visual + label swap + unmapped keys unaffected), DEG↔RAD, the x² composite key end to end (`4^2`→`16`, confirming the atomic-insert fix on a real device), tray scrolling, and the landscape layout. Every check passed; rotation settings restored afterward.
+9. **Docs:** this file, ARCHITECTURE.md (§1.13, §1.15, §3.3), DECISIONS.md (DEC-050), ROADMAP.md (Phase 5 moved to complete), CHANGELOG.md updated. **Not committed yet** — see "Next Task".
+10. **Phase 5 is now complete.** The next phase needs the user's explicit choice and approval before starting.
 
 **2026-09-29, Phase 5 session 3 (the Module 2 audit, and the orphan-× fix).**
 
@@ -609,20 +687,23 @@ None. Phase 5's Module 1 (engine) and Module 2 (input logic) are both complete, 
 ## Instructions For Next Session
 
 1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md). **Reply to the user in Hinglish** (CLAUDE.md rule 13).
-2. **Phase 5 Modules 1 and 2, and the orphan-× fix, are all committed** (engine `ef7b0ba`; input logic `856d175`; the fix `d42fa5f`). Confirm with `git log --oneline -6` if in doubt.
-3. **The P-6 defaults are formally, explicitly approved by name** — not just "okay" to a vague list. Treat them as settled across the whole app, including future phases (Programmer mode, etc.), unless a new documented decision changes them. If the user does want one changed, it's a small, isolated change in `packages/calc_engine/lib/src/eval/evaluator.dart` (each case is exercised by name in `test/scientific_test.dart`'s "power" groups) — not a redesign.
-4. **Module 3 (the scientific keypad UI) is next, but ask the user first** (see "Next Task"). It needs a layout the user hasn't seen. Module 2 already provides every key (`CalculatorKey.sin` … `abs`, `power`, `factorial`, `pi`, `euler`) and `angleModeProvider.toggle()`.
-5. **Check `git log --oneline -10` at the start of every session, before trusting any internal summary of "what's built."** This project has been worked on by more than one Claude Code session concurrently at least once (Discrepancies Found #7) — a session's own conversational memory of what it built can be behind what's actually in the repository.
-6. **Watch for the stray-scaffold issue recurring** (Known Issues #13, resolved but cause unconfirmed): check `git status -s packages/calc_engine/` is empty before trusting `flutter analyze`/`flutter test`.
-7. **Build every new screen only from `lib/core/widgets/` and the tokens** (rule 12, DEC-034). Don't add anything to the calculator screen or the app shell without the user asking for it first — see DEC-046 for why that mattered in Phase 4; it applies equally to the scientific keypad's own screen, not the Basic one, unless DEC-013's shared state requires otherwise.
-8. **If `CalcError` gains another case** (unlikely for Module 2/3, but worth remembering), `calculator_display_formatter.dart`'s `error()` switch needs a matching case or the app fails to compile — this bit this session, caught only by the full `flutter test`, not `dart test` in the engine alone.
-9. **Checks:**
-   - `flutter analyze`
-   - `dart format lib test packages/calc_engine/lib packages/calc_engine/test` (not `dart format .`; it crashes on long paths inside `build/` — Known Issue #3)
-   - `flutter test`
-   - `dart test` in `packages/calc_engine`
-   - `flutter build apk --debug`
-   - after visual changes, the screenshots
+2. **If Module 3 (the scientific keypad) still isn't committed** (`git status -s` shows `lib/features/calculator/presentation/scientific_*.dart` etc. as untracked/uncommitted), commit it — nothing blocks that.
+3. **Phase 5 is complete — all three modules.** Don't redo the engine, the input logic or the keypad. If the user wants a specific default, mapping or layout choice changed, it's a targeted edit (see DEC-047/048/049/050 for exactly what to touch), not a rebuild.
+4. **Don't start Phase 6 (or any other phase) without the user's explicit choice and approval** — ROADMAP.md lists Phase 6 (Converters) next in the planned order, but the user may pick differently. Ask, don't assume.
+5. **A pre-existing Basic bug is now known but not fixed:** `CalculatorMemoryKeys` narrows below 48 dp in landscape at 200% text (Known Issues #16). It's Basic's widget, not the next phase's to fix unless the user asks for it specifically.
+6. **For any future toggle-style key** (a persisted or ephemeral on/off shown on a button), reuse `CalculatorButton.selected` (tinted `primary`/`onPrimary`) rather than inventing a new pattern — and re-verify the tint is distinct from the button's resting tone in all four palettes before picking a color, the way DEC-050 had to.
+7. **For any future "composite" key** (one press, multiple buffer operations), give it its own small, atomic `ExpressionBuffer` method, tested directly — chaining existing methods at the notifier level has already been shown to silently misbehave in several positions (DEC-050).
+8. **Check `git log --oneline -10` at the start of every session, before trusting any internal summary of "what's built."** This project has been worked on by more than one Claude Code session concurrently at least once (Discrepancies Found #7) — a session's own conversational memory of what it built can be behind what's actually in the repository.
+9. **Watch for the stray-scaffold issue recurring** (Known Issues #13, resolved but cause unconfirmed): check `git status -s packages/calc_engine/` is empty before trusting `flutter analyze`/`flutter test`.
+10. **Build every new screen only from `lib/core/widgets/` and the tokens** (rule 12, DEC-034). Don't add anything to the calculator screen or the app shell without the user asking for it first — see DEC-046/050 for why that's mattered every phase so far.
+11. **If `CalcError` gains another case**, `calculator_display_formatter.dart`'s `error()` switch needs a matching case or the app fails to compile — this bit a previous session, caught only by the full `flutter test`, not `dart test` in the engine alone.
+12. **Checks:**
+    - `flutter analyze`
+    - `dart format lib test packages/calc_engine/lib packages/calc_engine/test` (not `dart format .`; it crashes on long paths inside `build/` — Known Issue #3)
+    - `flutter test`
+    - `dart test` in `packages/calc_engine`
+    - `flutter build apk --debug`
+    - after visual changes, the screenshots
 
-   Record the actual results.
-10. Finish with the Session Handoff Protocol.
+    Record the actual results.
+13. Finish with the Session Handoff Protocol.

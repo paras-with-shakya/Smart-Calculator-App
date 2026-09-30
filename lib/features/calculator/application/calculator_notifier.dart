@@ -121,7 +121,9 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
           CalculatorKey.divide ||
           CalculatorKey.power ||
           CalculatorKey.factorial ||
-          CalculatorKey.percent:
+          CalculatorKey.percent ||
+          CalculatorKey.square ||
+          CalculatorKey.cube:
         _edit(_continuingBuffer, (buffer) => _apply(buffer, key));
       case _:
         _edit(_freshBuffer, (buffer) => _apply(buffer, key));
@@ -294,6 +296,10 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
       CalculatorKey.factorial => buffer.insertFactorial(),
       CalculatorKey.pi => buffer.insertConstant(CalculatorSymbols.pi),
       CalculatorKey.euler => buffer.insertConstant(CalculatorSymbols.euler),
+      CalculatorKey.square => buffer.insertPowerOf('2'),
+      CalculatorKey.cube => buffer.insertPowerOf('3'),
+      CalculatorKey.powerOfTen => buffer.insertPowerOfTen(),
+      CalculatorKey.powerOfE => buffer.insertPowerOfE(),
       _ when key.function != null => buffer.insertFunction(key.function!),
       CalculatorKey.brackets => buffer.insertBracket(),
       CalculatorKey.openBracket => buffer.insertOpenBracket(),

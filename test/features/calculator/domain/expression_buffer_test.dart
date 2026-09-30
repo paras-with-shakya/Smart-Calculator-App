@@ -10,8 +10,8 @@ final CalcValue half = CalcValue.fromInt(1) / CalcValue.fromInt(2);
 /// Types [keys] into [start], one edit per character:
 /// digits, `.`, `+ − × ÷`, `%`, `(`, `)`, `b` (the smart bracket key),
 /// `<` (backspace), `L`/`R` (cursor left/right), `v` (one third as a value)
-/// `w` (one half as a value), `^`, `!`, `p` (π), `E` (e), `s` (sin( ) and
-/// `q` (sqrt( ).
+/// `w` (one half as a value), `^`, `!`, `p` (π), `E` (e), `s` (sin( ),
+/// `q` (sqrt( ), `x` (x²), `y` (x³), `T` (10ˣ) and `F` (eˣ).
 ExpressionBuffer type(
   String keys, [
   ExpressionBuffer start = ExpressionBuffer.empty,
@@ -28,6 +28,10 @@ ExpressionBuffer type(
       'E' => buffer.insertConstant(CalculatorSymbols.euler),
       's' => buffer.insertFunction(CalcFunction.sin),
       'q' => buffer.insertFunction(CalcFunction.sqrt),
+      'x' => buffer.insertPowerOf('2'),
+      'y' => buffer.insertPowerOf('3'),
+      'T' => buffer.insertPowerOfTen(),
+      'F' => buffer.insertPowerOfE(),
       '(' => buffer.insertOpenBracket(),
       ')' => buffer.insertCloseBracket(),
       'b' => buffer.insertBracket(),
@@ -475,6 +479,48 @@ void main() {
     });
   });
 
+  group('power of: x², x³ (postfix, needs an operand before the cursor)', () {
+    expectTyping({
+      'x': '|', // empty buffer: nothing to square
+      'y': '|',
+      '(x': '(|', // right after an open bracket: no operand yet
+      'sx': 'sin(|', // right after a function opener: same reason
+      '5+x': '5+|', // right after an operator: same reason
+      '5x': '5^2|',
+      '5y': '5^3|',
+      '(5)x': '(5)^2|', // after a closing bracket
+      '5%x': '5%^2|', // after percent
+      '5!x': '5!^2|', // after factorial
+      'px': 'π^2|', // after a constant
+      'vx': '{1/3}^2|', // after a value
+      '5xy': '5^2^3|', // chained: (5^2)^3
+      // The exponent digit is typed normally, so another digit right after
+      // extends it (the exponent becomes 23), exactly as it would after
+      // typing "^" and "2" by hand — x² only pre-fills the first digit.
+      '5x3': '5^23|',
+    });
+  });
+
+  group('power of: 10ˣ, eˣ (prefix, starts a fresh sub-expression)', () {
+    expectTyping({
+      'T': '{10}^|', // empty buffer: stands alone, ready for the exponent
+      'F': 'e^|',
+      '5T': '5×{10}^|', // after an operand: implied ×, like any value insert
+      '5F': '5×e^|',
+      '(T': '({10}^|', // right after "(": starts fresh, same as typing "10^"
+      // Refused when an operand already starts right after the cursor —
+      // there is no sensible place for the implied × a plain value would
+      // get, since ^ must bind to the exponent typed next.
+      '5LT': '|5',
+      '5LF': '|5',
+    });
+
+    test('the exponent is typed normally afterwards', () {
+      expect(show(type('T5')), '{10}^5|');
+      expect(show(type('F2')), 'e^2|');
+    });
+  });
+
   group('backspacing never strands an implied ×', () {
     // A constant, function or value next to an operand gets an implied ×
     // (DEC-039-style implied multiplication, applied by the buffer itself
@@ -524,6 +570,23 @@ void main() {
     test('canonical text (history) keeps the engine names', () {
       expect(type('s5)^2').toCanonicalText(), 'sin(5)^2');
       expect(type('5!').toCanonicalText(), '5!');
+    });
+
+    test('x², x³, 10ˣ and eˣ evaluate correctly', () {
+      String evaluate(String keys) {
+        final input = type(keys).toEngineInput();
+        final result = const CalcEngine().evaluate(
+          input.expression,
+          variables: input.variables,
+        );
+        return (result as CalcSuccess).value.toDecimalString();
+      }
+
+      expect(evaluate('5x'), '25');
+      expect(evaluate('5y'), '125');
+      expect(evaluate('T2'), '100');
+      // e^0: e is approximate, so the result is too, even though it's 1.
+      expect(evaluate('F0'), '1');
     });
   });
 

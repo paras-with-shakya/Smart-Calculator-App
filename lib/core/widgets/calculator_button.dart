@@ -42,6 +42,7 @@ class CalculatorButton extends StatefulWidget {
     this.label,
     this.icon,
     this.onLongPress,
+    this.selected = false,
   }) : assert(
          (label == null) != (icon == null),
          'Provide exactly one of label and icon.',
@@ -65,6 +66,13 @@ class CalculatorButton extends StatefulWidget {
   /// Visible icon, such as backspace.
   final IconData? icon;
 
+  /// Whether the key is toggled on, such as "2nd" while active. Shown with
+  /// [AppColors.primary]/[AppColors.onPrimary] (the "active mode" accent),
+  /// not a tint of [kind]'s own colour: a tinted `function` key would be
+  /// indistinguishable from its own resting colour in some palettes, since
+  /// `functionKey` and `primaryContainer` happen to match there.
+  final bool selected;
+
   @override
   State<CalculatorButton> createState() => _CalculatorButtonState();
 }
@@ -86,19 +94,27 @@ class _CalculatorButtonState extends State<CalculatorButton> {
       CalculatorButtonKind.function => typography.key,
       CalculatorButtonKind.memory => typography.button,
     };
-    final (background, foreground) = switch (widget.kind) {
-      CalculatorButtonKind.digit => (colors.digitKey, colors.onDigitKey),
-      CalculatorButtonKind.operator => (
-        colors.operatorKey,
-        colors.onOperatorKey,
-      ),
-      CalculatorButtonKind.function => (
-        colors.functionKey,
-        colors.onFunctionKey,
-      ),
-      CalculatorButtonKind.equals => (colors.equalsKey, colors.onEqualsKey),
-      CalculatorButtonKind.memory => (Colors.transparent, colors.textMuted),
-    };
+    final (background, foreground) = widget.selected
+        ? (colors.primary, colors.onPrimary)
+        : switch (widget.kind) {
+            CalculatorButtonKind.digit => (colors.digitKey, colors.onDigitKey),
+            CalculatorButtonKind.operator => (
+              colors.operatorKey,
+              colors.onOperatorKey,
+            ),
+            CalculatorButtonKind.function => (
+              colors.functionKey,
+              colors.onFunctionKey,
+            ),
+            CalculatorButtonKind.equals => (
+              colors.equalsKey,
+              colors.onEqualsKey,
+            ),
+            CalculatorButtonKind.memory => (
+              Colors.transparent,
+              colors.textMuted,
+            ),
+          };
     final enabled = widget.onPressed != null;
     final labelColor = enabled
         ? foreground
@@ -128,6 +144,7 @@ class _CalculatorButtonState extends State<CalculatorButton> {
     return Semantics(
       button: true,
       enabled: enabled,
+      selected: widget.selected,
       label: widget.semanticLabel,
       child: ConstrainedBox(
         constraints: const BoxConstraints(

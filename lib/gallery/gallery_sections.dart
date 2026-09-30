@@ -35,6 +35,9 @@ enum GallerySection {
   /// CalculatorButton kinds.
   keys('Calculator keys'),
 
+  /// The scientific tray's key tones, and the 2nd toggle's selected state.
+  scientificKeys('Scientific keys'),
+
   /// DisplayText: shrinking, wrapping and the caret.
   display('Display text'),
 
@@ -82,6 +85,7 @@ class GallerySectionView extends StatelessWidget {
           GallerySection.spacingAndShape => const _SpacingAndShapeSection(),
           GallerySection.buttons => const _ButtonsSection(),
           GallerySection.keys => const _KeysSection(),
+          GallerySection.scientificKeys => const _ScientificKeysSection(),
           GallerySection.display => const _DisplaySection(),
           GallerySection.cards => const _CardsSection(),
           GallerySection.inputs => const _InputsSection(),
@@ -450,6 +454,65 @@ class _KeysSection extends StatelessWidget {
             semanticLabel: 'Equals',
             onPressed: _noop,
           ),
+        ],
+      ),
+    ],
+  );
+}
+
+/// A static sample of the scientific tray's key tones, plus the DEG/RAD
+/// and 2nd toggles (both states, so the 2nd-selected tone is checked
+/// against the guidelines in every theme). The working tray is
+/// `ScientificFunctionTray`; these keys do nothing.
+class _ScientificKeysSection extends StatelessWidget {
+  const _ScientificKeysSection();
+
+  static void _noop() {}
+
+  static const List<(String, String)> _sample = [
+    ('sin', 'Sine'),
+    ('cos', 'Cosine'),
+    ('√', 'Square root'),
+    ('log', 'Log base 10'),
+    ('π', 'Pi'),
+  ];
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      const _KeyRow(
+        children: [
+          CalculatorButton(
+            kind: CalculatorButtonKind.function,
+            label: 'DEG',
+            semanticLabel: 'Angle mode, degrees',
+            onPressed: _noop,
+          ),
+          CalculatorButton(
+            kind: CalculatorButtonKind.function,
+            label: '2nd',
+            semanticLabel: 'Second function',
+            onPressed: _noop,
+          ),
+          CalculatorButton(
+            kind: CalculatorButtonKind.function,
+            label: '2nd',
+            semanticLabel: 'Second function (selected)',
+            selected: true,
+            onPressed: _noop,
+          ),
+        ],
+      ),
+      const SizedBox(height: AppSpacing.sm),
+      _KeyRow(
+        children: [
+          for (final (label, semantics) in _sample)
+            CalculatorButton(
+              kind: CalculatorButtonKind.function,
+              label: label,
+              semanticLabel: semantics,
+              onPressed: _noop,
+            ),
         ],
       ),
     ],

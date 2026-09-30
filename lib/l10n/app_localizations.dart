@@ -729,6 +729,312 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Undefined result'**
   String get errorUndefined;
+
+  /// Visible label of the sine key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'sin'**
+  String get keySin;
+
+  /// What screen readers say for the sine key.
+  ///
+  /// In en, this message translates to:
+  /// **'Sine'**
+  String get keySinLabel;
+
+  /// Visible label of the cosine key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'cos'**
+  String get keyCos;
+
+  /// What screen readers say for the cosine key.
+  ///
+  /// In en, this message translates to:
+  /// **'Cosine'**
+  String get keyCosLabel;
+
+  /// Visible label of the tangent key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'tan'**
+  String get keyTan;
+
+  /// What screen readers say for the tangent key.
+  ///
+  /// In en, this message translates to:
+  /// **'Tangent'**
+  String get keyTanLabel;
+
+  /// Visible label of the inverse sine key (2nd of sin).
+  ///
+  /// In en, this message translates to:
+  /// **'sin⁻¹'**
+  String get keyAsin;
+
+  /// What screen readers say for the inverse sine key.
+  ///
+  /// In en, this message translates to:
+  /// **'Inverse sine'**
+  String get keyAsinLabel;
+
+  /// Visible label of the inverse cosine key (2nd of cos).
+  ///
+  /// In en, this message translates to:
+  /// **'cos⁻¹'**
+  String get keyAcos;
+
+  /// What screen readers say for the inverse cosine key.
+  ///
+  /// In en, this message translates to:
+  /// **'Inverse cosine'**
+  String get keyAcosLabel;
+
+  /// Visible label of the inverse tangent key (2nd of tan).
+  ///
+  /// In en, this message translates to:
+  /// **'tan⁻¹'**
+  String get keyAtan;
+
+  /// What screen readers say for the inverse tangent key.
+  ///
+  /// In en, this message translates to:
+  /// **'Inverse tangent'**
+  String get keyAtanLabel;
+
+  /// Visible label of the hyperbolic sine key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'sinh'**
+  String get keySinh;
+
+  /// What screen readers say for the hyperbolic sine key.
+  ///
+  /// In en, this message translates to:
+  /// **'Hyperbolic sine'**
+  String get keySinhLabel;
+
+  /// Visible label of the hyperbolic cosine key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'cosh'**
+  String get keyCosh;
+
+  /// What screen readers say for the hyperbolic cosine key.
+  ///
+  /// In en, this message translates to:
+  /// **'Hyperbolic cosine'**
+  String get keyCoshLabel;
+
+  /// Visible label of the hyperbolic tangent key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'tanh'**
+  String get keyTanh;
+
+  /// What screen readers say for the hyperbolic tangent key.
+  ///
+  /// In en, this message translates to:
+  /// **'Hyperbolic tangent'**
+  String get keyTanhLabel;
+
+  /// Visible label of the base-10 logarithm key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'log'**
+  String get keyLog;
+
+  /// What screen readers say for the base-10 logarithm key.
+  ///
+  /// In en, this message translates to:
+  /// **'Log base 10'**
+  String get keyLogLabel;
+
+  /// Visible label of the natural logarithm key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'ln'**
+  String get keyLn;
+
+  /// What screen readers say for the natural logarithm key.
+  ///
+  /// In en, this message translates to:
+  /// **'Natural log'**
+  String get keyLnLabel;
+
+  /// Visible label of the square root key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'√'**
+  String get keySqrt;
+
+  /// What screen readers say for the square root key.
+  ///
+  /// In en, this message translates to:
+  /// **'Square root'**
+  String get keySqrtLabel;
+
+  /// Visible label of the cube root key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'∛'**
+  String get keyCbrt;
+
+  /// What screen readers say for the cube root key.
+  ///
+  /// In en, this message translates to:
+  /// **'Cube root'**
+  String get keyCbrtLabel;
+
+  /// Visible label of the absolute value key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'abs'**
+  String get keyAbs;
+
+  /// What screen readers say for the absolute value key.
+  ///
+  /// In en, this message translates to:
+  /// **'Absolute value'**
+  String get keyAbsLabel;
+
+  /// Visible label of the square key (2nd of square root).
+  ///
+  /// In en, this message translates to:
+  /// **'x²'**
+  String get keySquare;
+
+  /// What screen readers say for the square key.
+  ///
+  /// In en, this message translates to:
+  /// **'Square'**
+  String get keySquareLabel;
+
+  /// Visible label of the cube key (2nd of cube root).
+  ///
+  /// In en, this message translates to:
+  /// **'x³'**
+  String get keyCube;
+
+  /// What screen readers say for the cube key.
+  ///
+  /// In en, this message translates to:
+  /// **'Cube'**
+  String get keyCubeLabel;
+
+  /// Visible label of the power-of-ten key (2nd of log).
+  ///
+  /// In en, this message translates to:
+  /// **'10ˣ'**
+  String get keyPowerOfTen;
+
+  /// What screen readers say for the power-of-ten key.
+  ///
+  /// In en, this message translates to:
+  /// **'Power of ten'**
+  String get keyPowerOfTenLabel;
+
+  /// Visible label of the power-of-e key (2nd of ln).
+  ///
+  /// In en, this message translates to:
+  /// **'eˣ'**
+  String get keyPowerOfE;
+
+  /// What screen readers say for the power-of-e key.
+  ///
+  /// In en, this message translates to:
+  /// **'Power of e'**
+  String get keyPowerOfELabel;
+
+  /// What screen readers say for the ^ key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'Power'**
+  String get keyPowerLabel;
+
+  /// What screen readers say for the ! key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'Factorial'**
+  String get keyFactorialLabel;
+
+  /// What screen readers say for the π key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'Pi'**
+  String get keyPiLabel;
+
+  /// What screen readers say for the e key in the scientific tray.
+  ///
+  /// In en, this message translates to:
+  /// **'Euler\'s number'**
+  String get keyEulerLabel;
+
+  /// Visible label of the angle-mode key when in degrees.
+  ///
+  /// In en, this message translates to:
+  /// **'DEG'**
+  String get keyAngleModeDegrees;
+
+  /// What screen readers say for the angle-mode key when in degrees.
+  ///
+  /// In en, this message translates to:
+  /// **'Angle mode, degrees'**
+  String get keyAngleModeDegreesLabel;
+
+  /// Visible label of the angle-mode key when in radians.
+  ///
+  /// In en, this message translates to:
+  /// **'RAD'**
+  String get keyAngleModeRadians;
+
+  /// What screen readers say for the angle-mode key when in radians.
+  ///
+  /// In en, this message translates to:
+  /// **'Angle mode, radians'**
+  String get keyAngleModeRadiansLabel;
+
+  /// Visible label of the 2nd (inverse-function) toggle key.
+  ///
+  /// In en, this message translates to:
+  /// **'2nd'**
+  String get keySecond;
+
+  /// What screen readers say for the 2nd toggle key.
+  ///
+  /// In en, this message translates to:
+  /// **'Second function'**
+  String get keySecondLabel;
+
+  /// Heading for the trigonometry group in the scientific key tray.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigonometry'**
+  String get scientificGroupTrigonometry;
+
+  /// Heading for the hyperbolic-functions group in the scientific key tray.
+  ///
+  /// In en, this message translates to:
+  /// **'Hyperbolic'**
+  String get scientificGroupHyperbolic;
+
+  /// Heading for the logarithms-and-powers group in the scientific key tray.
+  ///
+  /// In en, this message translates to:
+  /// **'Logarithms and powers'**
+  String get scientificGroupLogarithmsAndPowers;
+
+  /// Heading for the roots group in the scientific key tray.
+  ///
+  /// In en, this message translates to:
+  /// **'Roots'**
+  String get scientificGroupRoots;
+
+  /// Heading for the group of remaining scientific keys (abs, factorial, pi, e) in the scientific key tray.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get scientificGroupOther;
 }
 
 class _AppLocalizationsDelegate

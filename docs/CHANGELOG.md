@@ -19,6 +19,42 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-09-30: Phase 5, Module 3 (the scientific keypad) — Phase 5 complete
+
+The user gave a detailed brief and asked for a written, reviewed plan before any code. The plan was drafted from three research passes, independently stress-tested (catching two real bugs before implementation), approved, then built exactly as planned. Phone-tested; this closes out Phase 5.
+
+### Added
+
+- **`ScientificCalculatorView`** (`lib/features/calculator/presentation/`): the Scientific mode screen — reuses `CalculatorDisplay`/`CalculatorMemoryKeys`/`CalculatorKeypad` unchanged, adds a DEG/RAD + 2nd toggle row and `ScientificFunctionTray`, in both portrait and landscape (the landscape keypad column is untouched). `app_shell.dart` now routes `CalculatorMode.scientific` here instead of `EmptyState`.
+- **`ScientificFunctionTray`**: a horizontally-scrollable, grouped row of every scientific function key, driven by a new pure-data table, `lib/features/calculator/domain/scientific_keys.dart` (`scientificKeyGroups`) — Trigonometry, Hyperbolic, Logarithms & powers, Roots, Other.
+- **Four new `CalculatorKey`s** for keys with no direct engine node: `square`, `cube` (2nd of √/∛), `powerOfTen`, `powerOfE` (2nd of log/ln) — backed by three new, atomic `ExpressionBuffer` methods: `insertPowerOf(digit)`, `insertPowerOfTen()`, `insertPowerOfE()`.
+- **A 2nd/inverse toggle**: 7 engine-backed pairs (sin↔asin, cos↔acos, tan↔atan, plus the four composites above); every other tray key (sinh, cosh, tanh, abs, `!`, π, e) has no 2nd role and is unaffected, since the engine has no inverse-hyperbolic functions or nCr/nPr to map to.
+- **`CalculatorButton.selected`**: a new optional parameter (default `false`, backward-compatible), tinted `AppColors.primary`/`onPrimary`, for the 2nd key's toggled-on state.
+- **A new gallery section**, "Scientific keys", demonstrating the tray's tones and both toggle states.
+- `~35` new `app_en.arb` strings (tray labels/semantics, group names, toggle labels).
+
+### Fixed (found during planning and testing, before they shipped)
+
+- The plan's independent review caught: chaining existing `ExpressionBuffer` methods at the notifier level for the composite keys silently degrades to "just type a bare digit" in several positions (empty buffer, right after `(`, right after a function opener) — fixed by making the three new methods atomic instead. Also: the planned `selected` tint (`primaryContainer`) is byte-identical to the resting `functionKey` tone in the light and high-contrast-light palettes — fixed by using `primary`/`onPrimary` instead.
+- A test-writing bug: a hand-computed expected keypad width for landscape didn't account for the navigation rail's width — fixed by comparing against Basic's own measured width in the identical scenario instead.
+
+### Notes
+
+- **A pre-existing Basic-calculator bug found, not caused:** `CalculatorMemoryKeys` (reused unchanged) narrows below 48 dp width in landscape at 200% text — reproduced identically with plain `CalculatorView`. Not fixed (out of scope for Module 3); recorded in DEVELOPMENT_STATUS.md, Known Issues #16.
+- The "pull-up fx tray" idea `ROADMAP.md` had proposed was not built; a single always-visible, horizontally-scrollable row was built instead as the smaller, lower-risk first pass.
+
+### Decisions
+
+- DEC-050: the full plan, its independent review, and everything built from it.
+
+### Tests
+
+- `flutter analyze`: No issues found. `dart format`: clean. `flutter test`: 645 passed, 1 skipped, 0 failed (was 596). `dart test` in `packages/calc_engine`: 387 passed (unchanged — no engine or buffer-grammar change). `flutter build apk --debug`: built (~125 s).
+- New: 49 tests across `expression_buffer_test.dart` (composite inserts), `scientific_keys_test.dart` (new, the pure-data table), `calculator_scientific_test.dart` (composite-key notifier wiring), `calculator_button_test.dart` (`selected`), and `scientific_calculator_view_test.dart` (new, the screen's layout/accessibility/toggles).
+- **Phone-tested** (`23124RN87I`, USB): mode switching; sin/cos/tan computing correct degree-mode results; the 2nd toggle's visual state and label swap (unmapped keys confirmed unaffected); the DEG↔RAD flip; the x² composite key end to end (`4^2`→`16`, confirming the atomic-insert fix on a real device); the tray's horizontal scroll; the landscape layout (rail, both new rows, keypad, correctly no history panel). Every check passed.
+
+---
+
 ## 2026-09-29: Phase 5, Module 2 audit, and the orphaned-× fix
 
 A different Claude Code session (co-authored "Claude Sonnet 5.5") built and committed Module 2 (below, `856d175`) while this session was between turns — discovered from `git log`, not assumed. The user then explicitly confirmed the five P-6 defaults by name and asked for a focused Module 2 audit against a specific checklist, a fix for the orphaned-`×` limitation Module 2 had documented as accepted, and no start on Module 3. Not phone-tested (still no scientific keys on screen).
