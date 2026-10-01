@@ -1067,5 +1067,159 @@
   "financialPercentResultLabel": "Result",
   "@financialPercentResultLabel": {
     "description": "Label of the percentage tool's computed result."
+  },
+  "dateToolPickerLabel": "Calculate",
+  "@dateToolPickerLabel": {
+    "description": "Label of the date calculator's tool choice."
+  },
+  "dateToolDifference": "Difference",
+  "@dateToolDifference": {
+    "description": "Option label: the gap between two dates."
+  },
+  "dateToolOffset": "Add or subtract",
+  "@dateToolOffset": {
+    "description": "Option label: add or subtract days, weeks, months or years from a date."
+  },
+  "dateFromLabel": "From",
+  "@dateFromLabel": {
+    "description": "Label of the first date in the date difference tool."
+  },
+  "dateToLabel": "To",
+  "@dateToLabel": {
+    "description": "Label of the second date in the date difference tool."
+  },
+  "dateStartLabel": "Start date",
+  "@dateStartLabel": {
+    "description": "Label of the date that is added to or subtracted from."
+  },
+  "datePickerHelp": "Select date",
+  "@datePickerHelp": {
+    "description": "Title of the calendar dialog that picks a date."
+  },
+  "dateDirectionAdd": "Add",
+  "@dateDirectionAdd": {
+    "description": "Option label for adding time to a date."
+  },
+  "dateDirectionSubtract": "Subtract",
+  "@dateDirectionSubtract": {
+    "description": "Option label for subtracting time from a date."
+  },
+  "dateAmountLabel": "Amount",
+  "@dateAmountLabel": {
+    "description": "Label of the number of days, weeks, months or years to add or subtract."
+  },
+  "dateUnitLabel": "Unit",
+  "@dateUnitLabel": {
+    "description": "Label of the choice of days, weeks, months or years."
+  },
+  "dateUnitDays": "Days",
+  "@dateUnitDays": {
+    "description": "Option label for counting in days."
+  },
+  "dateUnitWeeks": "Weeks",
+  "@dateUnitWeeks": {
+    "description": "Option label for counting in weeks."
+  },
+  "dateUnitMonths": "Months",
+  "@dateUnitMonths": {
+    "description": "Option label for counting in months."
+  },
+  "dateUnitYears": "Years",
+  "@dateUnitYears": {
+    "description": "Option label for counting in years."
+  },
+  "dateErrorAmountTooLarge": "Enter {max} or less",
+  "@dateErrorAmountTooLarge": {
+    "description": "Validation message when the amount to add or subtract is too large.",
+    "placeholders": {
+      "max": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "dateErrorOutOfRange": "That date is outside the supported years (1 to 9999).",
+  "@dateErrorOutOfRange": {
+    "description": "Shown instead of a result when adding or subtracting would leave the supported years."
+  },
+  "dateDifferencePlaceholder": "Pick two dates to see the difference.",
+  "@dateDifferencePlaceholder": {
+    "description": "Shown in the date difference result area before it has a result."
+  },
+  "dateOffsetPlaceholder": "Enter an amount to see the date.",
+  "@dateOffsetPlaceholder": {
+    "description": "Shown in the add or subtract result area before it has a result."
+  },
+  "dateResultDifference": "Difference",
+  "@dateResultDifference": {
+    "description": "Label of the gap between two dates, as years, months and days."
+  },
+  "dateResultTotalDays": "Total days",
+  "@dateResultTotalDays": {
+    "description": "Label of the total number of days between two dates."
+  },
+  "dateResultWeeks": "Weeks and days",
+  "@dateResultWeeks": {
+    "description": "Label of the gap between two dates as whole weeks and leftover days."
+  },
+  "dateResultTotalMonths": "Total months",
+  "@dateResultTotalMonths": {
+    "description": "Label of the number of whole months between two dates."
+  },
+  "dateResultDate": "Resulting date",
+  "@dateResultDate": {
+    "description": "Label of the date that results from adding or subtracting."
+  },
+  "dateYears": "{count, plural, one{{count} year} other{{count} years}}",
+  "@dateYears": {
+    "description": "A number of years, such as \"1 year\" or \"3 years\".",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "dateMonths": "{count, plural, one{{count} month} other{{count} months}}",
+  "@dateMonths": {
+    "description": "A number of months, such as \"1 month\" or \"3 months\".",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "dateWeeks": "{count, plural, one{{count} week} other{{count} weeks}}",
+  "@dateWeeks": {
+    "description": "A number of weeks, such as \"1 week\" or \"3 weeks\".",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "dateDays": "{count, plural, one{{count} day} other{{count} days}}",
+  "@dateDays": {
+    "description": "A number of days, such as \"1 day\" or \"3 days\".",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "dateSpanJoin": "{first}, {second}",
+  "@dateSpanJoin": {
+    "description": "Joins two parts of a length of time, such as \"2 years\" and \"3 months\".",
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      }
+    }
   }
 }

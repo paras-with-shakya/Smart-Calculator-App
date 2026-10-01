@@ -1586,3 +1586,43 @@ Then stop.
 - **Rejected:** an amortization schedule/chart and a compound-interest growth-over-time chart. Different, higher-effort chart forms sharing no code with the bar; "(Proposed)" only, and building them unasked would be exactly the kind of extra bespoke chart work the user's own brief warned against.
 
 **Impact:** New feature directory `lib/features/financial/`, fully additive. One new reusable core widget, `ShareOfWholeBar`. `SettingsRepository`/`PreferencesSettingsRepository`/`PreferenceKeys` gain one new member (last tool), additive only — existing theme/angle-mode/converter tests re-verified unchanged. `app_shell.dart` gains one new switch arm. The gallery gains one new section. No engine change, no new dependency, and `calculator_view.dart`/`scientific_calculator_view.dart`/`converter_view.dart`/`calculator_notifier.dart`/`calc_engine`/`HistoryEntry` are all untouched.
+
+
+### [DEC-053] Phase 8, Date calculator: calendar dates in UTC, months defined by `addMonths`, and one shared month-end rule
+
+- **Status:** Adopted (a plan was written, then independently reviewed before any code, the same practice as DEC-050 to DEC-052; the review found real defects, listed below).
+- **Date:** 2026-10-01
+- **Implemented:** Yes (`lib/features/date_calculator/`, `lib/core/widgets/{app_date_field,result_row}.dart`, `lib/core/formatting/{localized_date_format,date_format_provider}.dart`, `lib/core/time/clock_provider.dart`, `lib/app/shell/app_shell.dart`, `lib/main.dart`, `lib/gallery/gallery_sections.dart`). Phone test pending.
+
+**Context:** The user approved Phase 8 with "okay start phase 8" and no detailed brief. ROADMAP.md fixed the scope (date difference in days/weeks/months/years; add or subtract; no time-zone bugs) and proposed UTC calendar-date arithmetic with month-end clamping.
+
+**Decision:**
+
+- **A date is a calendar date, not an instant.** Every domain function takes and returns `DateTime.utc(y, m, d)`; anything from a picker or the clock goes through `calendarDate()`, which keeps only year, month and day. Nothing in the domain reads a time zone or a time of day, so daylight saving cannot move a result by a day. Domain functions `assert(isUtc)`.
+- **Add/subtract.** Days and weeks move by exact calendar days. Months and years move by calendar months (a year is 12 months) and clamp to the target month's last day: 31 Jan + 1 month = 28 Feb (29 in a leap year); 29 Feb 2024 + 1 year = 28 Feb 2025. Years 1 to 9999 are supported; a result outside them is reported (`outOfRange`), never wrapped. The amount is a whole number from 0 to 1,000,000.
+- **Difference.** The months are the *largest* `m` with `addMonths(earlier, m) <= later`, and the days are what is left (0 to 30). This ties the two tools together: `dateDifference(a, addMonths(a, k))` is always exactly `k` months 0 days, so 31 Jan to 30 Apr is 3 months 0 days, 31 Jan to 28 Feb is 1 month 0 days, 29 Feb 2024 to 28 Feb 2025 is 1 year 0 days. Also shown: total days, whole weeks plus days, and total months. The order of the two dates does not matter (the gap is always positive).
+- **Screen.** One scrollable column in portrait and landscape (the DEC-052 reasoning: the amount field raises the system keyboard). A two-way choice (Difference / Add or subtract); dates default to today and are not persisted; no Riverpod notifier (local state, like the financial tools).
+- **Reusable pieces (rule 12).** `AppDateField` (core), `ResultRow` and `ResultPlaceholder` (moved to core from the financial feature, because two features now use them), `LocalizedDateFormat` + `dateFormatProvider` (core, mirroring DEC-037's number format), `clockProvider` (core, so tests pin "today"). `AppTextField` gained `readOnly`, `onTap`, `suffixIcon` rather than a second text-field widget being written.
+- **Region.** The device region's date order is used (like numbers), which needs date data for that region; `initializeLocalizedDates` loads it in `main`, because Flutter only loads plain `en`. Unknown regions fall back to English.
+- **Picker range** 1 Jan 1900 to 31 Dec 2200 (`date_pick_range.dart`): a picker over 10,000 years is unusable, while the domain accepts years 1 to 9999 (reachable by typing an amount).
+- **Plurals.** Unit counts use ICU `one`/`other` plurals; parts are joined with a separate `dateSpanJoin` message so translations can reorder; zero parts are omitted, and an all-zero gap reads "0 days".
+
+**Defects found by the independent review of the first draft, all fixed before coding:**
+
+1. The difference algorithm (`months--` when the end day is before the start day) disagreed with `addMonths`' clamping (31 Jan to 30 Apr gave 2 months 30 days; 257 round-trip pairs failed in the reviewer's sweep). Replaced by the "largest `m`" definition, with a property test the first draft's own planned test would not have caught.
+2. The DST tests could not prove anything on this machine; the guarantee is now structural and the tests describe themselves honestly.
+3. The amount limit (1,000,000) and the digit limit (7) disagreed; a "too large" message was added.
+4. `showDatePicker` asserts initial date within range; `AppDateField` clamps.
+5. Removing the "not available yet" placeholder would have broken Programmer mode; only the Date arm was added.
+6. The device-region date order needed `initializeLocalizedDates` (see above).
+7. Result values can be long prose ("Wednesday, September 29, 2027"); `ResultRow.wrapValue` lets them wrap instead of truncating with an ellipsis.
+8. Accessibility: a merged semantics node and a live region for the result. A further gap was found while testing (a read-only text field cannot be activated by a screen reader); fixed in `AppDateField`.
+
+**Alternatives:**
+
+- **Rejected:** `DateTime` local arithmetic (`difference().inDays`, `add(Duration(days: n))`), which is off by one across a daylight-saving change.
+- **Rejected:** the "borrow days from the previous month" difference algorithm, which disagrees with the add tool at month ends.
+- **Rejected:** an "include the end day" toggle, working-day (business-day) counts and holidays: beyond the roadmap's scope. Possible later additions.
+- **Rejected:** persisting the chosen dates or tool, and history / saved-calculations integration (the same reasoning as DEC-051 and DEC-052).
+
+**Impact:** New feature directory, additive. `FinancialResultRow` was renamed and moved (import and rename only). `AppTextField` gained three optional parameters. `main` now awaits `initializeLocalizedDates`. The "not available yet" fallback now covers only Programmer.

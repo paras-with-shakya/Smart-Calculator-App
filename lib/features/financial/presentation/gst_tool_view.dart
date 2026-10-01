@@ -8,6 +8,7 @@ import 'package:smart_calculator/core/formatting/number_format_provider.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_choice_group.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
+import 'package:smart_calculator/core/widgets/result_row.dart';
 import 'package:smart_calculator/core/widgets/share_of_whole_bar.dart';
 import 'package:smart_calculator/features/financial/domain/gst.dart';
 import 'package:smart_calculator/features/financial/presentation/financial_number_format.dart';
@@ -145,19 +146,19 @@ class _GstToolViewState extends ConsumerState<GstToolView> {
                 child: Column(
                   crossAxisAlignment: .stretch,
                   children: [
-                    FinancialResultRow(
+                    ResultRow(
                       label: l10n.financialGstBaseLabel,
                       value: formatMoney(format, result.baseAmount),
                     ),
                     if (_supplyType == _SupplyType.intraState) ...[
-                      FinancialResultRow(
+                      ResultRow(
                         label: l10n.financialGstCgstLabel,
                         value: formatMoney(
                           format,
                           splitIntraState(result.gstAmount).cgst,
                         ),
                       ),
-                      FinancialResultRow(
+                      ResultRow(
                         label: l10n.financialGstSgstLabel,
                         value: formatMoney(
                           format,
@@ -165,11 +166,11 @@ class _GstToolViewState extends ConsumerState<GstToolView> {
                         ),
                       ),
                     ] else
-                      FinancialResultRow(
+                      ResultRow(
                         label: l10n.financialGstIgstLabel,
                         value: formatMoney(format, result.gstAmount),
                       ),
-                    FinancialResultRow(
+                    ResultRow(
                       label: l10n.financialGstTotalLabel,
                       value: formatMoney(format, result.totalAmount),
                       emphasized: true,

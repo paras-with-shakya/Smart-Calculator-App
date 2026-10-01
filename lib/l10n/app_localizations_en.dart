@@ -785,4 +785,150 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get financialPercentResultLabel => 'Result';
+
+  @override
+  String get dateToolPickerLabel => 'Calculate';
+
+  @override
+  String get dateToolDifference => 'Difference';
+
+  @override
+  String get dateToolOffset => 'Add or subtract';
+
+  @override
+  String get dateFromLabel => 'From';
+
+  @override
+  String get dateToLabel => 'To';
+
+  @override
+  String get dateStartLabel => 'Start date';
+
+  @override
+  String get datePickerHelp => 'Select date';
+
+  @override
+  String get dateDirectionAdd => 'Add';
+
+  @override
+  String get dateDirectionSubtract => 'Subtract';
+
+  @override
+  String get dateAmountLabel => 'Amount';
+
+  @override
+  String get dateUnitLabel => 'Unit';
+
+  @override
+  String get dateUnitDays => 'Days';
+
+  @override
+  String get dateUnitWeeks => 'Weeks';
+
+  @override
+  String get dateUnitMonths => 'Months';
+
+  @override
+  String get dateUnitYears => 'Years';
+
+  @override
+  String dateErrorAmountTooLarge(int max) {
+    final intl.NumberFormat maxNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String maxString = maxNumberFormat.format(max);
+
+    return 'Enter $maxString or less';
+  }
+
+  @override
+  String get dateErrorOutOfRange =>
+      'That date is outside the supported years (1 to 9999).';
+
+  @override
+  String get dateDifferencePlaceholder =>
+      'Pick two dates to see the difference.';
+
+  @override
+  String get dateOffsetPlaceholder => 'Enter an amount to see the date.';
+
+  @override
+  String get dateResultDifference => 'Difference';
+
+  @override
+  String get dateResultTotalDays => 'Total days';
+
+  @override
+  String get dateResultWeeks => 'Weeks and days';
+
+  @override
+  String get dateResultTotalMonths => 'Total months';
+
+  @override
+  String get dateResultDate => 'Resulting date';
+
+  @override
+  String dateYears(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString years',
+      one: '$countString year',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateMonths(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString months',
+      one: '$countString month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateWeeks(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString weeks',
+      one: '$countString week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateDays(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString days',
+      one: '$countString day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dateSpanJoin(String first, String second) {
+    return '$first, $second';
+  }
 }

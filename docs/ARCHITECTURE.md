@@ -395,6 +395,19 @@ Seven independent calculators, unified only at the presentation layer — unlike
 - **`ShareOfWholeBar`** (`lib/core/widgets/share_of_whole_bar.dart`, not feature-local — used by two tool views, qualifying under CLAUDE.md rule 12): a horizontal two-segment proportional bar plus a legend, not a donut (a documented anti-pattern for 2-segment part-to-whole data) and not `CustomPaint` (no graphics package or precedent exists in this app). `secondary`/`onSecondary` tints the base segment, `primary`/`onPrimary` the added segment (interest, GST) — the accent always marks the part worth noticing. Asserts a positive total as a documented caller precondition.
 - **Not built, by decision (DEC-052):** sliders for rate/tenure; an EMI donut chart (replaced by the bar) and an amortization chart; a compound-interest growth-over-time chart; a CGST/SGST chart (would show a constant, data-independent 50/50 split); per-field persistence ("save and reuse"); history integration.
 
+### 1.21 Date calculator (`lib/features/date_calculator/`, Phase 8)
+
+Two tools on one screen: the gap between two dates, and a date plus or minus an amount. Decision: DEC-053.
+
+- **domain** (no Flutter imports):
+  - `calendar_date.dart`: a date is `DateTime.utc(y, m, d)` (a calendar date, not an instant). `calendarDate(DateTime)` keeps only a local value's year, month and day. `isLeapYear`, `daysInMonth`, `addMonths` (clamps to the target month's last day; `null` outside years 1 to 9999), `addDays` (same range rule), `daysBetween`. Every function `assert`s its inputs are UTC.
+  - `date_difference.dart`: `dateDifference(a, b)` returns a `DateDifference` (years, months, days, total months, total days; `weeks` and `daysAfterWeeks` derived). The months are the largest `m` with `addMonths(earlier, m) <= later`, so the two tools agree at month ends. Either order of dates gives the same result.
+  - `date_offset.dart`: `offsetDate(start, amount, unit, direction)` returns a `DateOffsetResult` holding either a date or a `DateOffsetError` (`amountTooLarge` above `maxDateAmount` = 1,000,000; `outOfRange`). Weeks are 7 days; years are 12 months.
+- **presentation:** `DateCalculatorView` (a `DateTool` choice, one scrollable column, `maxContentWidth` 480, the same in portrait and landscape), `DateDifferenceToolView` and `DateOffsetToolView` (`ConsumerStatefulWidget`s with local state; the dates default to today from `clockProvider`; nothing is persisted), `date_text.dart` (`describeSpan`, `describeWeeks` over ICU plural strings), `date_pick_range.dart` (the picker offers 1900 to 2200). `app_shell.dart` has a `CalculatorMode.date` arm; the "not available yet" fallback now covers only Programmer.
+- **core pieces added for it:** `AppDateField` (a read-only `AppTextField` that opens `showDatePicker`; merges a tap action into its semantics so a screen reader can open the picker; clamps the initial date into range; reports a UTC calendar date; reports nothing on cancel), `ResultRow` and `ResultPlaceholder` (shared with the financial tools; `wrapValue` lets prose results wrap), `LocalizedDateFormat` / `dateFormatProvider` (the device region's date order; `initializeLocalizedDates` loads that region's data in `main`), `clockProvider` (local `DateTime`; tests override it).
+- **Tests:** `test/features/date_calculator/domain/calendar_date_test.dart` (leap years, month ends, negative months, range limits, DST dates, `calendarDate` of late-evening local times, difference examples, property tests that the difference and add tools agree), `.../presentation/date_calculator_view_test.dart` (both tools with a pinned clock, the picker, validation messages, layouts, 200% text, semantics), `test/core/widgets/app_date_field_test.dart` (the field, `LocalizedDateFormat`, `ResultRow`), plus the gallery's "Date" section in the accessibility test.
+- **Not built, by decision (DEC-053):** an "include the end day" toggle, working days and holidays, persisting the chosen dates or tool, history / saved-calculations integration.
+
 ## 2. Confirmed Decisions
 
 Decided by the user. The "Implemented" column reflects the state after Phase 4's History module.
@@ -469,7 +482,7 @@ The scientific engine (functions, `^`, exact/approximate values, angle mode, the
 
 ### 3.7 Localization still to come
 
-Date formatting through `intl` (Phase 8). Numbers already follow the device region (§1.13).
+Dates and numbers both follow the device region (§1.13, §1.21).
 
 ### 3.8 Planned dependencies not added yet
 

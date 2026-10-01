@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:riverpod/misc.dart' show Override;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
@@ -56,6 +57,7 @@ Future<void> pumpApp(
   WidgetTester tester, {
   Size size = TestWindows.phonePortrait,
   SharedPreferencesWithCache? preferences,
+  List<Override> overrides = const [],
 }) async {
   _ensureInMemoryDatabase();
   tester.view
@@ -73,6 +75,7 @@ Future<void> pumpApp(
             singleInstance: false,
           ),
         ),
+        ...overrides,
       ],
     ),
   );

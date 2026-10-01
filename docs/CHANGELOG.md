@@ -19,6 +19,48 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-10-01: Phase 8 (Date calculator) — Phase 8 built, tested; phone test pending
+
+The user approved Phase 8 ("okay start phase 8"), with no detailed brief. A plan was written and independently reviewed before any code (DEC-053). The review found real defects in the first draft, all fixed in the plan before coding (see "Fixed").
+
+### Added
+
+- **A new feature, `lib/features/date_calculator/`.** domain: `calendar_date.dart` (`calendarDate`, `isLeapYear`, `daysInMonth`, `addMonths`, `addDays`, `daysBetween`), `date_difference.dart` (`dateDifference`), `date_offset.dart` (`offsetDate`, `DateUnit`, `DateDirection`, `DateOffsetError`). presentation: `DateCalculatorView` (a Difference / Add-or-subtract choice), `DateDifferenceToolView`, `DateOffsetToolView`, `date_text.dart`, `date_pick_range.dart`. `app_shell.dart` gained one switch arm for `CalculatorMode.date`.
+- **Core:** `AppDateField` (a labelled read-only field that opens the calendar picker), `ResultRow` and `ResultPlaceholder` (moved up from the financial feature so two features share them — CLAUDE.md rule 12; `ResultRow` gained `wrapValue`), `LocalizedDateFormat` + `dateFormatProvider` (the device region's date order, mirroring `numberFormatProvider`), `initializeLocalizedDates` (called from `main`), `clockProvider` (`lib/core/time/`, so tests can pin "today"). `AppTextField` gained `readOnly`, `onTap` and `suffixIcon`.
+- A new gallery section, "Date". 25 new `app_en.arb` strings, including ICU plurals for years/months/weeks/days.
+- `test/helpers/test_app.dart`: `pumpApp` gained an `overrides` parameter.
+
+### Changed
+
+- `FinancialResultRow` was renamed `ResultRow` and moved to `lib/core/widgets/result_row.dart` (import and rename only in the seven financial tool views). `FinancialResultPlaceholder` stays, as a thin wrapper over `ResultPlaceholder`.
+
+### Fixed (found by the plan's independent review, before any code)
+
+- The first draft's difference algorithm decremented the months whenever the end day was before the start day, which disagreed with `addMonths`' month-end clamping: 31 Jan to 30 Apr came out as 2 months 30 days although 31 Jan + 3 months is 30 Apr. The months are now the largest `m` with `addMonths(start, m) <= end`. The round trip `dateDifference(a, addMonths(a, k))` = exactly `k` months 0 days is a property test over every start day of two years.
+- Planned DST tests could not prove anything on this machine (the domain is UTC-only and the Dart VM ignores `TZ`); the guarantee is structural instead (`assert(date.isUtc)`, `calendarDate()` keeps only year/month/day) and the tests say so.
+- The amount limit (1,000,000) did not match the 7-digit input limit; the field now shows "Enter 1,000,000 or less". A separate message covers a result outside years 1 to 9999.
+- `showDatePicker` asserts that the initial date is inside its range, so `AppDateField` clamps it.
+- The planned `CalculatorMode.date` change would have removed the "not available yet" fallback that `programmer` still uses; the fallback stays.
+- Device-region dates: Flutter loads date data for plain `en` only, so a device set to `en_IN` would have shown US-ordered dates. `initializeLocalizedDates` loads the device region at startup.
+
+### Fixed (found while building)
+
+- A read-only `TextField` exposes only a *focus* action to screen readers, not *tap*, so a TalkBack user could focus a date field but not open the picker. `AppDateField` now merges a tap action into the field's semantics; a test activates it through the semantics tree.
+
+### Tests
+
+- `flutter analyze`: no issues. `dart format --set-exit-if-changed lib test packages`: 0 changed. `flutter test`: 1429 passed, 1 skipped, 0 failed (was 1356). `flutter build apk --debug`: built (~165 s). `dart test` in `packages/calc_engine`: not re-run (no engine change; 387 as of Phase 7).
+- One unrelated, intermittent failure seen once during a full run: `sqflite_saved_calculation_repository_test.dart` "rename updates the name and moves it to the top" (it orders by wall-clock time); it passed on rerun alone and in the next full run.
+- **Not phone-tested:** no device was connected (`adb devices` listed none).
+
+---
+
+## 2026-10-01: Phase 7 (Financial) — committed `16e7f87`
+
+Recorded here after the fact: the Phase 7 commit did not get a CHANGELOG entry at the time. The full account is in DEVELOPMENT_STATUS.md ("Phase 7: Financial") and DEC-052: seven tools (EMI, simple and compound interest, GST with CGST/SGST/IGST, discount, tip, percentage), `ShareOfWholeBar`, 1356 app tests, phone-tested.
+
+---
+
 ## 2026-09-30: Phase 6 (Converters) — Phase 6 complete
 
 The user approved Phase 5 and asked for the next phase to start, with no detailed brief this time. A plan was written and independently reviewed before any code (this project's now-standard practice for a non-trivial feature) — the review pass caught the classic temperature offset-sign bug before it ever ran once. Built exactly as planned, plus two flagged implementation simplifications; phone-tested in a follow-up pass after the report.

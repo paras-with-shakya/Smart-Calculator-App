@@ -25,6 +25,9 @@ class AppTextField extends StatelessWidget {
     this.onChanged,
     this.onSubmitted,
     this.enabled = true,
+    this.readOnly = false,
+    this.onTap,
+    this.suffixIcon,
   });
 
   /// What the field is for.
@@ -69,11 +72,23 @@ class AppTextField extends StatelessWidget {
   /// Whether the field accepts input.
   final bool enabled;
 
+  /// Whether the value can be selected but not typed over. For a field that
+  /// is filled by another control, such as a date picker opened by [onTap].
+  final bool readOnly;
+
+  /// Called when the field is tapped.
+  final VoidCallback? onTap;
+
+  /// A widget after the value, such as a calendar icon.
+  final Widget? suffixIcon;
+
   @override
   Widget build(BuildContext context) => TextField(
     controller: controller,
     focusNode: focusNode,
     enabled: enabled,
+    readOnly: readOnly,
+    onTap: onTap,
     keyboardType: keyboardType,
     textInputAction: textInputAction,
     inputFormatters: inputFormatters,
@@ -88,6 +103,7 @@ class AppTextField extends StatelessWidget {
       errorText: errorText,
       prefixText: prefixText,
       suffixText: suffixText,
+      suffixIcon: suffixIcon,
     ),
   );
 }

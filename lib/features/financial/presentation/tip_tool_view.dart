@@ -5,6 +5,7 @@ import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/formatting/number_format_provider.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
+import 'package:smart_calculator/core/widgets/result_row.dart';
 import 'package:smart_calculator/features/financial/domain/tip.dart';
 import 'package:smart_calculator/features/financial/presentation/financial_number_format.dart';
 import 'package:smart_calculator/features/financial/presentation/financial_result_widgets.dart';
@@ -118,16 +119,16 @@ class _TipToolViewState extends ConsumerState<TipToolView> {
                 child: Column(
                   crossAxisAlignment: .stretch,
                   children: [
-                    FinancialResultRow(
+                    ResultRow(
                       label: l10n.financialTipPerPersonLabel,
                       value: formatMoney(format, result.perPerson),
                       emphasized: true,
                     ),
-                    FinancialResultRow(
+                    ResultRow(
                       label: l10n.financialTipAmountLabel,
                       value: formatMoney(format, result.tipAmount),
                     ),
-                    FinancialResultRow(
+                    ResultRow(
                       label: l10n.financialTipTotalLabel,
                       value: formatMoney(format, result.total),
                     ),

@@ -1587,6 +1587,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Result'**
   String get financialPercentResultLabel;
+
+  /// Label of the date calculator's tool choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate'**
+  String get dateToolPickerLabel;
+
+  /// Option label: the gap between two dates.
+  ///
+  /// In en, this message translates to:
+  /// **'Difference'**
+  String get dateToolDifference;
+
+  /// Option label: add or subtract days, weeks, months or years from a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Add or subtract'**
+  String get dateToolOffset;
+
+  /// Label of the first date in the date difference tool.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get dateFromLabel;
+
+  /// Label of the second date in the date difference tool.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get dateToLabel;
+
+  /// Label of the date that is added to or subtracted from.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date'**
+  String get dateStartLabel;
+
+  /// Title of the calendar dialog that picks a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get datePickerHelp;
+
+  /// Option label for adding time to a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get dateDirectionAdd;
+
+  /// Option label for subtracting time from a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtract'**
+  String get dateDirectionSubtract;
+
+  /// Label of the number of days, weeks, months or years to add or subtract.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get dateAmountLabel;
+
+  /// Label of the choice of days, weeks, months or years.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get dateUnitLabel;
+
+  /// Option label for counting in days.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get dateUnitDays;
+
+  /// Option label for counting in weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'Weeks'**
+  String get dateUnitWeeks;
+
+  /// Option label for counting in months.
+  ///
+  /// In en, this message translates to:
+  /// **'Months'**
+  String get dateUnitMonths;
+
+  /// Option label for counting in years.
+  ///
+  /// In en, this message translates to:
+  /// **'Years'**
+  String get dateUnitYears;
+
+  /// Validation message when the amount to add or subtract is too large.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter {max} or less'**
+  String dateErrorAmountTooLarge(int max);
+
+  /// Shown instead of a result when adding or subtracting would leave the supported years.
+  ///
+  /// In en, this message translates to:
+  /// **'That date is outside the supported years (1 to 9999).'**
+  String get dateErrorOutOfRange;
+
+  /// Shown in the date difference result area before it has a result.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick two dates to see the difference.'**
+  String get dateDifferencePlaceholder;
+
+  /// Shown in the add or subtract result area before it has a result.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount to see the date.'**
+  String get dateOffsetPlaceholder;
+
+  /// Label of the gap between two dates, as years, months and days.
+  ///
+  /// In en, this message translates to:
+  /// **'Difference'**
+  String get dateResultDifference;
+
+  /// Label of the total number of days between two dates.
+  ///
+  /// In en, this message translates to:
+  /// **'Total days'**
+  String get dateResultTotalDays;
+
+  /// Label of the gap between two dates as whole weeks and leftover days.
+  ///
+  /// In en, this message translates to:
+  /// **'Weeks and days'**
+  String get dateResultWeeks;
+
+  /// Label of the number of whole months between two dates.
+  ///
+  /// In en, this message translates to:
+  /// **'Total months'**
+  String get dateResultTotalMonths;
+
+  /// Label of the date that results from adding or subtracting.
+  ///
+  /// In en, this message translates to:
+  /// **'Resulting date'**
+  String get dateResultDate;
+
+  /// A number of years, such as "1 year" or "3 years".
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} year} other{{count} years}}'**
+  String dateYears(int count);
+
+  /// A number of months, such as "1 month" or "3 months".
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} month} other{{count} months}}'**
+  String dateMonths(int count);
+
+  /// A number of weeks, such as "1 week" or "3 weeks".
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} week} other{{count} weeks}}'**
+  String dateWeeks(int count);
+
+  /// A number of days, such as "1 day" or "3 days".
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} day} other{{count} days}}'**
+  String dateDays(int count);
+
+  /// Joins two parts of a length of time, such as "2 years" and "3 months".
+  ///
+  /// In en, this message translates to:
+  /// **'{first}, {second}'**
+  String dateSpanJoin(String first, String second);
 }
 
 class _AppLocalizationsDelegate

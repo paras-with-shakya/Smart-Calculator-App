@@ -8,6 +8,7 @@ import 'package:smart_calculator/core/formatting/number_format_provider.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_choice_group.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
+import 'package:smart_calculator/core/widgets/result_row.dart';
 import 'package:smart_calculator/features/financial/domain/percentage.dart';
 import 'package:smart_calculator/features/financial/presentation/financial_number_format.dart';
 import 'package:smart_calculator/features/financial/presentation/financial_result_widgets.dart';
@@ -186,7 +187,7 @@ class _PercentageToolViewState extends ConsumerState<PercentageToolView> {
               const FinancialResultPlaceholder()
             else
               AppCard(
-                child: FinancialResultRow(
+                child: ResultRow(
                   label: l10n.financialPercentResultLabel,
                   value: _operation == PercentageOperation.whatPercent
                       ? '${formatPercent(format, result)}%'

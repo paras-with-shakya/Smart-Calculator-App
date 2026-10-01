@@ -5,6 +5,7 @@ import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/formatting/number_format_provider.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
+import 'package:smart_calculator/core/widgets/result_row.dart';
 import 'package:smart_calculator/features/financial/domain/discount.dart';
 import 'package:smart_calculator/features/financial/presentation/financial_number_format.dart';
 import 'package:smart_calculator/features/financial/presentation/financial_result_widgets.dart';
@@ -96,12 +97,12 @@ class _DiscountToolViewState extends ConsumerState<DiscountToolView> {
                 child: Column(
                   crossAxisAlignment: .stretch,
                   children: [
-                    FinancialResultRow(
+                    ResultRow(
                       label: l10n.financialDiscountFinalPriceLabel,
                       value: formatMoney(format, result.finalPrice),
                       emphasized: true,
                     ),
-                    FinancialResultRow(
+                    ResultRow(
                       label: l10n.financialDiscountAmountLabel,
                       value: formatMoney(format, result.discountAmount),
                     ),

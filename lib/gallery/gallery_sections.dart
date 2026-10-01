@@ -9,12 +9,14 @@ import 'package:smart_calculator/core/widgets/app_bottom_sheet.dart';
 import 'package:smart_calculator/core/widgets/app_button.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_choice_group.dart';
+import 'package:smart_calculator/core/widgets/app_date_field.dart';
 import 'package:smart_calculator/core/widgets/app_dialog.dart';
 import 'package:smart_calculator/core/widgets/app_header.dart';
 import 'package:smart_calculator/core/widgets/app_icon_button.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
 import 'package:smart_calculator/core/widgets/calculator_button.dart';
 import 'package:smart_calculator/core/widgets/display_text.dart';
+import 'package:smart_calculator/core/widgets/result_row.dart';
 import 'package:smart_calculator/core/widgets/section_header.dart';
 import 'package:smart_calculator/core/widgets/share_of_whole_bar.dart';
 import 'package:smart_calculator/core/widgets/status_views.dart';
@@ -58,7 +60,10 @@ enum GallerySection {
   converter('Converter'),
 
   /// The financial tool picker and a ShareOfWholeBar sample.
-  financial('Financial');
+  financial('Financial'),
+
+  /// A date field and a result card.
+  date('Date');
 
   const GallerySection(this.title);
 
@@ -100,6 +105,7 @@ class GallerySectionView extends StatelessWidget {
           GallerySection.overlays => const _OverlaysSection(),
           GallerySection.converter => const _ConverterSection(),
           GallerySection.financial => const _FinancialSection(),
+          GallerySection.date => const _DateSection(),
         },
       ),
     ],
@@ -1033,4 +1039,50 @@ class _FinancialSection extends StatelessWidget {
       ],
     );
   }
+}
+
+/// A sample date field (which opens the real calendar picker) and a result
+/// card built from `ResultRow`s. The working screen is `DateCalculatorView`.
+class _DateSection extends StatefulWidget {
+  const _DateSection();
+
+  @override
+  State<_DateSection> createState() => _DateSectionState();
+}
+
+class _DateSectionState extends State<_DateSection> {
+  DateTime _date = DateTime.utc(2026, 3, 8);
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: .stretch,
+    children: [
+      AppDateField(
+        label: 'Start date',
+        value: _date,
+        format: (date) =>
+            '${date.year}-${date.month.toString().padLeft(2, '0')}-'
+            '${date.day.toString().padLeft(2, '0')}',
+        pickerHelpText: 'Select date',
+        firstDate: DateTime.utc(1900),
+        lastDate: DateTime.utc(2200, 12, 31),
+        onChanged: (date) => setState(() => _date = date),
+      ),
+      const SizedBox(height: AppSpacing.md),
+      const AppCard(
+        child: Column(
+          crossAxisAlignment: .stretch,
+          children: [
+            ResultRow(
+              label: 'Difference',
+              value: '1 year, 2 months, 3 days',
+              emphasized: true,
+              wrapValue: true,
+            ),
+            ResultRow(label: 'Total days', value: '428 days'),
+          ],
+        ),
+      ),
+    ],
+  );
 }

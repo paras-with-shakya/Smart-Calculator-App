@@ -2,16 +2,16 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-10-01, end of Phase 7 (Financial: planned, independently reviewed, built, tested, phone-tested, committed). **Phases 5, 6 and 7 are all complete.**
+**Last updated:** 2026-10-01, end of the Phase 8 build (Date calculator: planned, independently reviewed, built, tested; **phone test pending**; commit made). Phases 5, 6 and 7 are complete and phone-tested.
 
 ## At a Glance
 
 | Question | Answer |
 | --- | --- |
-| Where are we? | **Phases 3 through 7 are all complete.** Phase 7 (Financial): seven calculators (EMI, simple/compound interest, GST, discount, tip, percentage), all built, tested (1356 app tests, 0 failed), `flutter analyze`/format/debug build all clean, phone-tested — every check passed, no bugs found. |
-| What exists in code? | Everything from Phase 3–6, plus seven financial calculators (ARCHITECTURE.md §1.20, DEC-052): EMI, simple interest, compound interest, GST (with CGST/SGST/IGST), discount, tip and percentage, with a tool picker and a reusable `ShareOfWholeBar` chart for EMI/GST. Finance mode no longer shows the "not available yet" placeholder. |
-| What is being worked on? | Nothing. Phase 7 is built, tested, phone-tested, documented and committed. The next phase needs the user's explicit approval before starting. |
-| What happens next? | Report Phase 7 to the user (including the five fixes the independent review added and the validation-bound judgment calls), then wait for the user to pick and approve the next phase. |
+| Where are we? | **Phases 3 through 7 are complete. Phase 8 (Date calculator) is built, tested and committed, but not yet phone-tested** (no device was connected). 1429 app tests pass, `flutter analyze`, formatting and the debug build are clean. |
+| What exists in code? | Everything from Phase 3–7, plus the date calculator (ARCHITECTURE.md §1.21, DEC-053): date difference (years/months/days, total days, weeks, total months) and add/subtract (days, weeks, months, years), calendar-date arithmetic in UTC with month-end clamping. Date mode no longer shows the "not available yet" placeholder (only Programmer does). |
+| What is being worked on? | Nothing. Phase 8 is built, tested, documented and committed; waiting for an on-device check. |
+| What happens next? | Report Phase 8 to the user (the independent review's defects, the AppDateField screen-reader fix, the device-region date data), run the phone test when a device is connected, then wait for the user to pick and approve the next phase. |
 | Git? | Phase 5 (`ef7b0ba` … `8096bb4`), Phase 6 (`a119f9c`, `ae2781e`) and Phase 7 (`16e7f87`) are all committed. **Claude never pushes; the user pushes themselves.** |
 | What must not be repeated? | See "Do NOT Repeat" |
 | Known issues? | See "Known Issues". Nothing new found in Phase 7. #16 (Basic's memory-key touch-target gap, found during Phase 5) is still open, still not this phase's to fix. |
@@ -197,6 +197,17 @@ The user gave an unusually detailed process brief: audit the repo, write a plan,
 - **Full QA gate:** `flutter analyze` (no issues), `dart format` (22 files needed it, applied), `flutter test` (1356 passed, 1 skipped, 0 failed — was 1252), `dart test` in `packages/calc_engine` (387, unchanged — no engine change), `flutter build apk --debug` (built, ~172 s).
 - **Phone-tested** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`, USB): every tool's picker tile, EMI's classic reference example matching to the cent (`₹8,791.59` for ₹100,000 at 10% over 12 months) with its share-of-whole bar rendering correctly, GST's exclusive/inclusive modes and intra-state (CGST+SGST)/inter-state (IGST) toggle, discount's 101% rejection showing the exact validation message, tip's 4-way split, percentage's "X is what % of Y" operation, and — the review's own specifically flagged risk — EMI in landscape with the system keyboard actually open, confirming the focused field auto-scrolls into view with no overflow. Every check passed; no bugs found on-device.
 
+## Phase 8: Date calculator (2026-10-01, this session)
+
+The user approved Phase 8 with "okay start phase 8" and no detailed brief. Full detail: ARCHITECTURE.md §1.21; decision DEC-053; CHANGELOG 2026-10-01.
+
+- **Plan written and independently reviewed before any code** (this project's standing practice). The review confirmed the intended examples but found a real algorithm defect: the first draft's difference rule (`months--` when the end day is before the start day) disagreed with `addMonths`' clamping, so 31 Jan to 30 Apr would have read 2 months 30 days although 31 Jan + 3 months is 30 Apr. Fixed by defining the months as the largest `m` with `addMonths(start, m) <= end`; pinned by a property test (every start day of two years × twelve month counts). It also found: DST tests that cannot prove anything on this machine (the guarantee is structural instead), an amount-limit mismatch, a picker-range assert, a fallback that would have broken Programmer mode, device-region date data that Flutter does not load, and ellipsis truncation of prose results.
+- **A further bug found while testing, not by the review:** a read-only `TextField` exposes only a focus action to screen readers, so TalkBack could focus a date field but not open its picker. `AppDateField` now merges a tap action into its semantics; a test activates it through the semantics tree.
+- **Built as planned:** domain (`calendar_date.dart`, `date_difference.dart`, `date_offset.dart`), presentation (`DateCalculatorView` + two tool views), core (`AppDateField`, `ResultRow`/`ResultPlaceholder` moved up from financial, `LocalizedDateFormat`, `clockProvider`), a gallery "Date" section, 25 strings. `FinancialResultRow` was renamed to `ResultRow` (rename and import only).
+- **Full QA gate:** `flutter analyze` (no issues), `dart format --set-exit-if-changed lib test packages` (0 changed), `flutter test` (1429 passed, 1 skipped, 0 failed — was 1356), `flutter build apk --debug` (built, ~165 s). `dart test` in `packages/calc_engine` was not re-run (no engine change).
+- **Flake seen once, unrelated:** `sqflite_saved_calculation_repository_test.dart` "rename updates the name and moves it to the top" failed in one full run and passed alone and in the next full run (it orders rows by wall-clock time).
+- **Not phone-tested:** `adb devices` listed no device (adb is at `%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`, not on PATH). To check on the phone: Date mode opens; both fields start at today; picking a date updates the gap; a month-end pair (31 Jan to 30 Apr reads 3 months); add/subtract 90 days and 6 months; the date format follows the device region (en-IN order); landscape with the keyboard open; TalkBack can open the picker from a field.
+
 ## Phase Status
 
 | Phase | Name | Status |
@@ -210,7 +221,7 @@ The user gave an unusually detailed process brief: audit the repo, write a plan,
 | 5 | Scientific | **Complete and phone-tested.** Module 1 (engine) `ef7b0ba`, Module 2 (input logic, DEC-048/049) `856d175`/`d42fa5f`, Module 3 (keypad, DEC-050) `8096bb4`. |
 | 6 | Converters | **Complete, committed `a119f9c`, phone-tested.** Plan (DEC-051) independently reviewed before code; six physical categories plus currency built, tested (1252 app tests), every on-device check passed. |
 | 7 | Financial | **Complete, committed `16e7f87`, phone-tested.** Plan (DEC-052) independently and adversarially reviewed before code (five real gaps found and fixed); seven tools built, tested (1356 app tests), every on-device check passed. |
-| 8 | Date calculator | Not started |
+| 8 | Date calculator | **Built, tested (1429 app tests), committed; phone test pending.** Plan (DEC-053) independently reviewed before code; the review caught a difference-vs-addMonths disagreement at month ends. |
 | 9 | Programmer calculator | Not started |
 | 10 | Settings screen | Not started |
 | 11 | Polish | Not started |
@@ -411,9 +422,9 @@ None. Phase 7 is finished, tested and phone-tested. The next phase needs the use
 
 ## Next Task
 
-1. **Commit Phase 7 locally** (never push — the user pushes themselves), then record the commit hash(es) in the docs that currently say "not yet committed."
-2. **Report Phase 7 complete to the user**, explicitly flagging: the five fixes the independent review added (the `NaN`/`Infinity` guard, the missing time-field bound, the tenure rounding rule, the `ShareOfWholeBar` precondition, the landscape layout change) and the validation-bound judgment calls (EMI tenure ≤600mo, rates ≤1000%, GST/discount/tip ≤100%) as open to revision.
-3. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 8 Date, Phase 9 Programmer, Phase 10 Settings — in that planned order, but the user may choose differently). Don't start any of them without that explicit approval, per the phase gate (CLAUDE.md rule 9).
+1. **Phone-test Phase 8** when the device is connected (the checklist is in "Phase 8: Date calculator" above), and record the result here and in CHANGELOG.md. Fix anything it finds.
+2. **Report Phase 8 to the user**, flagging: the independent review's month-end defect, the screen-reader fix in `AppDateField`, the device-region date data (`initializeLocalizedDates`), the `FinancialResultRow` to `ResultRow` move, and that it is not yet phone-tested.
+3. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 9 Programmer, Phase 10 Settings, in that planned order, but the user may choose differently). Don't start either without that explicit approval, per the phase gate (CLAUDE.md rule 9).
 
 ## Do NOT Repeat
 
@@ -530,6 +541,17 @@ None. Phase 7 is finished, tested and phone-tested. The next phase needs the use
 - **Still planned:** ARCHITECTURE.md §3.8.
 
 ## Tests
+
+**Run in the Phase 8 session (2026-10-01), in `smart_calculator/`:**
+
+| Command | Result |
+| --- | --- |
+| `flutter analyze` | `No issues found!` |
+| `dart format --set-exit-if-changed lib test packages` | `0 changed` |
+| `flutter test` (whole suite) | `All tests passed!` (1429 passed, 1 skipped; 0 failed; was 1356) |
+| `flutter build apk --debug` | `Built build\app\outputs\flutter-apk\app-debug.apk` (~165 s) |
+| `dart test` in `packages/calc_engine` | not re-run (no engine change; 387 as of Phase 7) |
+
 
 **Final, run in the Phase 6 session (2026-09-30), in `smart_calculator/`:**
 
