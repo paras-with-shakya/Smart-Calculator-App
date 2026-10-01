@@ -12,7 +12,7 @@
 | What exists in code? | Everything from Phase 3–6, plus seven financial calculators (ARCHITECTURE.md §1.20, DEC-052): EMI, simple interest, compound interest, GST (with CGST/SGST/IGST), discount, tip and percentage, with a tool picker and a reusable `ShareOfWholeBar` chart for EMI/GST. Finance mode no longer shows the "not available yet" placeholder. |
 | What is being worked on? | Nothing. Phase 7 is built, tested, phone-tested, documented and committed. The next phase needs the user's explicit approval before starting. |
 | What happens next? | Report Phase 7 to the user (including the five fixes the independent review added and the validation-bound judgment calls), then wait for the user to pick and approve the next phase. |
-| Git? | Phase 5 (`ef7b0ba` … `8096bb4`), Phase 6 (`a119f9c`, `ae2781e`) and Phase 7 (see "Git" below) are all committed. **Claude never pushes; the user pushes themselves.** |
+| Git? | Phase 5 (`ef7b0ba` … `8096bb4`), Phase 6 (`a119f9c`, `ae2781e`) and Phase 7 (`16e7f87`) are all committed. **Claude never pushes; the user pushes themselves.** |
 | What must not be repeated? | See "Do NOT Repeat" |
 | Known issues? | See "Known Issues". Nothing new found in Phase 7. #16 (Basic's memory-key touch-target gap, found during Phase 5) is still open, still not this phase's to fix. |
 | Pending decisions? | P-5, P-9, P-10 (long-standing, unrelated to Phase 7). P-7 (app version source) is unrelated too. Phase 7's own validation-bound judgment calls are recorded in DEC-052, open to revision if the user disagrees. |
@@ -209,7 +209,7 @@ The user gave an unusually detailed process brief: audit the repo, write a plan,
 | 4 | History and saved calculations | **Complete.** History (`1604248`) and saved calculations (`f02b23a`) both committed, phone-tested. |
 | 5 | Scientific | **Complete and phone-tested.** Module 1 (engine) `ef7b0ba`, Module 2 (input logic, DEC-048/049) `856d175`/`d42fa5f`, Module 3 (keypad, DEC-050) `8096bb4`. |
 | 6 | Converters | **Complete, committed `a119f9c`, phone-tested.** Plan (DEC-051) independently reviewed before code; six physical categories plus currency built, tested (1252 app tests), every on-device check passed. |
-| 7 | Financial | **Complete, phone-tested, not yet committed.** Plan (DEC-052) independently and adversarially reviewed before code (five real gaps found and fixed); seven tools built, tested (1356 app tests), every on-device check passed. |
+| 7 | Financial | **Complete, committed `16e7f87`, phone-tested.** Plan (DEC-052) independently and adversarially reviewed before code (five real gaps found and fixed); seven tools built, tested (1356 app tests), every on-device check passed. |
 | 8 | Date calculator | Not started |
 | 9 | Programmer calculator | Not started |
 | 10 | Settings screen | Not started |
