@@ -19,7 +19,7 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
-## 2026-10-01: Phase 8 (Date calculator) — Phase 8 built, tested; phone test pending
+## 2026-10-01: Phase 8 (Date calculator) — Phase 8 complete
 
 The user approved Phase 8 ("okay start phase 8"), with no detailed brief. A plan was written and independently reviewed before any code (DEC-053). The review found real defects in the first draft, all fixed in the plan before coding (see "Fixed").
 
@@ -51,7 +51,7 @@ The user approved Phase 8 ("okay start phase 8"), with no detailed brief. A plan
 
 - `flutter analyze`: no issues. `dart format --set-exit-if-changed lib test packages`: 0 changed. `flutter test`: 1429 passed, 1 skipped, 0 failed (was 1356). `flutter build apk --debug`: built (~165 s). `dart test` in `packages/calc_engine`: not re-run (no engine change; 387 as of Phase 7).
 - One unrelated, intermittent failure seen once during a full run: `sqflite_saved_calculation_repository_test.dart` "rename updates the name and moves it to the top" (it orders by wall-clock time); it passed on rerun alone and in the next full run.
-- **Not phone-tested:** no device was connected (`adb devices` listed none).
+- **Phone-tested** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`, USB, after the commit): both tools, the 31 Jan to 30 Apr case (3 months), +90 days, −6 months, the en-IN date order, landscape with the keyboard open: all correct. **Found, not fixed:** rotating the phone resets the chosen tool and dates (Known Issues #17). Rotation was restored afterward. See DEVELOPMENT_STATUS.md, "Test on the user's phone: the date calculator".
 
 ---
 

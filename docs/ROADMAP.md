@@ -17,7 +17,7 @@ Phase 4  History + saved calculations .... COMPLETED 2026-09-29 (both halves; ph
 Phase 5  Scientific ...................... COMPLETED 2026-09-30 (all 3 modules built, audited, phone-tested)
 Phase 6  Converters ...................... COMPLETED 2026-09-30
 Phase 7  Financial ....................... COMPLETED 2026-10-01, phone-tested
-Phase 8  Date calculator ................. BUILT 2026-10-01, tested; phone test pending
+Phase 8  Date calculator ................. COMPLETED 2026-10-01, phone-tested
 Phase 9  Programmer calculator ........... planned
 Phase 10 Settings screen ................. planned
 Phase 11 Polish .......................... planned
@@ -206,13 +206,13 @@ Seven independent calculators — EMI, simple interest, compound interest, GST, 
   - save and reuse
 - **Done when:** results match published reference values. **Done** — every formula independently re-derived and checked against known reference values twice (once during planning, once during an independent adversarial review), plus verified end to end on the user's phone.
 
-### Phase 8: Date calculator — BUILT 2026-10-01 (DEC-053); phone test pending
+### Phase 8: Date calculator — COMPLETED 2026-10-01 (DEC-053), phone-tested
 
 - **Date difference** in days, weeks, months and years.
 - **Add or subtract** (for example, +90 days or −6 months).
 - No time-zone bugs.
 - *(Proposed):* calendar-date arithmetic in UTC, with add-month clamping to the month end.
-- **Done when:** tests pass for leap years, month ends and daylight-saving dates. **Done** — 1429 app tests pass, including leap-year, month-end, negative-month, range-limit and daylight-saving-date cases and property tests that the difference and add tools agree. Not yet run on a phone.
+- **Done when:** tests pass for leap years, month ends and daylight-saving dates. **Done** — 1429 app tests pass, including leap-year, month-end, negative-month, range-limit and daylight-saving-date cases and property tests that the difference and add tools agree. Phone-tested too (both tools, the month-end case, landscape with the keyboard open); one UX gap found, not fixed (Known Issues #17).
 
 ### Phase 9: Programmer calculator
 

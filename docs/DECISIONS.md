@@ -1592,7 +1592,7 @@ Then stop.
 
 - **Status:** Adopted (a plan was written, then independently reviewed before any code, the same practice as DEC-050 to DEC-052; the review found real defects, listed below).
 - **Date:** 2026-10-01
-- **Implemented:** Yes (`lib/features/date_calculator/`, `lib/core/widgets/{app_date_field,result_row}.dart`, `lib/core/formatting/{localized_date_format,date_format_provider}.dart`, `lib/core/time/clock_provider.dart`, `lib/app/shell/app_shell.dart`, `lib/main.dart`, `lib/gallery/gallery_sections.dart`). Phone test pending.
+- **Implemented:** Yes (`lib/features/date_calculator/`, `lib/core/widgets/{app_date_field,result_row}.dart`, `lib/core/formatting/{localized_date_format,date_format_provider}.dart`, `lib/core/time/clock_provider.dart`, `lib/app/shell/app_shell.dart`, `lib/main.dart`, `lib/gallery/gallery_sections.dart`). Phone-tested.
 
 **Context:** The user approved Phase 8 with "okay start phase 8" and no detailed brief. ROADMAP.md fixed the scope (date difference in days/weeks/months/years; add or subtract; no time-zone bugs) and proposed UTC calendar-date arithmetic with month-end clamping.
 
