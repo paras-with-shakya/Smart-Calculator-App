@@ -19,6 +19,44 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-10-01: Phase 9 (Programmer calculator) — Phase 9 complete
+
+The user approved Phase 9 with a detailed brief (audit first, scope split into explicit / supporting / not built, a stated numeric model, an independent plan review, independent reference validation, a mandatory phone test, a check of Known Issue #17, documentation, local commits, stop). The repository had no Programmer work beyond the mode enum and its name (checked: `git status`, `git log`, a search of `lib/`, `test/`, `packages/` and `docs/`). A plan was written and independently reviewed before any code (DEC-054); the review found twelve defects, all fixed in the plan first.
+
+### Added
+
+- **Engine** (`packages/calc_engine/lib/src/programmer/`): `ProgrammerBase`, `ProgrammerWord` (8/16/32/64 bits, signed or unsigned, `BigInt` patterns, two's complement), `ProgrammerEngine` (`+ − × ÷`, AND, OR, XOR, NOT, negate, shift left and right; wrap-on-overflow with an overflow flag; truncating division; saturating shifts), exported from `calc_engine.dart`.
+- **Feature** `lib/features/programmer/`: `ProgrammerSession` (the input state machine: typing limits, immediate left-to-right execution, base/word/sign changes), `programmerProvider`/`ProgrammerNotifier`, and the screen — `ProgrammerView`, `ProgrammerWordControls`, `ProgrammerStatusLine`, `ProgrammerBaseRows`, `ProgrammerKeypad`, `programmer_formatting.dart`. `app_shell.dart` routes `CalculatorMode.programmer` to it.
+- **Core:** `KeyGrid` (`lib/core/widgets/key_grid.dart`), `AppTypography.mono`. The bundled **JetBrains Mono** (Regular 400, Medium 500, SemiBold 600, from the 2.304 release; verified monospaced, every glyph 0.600 em) and its SIL Open Font License, registered with the licence page. New gallery section "Programmer" and a "mono" typography sample.
+- 30 new `app_en.arb` strings (key labels, spoken labels, base names, word-size and signedness controls, the overflow notice).
+- Tests: 59 engine, and 123 more app tests (see "Tests").
+
+### Changed
+
+- `app_shell.dart` no longer has a "not available yet" fallback (every mode is built); `modeNotAvailableYet` and the tests that asserted it were removed or replaced (`app_test.dart`, `date_calculator_view_test.dart`).
+- `test/helpers/real_fonts.dart` loads JetBrains Mono for the design-review screenshots.
+
+### Fixed (found by the plan's independent review, before any code)
+
+- One `fresh` flag did two jobs, dropping operands (`5 + 3`, tap HEX, `×`, `2 =` would give 10, not 16); split in two.
+- `±` could not start a number and the signed minimum could not be typed; shift counts could crash or exhaust memory (`BigInt.toInt()` clamps); overflow semantics were underspecified; the portrait layout overflowed a 360×800 phone by 125 to 140 dp and moved the keypad as the readout changed; a 64-bit binary readout would have wrapped raggedly; Converter's landscape split would have squeezed six key rows under 48 dp; the radio-list fallback of `AppChoiceGroup` would have pushed the keypad off screen; several accessibility gaps; "Manrope's tnum covers hex letters" was false. All fixed in the plan (details: DEC-054).
+
+### Fixed (found while building and on the phone)
+
+- A `SliverPadding` around a `SliverFillRemaining` does not count its bottom edge, so the page scrolled by exactly the padding; the padding now sits inside the sliver.
+- On the phone the 64-bit layout was about 24 dp taller than the viewport (the device has a status bar the test window lacks); padding and gaps were trimmed and a test now shrinks the window by that amount.
+- At 200% text the base labels broke mid-word, the "Signed" button broke, and the overflow notice was truncated; fixed and guarded by a test.
+- `±` right after an operator first negated the echoed left operand instead of starting a negative number (found by a session test).
+
+### Tests
+
+- `dart test` in `packages/calc_engine`: 446 passed (was 387; +59). `flutter test`: 1552 passed, 1 skipped, 0 failed (was 1429 passed; +123). `flutter analyze`: no issues. `dart format --set-exit-if-changed lib test packages`: 0 changed. `flutter build apk --debug`: built.
+- The engine tests were checked for sensitivity: four deliberate bugs (a logical right shift for signed, a flooring division, no overflow flag on multiply, an unsaturated shift count) each made them fail; the engine was restored afterward.
+- `flutter test --tags design-review --run-skipped --update-goldens`: 6 of the older screenshot tests fail (real `sqflite` has no plugin in a plain test, and a `pumpAndSettle` timeout); the same 6 fail in a clean worktree at the previous commit `0c3615b`, so they are not caused by this phase (Known Issues #18). The gallery screenshots, including the new Programmer section, were written.
+- **Phone-tested** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`, USB): see DEVELOPMENT_STATUS.md, "Test on the user's phone: the programmer calculator". **Rotation (Known Issue #17):** the Programmer calculator's state survives rotation (a typed 127 was still there in landscape); it lives in a provider, not in widget state.
+
+---
+
 ## 2026-10-01: Phase 8 (Date calculator) — Phase 8 complete
 
 The user approved Phase 8 ("okay start phase 8"), with no detailed brief. A plan was written and independently reviewed before any code (DEC-053). The review found real defects in the first draft, all fixed in the plan before coding (see "Fixed").

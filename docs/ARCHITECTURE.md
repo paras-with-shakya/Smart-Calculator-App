@@ -96,6 +96,7 @@ The widget tests start the app through the same `AppRoot`, so they run the real 
 | `savedCalculationsProvider` | `AsyncNotifierProvider<SavedCalculationsNotifier, List<SavedCalculation>>` | saved_calculations/application | The saved calculations, most recently updated first (§1.18) |
 | `converterProvider` | `NotifierProvider<ConverterNotifier, ConverterState>` | converter/application | The current category, its two selected units, the typed amount and the live currency rates (§1.19) |
 | `financialToolProvider` | `NotifierProvider<FinancialToolNotifier, FinancialToolId>` | financial/application | Which financial tool tile is selected (§1.20) |
+| `programmerProvider` | `NotifierProvider<ProgrammerNotifier, ProgrammerSession>` | programmer/application | The programmer calculator's whole input state (§1.22). Survives rotation; nothing persisted. |
 
 Conventions:
 
@@ -408,6 +409,22 @@ Two tools on one screen: the gap between two dates, and a date plus or minus an 
 - **Tests:** `test/features/date_calculator/domain/calendar_date_test.dart` (leap years, month ends, negative months, range limits, DST dates, `calendarDate` of late-evening local times, difference examples, property tests that the difference and add tools agree), `.../presentation/date_calculator_view_test.dart` (both tools with a pinned clock, the picker, validation messages, layouts, 200% text, semantics), `test/core/widgets/app_date_field_test.dart` (the field, `LocalizedDateFormat`, `ResultRow`), plus the gallery's "Date" section in the accessibility test.
 - **Not built, by decision (DEC-053):** an "include the end day" toggle, working days and holidays, persisting the chosen dates or tool, history / saved-calculations integration.
 
+### 1.22 Programmer calculator (`packages/calc_engine/lib/src/programmer/`, `lib/features/programmer/`, Phase 9)
+
+A fixed-width integer calculator on `BigInt`: four bases, a word size, signed or unsigned, bitwise operations and shifts. Decision and conventions: DEC-054.
+
+- **engine** (`packages/calc_engine`, pure Dart, no Flutter):
+  - `ProgrammerBase` (`binary`/`octal`/`decimal`/`hexadecimal`, `radix`, `isValidDigit`).
+  - `ProgrammerWord(bits, signed)`: `modulus`, `mask`, `minValue`, `maxValue`, `fits`, `patternOf(value)` (wraps modulo 2^bits), `valueOf(pattern)` (two's complement when signed), `maxTypedMagnitude(base, negative:)` (what may be typed), `copyWith`.
+  - `ProgrammerEngine.apply(word, op, left, right)`, `.not`, `.negate`, returning `ProgrammerSuccess(pattern, overflow)` or `ProgrammerFailure(ProgrammerError.divisionByZero)`; `ProgrammerOperation` is `add subtract multiply divide and or xor shiftLeft shiftRight`.
+  - Every operand and result is a *pattern*; arithmetic works on values and wraps; bitwise operations and shifts work on patterns; shift counts are clamped as `BigInt`s before conversion.
+- **domain** (`lib/features/programmer/domain/programmer_session.dart`, pure Dart): the immutable `ProgrammerSession` (base, word, `current` pattern, `negativeEntry`, `replaceOnType`, `operandReady`, `pending`, `overflow`, `error`) and every key's effect: `typeDigit`, `canAppend`, `backspace`, `clear`, `setBase`, `setBits`, `setSigned`, `pressOperator`, `pressEquals`, `pressNot`, `pressNegate`. Immediate left-to-right execution with no precedence.
+- **application:** `programmerProvider` / `ProgrammerNotifier` (a plain `NotifierProvider`; nothing persisted). Because the state is in a provider and not in widget state, it survives the shell switching between its compact and rail layouts, so rotating the phone does not reset a calculation (Known Issue #17 does not apply here).
+- **presentation:** `ProgrammerView` (portrait: one column that scrolls only if it must, the keypad pinned at the bottom with fixed 48 dp rows; landscape: controls and readout left, keypad right, scrolling together), `ProgrammerWordControls` (two buttons opening `showAppBottomSheet` choices; stacked above 130% text), `ProgrammerStatusLine` (pending operation, error, overflow notice; always reserves its height; live region), `ProgrammerBaseRows` (HEX, DEC, OCT and BIN rows built on `AppCard(selected:)`; tapping a row selects the base; binary is zero-padded to the whole word in lines of 16 bits; one `Semantics` button per row), `ProgrammerKeypad` (5 × 6 `CalculatorButton`s in a `KeyGrid`; digits disabled per base and when the number would no longer fit, through a bit mask so the keypad rebuilds only when availability changes), `programmer_formatting.dart` (grouping, padding, spoken digits; decimal through `LocalizedNumberFormat.formatCanonical`).
+- **core pieces added for it:** `KeyGrid` (`lib/core/widgets/key_grid.dart`), `AppTypography.mono` (JetBrains Mono 500, 20 sp: every glyph the same width), and the bundled JetBrains Mono (Regular, Medium, SemiBold, with its licence registered).
+- **Tests:** `packages/calc_engine/test/programmer_test.dart` (59: ranges, every 8- and 16-bit pattern against typed data, hand-computed reference tables for every word, all operations on boundary and random patterns against Dart's typed-data lists and native `int` operations as an independent oracle, independent overflow-flag oracles, shift counts 0 to 70 and huge counts, division by zero); `test/features/programmer/domain/programmer_session_test.dart` (typing and limits for every base, left-to-right chains, base/word/sign changes mid-chain, overflow lifecycle, negate and NOT, shifts, AC); `.../presentation/programmer_view_test.dart` (layout and 48 dp keys on three phone shapes, 200% text, keypad does not move while typing, conversion readouts, disabled keys and their semantics, operations, word and sign sheets, accessibility labels, rotation) and `programmer_formatting_test.dart`; `test/core/widgets/key_grid_test.dart`; `test/app/font_licenses_test.dart` (the fonts are bundled, monospaced, and their licences registered).
+- **Not built, by decision (DEC-054):** a tappable bit grid, rotations, NAND/NOR, modulo, byte swap, a separate shift-type selector, an expression grammar with precedence and brackets, history/saved/memory integration, persistence, hardware-keyboard and paste input.
+
 ## 2. Confirmed Decisions
 
 Decided by the user. The "Implemented" column reflects the state after Phase 4's History module.
@@ -459,7 +476,7 @@ Each feature has `domain/` (pure Dart), `data/`, `application/` and `presentatio
 The scientific engine (functions, `^`, exact/approximate values, angle mode, the P-6 defaults, §1.12, DEC-047), the input logic (§1.13, DEC-048/049) and the keypad (§1.13, DEC-050) are all built and tested — Phase 5 is complete. Still to come:
 
 - **Undefined-result messaging in the app:** `CalcError.undefined` has a generic translated message (`errorUndefined`) for now; whether specific domain errors (asin out of range vs. tan at 90°) deserve their own wording is a future-phase question, not an engine one.
-- **Programmer mode:** a separate `BigInt` evaluator with a set word size and two's complement.
+- **Programmer mode:** built in Phase 9 (§1.22, DEC-054): a separate `BigInt` engine with a set word size and two's complement.
 
 ### 3.4 State (Phase 4 onward)
 
@@ -477,7 +494,7 @@ The scientific engine (functions, `^`, exact/approximate values, angle mode, the
 ### 3.6 Design system: still to come
 
 - **In-app switches** (Phase 10): high contrast, "larger buttons", and possibly haptics on or off. Today high contrast follows only the platform setting, and haptics are always on.
-- **Programmer mode font** (Phase 9): JetBrains Mono, which must be re-verified and bundled first (DEC-028).
+- ~~**Programmer mode font** (Phase 9): JetBrains Mono, which must be re-verified and bundled first (DEC-028).~~ **Done in Phase 9** (DEC-054): verified monospaced (every glyph 0.600 em) and bundled.
 - **Icon scaling review** (Phase 11): icons follow the platform and don't grow with text size.
 
 ### 3.7 Localization still to come

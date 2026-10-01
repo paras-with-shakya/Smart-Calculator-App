@@ -853,7 +853,7 @@ Then stop.
 - **Source:** the static Manrope TTFs in weights 400, 500, 600 and 700, from `googlefonts/manrope` at commit `6f81ebe`. That is the commit Google Fonts used; the original `sharanda/manrope` repository no longer exists.
 - **Tabular figures:** a Dart check of each font's OpenType feature list found `tnum` in all four weights. The default digits are proportional (for example, "1" is 780 units wide and "0" is 1220), so the number styles turn on `FontFeature.tabularFigures()`.
 - **Licence:** the OFL text is bundled and registered with `LicenseRegistry`.
-- **JetBrains Mono** (programmer mode) is deferred to Phase 9, when it is first used.
+- **JetBrains Mono** (programmer mode) is deferred to Phase 9, when it is first used. **Done in Phase 9 (DEC-054):** Regular, Medium and SemiBold from the 2.304 release, licence registered.
 
 **Reason:** The check confirmed the proposal. With tabular digits, numbers don't shift while being typed.
 
@@ -1626,3 +1626,68 @@ Then stop.
 - **Rejected:** persisting the chosen dates or tool, and history / saved-calculations integration (the same reasoning as DEC-051 and DEC-052).
 
 **Impact:** New feature directory, additive. `FinancialResultRow` was renamed and moved (import and rename only). `AppTextField` gained three optional parameters. `main` now awaits `initializeLocalizedDates`. The "not available yet" fallback now covers only Programmer.
+
+
+### [DEC-054] Phase 9, Programmer calculator: pattern-based BigInt model, immediate left-to-right execution, JetBrains Mono, and the scope split
+
+- **Status:** Adopted (a plan was written, then independently reviewed before any code, the same practice as DEC-050 to DEC-053; the review found real defects, listed below). Also **completes** the JetBrains Mono part of DEC-028, which deferred that font to Phase 9.
+- **Date:** 2026-10-01
+- **Implemented:** Yes (`packages/calc_engine/lib/src/programmer/`, `lib/features/programmer/`, `lib/core/widgets/key_grid.dart`, `lib/app/theme/app_typography.dart` (`mono`), `lib/app/font_licenses.dart`, `assets/fonts/JetBrainsMono-*`, `lib/app/shell/app_shell.dart`, `lib/gallery/gallery_sections.dart`). Phone-tested.
+
+**Context:** The user approved Phase 9 with a detailed brief (audit first, define scope, state the numeric model, review the plan independently, validate against independent reference values, test on the phone, test whether Known Issue #17 recurs, document, commit locally, stop). ROADMAP.md fixed the scope (bases BIN/OCT/DEC/HEX with easy conversion; AND, OR, XOR, NOT, shift left and right; *(Proposed)* word size and signed/unsigned selectors, a tappable bit grid, invalid digits disabled and announced; done when the two's complement and overflow tests pass). ARCHITECTURE.md §3.3 and DEC-008 said only "a separate BigInt evaluator with a set word size and two's complement".
+
+**Scope split (the brief asked for it explicitly):**
+
+- **A. Explicit requirements:** four bases and conversion between them; AND, OR, XOR, NOT; shift left, shift right; two's complement and overflow behaviour, tested.
+- **B. Required supporting functionality:** a word-size selector (8, 16, 32, 64) and a signed/unsigned selector (without a width there is no two's complement or overflow to test; signedness decides what a right shift does and how a pattern reads); `+ − × ÷` and `±` (overflow cannot be shown without arithmetic, and negatives need a way to be typed); an all-bases readout whose rows are also the base selector; digit keys disabled per base and when the number would no longer fit, which screen readers announce; an overflow notice; division by zero; AC and backspace; the bundled monospaced font (DEC-028 had scheduled it for this phase).
+- **C. Not built (documented, not implemented):** a tappable bit grid; rotations (ROL/ROR); NAND/NOR; modulo; byte swap; a separate logical/arithmetic shift selector (signedness decides); an expression grammar with precedence and brackets; floating-point views; history, saved-calculation or memory integration; persisting the base, word size or signedness; hardware-keyboard and paste input.
+
+**The numeric model (fixed, and tested against independent oracles):**
+
+- **The canonical value is a *pattern*:** an unsigned `BigInt` in `[0, 2^bits)`. *Signed* only decides how a pattern reads: with the top bit set it is negative (two's complement). Unsigned reads every pattern as itself.
+- **Arithmetic** (`+ − × ÷`, negate) works on the operands' values and **wraps** the exact result modulo 2^bits, flagging `overflow` when the exact result did not fit. `÷` truncates toward zero. The signed minimum ÷ −1 wraps to the minimum and is flagged. A zero divisor is an error. Negating the signed minimum is flagged; negate is unavailable in an unsigned word.
+- **Bitwise** operations work on the patterns and never overflow.
+- **Shifts** use the right operand's *unsigned bit pattern* as the count (so a typed −1 acts as 255). A count of the word size or more shifts everything out: 0, or −1 for an arithmetic right shift of a negative value. Right shift is arithmetic (sign-filling) when signed, logical when unsigned. Shifted-out bits are lost without an overflow flag (`1 << 7` in a signed byte is `0x80` = −128, unflagged, as in hardware). A huge count is compared as a `BigInt` before it is converted, because `BigInt.toInt()` clamps and a huge shift exhausts memory.
+- **Display:** hexadecimal, octal and binary show the *bits* (a negative signed number shows its full-width pattern: −5 is `FFFF FFFB` in 32 bits); decimal shows the *value*. Binary is always zero-padded to the whole word, in lines of 16 bits, so its height depends only on the word size.
+- **Typing:** a typed number is an unsigned magnitude that must fit: in unsigned words and in hex/octal/binary the limit is 2^bits − 1 (a *pattern*: `FF` is typeable in a signed byte and reads −1); in signed decimal it is a *value* (127 positive, 128 negative, so −128 is typeable with `±` first). Digits that cannot be typed are disabled.
+- **Word size and signedness changes:** a size change carries the *value* (a negative signed value sign-extends; narrowing wraps and flags overflow when the value no longer fits); a signedness change keeps the *bits* and changes the reading. They are order-dependent by design (signed byte −1 → unsigned → 16 bits is 255; → 16 bits → unsigned is 65535). Defaults: decimal, 32 bits, signed.
+- **Overflow lifecycle:** sticky through a chain (`127 + 1 + 1 =` still shows it) and cleared when a new calculation starts (a digit or operator with nothing pending, NOT, or AC).
+
+**Execution model: immediate, left to right, no precedence.** Pressing a second operator first finishes the pending one, so `2 + 3 × 4 =` is 20 and `1 << 4 + 1 =` is 17 (Basic and Scientific use precedence; this is a deliberate difference). The pending chain is shown in the status line. *Rejected:* C-style precedence with brackets (a larger input model and another copy of the expression machinery; the ambiguity it resolves is better avoided than chosen); reported to the user as the one convention they may want to revisit.
+
+**Defects found by the independent review of the first draft, all fixed before coding:**
+
+1. One `fresh` flag was doing two jobs, so `5 + 3`, tap HEX, `×`, `2 =` computed 10 instead of 16 (the base switch made `×` replace `+`, dropping the 3). Split into `replaceOnType` and `operandReady`; a change of base, word size or signedness never touches `operandReady`.
+2. `±` could not start a number and the signed minimum could not be typed. Signed decimal entry now keeps a sign flag and a magnitude (caps 2^(n−1)−1 positive, 2^(n−1) negative); `±` right after an operator starts a negative number; unsigned disables `±`.
+3. A huge shift count crashed or exhausted memory (`BigInt.toInt()` clamps; `BigInt.one << (1 << 40)` exhausts the heap). Compared before converting; tested at 2^31, 2^63 and 2^64 − 1.
+4. Overflow semantics were underspecified. Pinned above (sticky, per-operation, shifts exempt, narrowing flagged).
+5. The typed-data oracle pitfalls: `Uint64List` reads values ≥ 2^63 back negative, `BigInt.toInt()` clamps, no unsigned 64-bit division oracle exists, typed lists give no overflow flag. The tests convert with `toSigned(64)`/`toUnsigned`, use independent overflow oracles (exact `int` below 64 bits, `double` for 32-bit multiply, two's complement identities for 64-bit) and hand-computed reference values where no oracle exists.
+6. The planned portrait layout overflowed a 360×800 phone by 125 to 140 dp and moved the keypad when the readout changed height. Word size and signedness became two buttons that open sheets (one 48 dp row), binary is fixed-height, the status line always reserves its height, and the keypad is pinned to the bottom with fixed 48 dp rows.
+7. A 64-bit binary readout would have wrapped raggedly at half size. Explicit 16-bit lines in a monospaced font.
+8. Converter's two-column landscape split would have squeezed six key rows below 48 dp. Landscape scrolls instead (keys keep 48 dp).
+9. `AppChoiceGroup`'s radio-list fallback would have pushed the keypad off screen; the choices moved into sheets.
+10. Accessibility: each base row is one `Semantics` button (selected, with spaced-digit labels), the status line and the active row are live regions, and operators are spoken in full.
+11. "Manrope's tnum is fine for hex letters" was wrong (`tnum` covers digits only): JetBrains Mono was bundled, as DEC-028 had planned.
+12. Removing the "not available yet" fallback left three unused imports and a dead string; both removed along with the placeholder tests.
+
+**Found while building and testing (not by the review):**
+
+- A `SliverPadding` around a `SliverFillRemaining` does not count its bottom edge, so the page scrolled by exactly the bottom padding; the padding now sits inside the sliver.
+- On the phone, the 64-bit layout was ~24 dp taller than the viewport because the device has a status bar the test window lacks. Padding and gaps were trimmed (about 32 dp) and a test shrinks the window by the status-bar amount.
+- At 200% text the base labels broke mid-word ("HE/X"), the "Signed" button broke ("Signe/d") and the overflow notice was truncated. Fixed (labels no longer have a fixed width, the two buttons stack above 130% text, the notice wraps in full); a test guards it.
+- `±` right after an operator first negated the echoed left operand instead of starting a negative number; fixed and tested.
+
+**Reuse and new components:** reused `CalculatorButton`, `AppCard` (selected), `AppButton`, `AppChoiceGroup`, `showAppBottomSheet`, `DisplayText`, `LocalizedNumberFormat.formatCanonical` (decimal grouping, with the typographic minus), `errorDivisionByZero`. New: `KeyGrid` (core, a fixed-row-height grid of equal-width keys; Converter's and Basic's keypads still carry their own copies of that layout, left alone because they are approved screens), `AppTypography.mono`, and feature-local `ProgrammerBaseRows`, `ProgrammerStatusLine`, `ProgrammerWordControls`, `ProgrammerKeypad`, `ProgrammerView`.
+
+**Rotation and Known Issue #17:** the state lives in a Riverpod `Notifier` (like Basic, Scientific and Converter), not in widget state, so it survives the shell's compact/rail switch. Verified on the phone and in a test. No shared state mechanism was changed.
+
+**Alternatives:**
+
+- **Rejected:** C-style precedence with brackets (above).
+- **Rejected:** a separate logical/arithmetic right-shift selector (signedness decides; adding the selector doubles the shift cases for little gain).
+- **Rejected:** wrapping silently with no overflow notice (hardware-faithful, but the roadmap's "overflow tests" and the user's brief ask for overflow to be observable).
+- **Rejected:** an error on overflow (it would block the very wrap-around a programmer wants to see).
+- **Rejected:** Java-style masking of the shift count (`count mod bits`) and an error for a negative count: saturation with an unsigned-pattern count is simpler to state and test.
+- **Rejected:** persisting base, word size or signedness (the same reasoning as DEC-051 to DEC-053).
+
+**Impact:** New engine files and 59 engine tests; a new feature directory; `AppTypography` gained `mono` (a required constructor argument, so any direct construction needs it); two fonts' licences are registered; `modeNotAvailableYet` and its fallback were removed because every mode is now built.

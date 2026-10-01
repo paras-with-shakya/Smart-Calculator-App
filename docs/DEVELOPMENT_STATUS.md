@@ -2,16 +2,16 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-10-01, Phase 8 (Date calculator) built, tested, committed (`0e2c9fb`) and phone-tested. Phases 5, 6, 7 and 8 are complete and phone-tested.
+**Last updated:** 2026-10-01, Phase 9 (Programmer calculator) built, tested and phone-tested (committed locally; see "Git" in the report). Phases 5 to 9 are complete and phone-tested.
 
 ## At a Glance
 
 | Question | Answer |
 | --- | --- |
-| Where are we? | **Phases 3 through 8 are complete.** Phase 8 (Date calculator) is built, tested (1429 app tests), committed (`0e2c9fb`) and phone-tested; `flutter analyze`, formatting and the debug build are clean. |
-| What exists in code? | Everything from Phase 3–7, plus the date calculator (ARCHITECTURE.md §1.21, DEC-053): date difference (years/months/days, total days, weeks, total months) and add/subtract (days, weeks, months, years), calendar-date arithmetic in UTC with month-end clamping. Date mode no longer shows the "not available yet" placeholder (only Programmer does). |
-| What is being worked on? | Nothing. Phase 8 is built, tested, phone-tested, documented and committed. |
-| What happens next? | Report Phase 8 to the user, then wait for the user to pick and approve the next phase. |
+| Where are we? | **Phases 3 through 9 are complete.** Phase 9 (Programmer calculator) is built, tested (446 engine + 1552 app tests, `flutter analyze`, formatting and the debug build clean) and phone-tested. |
+| What exists in code? | Everything from Phase 3–8, plus the programmer calculator (ARCHITECTURE.md §1.22, DEC-054): 8/16/32/64-bit signed or unsigned integers on `BigInt`, HEX/DEC/OCT/BIN readouts that double as the base selector, `+ − × ÷ ± AND OR XOR NOT << >>`, overflow notice, bundled JetBrains Mono. Every mode is now built; the shell has no placeholder fallback. |
+| What is being worked on? | Nothing. Phase 9 is built, tested, phone-tested and documented. The next phase needs the user's explicit approval before starting. |
+| What happens next? | Report Phase 9 to the user, then wait for the user to pick and approve the next phase (Phase 10, Settings, is next in the roadmap). |
 | Git? | Phase 5 (`ef7b0ba` … `8096bb4`), Phase 6 (`a119f9c`, `ae2781e`) and Phase 7 (`16e7f87`) are all committed. **Claude never pushes; the user pushes themselves.** |
 | What must not be repeated? | See "Do NOT Repeat" |
 | Known issues? | See "Known Issues". Nothing new found in Phase 7. #16 (Basic's memory-key touch-target gap, found during Phase 5) is still open, still not this phase's to fix. |
@@ -230,6 +230,47 @@ The phone was connected by USB at the user's request, right after Phase 8 was bu
 - **During the test:** a phone call came in and was answered on the phone partway through; testing was paused until the call ended (call state idle) and then resumed from the open picker. No input was sent to the call screen.
 - **Phone settings:** rotation was forced to landscape with `cmd window user-rotation lock 1` for the landscape checks and restored (`accelerometer_rotation=0`, `user_rotation=0`, display rotation 0). Screenshots were captured with `exec-out screencap` straight to the PC, so none were left on the phone.
 
+## Phase 9: Programmer calculator (2026-10-01, this session)
+
+The user approved Phase 9 with a detailed brief. Full detail: ARCHITECTURE.md §1.22; decision DEC-054; CHANGELOG 2026-10-01.
+
+- **Audit first:** `git status` was clean and a search of `lib/`, `test/`, `packages/` and `docs/` found no Programmer work beyond `CalculatorMode.programmer` (enum, icon, name) and the shell's "not available yet" fallback — nothing to reuse or duplicate.
+- **Scope split (DEC-054):** explicit (four bases and conversion, AND/OR/XOR/NOT, shifts, two's complement and overflow tests); supporting (word size, signed/unsigned, `+ − × ÷ ±`, an all-bases readout that is also the base selector, per-base digit disabling, overflow notice, divide by zero, JetBrains Mono); **not built** (tappable bit grid, rotations, NAND/NOR, modulo, byte swap, precedence and brackets, history/memory/persistence, hardware keyboard and paste).
+- **Numeric model (all tested):** values are *patterns* — unsigned `BigInt`s below 2^bits; signed reads the top bit as negative. Arithmetic wraps and flags overflow; `÷` truncates toward zero; bitwise operations and shifts never overflow; shift counts are the unsigned bit pattern and saturate at the word size; right shift is arithmetic when signed, logical when unsigned. HEX/OCT/BIN show the bits, DEC the value. Execution is immediate and left to right (no precedence). Defaults: decimal, 32-bit, signed.
+- **Plan reviewed independently before any code:** twelve defects found and fixed in the plan, including a flag that dropped operands (`5 + 3`, switch base, `×` would lose the 3), unreachable values (signed minimum, sign-first typing), a shift-count crash (`BigInt.toInt()` clamps, a huge `<<` exhausts memory), a portrait layout 125 to 140 dp too tall that moved the keypad, a 64-bit binary readout that would have wrapped raggedly, and a font claim that was false (`tnum` does not cover hex letters). The reviewer's 1.2 million comparisons against typed data found the model itself sound.
+- **Built:** engine (`ProgrammerBase`, `ProgrammerWord`, `ProgrammerEngine`), the `ProgrammerSession` state machine, `programmerProvider`, the screen (word controls, status line, base rows, keypad, portrait and landscape), `KeyGrid` (core), `AppTypography.mono` and the bundled JetBrains Mono (verified monospaced, licence registered), a gallery "Programmer" section. `app_shell.dart` no longer has a placeholder fallback.
+- **Validated independently:** the engine tests compare every operation against Dart's typed-data lists (`Int8List` … `Uint64List`, whose stores wrap exactly as hardware does) and native `int` operations, exhaustively for 8-bit and on boundary and random patterns for the rest, with independent overflow-flag oracles and hand-computed reference tables. Four deliberate bugs in the engine each made the tests fail.
+- **Found while building and testing:** a `SliverPadding` around a `SliverFillRemaining` made the page scroll by its bottom padding; on the phone the 64-bit layout was ~24 dp taller than the viewport (status bar); at 200% text the base labels, the "Signed" button and the overflow notice broke; `±` right after an operator negated the echoed operand instead of starting a negative number. All fixed and covered by tests.
+- **Full QA gate:** `flutter analyze` (no issues), `dart format --set-exit-if-changed lib test packages` (0 changed), `flutter test` (1552 passed, 1 skipped, 0 failed — was 1429 passed), `dart test` in `packages/calc_engine` (446 passed — was 387), `flutter build apk --debug` (built). The older design-review screenshot tests: 6 fail, identically at the previous commit (Known Issues #18).
+- **Phone-tested** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`, USB): see the next section.
+- **Known Issue #17 observation:** the Programmer calculator does **not** reset on rotation (the state is in a Riverpod provider, like Basic, Scientific and Converter). Nothing in the shared shell or state mechanism was changed.
+
+## Test on the user's phone: the programmer calculator (2026-10-01, this session)
+
+The phone was connected by USB. **Device:** `4DEEEUKF6HNFHEIJ`, model `23124RN87I`, Android, 720×1600 px, region en-IN. **Method:** `adb install -r` (the debug build from the QA gate, rebuilt after each fix), `adb shell input tap`/`swipe`, `screencap` straight to the PC; landscape through `cmd window user-rotation lock 1`; text size through `settings put system font_scale 2.0`.
+
+| Check | Result |
+| --- | --- |
+| Opening Programmer from the mode sheet | Shows the new screen (word controls, four base rows, 5×6 keypad), not a placeholder |
+| Default | 32-bit, Signed, DEC selected, `0` in every base; BIN shows two zero-padded lines; A–F disabled |
+| `255` typed in DEC | HEX `FF`, OCT `377`, BIN `0000 0000 0000 0000 / 0000 0000 1111 1111` |
+| `5` then `±` | DEC `-5`, HEX `FFFF FFFB`, OCT `37 777 777 773`, BIN `1111 1111 1111 1111 / 1111 1111 1111 1011` (all match the hand-computed two's complement) |
+| Word-size sheet | Opens with a heading and a segmented 8 / 16 / 32 / 64 choice, the current size checked |
+| 8-bit, `127 + 1 =` | DEC `-128`, HEX `80`, OCT `200`, BIN `1000 0000`; "Overflow: wrapped to 8 bits" shown; AC clears it |
+| HEX, `FF AND 0F =` | HEX `F`, DEC `15`, OCT `17`, BIN `0000 1111`; all A–F enabled in HEX |
+| BIN, `10101010` | HEX `AA`, DEC `-86`, OCT `252`; every digit key disabled once 8 bits are typed, and 2–9 and A–F disabled throughout |
+| DEC, `1 << 7 =` (8-bit signed) | HEX `80`, DEC `-128`, no overflow flag (shifts never flag) |
+| then `>> 1 =` | HEX `C0`, DEC `-64`, BIN `1100 0000` (arithmetic shift, sign-filling) |
+| `5 ÷ 0 =` | "Can't divide by zero" in the error colour; every base shows 0; the next key recovers |
+| Signed or unsigned sheet; Unsigned at 64 bits with `-5`'s bits | DEC `1,84,46,74,40,73,70,95,51,611` (= 18446744073709551611, en-IN grouping), `±` greyed out |
+| 64-bit | HEX `FFFF FFFF FFFF FFFB`, OCT `1 777 777 777 777 777 777 773` (shrunk to fit), BIN four aligned lines; after the layout fixes the whole readout and keypad, `=` key included, are on screen (a test also checks the page does not scroll in a 766 dp window, the 800 dp phone minus its status bar) |
+| Landscape | Rail on the left, controls and readout, keypad on the right; scrolls to reach the lower key rows (keys keep 48 dp); `127 + 1` overflow also correct |
+| Rotation (Known Issue #17) | A typed `127` was still shown, in the same base and word size, after rotating: **the Programmer state survives rotation** |
+| 200% text | Base labels single-line, word buttons stacked, the overflow notice complete; the page scrolls; no overflow or clipped control |
+
+- **Found on the phone and fixed:** the 64-bit layout was ~24 dp taller than the screen; at 200% text the labels broke mid-word, the "Signed" button broke and the overflow notice was truncated. The 64-bit fit and the 200% text fixes were re-checked on the device. **Not re-checked on the device:** the overflow notice sat on two lines beside an empty pending-operation text (it now gets the whole line when nothing is pending); that fix was made last, and the phone had been unplugged by the time it could be looked at again. It is a layout nicety, not a correctness issue, and there is no reliable widget test for it (the test font is wider than the real one).
+- **Phone settings:** rotation was forced to landscape and font scale to 200% for the checks; both restored (`accelerometer_rotation=0`, `user_rotation=0`, display rotation 0, `font_scale=1.0`). `accelerometer_rotation` had flipped to 1 along the way and was set back to 0 (as in earlier sessions, the cause is unclear). Screenshots went straight to the PC; none were left on the phone.
+
 ## Phase Status
 
 | Phase | Name | Status |
@@ -244,7 +285,7 @@ The phone was connected by USB at the user's request, right after Phase 8 was bu
 | 6 | Converters | **Complete, committed `a119f9c`, phone-tested.** Plan (DEC-051) independently reviewed before code; six physical categories plus currency built, tested (1252 app tests), every on-device check passed. |
 | 7 | Financial | **Complete, committed `16e7f87`, phone-tested.** Plan (DEC-052) independently and adversarially reviewed before code (five real gaps found and fixed); seven tools built, tested (1356 app tests), every on-device check passed. |
 | 8 | Date calculator | **Complete, committed `0e2c9fb`, phone-tested.** Plan (DEC-053) independently reviewed before code; the review caught a difference-vs-addMonths disagreement at month ends. |
-| 9 | Programmer calculator | Not started |
+| 9 | Programmer calculator | **Complete, phone-tested.** Plan (DEC-054) independently reviewed before code (twelve defects fixed); engine validated against Dart typed-data and native-int oracles; 446 engine + 1552 app tests. |
 | 10 | Settings screen | Not started |
 | 11 | Polish | Not started |
 | 12 | QA | Not started |
@@ -444,8 +485,8 @@ None. Phase 8 is finished, tested and phone-tested. The next phase needs the use
 
 ## Next Task
 
-1. **Report Phase 8 to the user**, flagging: the independent review's month-end defect, the screen-reader fix in `AppDateField`, the device-region date data (`initializeLocalizedDates`), the `FinancialResultRow` to `ResultRow` move, and the rotation state-reset found on the phone (Known Issues #17).
-2. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 9 Programmer, Phase 10 Settings, in that planned order, but the user may choose differently). Don't start either without that explicit approval, per the phase gate (CLAUDE.md rule 9).
+1. **Report Phase 9 to the user**, flagging: the conventions the user may want to revisit (immediate left-to-right execution with no precedence; shifts never flag overflow; a shift count is read as an unsigned bit pattern; the signed/unsigned and word-size changes are order-dependent by design), the optional items left out (tappable bit grid, rotations, modulo, hardware keyboard and paste), that JetBrains Mono was bundled (DEC-028 had scheduled it), and that Known Issue #17 does not recur here.
+2. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 10, Settings, then Phase 11 Polish and Phase 12 QA). Don't start any of them without that explicit approval, per the phase gate (CLAUDE.md rule 9).
 
 ## Do NOT Repeat
 
@@ -562,6 +603,18 @@ None. Phase 8 is finished, tested and phone-tested. The next phase needs the use
 - **Still planned:** ARCHITECTURE.md §3.8.
 
 ## Tests
+
+**Run in the Phase 9 session (2026-10-01), in `smart_calculator/`:**
+
+| Command | Result |
+| --- | --- |
+| `flutter analyze` | `No issues found!` |
+| `dart format --set-exit-if-changed lib test packages` | `0 changed` |
+| `flutter test` (whole suite) | `All tests passed!` (1552 passed, 1 skipped; 0 failed; was 1429) |
+| `dart test` in `packages/calc_engine` | `All tests passed!` (446; was 387; +59 in `programmer_test.dart`) |
+| `flutter build apk --debug` | `Built build\app\outputs\flutter-apk\app-debug.apk` (~180 s) |
+| `flutter test --tags design-review --run-skipped --update-goldens` | 6 older screenshot tests fail (real `sqflite` plugin missing in a plain test; `pumpAndSettle` timeout); the same 6 fail in a clean worktree at `0c3615b`, so unrelated (Known Issues #18). The gallery screenshots, including "Programmer" and the new `mono` sample, were written and looked at. |
+
 
 **Run in the Phase 8 session (2026-10-01), in `smart_calculator/`:**
 
@@ -730,6 +783,8 @@ Not run this session: the release build, the design-review screenshots (nothing 
 15. **A base of exactly `1` or `−1` raised to an exponent past the ±2000 magnitude cutoff loses exactness** (`evaluator.dart`'s near-1-base overflow fix always returns an approximate `CalcValue`, even though `1^n=1` and `(−1)^n=±1` are exact for any `n`). Found during the Module 2 audit, not fixed — cosmetically invisible (`toDecimalString()` still prints `1`), narrow (only reachable past the exponent cutoff), and out of the audit's requested scope. Worth a one-line fix (`if base.exactValue is 1 or -1, return that base directly`) if anyone hits it.
 16. **`CalculatorMemoryKeys` (Basic, unchanged since Phase 3) narrows its 5 keys below 48 dp width in landscape at 200% text.** Found while writing a stricter touch-target test for the scientific keypad (Module 3) — reproduced identically with plain `CalculatorView`, confirming it predates Phase 5 and isn't something Module 3 introduced. Not fixed: `calculator_memory_keys.dart` is Basic's already-approved widget, and this wasn't part of what Module 3 was asked to do. The Scientific screen's own test excludes memory keys from this one check, with a comment explaining why, so the gap is documented rather than silently accepted or silently patched.
 17. **Rotating the phone resets the Date calculator's tool and dates** (found on the device, Phase 8). The shell swaps between a bottom-bar and a rail layout, which rebuilds the screen, and `DateCalculatorView` and its tool views keep their state locally (like the financial tools, which very likely behave the same; not checked). Not data loss in the usual sense (nothing is saved anywhere), but a typed amount or picked dates disappear on rotation. A fix would move the state somewhere that outlives the layout swap (a provider), or key the screen so the shell reuses it. Not fixed: out of Phase 8's scope and it affects the shell's approved design; flagged for the user.
+    - **Observation, Phase 9:** the Programmer calculator does **not** show this behaviour. Its state is in a Riverpod provider (like Basic, Scientific and Converter), so a typed number, the pending operation, the base, the word size and the signedness all survive a rotation (checked on the phone and in a test). The Date and Financial tools remain affected.
+18. **Six older design-review screenshot tests fail** (`flutter test --tags design-review --run-skipped`, which is skipped in a normal run): an "app screens … shell" test that times out in `pumpAndSettle`, and several "calculator …" tests that start the whole app through a real `sqflite` (`MissingPluginException … getDatabasesPath`). Found in Phase 9 and reproduced in a clean worktree at the previous commit, so they predate it. They need the in-memory database that `pumpApp` uses; not fixed (outside this phase). They do not affect the normal test run.
 
 ## Blockers
 

@@ -18,7 +18,7 @@ Phase 5  Scientific ...................... COMPLETED 2026-09-30 (all 3 modules b
 Phase 6  Converters ...................... COMPLETED 2026-09-30
 Phase 7  Financial ....................... COMPLETED 2026-10-01, phone-tested
 Phase 8  Date calculator ................. COMPLETED 2026-10-01, phone-tested
-Phase 9  Programmer calculator ........... planned
+Phase 9  Programmer calculator ........... COMPLETED 2026-10-01, phone-tested
 Phase 10 Settings screen ................. planned
 Phase 11 Polish .......................... planned
 Phase 12 QA .............................. planned
@@ -214,15 +214,17 @@ Seven independent calculators — EMI, simple interest, compound interest, GST, 
 - *(Proposed):* calendar-date arithmetic in UTC, with add-month clamping to the month end.
 - **Done when:** tests pass for leap years, month ends and daylight-saving dates. **Done** — 1429 app tests pass, including leap-year, month-end, negative-month, range-limit and daylight-saving-date cases and property tests that the difference and add tools agree. Phone-tested too (both tools, the month-end case, landscape with the keyboard open); one UX gap found, not fixed (Known Issues #17).
 
-### Phase 9: Programmer calculator
+### Phase 9: Programmer calculator — COMPLETED 2026-10-01 (DEC-054), phone-tested
 
-- **Bases:** BIN, OCT, DEC and HEX, with easy conversion between them.
-- **Operations:** AND, OR, XOR, NOT, shift left and shift right.
+- **Bases:** BIN, OCT, DEC and HEX, with easy conversion between them. **Done** — the number shows in all four bases at once; tapping a row selects the base it is typed in.
+- **Operations:** AND, OR, XOR, NOT, shift left and shift right. **Done**, plus `+ − × ÷` and `±` as supporting operations (overflow cannot be shown without arithmetic). Execution is immediate and left to right, with no precedence (DEC-054).
 - *(Proposed):*
-  - word size and signed/unsigned selectors
-  - a tappable bit grid
-  - digits that are invalid in the current base are disabled, and screen readers announce them as disabled
-- **Done when:** the two's complement and overflow tests pass.
+  - word size and signed/unsigned selectors. **Done** — 8/16/32/64 bits, signed (two's complement) or unsigned, chosen in two sheets; defaults 32-bit signed.
+  - a tappable bit grid. **Not built** (DEC-054, optional). The binary row shows every bit of the word, zero-padded, in a monospaced font.
+  - digits that are invalid in the current base are disabled, and screen readers announce them as disabled. **Done** — also disabled once a number would no longer fit the word.
+- **Also built, supporting:** an overflow notice (arithmetic wraps and says so), division by zero, the bundled JetBrains Mono (DEC-028 had scheduled it for this phase).
+- **Not built, by decision (DEC-054):** rotations, NAND/NOR, modulo, byte swap, a separate shift-type selector, precedence and brackets, history/saved/memory integration, persistence, hardware-keyboard and paste input.
+- **Done when:** the two's complement and overflow tests pass. **Done** — 446 engine tests (59 new) check every operation against Dart's typed-data lists and native `int` operations as an independent oracle, plus hand-computed reference tables; 1552 app tests; phone-tested (every base, signed and unsigned, 8 and 64 bits, shifts, overflow, divide by zero, portrait, landscape, 200% text, rotation).
 
 ### Phase 10: Settings screen
 
