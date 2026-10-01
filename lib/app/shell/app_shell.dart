@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/modes/calculator_mode.dart';
-import 'package:smart_calculator/app/modes/calculator_mode_presentation.dart';
 import 'package:smart_calculator/app/modes/current_mode_notifier.dart';
 import 'package:smart_calculator/app/shell/mode_navigation_rail.dart';
 import 'package:smart_calculator/app/shell/shell_header.dart';
 import 'package:smart_calculator/core/layout/window_size_class.dart';
-import 'package:smart_calculator/core/widgets/status_views.dart';
 import 'package:smart_calculator/features/calculator/presentation/calculator_view.dart';
 import 'package:smart_calculator/features/calculator/presentation/scientific_calculator_view.dart';
 import 'package:smart_calculator/features/converter/presentation/converter_view.dart';
 import 'package:smart_calculator/features/date_calculator/presentation/date_calculator_view.dart';
 import 'package:smart_calculator/features/financial/presentation/financial_view.dart';
 import 'package:smart_calculator/features/history/presentation/history_panel.dart';
-import 'package:smart_calculator/l10n/app_localizations.dart';
+import 'package:smart_calculator/features/programmer/presentation/programmer_view.dart';
 
 /// The adaptive frame around the current mode.
 ///
@@ -93,8 +91,7 @@ class _RailShell extends StatelessWidget {
   );
 }
 
-/// The current mode's content. Modes not built yet show an empty state
-/// until their phase (docs/ROADMAP.md).
+/// The current mode's content.
 class _CurrentModeView extends ConsumerWidget {
   const _CurrentModeView();
 
@@ -106,9 +103,6 @@ class _CurrentModeView extends ConsumerWidget {
         CalculatorMode.converter => const ConverterView(),
         CalculatorMode.finance => const FinancialView(),
         CalculatorMode.date => const DateCalculatorView(),
-        final mode => EmptyState(
-          icon: mode.icon,
-          message: AppLocalizations.of(context).modeNotAvailableYet,
-        ),
+        CalculatorMode.programmer => const ProgrammerView(),
       };
 }

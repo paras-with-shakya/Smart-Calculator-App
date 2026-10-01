@@ -148,12 +148,6 @@ abstract class AppLocalizations {
   /// **'Modes'**
   String get modeSheetTitle;
 
-  /// Shown in place of a calculator mode that has not been built yet.
-  ///
-  /// In en, this message translates to:
-  /// **'This mode isn\'t available yet.'**
-  String get modeNotAvailableYet;
-
   /// Title of the calculation history page and panel, and tooltip of the button that opens it.
   ///
   /// In en, this message translates to:
@@ -1761,6 +1755,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{first}, {second}'**
   String dateSpanJoin(String first, String second);
+
+  /// Programmer calculator key showing "AND" (Bitwise AND).
+  ///
+  /// In en, this message translates to:
+  /// **'AND'**
+  String get programmerKeyAnd;
+
+  /// What a screen reader announces for the programmer key "AND".
+  ///
+  /// In en, this message translates to:
+  /// **'Bitwise AND'**
+  String get programmerKeyAndLabel;
+
+  /// Programmer calculator key showing "OR" (Bitwise OR).
+  ///
+  /// In en, this message translates to:
+  /// **'OR'**
+  String get programmerKeyOr;
+
+  /// What a screen reader announces for the programmer key "OR".
+  ///
+  /// In en, this message translates to:
+  /// **'Bitwise OR'**
+  String get programmerKeyOrLabel;
+
+  /// Programmer calculator key showing "XOR" (Bitwise XOR).
+  ///
+  /// In en, this message translates to:
+  /// **'XOR'**
+  String get programmerKeyXor;
+
+  /// What a screen reader announces for the programmer key "XOR".
+  ///
+  /// In en, this message translates to:
+  /// **'Bitwise XOR'**
+  String get programmerKeyXorLabel;
+
+  /// Programmer calculator key showing "NOT" (Bitwise NOT).
+  ///
+  /// In en, this message translates to:
+  /// **'NOT'**
+  String get programmerKeyNot;
+
+  /// What a screen reader announces for the programmer key "NOT".
+  ///
+  /// In en, this message translates to:
+  /// **'Bitwise NOT'**
+  String get programmerKeyNotLabel;
+
+  /// Programmer calculator key showing "<<" (Shift left).
+  ///
+  /// In en, this message translates to:
+  /// **'<<'**
+  String get programmerKeyShiftLeft;
+
+  /// What a screen reader announces for the programmer key "<<".
+  ///
+  /// In en, this message translates to:
+  /// **'Shift left'**
+  String get programmerKeyShiftLeftLabel;
+
+  /// Programmer calculator key showing ">>" (Shift right).
+  ///
+  /// In en, this message translates to:
+  /// **'>>'**
+  String get programmerKeyShiftRight;
+
+  /// What a screen reader announces for the programmer key ">>".
+  ///
+  /// In en, this message translates to:
+  /// **'Shift right'**
+  String get programmerKeyShiftRightLabel;
+
+  /// What a screen reader announces for the programmer key that flips the sign of the number.
+  ///
+  /// In en, this message translates to:
+  /// **'Negate'**
+  String get programmerKeyNegateLabel;
+
+  /// Short label of the Hexadecimal readout row in the programmer calculator.
+  ///
+  /// In en, this message translates to:
+  /// **'HEX'**
+  String get programmerBaseHex;
+
+  /// Spoken name of the Hexadecimal readout row in the programmer calculator.
+  ///
+  /// In en, this message translates to:
+  /// **'Hexadecimal'**
+  String get programmerBaseNameHex;
+
+  /// Short label of the Decimal readout row in the programmer calculator.
+  ///
+  /// In en, this message translates to:
+  /// **'DEC'**
+  String get programmerBaseDec;
+
+  /// Spoken name of the Decimal readout row in the programmer calculator.
+  ///
+  /// In en, this message translates to:
+  /// **'Decimal'**
+  String get programmerBaseNameDec;
+
+  /// Short label of the Octal readout row in the programmer calculator.
+  ///
+  /// In en, this message translates to:
+  /// **'OCT'**
+  String get programmerBaseOct;
+
+  /// Spoken name of the Octal readout row in the programmer calculator.
+  ///
+  /// In en, this message translates to:
+  /// **'Octal'**
+  String get programmerBaseNameOct;
+
+  /// Short label of the Binary readout row in the programmer calculator.
+  ///
+  /// In en, this message translates to:
+  /// **'BIN'**
+  String get programmerBaseBin;
+
+  /// Spoken name of the Binary readout row in the programmer calculator.
+  ///
+  /// In en, this message translates to:
+  /// **'Binary'**
+  String get programmerBaseNameBin;
+
+  /// What a screen reader announces for a base readout row: the base's name, then the number in that base.
+  ///
+  /// In en, this message translates to:
+  /// **'{base}, {value}'**
+  String programmerBaseRowSemantics(String base, String value);
+
+  /// Label of the button that opens the word-size choice, for example "32-bit".
+  ///
+  /// In en, this message translates to:
+  /// **'{bits}-bit'**
+  String programmerWordSizeButton(int bits);
+
+  /// What a screen reader announces for the button that opens the word-size choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Word size, {bits} bits'**
+  String programmerWordSizeSemantics(int bits);
+
+  /// Title of the sheet where the word size of the programmer calculator is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Word size (bits)'**
+  String get programmerWordSizeTitle;
+
+  /// Option and button label: numbers are signed (two's complement).
+  ///
+  /// In en, this message translates to:
+  /// **'Signed'**
+  String get programmerSigned;
+
+  /// Option and button label: numbers are unsigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsigned'**
+  String get programmerUnsigned;
+
+  /// What a screen reader announces for the button that opens the signed or unsigned choice. The kind is Signed or Unsigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Number type, {kind}'**
+  String programmerSignednessSemantics(String kind);
+
+  /// Title of the sheet where signed or unsigned numbers are chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed or unsigned'**
+  String get programmerSignednessTitle;
+
+  /// Shown when a result did not fit the word size and was wrapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Overflow: wrapped to {bits} bits'**
+  String programmerOverflowNotice(int bits);
 }
 
 class _AppLocalizationsDelegate

@@ -37,9 +37,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modeSheetTitle => 'Modes';
 
   @override
-  String get modeNotAvailableYet => 'This mode isn\'t available yet.';
-
-  @override
   String get historyTitle => 'History';
 
   @override
@@ -930,5 +927,120 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String dateSpanJoin(String first, String second) {
     return '$first, $second';
+  }
+
+  @override
+  String get programmerKeyAnd => 'AND';
+
+  @override
+  String get programmerKeyAndLabel => 'Bitwise AND';
+
+  @override
+  String get programmerKeyOr => 'OR';
+
+  @override
+  String get programmerKeyOrLabel => 'Bitwise OR';
+
+  @override
+  String get programmerKeyXor => 'XOR';
+
+  @override
+  String get programmerKeyXorLabel => 'Bitwise XOR';
+
+  @override
+  String get programmerKeyNot => 'NOT';
+
+  @override
+  String get programmerKeyNotLabel => 'Bitwise NOT';
+
+  @override
+  String get programmerKeyShiftLeft => '<<';
+
+  @override
+  String get programmerKeyShiftLeftLabel => 'Shift left';
+
+  @override
+  String get programmerKeyShiftRight => '>>';
+
+  @override
+  String get programmerKeyShiftRightLabel => 'Shift right';
+
+  @override
+  String get programmerKeyNegateLabel => 'Negate';
+
+  @override
+  String get programmerBaseHex => 'HEX';
+
+  @override
+  String get programmerBaseNameHex => 'Hexadecimal';
+
+  @override
+  String get programmerBaseDec => 'DEC';
+
+  @override
+  String get programmerBaseNameDec => 'Decimal';
+
+  @override
+  String get programmerBaseOct => 'OCT';
+
+  @override
+  String get programmerBaseNameOct => 'Octal';
+
+  @override
+  String get programmerBaseBin => 'BIN';
+
+  @override
+  String get programmerBaseNameBin => 'Binary';
+
+  @override
+  String programmerBaseRowSemantics(String base, String value) {
+    return '$base, $value';
+  }
+
+  @override
+  String programmerWordSizeButton(int bits) {
+    final intl.NumberFormat bitsNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String bitsString = bitsNumberFormat.format(bits);
+
+    return '$bitsString-bit';
+  }
+
+  @override
+  String programmerWordSizeSemantics(int bits) {
+    final intl.NumberFormat bitsNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String bitsString = bitsNumberFormat.format(bits);
+
+    return 'Word size, $bitsString bits';
+  }
+
+  @override
+  String get programmerWordSizeTitle => 'Word size (bits)';
+
+  @override
+  String get programmerSigned => 'Signed';
+
+  @override
+  String get programmerUnsigned => 'Unsigned';
+
+  @override
+  String programmerSignednessSemantics(String kind) {
+    return 'Number type, $kind';
+  }
+
+  @override
+  String get programmerSignednessTitle => 'Signed or unsigned';
+
+  @override
+  String programmerOverflowNotice(int bits) {
+    final intl.NumberFormat bitsNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String bitsString = bitsNumberFormat.format(bits);
+
+    return 'Overflow: wrapped to $bitsString bits';
   }
 }

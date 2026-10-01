@@ -36,10 +36,6 @@
   "@modeSheetTitle": {
     "description": "Heading of the sheet listing all calculator modes."
   },
-  "modeNotAvailableYet": "This mode isn't available yet.",
-  "@modeNotAvailableYet": {
-    "description": "Shown in place of a calculator mode that has not been built yet."
-  },
   "historyTitle": "History",
   "@historyTitle": {
     "description": "Title of the calculation history page and panel, and tooltip of the button that opens it."
@@ -1219,6 +1215,157 @@
       },
       "second": {
         "type": "String"
+      }
+    }
+  },
+  "programmerKeyAnd": "AND",
+  "@programmerKeyAnd": {
+    "description": "Programmer calculator key showing \"AND\" (Bitwise AND)."
+  },
+  "programmerKeyAndLabel": "Bitwise AND",
+  "@programmerKeyAndLabel": {
+    "description": "What a screen reader announces for the programmer key \"AND\"."
+  },
+  "programmerKeyOr": "OR",
+  "@programmerKeyOr": {
+    "description": "Programmer calculator key showing \"OR\" (Bitwise OR)."
+  },
+  "programmerKeyOrLabel": "Bitwise OR",
+  "@programmerKeyOrLabel": {
+    "description": "What a screen reader announces for the programmer key \"OR\"."
+  },
+  "programmerKeyXor": "XOR",
+  "@programmerKeyXor": {
+    "description": "Programmer calculator key showing \"XOR\" (Bitwise XOR)."
+  },
+  "programmerKeyXorLabel": "Bitwise XOR",
+  "@programmerKeyXorLabel": {
+    "description": "What a screen reader announces for the programmer key \"XOR\"."
+  },
+  "programmerKeyNot": "NOT",
+  "@programmerKeyNot": {
+    "description": "Programmer calculator key showing \"NOT\" (Bitwise NOT)."
+  },
+  "programmerKeyNotLabel": "Bitwise NOT",
+  "@programmerKeyNotLabel": {
+    "description": "What a screen reader announces for the programmer key \"NOT\"."
+  },
+  "programmerKeyShiftLeft": "<<",
+  "@programmerKeyShiftLeft": {
+    "description": "Programmer calculator key showing \"<<\" (Shift left)."
+  },
+  "programmerKeyShiftLeftLabel": "Shift left",
+  "@programmerKeyShiftLeftLabel": {
+    "description": "What a screen reader announces for the programmer key \"<<\"."
+  },
+  "programmerKeyShiftRight": ">>",
+  "@programmerKeyShiftRight": {
+    "description": "Programmer calculator key showing \">>\" (Shift right)."
+  },
+  "programmerKeyShiftRightLabel": "Shift right",
+  "@programmerKeyShiftRightLabel": {
+    "description": "What a screen reader announces for the programmer key \">>\"."
+  },
+  "programmerKeyNegateLabel": "Negate",
+  "@programmerKeyNegateLabel": {
+    "description": "What a screen reader announces for the programmer key that flips the sign of the number."
+  },
+  "programmerBaseHex": "HEX",
+  "@programmerBaseHex": {
+    "description": "Short label of the Hexadecimal readout row in the programmer calculator."
+  },
+  "programmerBaseNameHex": "Hexadecimal",
+  "@programmerBaseNameHex": {
+    "description": "Spoken name of the Hexadecimal readout row in the programmer calculator."
+  },
+  "programmerBaseDec": "DEC",
+  "@programmerBaseDec": {
+    "description": "Short label of the Decimal readout row in the programmer calculator."
+  },
+  "programmerBaseNameDec": "Decimal",
+  "@programmerBaseNameDec": {
+    "description": "Spoken name of the Decimal readout row in the programmer calculator."
+  },
+  "programmerBaseOct": "OCT",
+  "@programmerBaseOct": {
+    "description": "Short label of the Octal readout row in the programmer calculator."
+  },
+  "programmerBaseNameOct": "Octal",
+  "@programmerBaseNameOct": {
+    "description": "Spoken name of the Octal readout row in the programmer calculator."
+  },
+  "programmerBaseBin": "BIN",
+  "@programmerBaseBin": {
+    "description": "Short label of the Binary readout row in the programmer calculator."
+  },
+  "programmerBaseNameBin": "Binary",
+  "@programmerBaseNameBin": {
+    "description": "Spoken name of the Binary readout row in the programmer calculator."
+  },
+  "programmerBaseRowSemantics": "{base}, {value}",
+  "@programmerBaseRowSemantics": {
+    "description": "What a screen reader announces for a base readout row: the base's name, then the number in that base.",
+    "placeholders": {
+      "base": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "programmerWordSizeButton": "{bits}-bit",
+  "@programmerWordSizeButton": {
+    "description": "Label of the button that opens the word-size choice, for example \"32-bit\".",
+    "placeholders": {
+      "bits": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "programmerWordSizeSemantics": "Word size, {bits} bits",
+  "@programmerWordSizeSemantics": {
+    "description": "What a screen reader announces for the button that opens the word-size choice.",
+    "placeholders": {
+      "bits": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "programmerWordSizeTitle": "Word size (bits)",
+  "@programmerWordSizeTitle": {
+    "description": "Title of the sheet where the word size of the programmer calculator is chosen."
+  },
+  "programmerSigned": "Signed",
+  "@programmerSigned": {
+    "description": "Option and button label: numbers are signed (two's complement)."
+  },
+  "programmerUnsigned": "Unsigned",
+  "@programmerUnsigned": {
+    "description": "Option and button label: numbers are unsigned."
+  },
+  "programmerSignednessSemantics": "Number type, {kind}",
+  "@programmerSignednessSemantics": {
+    "description": "What a screen reader announces for the button that opens the signed or unsigned choice. The kind is Signed or Unsigned.",
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "programmerSignednessTitle": "Signed or unsigned",
+  "@programmerSignednessTitle": {
+    "description": "Title of the sheet where signed or unsigned numbers are chosen."
+  },
+  "programmerOverflowNotice": "Overflow: wrapped to {bits} bits",
+  "@programmerOverflowNotice": {
+    "description": "Shown when a result did not fit the word size and was wrapped.",
+    "placeholders": {
+      "bits": {
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   }

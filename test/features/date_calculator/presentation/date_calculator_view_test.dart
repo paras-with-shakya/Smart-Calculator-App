@@ -93,13 +93,10 @@ void main() {
       .text;
 
   group('Date mode', () {
-    testWidgets('shows the date calculator, not the placeholder', (
-      tester,
-    ) async {
+    testWidgets('shows the date calculator', (tester) async {
       await pumpDate(tester);
 
       expect(find.byType(DateCalculatorView), findsOneWidget);
-      expect(find.text(l10n.modeNotAvailableYet), findsNothing);
     });
 
     testWidgets('both dates start as today, even late in the evening', (

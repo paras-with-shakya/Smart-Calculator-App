@@ -16,6 +16,7 @@ import 'package:smart_calculator/core/widgets/app_icon_button.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
 import 'package:smart_calculator/core/widgets/calculator_button.dart';
 import 'package:smart_calculator/core/widgets/display_text.dart';
+import 'package:smart_calculator/core/widgets/key_grid.dart';
 import 'package:smart_calculator/core/widgets/result_row.dart';
 import 'package:smart_calculator/core/widgets/section_header.dart';
 import 'package:smart_calculator/core/widgets/share_of_whole_bar.dart';
@@ -63,7 +64,10 @@ enum GallerySection {
   financial('Financial'),
 
   /// A date field and a result card.
-  date('Date');
+  date('Date'),
+
+  /// A key grid with enabled and disabled digit keys.
+  programmer('Programmer');
 
   const GallerySection(this.title);
 
@@ -106,6 +110,7 @@ class GallerySectionView extends StatelessWidget {
           GallerySection.converter => const _ConverterSection(),
           GallerySection.financial => const _FinancialSection(),
           GallerySection.date => const _DateSection(),
+          GallerySection.programmer => const _ProgrammerSection(),
         },
       ),
     ],
@@ -210,6 +215,7 @@ class _TypographySection extends StatelessWidget {
       ('button · 16', t.button, 'Save calculation'),
       ('label · 14', t.label, 'Appearance'),
       ('caption · 13', t.caption, 'Rates are fixed for the whole term.'),
+      ('mono · 20 · monospaced', t.mono, '0010 1111  FF A5 7E'),
     ];
     return Column(
       crossAxisAlignment: .start,
@@ -1085,4 +1091,49 @@ class _DateSectionState extends State<_DateSection> {
       ),
     ],
   );
+}
+
+/// A sample of the programmer keypad's building blocks: a `KeyGrid` of
+/// `CalculatorButton`s with some keys disabled, as digits that do not exist
+/// in the base being typed are. The working screen is `ProgrammerView`.
+class _ProgrammerSection extends StatelessWidget {
+  const _ProgrammerSection();
+
+  static void _noop() {}
+
+  @override
+  Widget build(BuildContext context) {
+    CalculatorButton digit(String label, {bool enabled = true}) =>
+        CalculatorButton(
+          kind: CalculatorButtonKind.digit,
+          label: label,
+          semanticLabel: label,
+          onPressed: enabled ? _noop : null,
+        );
+    CalculatorButton function(String label) => CalculatorButton(
+      kind: CalculatorButtonKind.function,
+      label: label,
+      semanticLabel: label,
+      onPressed: _noop,
+    );
+    return KeyGrid(
+      rowHeight: 52,
+      rows: [
+        [
+          digit('A', enabled: false),
+          digit('B', enabled: false),
+          digit('7'),
+          function('AND'),
+          function('OR'),
+        ],
+        [
+          digit('4'),
+          digit('5'),
+          digit('6', enabled: false),
+          function('XOR'),
+          function('NOT'),
+        ],
+      ],
+    );
+  }
 }
