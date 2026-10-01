@@ -765,5 +765,307 @@
   "converterSwapTooltip": "Swap units",
   "@converterSwapTooltip": {
     "description": "Tooltip and accessibility label of the button that swaps the From and To units."
+  },
+  "financialErrorMustBePositive": "Enter a value greater than 0",
+  "@financialErrorMustBePositive": {
+    "description": "Validation message for a financial input field that must be greater than zero."
+  },
+  "financialErrorMustBeNonNegative": "Enter a value of 0 or more",
+  "@financialErrorMustBeNonNegative": {
+    "description": "Validation message for a financial input field that must be zero or greater."
+  },
+  "financialErrorTooLarge": "Enter at most {max}",
+  "@financialErrorTooLarge": {
+    "description": "Validation message for a financial input field that exceeds its sane upper bound.",
+    "placeholders": {
+      "max": {
+        "type": "int",
+        "example": "600"
+      }
+    }
+  },
+  "financialErrorMustBePositiveInteger": "Enter a whole number of 1 or more",
+  "@financialErrorMustBePositiveInteger": {
+    "description": "Validation message for a financial input field that must be a whole number of at least 1."
+  },
+  "financialResultPlaceholder": "Enter every amount above to see a result.",
+  "@financialResultPlaceholder": {
+    "description": "Shown in a financial tool's result area while its inputs are incomplete or invalid."
+  },
+  "financialToolEmi": "EMI",
+  "@financialToolEmi": {
+    "description": "Name of the EMI (loan instalment) calculator tool."
+  },
+  "financialToolSimpleInterest": "Simple interest",
+  "@financialToolSimpleInterest": {
+    "description": "Name of the simple interest calculator tool."
+  },
+  "financialToolCompoundInterest": "Compound interest",
+  "@financialToolCompoundInterest": {
+    "description": "Name of the compound interest calculator tool."
+  },
+  "financialToolGst": "GST",
+  "@financialToolGst": {
+    "description": "Name of the GST calculator tool."
+  },
+  "financialToolDiscount": "Discount",
+  "@financialToolDiscount": {
+    "description": "Name of the discount calculator tool."
+  },
+  "financialToolTip": "Tip",
+  "@financialToolTip": {
+    "description": "Name of the tip calculator tool."
+  },
+  "financialToolPercentage": "Percentage",
+  "@financialToolPercentage": {
+    "description": "Name of the percentage calculator tool."
+  },
+  "financialEmiPrincipalLabel": "Loan amount",
+  "@financialEmiPrincipalLabel": {
+    "description": "Label of the EMI tool's loan amount field."
+  },
+  "financialEmiRateLabel": "Interest rate (annual)",
+  "@financialEmiRateLabel": {
+    "description": "Label of the EMI tool's interest rate field."
+  },
+  "financialEmiTenureLabel": "Tenure",
+  "@financialEmiTenureLabel": {
+    "description": "Label of the EMI tool's loan tenure field."
+  },
+  "financialTenureUnitYears": "Years",
+  "@financialTenureUnitYears": {
+    "description": "Option label for typing a loan tenure in years."
+  },
+  "financialTenureUnitMonths": "Months",
+  "@financialTenureUnitMonths": {
+    "description": "Option label for typing a loan tenure in months."
+  },
+  "financialEmiMonthlyLabel": "Monthly EMI",
+  "@financialEmiMonthlyLabel": {
+    "description": "Label of the EMI tool's computed monthly instalment."
+  },
+  "financialEmiTotalInterestLabel": "Total interest",
+  "@financialEmiTotalInterestLabel": {
+    "description": "Label of the EMI tool's computed total interest."
+  },
+  "financialEmiTotalPaymentLabel": "Total payment",
+  "@financialEmiTotalPaymentLabel": {
+    "description": "Label of the EMI tool's computed total payment."
+  },
+  "financialEmiChartPrincipalLabel": "Principal",
+  "@financialEmiChartPrincipalLabel": {
+    "description": "Legend label for the principal segment of the EMI tool's share-of-whole bar."
+  },
+  "financialEmiChartInterestLabel": "Interest",
+  "@financialEmiChartInterestLabel": {
+    "description": "Legend label for the interest segment of the EMI tool's share-of-whole bar."
+  },
+  "financialSiPrincipalLabel": "Principal",
+  "@financialSiPrincipalLabel": {
+    "description": "Label of the simple interest tool's principal field."
+  },
+  "financialSiRateLabel": "Interest rate (annual)",
+  "@financialSiRateLabel": {
+    "description": "Label of the simple interest tool's rate field."
+  },
+  "financialSiTimeLabel": "Time (years)",
+  "@financialSiTimeLabel": {
+    "description": "Label of the simple interest tool's time field."
+  },
+  "financialSiInterestLabel": "Interest",
+  "@financialSiInterestLabel": {
+    "description": "Label of the simple interest tool's computed interest."
+  },
+  "financialSiTotalLabel": "Total amount",
+  "@financialSiTotalLabel": {
+    "description": "Label of the simple interest tool's computed total amount."
+  },
+  "financialCiPrincipalLabel": "Principal",
+  "@financialCiPrincipalLabel": {
+    "description": "Label of the compound interest tool's principal field."
+  },
+  "financialCiRateLabel": "Interest rate (annual)",
+  "@financialCiRateLabel": {
+    "description": "Label of the compound interest tool's rate field."
+  },
+  "financialCiTimeLabel": "Time (years)",
+  "@financialCiTimeLabel": {
+    "description": "Label of the compound interest tool's time field."
+  },
+  "financialCiFrequencyLabel": "Compounding",
+  "@financialCiFrequencyLabel": {
+    "description": "Label of the compound interest tool's compounding frequency choice."
+  },
+  "financialCiFrequencyAnnual": "Annual",
+  "@financialCiFrequencyAnnual": {
+    "description": "Option label for interest compounding once a year."
+  },
+  "financialCiFrequencySemiAnnual": "Semi-annual",
+  "@financialCiFrequencySemiAnnual": {
+    "description": "Option label for interest compounding twice a year."
+  },
+  "financialCiFrequencyQuarterly": "Quarterly",
+  "@financialCiFrequencyQuarterly": {
+    "description": "Option label for interest compounding four times a year."
+  },
+  "financialCiFrequencyMonthly": "Monthly",
+  "@financialCiFrequencyMonthly": {
+    "description": "Option label for interest compounding twelve times a year."
+  },
+  "financialCiInterestLabel": "Interest earned",
+  "@financialCiInterestLabel": {
+    "description": "Label of the compound interest tool's computed interest."
+  },
+  "financialCiTotalLabel": "Total amount",
+  "@financialCiTotalLabel": {
+    "description": "Label of the compound interest tool's computed total amount."
+  },
+  "financialGstAmountLabel": "Amount",
+  "@financialGstAmountLabel": {
+    "description": "Label of the GST tool's amount field."
+  },
+  "financialGstRateLabel": "GST rate",
+  "@financialGstRateLabel": {
+    "description": "Label of the GST tool's rate field."
+  },
+  "financialGstModeLabel": "GST is",
+  "@financialGstModeLabel": {
+    "description": "Label of the GST tool's exclusive/inclusive choice."
+  },
+  "financialGstModeExclusive": "Added to amount",
+  "@financialGstModeExclusive": {
+    "description": "Option label: the entered amount excludes GST, which is added on top."
+  },
+  "financialGstModeInclusive": "Already included",
+  "@financialGstModeInclusive": {
+    "description": "Option label: the entered amount already includes GST."
+  },
+  "financialGstSupplyLabel": "Supply type",
+  "@financialGstSupplyLabel": {
+    "description": "Label of the GST tool's intra-state/inter-state choice."
+  },
+  "financialGstSupplyIntraState": "Intra-state (CGST+SGST)",
+  "@financialGstSupplyIntraState": {
+    "description": "Option label: a supply within the same state, shown as CGST+SGST."
+  },
+  "financialGstSupplyInterState": "Inter-state (IGST)",
+  "@financialGstSupplyInterState": {
+    "description": "Option label: a supply across states, shown as IGST."
+  },
+  "financialGstBaseLabel": "Base amount",
+  "@financialGstBaseLabel": {
+    "description": "Label of the GST tool's computed base (pre-tax) amount."
+  },
+  "financialGstCgstLabel": "CGST",
+  "@financialGstCgstLabel": {
+    "description": "Label of the GST tool's computed CGST (central GST) share."
+  },
+  "financialGstSgstLabel": "SGST",
+  "@financialGstSgstLabel": {
+    "description": "Label of the GST tool's computed SGST (state GST) share."
+  },
+  "financialGstIgstLabel": "IGST",
+  "@financialGstIgstLabel": {
+    "description": "Label of the GST tool's computed IGST (integrated GST) amount."
+  },
+  "financialGstTotalLabel": "Total amount",
+  "@financialGstTotalLabel": {
+    "description": "Label of the GST tool's computed total amount."
+  },
+  "financialGstAmountResultLabel": "GST amount",
+  "@financialGstAmountResultLabel": {
+    "description": "Legend label for the GST segment of the GST tool's share-of-whole bar."
+  },
+  "financialDiscountPriceLabel": "Price",
+  "@financialDiscountPriceLabel": {
+    "description": "Label of the discount tool's price field."
+  },
+  "financialDiscountPercentLabel": "Discount",
+  "@financialDiscountPercentLabel": {
+    "description": "Label of the discount tool's discount percentage field."
+  },
+  "financialDiscountFinalPriceLabel": "Final price",
+  "@financialDiscountFinalPriceLabel": {
+    "description": "Label of the discount tool's computed final price."
+  },
+  "financialDiscountAmountLabel": "You save",
+  "@financialDiscountAmountLabel": {
+    "description": "Label of the discount tool's computed discount amount."
+  },
+  "financialTipBillLabel": "Bill amount",
+  "@financialTipBillLabel": {
+    "description": "Label of the tip tool's bill amount field."
+  },
+  "financialTipPercentLabel": "Tip",
+  "@financialTipPercentLabel": {
+    "description": "Label of the tip tool's tip percentage field."
+  },
+  "financialTipSplitLabel": "Split between",
+  "@financialTipSplitLabel": {
+    "description": "Label of the tip tool's split-count field."
+  },
+  "financialTipPerPersonLabel": "Per person",
+  "@financialTipPerPersonLabel": {
+    "description": "Label of the tip tool's computed per-person share."
+  },
+  "financialTipAmountLabel": "Tip amount",
+  "@financialTipAmountLabel": {
+    "description": "Label of the tip tool's computed tip amount."
+  },
+  "financialTipTotalLabel": "Total",
+  "@financialTipTotalLabel": {
+    "description": "Label of the tip tool's computed total (bill plus tip)."
+  },
+  "financialPercentOfXLabel": "Percentage (%)",
+  "@financialPercentOfXLabel": {
+    "description": "Label of the percentage tool's percentage field, in \"X% of Y\" mode."
+  },
+  "financialPercentOfYLabel": "Of this amount",
+  "@financialPercentOfYLabel": {
+    "description": "Label of the percentage tool's base amount field, in \"X% of Y\" mode."
+  },
+  "financialPercentWhatXLabel": "This amount",
+  "@financialPercentWhatXLabel": {
+    "description": "Label of the percentage tool's part-amount field, in \"X is what % of Y\" mode."
+  },
+  "financialPercentWhatYLabel": "Out of this total",
+  "@financialPercentWhatYLabel": {
+    "description": "Label of the percentage tool's whole-amount field, in \"X is what % of Y\" mode."
+  },
+  "financialPercentChangeXLabel": "Percentage (%)",
+  "@financialPercentChangeXLabel": {
+    "description": "Label of the percentage tool's percentage field, in \"increase/decrease Y by X%\" mode."
+  },
+  "financialPercentChangeYLabel": "Starting amount",
+  "@financialPercentChangeYLabel": {
+    "description": "Label of the percentage tool's starting-amount field, in \"increase/decrease Y by X%\" mode."
+  },
+  "financialPercentOpPercentOf": "X% of Y",
+  "@financialPercentOpPercentOf": {
+    "description": "Option label for the \"what is X% of Y\" percentage operation."
+  },
+  "financialPercentOpWhatPercent": "X is what % of Y",
+  "@financialPercentOpWhatPercent": {
+    "description": "Option label for the \"X is what percentage of Y\" percentage operation."
+  },
+  "financialPercentOpChangeBy": "Increase/decrease Y by X%",
+  "@financialPercentOpChangeBy": {
+    "description": "Option label for the \"increase or decrease Y by X percent\" percentage operation."
+  },
+  "financialPercentOperationLabel": "Calculate",
+  "@financialPercentOperationLabel": {
+    "description": "Label of the percentage tool's operation choice."
+  },
+  "financialPercentDirectionIncrease": "Increase",
+  "@financialPercentDirectionIncrease": {
+    "description": "Option label for increasing an amount by a percentage."
+  },
+  "financialPercentDirectionDecrease": "Decrease",
+  "@financialPercentDirectionDecrease": {
+    "description": "Option label for decreasing an amount by a percentage."
+  },
+  "financialPercentResultLabel": "Result",
+  "@financialPercentResultLabel": {
+    "description": "Label of the percentage tool's computed result."
   }
 }

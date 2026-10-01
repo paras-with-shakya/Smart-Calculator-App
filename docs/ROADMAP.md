@@ -16,7 +16,7 @@ Phase 3  Basic calculator + engine + memory COMPLETED 2026-09-28, audited 2026-0
 Phase 4  History + saved calculations .... COMPLETED 2026-09-29 (both halves; phone-tested)
 Phase 5  Scientific ...................... COMPLETED 2026-09-30 (all 3 modules built, audited, phone-tested)
 Phase 6  Converters ...................... COMPLETED 2026-09-30
-Phase 7  Financial ....................... planned
+Phase 7  Financial ....................... COMPLETED 2026-10-01, phone-tested
 Phase 8  Date calculator ................. planned
 Phase 9  Programmer calculator ........... planned
 Phase 10 Settings screen ................. planned
@@ -189,20 +189,22 @@ A modular conversion system where new categories are easy to add: every category
   - an "all units" list (the searchable unit-picker sheet, mirroring `history_content.dart`'s own search pattern)
 - **Done when:** round-trip conversion tests pass. **Done** — fixed-point temperature checks, exact integer cross-checks (mile/ft/yd, acre/ft², US gallon/in³, hour/s, …), per-unit and full pairwise round-trip tests across every category, all with a combined absolute+relative floating-point tolerance.
 
-### Phase 7: Financial
+### Phase 7: Financial — COMPLETED 2026-10-01
+
+Seven independent calculators — EMI, simple interest, compound interest, GST, discount, tip, percentage — each a small, pure, independently-tested domain function, unified only at the presentation layer by a tool picker (DEC-052).
 
 - **Tools:**
-  - EMI: inputs are loan amount, interest rate and tenure; outputs are the monthly EMI, total interest and total payment
-  - simple interest and compound interest
-  - GST: percentage, inclusive or exclusive, CGST/SGST/IGST
-  - discount, tip and percentage
-- Charts where they genuinely help understanding.
-- *(Proposed):*
-  - results update as you type
-  - sliders for rate and tenure
-  - an EMI donut chart and amortization chart, and a compound-interest growth chart (custom painted)
+  - EMI: inputs are loan amount, interest rate and tenure; outputs are the monthly EMI, total interest and total payment. **Done** — verified to the cent against a commonly published reference example (₹100,000 at 10% for 12 months → EMI ₹8,791.59).
+  - simple interest and compound interest. **Done** — compound interest's compounding frequency (annual/semi-annual/quarterly/monthly) is a required, user-selectable choice, never hardcoded.
+  - GST: percentage, inclusive or exclusive, CGST/SGST/IGST. **Done** — CGST/SGST/IGST is a presentation split over one computed GST amount (never a different total), toggled by an intra-state/inter-state choice.
+  - discount, tip and percentage. **Done** — percentage is one flexible tool with three operations ("X% of Y", "X is what % of Y", "increase/decrease Y by X%"), reasoned as the roadmap's own lighter, grouped sibling to discount/tip rather than a request for separate full calculators.
+- Charts where they genuinely help understanding. **Done**, via one reusable `ShareOfWholeBar` (a proportional bar, not a donut — a 2-segment donut is a documented anti-pattern for this exact data shape), used for EMI's principal/interest split and GST's base/GST split.
+- *(Proposed)* "results update as you type": **done** — every tool recomputes live on each keystroke (no "Calculate" button), which turned out to be zero extra work given the chosen state shape (a `ListenableBuilder` over plain `TextEditingController`s), not an added feature.
+- *(Proposed, not built):*
+  - sliders for rate and tenure — every input is a plain text field instead, matching the gallery's own existing loan-amount/interest-rate precedent
+  - an EMI donut chart (replaced by the bar, above) and amortization chart, and a compound-interest growth chart (custom painted) — different, higher-effort chart forms; the mandatory "charts where they help" bar is already met
   - save and reuse
-- **Done when:** results match published reference values.
+- **Done when:** results match published reference values. **Done** — every formula independently re-derived and checked against known reference values twice (once during planning, once during an independent adversarial review), plus verified end to end on the user's phone.
 
 ### Phase 8: Date calculator
 

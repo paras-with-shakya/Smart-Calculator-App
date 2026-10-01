@@ -95,6 +95,7 @@ The widget tests start the app through the same `AppRoot`, so they run the real 
 | `savedCalculationRepositoryProvider` | `Provider<SavedCalculationRepository>` | saved_calculations/data | A `SqfliteSavedCalculationRepository` |
 | `savedCalculationsProvider` | `AsyncNotifierProvider<SavedCalculationsNotifier, List<SavedCalculation>>` | saved_calculations/application | The saved calculations, most recently updated first (§1.18) |
 | `converterProvider` | `NotifierProvider<ConverterNotifier, ConverterState>` | converter/application | The current category, its two selected units, the typed amount and the live currency rates (§1.19) |
+| `financialToolProvider` | `NotifierProvider<FinancialToolNotifier, FinancialToolId>` | financial/application | Which financial tool tile is selected (§1.20) |
 
 Conventions:
 
@@ -259,7 +260,7 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | iOS | Bundle ID `com.parasshakya.smartcalculator` (tests: `.RunnerTests`), `CFBundleName` and `CFBundleDisplayName` "Smart Calculator" | Can't be built on Windows (P-5) |
 | web, Windows, Linux, macOS | Template identifiers (DEC-025) | Not built. Not supported targets (DEC-004). |
 
-### 1.15 Tests (1252 passed in the normal app run, plus 387 in the engine)
+### 1.15 Tests (1356 passed in the normal app run, plus 387 in the engine)
 
 | File | Covers |
 | --- | --- |
@@ -278,8 +279,8 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | `test/app/theme/app_theme_test.dart` | Each theme uses Manrope and carries its tokens; tabular figures on the number styles; the platform's high-contrast switch; reduced motion |
 | `test/app/font_licenses_test.dart` | The fonts are bundled; Manrope's OFL is registered |
 | `test/core/widgets/*` | Each component's behaviour, semantics, touch target, variants and colours, including high-contrast outlines, the confirmation results and loading states, and `CalculatorButton.selected` (announced, toned with the accent and distinguishable from the resting tone in all four themes — DEC-050) |
-| `test/gallery/gallery_accessibility_test.dart` | Flutter's contrast, tap-target and label guidelines on every gallery section (12, since DEC-051 added "Converter"), in four themes |
-| `test/features/settings/*` | The repository format and fallback; the theme choice surviving a restart; the angle mode falling back to degrees for an unrecognized stored value; the converter's last category, last unit pair and per-currency rate (DEC-051) |
+| `test/gallery/gallery_accessibility_test.dart` | Flutter's contrast, tap-target and label guidelines on every gallery section (13, since DEC-052 added "Financial"), in four themes |
+| `test/features/settings/*` | The repository format and fallback; the theme choice surviving a restart; the angle mode falling back to degrees for an unrecognized stored value; the converter's last category, last unit pair and per-currency rate (DEC-051); the financial module's last-selected tool (DEC-052) |
 | `test/core/persistence/app_database_test.dart` | Schema, reopening, provider lifecycle |
 | `test/core/layout/window_size_class_test.dart` | Breakpoints |
 | `test/architecture/layer_boundaries_test.dart` | The engine and domain layers stay free of Flutter |
@@ -294,6 +295,10 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | `test/features/converter/domain/number_entry_buffer_test.dart` | 18 tests: digits, decimal point, sign toggle (refused unless allowed), backspace/clear, `isEmpty`/`isNegative`/`value`, equality |
 | `test/features/converter/application/converter_notifier_test.dart` | 13 tests: initial state, typing computes the result, decimal/backspace/clear, switching category resets to fresh units, selecting a unit, swap (units exchange, typed text unchanged), the sign toggle (refused outside temperature, `−40°C=−40°F` for it), currency (default rates, live rate edits, a non-positive rate refused), and persistence across a restart |
 | `test/features/converter/presentation/converter_view_test.dart` | 14 tests: the whole screen — portrait/landscape layout and touch targets, 200%-text at four sizes, category switching, typing and the computed result, backspace, swap, the unit-picker sheet (open, search-filter, pick, no-matches), and the sign toggle enabled only for temperature (DEC-051) |
+| `test/features/financial/domain/{emi,simple_interest,compound_interest,gst,discount,tip,percentage}_test.dart` | 69 tests across all seven tools: formula correctness against independently-verified reference values (including the classic EMI example, to the cent), validation-boundary cases, the r=0/zero-time/extreme-rate edge cases, the GST inclusive/exclusive exact round-trip, `splitIntraState`'s CGST+SGST invariant, and the tip per-person rounding artifact (documented as expected, not a bug) |
+| `test/features/financial/application/financial_tool_notifier_test.dart` | 3 tests: defaults to EMI, `selectTool` persists, a fresh notifier picks up the saved tool after a restart |
+| `test/features/financial/presentation/financial_view_test.dart` | 20 tests: the whole screen — layout at all four `TestWindows` sizes plus 200% text, the tool picker (switching, persistence across a restart), and one happy-path plus one validation-boundary case per tool (EMI's classic reference example and its chart, GST's exclusive/inclusive and intra/inter-state modes, discount's 100%/101% boundary, tip's split, all three percentage operations) |
+| `test/core/widgets/share_of_whole_bar_test.dart` | 4 tests: legend rendering, a near-zero segment still rendering, the legend showing the true value regardless of the bar's rounded flex width, and the documented `total>0` precondition tripping its `assert` |
 | `test/design_review/…` | The screenshot generator (skipped by default; §1.9) |
 
 Helpers:
@@ -325,6 +330,7 @@ Helpers:
   - after visual changes: the design-review screenshots (§1.9)
 - **Add a database-backed feature:** a repository interface in `domain/`, a sqflite implementation in `data/` reading `appDatabaseProvider` (see `history/data/sqflite_history_repository.dart`), and an `AsyncNotifier` in `application/` for the loaded state. Give widget tests an isolated database the same way `test/helpers/test_app.dart` does for history: override `appDatabaseProvider` through `AppRoot.overrides`/`pumpApp` with `AppDatabase.open(..., singleInstance: false)` (DEC-045) — never wrap `AppRoot` in a second `ProviderScope`, which breaks its own overrides (DEC-045).
 - **Add a conversion category:** add one `const ConversionCategory` to `conversion_tables.dart` (a list of `ConversionUnit(id, symbol, scale, offset)`, `offset` in base-unit terms — see §1.19/DEC-051 for the temperature offset-sign pitfall) and one value to `ConversionCategoryId`; the UI, persistence and math all pick it up with no other change. Add fixed-point and exact-integer-cross-check tests for its scale constants, not just a round-trip test (a round-trip test alone can't catch a wrong constant).
+- **Add a financial tool:** add one new domain file (`validate...Inputs`, a `...Result` type, a pure `calculate...` function returning null on a non-finite result — see §1.20/DEC-052), one value to `FinancialToolId`, one `*_tool_view.dart` (a plain `StatefulWidget`, `AppTextField`s merged under one `ListenableBuilder`, per §1.20), and one switch arm in `financial_tool_picker.dart`/`financial_view.dart`. Independently re-derive and hand-check the formula against at least one published reference value before writing any code — this caught the one bug class (a wrong sign on an affine constant) every tool in this app is at risk of.
 
 ### 1.17 History (`lib/features/history/`, Phase 4)
 
@@ -373,6 +379,21 @@ Its own state (`converterProvider`, not `calculatorProvider` — DEC-013's reaso
   - `ConverterKeypad`: digits, `.`, ⌫ (held clears) and a ± key (enabled only where the category allows a negative amount), built directly from `CalculatorButton` — not `CalculatorKeypad`, which is wired to the main calculator's own notifier and grammar.
 - **Reused as-is:** `AppCard`, `AppIconButton`, `showAppBottomSheet`/`AppTextField`, `CalculatorButton`, `LocalizedNumberFormat` (region-correct grouping/decimal separator for both the typed amount and the computed result).
 - **Not built, by decision (DEC-051):** the imperial gallon (only the US gallon, id `gallonUs`); live/fetched currency rates (typed and persisted locally only); history integration (a conversion showing up in the History tab).
+
+### 1.20 Financial (`lib/features/financial/`, Phase 7)
+
+Seven independent calculators, unified only at the presentation layer — unlike Converter's uniform `ConversionCategory`, each tool here is a genuinely different shape, so there's no shared domain abstraction across them. Full reasoning: DEC-052.
+
+- **domain** (`lib/features/financial/domain/`, one file per tool, no Flutter imports): each file is a small, self-contained unit — a `validate...Inputs(...)` function returning a per-field `FieldError?` record (`validation.dart`'s shared enum: `mustBePositive`, `mustBeNonNegative`, `tooLarge`, `mustBePositiveInteger`), a `...Result` class, and a pure `calculate...(...)` function that returns null if its result isn't finite (a defensive check against extreme rule-legal inputs, mirroring `calc_engine`'s own `CalcError.overflow`).
+  - `emi.dart`: `EMI = P·r·(1+r)ⁿ/((1+r)ⁿ−1)` (`r` the monthly rate; `r=0` special-cased to `P/n`); `tenureMonthsFrom({value, unit})` converts a years/months-toggled tenure to whole months, rounding a fractional year to the nearest month.
+  - `simple_interest.dart`: `SI = P·R·T/100`.
+  - `compound_interest.dart`: `A = P·(1+R/(100·n))^(n·T)`, `n` from a required `CompoundingFrequency` (annual=1, semi-annual=2, quarterly=4, monthly=12 — never hardcoded to one).
+  - `gst.dart`: exclusive (`gst = amount·rate/100`) and inclusive (`base = amount/(1+rate/100)`) modes; `splitIntraState(gstAmount)` is the one place the CGST/SGST convention lives — `cgst = sgst = gstAmount/2`, a **presentation** split over the same total, never a different one (inter-state instead shows the whole `gstAmount` as IGST).
+  - `discount.dart`, `tip.dart` (with an optional per-person split), `percentage.dart` (three operations: `percentOf`, `whatPercent`, `changeBy` with an increase/decrease direction).
+- **application:** `financialToolProvider`/`FinancialToolNotifier` — mirrors `AngleModeNotifier`'s shape, not `ConverterNotifier`'s: there's no shared amount/unit state to carry, only which tile is selected, persisted via `SettingsRepository.lastFinancialTool`.
+- **presentation:** no per-tool `Notifier` — every input is a plain `AppTextField` (not a custom keypad; a financial field is a standard decimal, with no cursor/grammar rules the way a typed expression has), and each `*ToolView` is a `StatefulWidget` with one `TextEditingController` per field merged under one `ListenableBuilder`, so the result and every field's error recompute live on each keystroke. `FinancialView` is **one scrollable column, the same in portrait and landscape** — a deliberate departure from Converter's 2-column landscape split, since every field here pops the system keyboard (there's no on-screen keypad to give the other column to), and a forced split would leave the picker at half-width mid-form. `financial_number_format.dart`'s `formatMoney`/`formatPercent` are the one rounding boundary (`toStringAsFixed(2)` then `LocalizedNumberFormat.formatCanonical`) — every domain calculation stays full `double` precision; only display text is ever rounded.
+- **`ShareOfWholeBar`** (`lib/core/widgets/share_of_whole_bar.dart`, not feature-local — used by two tool views, qualifying under CLAUDE.md rule 12): a horizontal two-segment proportional bar plus a legend, not a donut (a documented anti-pattern for 2-segment part-to-whole data) and not `CustomPaint` (no graphics package or precedent exists in this app). `secondary`/`onSecondary` tints the base segment, `primary`/`onPrimary` the added segment (interest, GST) — the accent always marks the part worth noticing. Asserts a positive total as a documented caller precondition.
+- **Not built, by decision (DEC-052):** sliders for rate/tenure; an EMI donut chart (replaced by the bar) and an amortization chart; a compound-interest growth-over-time chart; a CGST/SGST chart (would show a constant, data-independent 50/50 split); per-field persistence ("save and reuse"); history integration.
 
 ## 2. Confirmed Decisions
 

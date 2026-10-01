@@ -5,6 +5,7 @@ import 'package:smart_calculator/core/persistence/preference_keys.dart';
 import 'package:smart_calculator/core/persistence/preferences.dart';
 import 'package:smart_calculator/features/converter/domain/conversion_category.dart';
 import 'package:smart_calculator/features/converter/domain/conversion_tables.dart';
+import 'package:smart_calculator/features/financial/domain/financial_tool.dart';
 import 'package:smart_calculator/features/settings/domain/settings_repository.dart';
 import 'package:smart_calculator/features/settings/domain/theme_preference.dart';
 
@@ -115,6 +116,29 @@ final class PreferencesSettingsRepository implements SettingsRepository {
         ConversionCategoryId.time => 'time',
         ConversionCategoryId.currency => 'currency',
       };
+
+  @override
+  FinancialToolId? get lastFinancialTool {
+    final stored = _preferences.getString(PreferenceKeys.financialLastTool);
+    for (final tool in FinancialToolId.values) {
+      if (_toolStoredValue(tool) == stored) return tool;
+    }
+    return null;
+  }
+
+  @override
+  Future<void> setLastFinancialTool(FinancialToolId tool) => _preferences
+      .setString(PreferenceKeys.financialLastTool, _toolStoredValue(tool));
+
+  static String _toolStoredValue(FinancialToolId tool) => switch (tool) {
+    FinancialToolId.emi => 'emi',
+    FinancialToolId.simpleInterest => 'simple_interest',
+    FinancialToolId.compoundInterest => 'compound_interest',
+    FinancialToolId.gst => 'gst',
+    FinancialToolId.discount => 'discount',
+    FinancialToolId.tip => 'tip',
+    FinancialToolId.percentage => 'percentage',
+  };
 
   static String _storedValue(ThemePreference preference) =>
       switch (preference) {

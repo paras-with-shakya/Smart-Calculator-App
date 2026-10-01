@@ -1,5 +1,6 @@
 import 'package:calc_engine/calc_engine.dart';
 import 'package:smart_calculator/features/converter/domain/conversion_category.dart';
+import 'package:smart_calculator/features/financial/domain/financial_tool.dart';
 import 'package:smart_calculator/features/settings/domain/theme_preference.dart';
 
 /// Reads and saves the user's settings.
@@ -36,4 +37,10 @@ abstract interface class SettingsRepository {
 
   /// Saves [rate] for [currencyId]. [rate] must be positive.
   Future<void> setCurrencyRate(String currencyId, double rate);
+
+  /// The last financial tool selected, or null if none is saved yet.
+  FinancialToolId? get lastFinancialTool;
+
+  /// Saves [tool].
+  Future<void> setLastFinancialTool(FinancialToolId tool);
 }

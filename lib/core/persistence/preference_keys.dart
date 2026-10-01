@@ -31,6 +31,9 @@ abstract final class PreferenceKeys {
   /// The saved "per 1 USD" rate for the GBP currency unit.
   static const String converterCurrencyRateGbp = 'converter.currency_rate.gbp';
 
+  /// The last financial tool selected.
+  static const String financialLastTool = 'financial.last_tool';
+
   /// Every key above.
   static const Set<String> all = {
     themePreference,
@@ -42,5 +45,6 @@ abstract final class PreferenceKeys {
     converterCurrencyRateInr,
     converterCurrencyRateEur,
     converterCurrencyRateGbp,
+    financialLastTool,
   };
 }

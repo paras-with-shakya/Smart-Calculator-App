@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_calculator/core/persistence/preference_keys.dart';
 import 'package:smart_calculator/core/persistence/preferences.dart';
 import 'package:smart_calculator/features/converter/domain/conversion_category.dart';
+import 'package:smart_calculator/features/financial/domain/financial_tool.dart';
 import 'package:smart_calculator/features/settings/data/preferences_settings_repository.dart';
 import 'package:smart_calculator/features/settings/domain/theme_preference.dart';
 
@@ -148,5 +149,30 @@ void main() {
         expect(repository.currencyRate('eur'), 0.9123456);
       },
     );
+  });
+
+  group('financial: last tool', () {
+    test('is null when nothing is saved', () {
+      expect(repository.lastFinancialTool, isNull);
+    });
+
+    test('saves and reads back every tool', () async {
+      for (final tool in FinancialToolId.values) {
+        await repository.setLastFinancialTool(tool);
+        expect(repository.lastFinancialTool, tool);
+      }
+    });
+
+    test('is stored as a fixed string under its settings key', () async {
+      await repository.setLastFinancialTool(FinancialToolId.gst);
+
+      expect(preferences.getString(PreferenceKeys.financialLastTool), 'gst');
+    });
+
+    test('falls back to null for an unrecognised stored value', () async {
+      await preferences.setString(PreferenceKeys.financialLastTool, 'emi2');
+
+      expect(repository.lastFinancialTool, isNull);
+    });
   });
 }

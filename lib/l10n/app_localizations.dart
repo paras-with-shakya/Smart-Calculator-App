@@ -1143,6 +1143,450 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Swap units'**
   String get converterSwapTooltip;
+
+  /// Validation message for a financial input field that must be greater than zero.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a value greater than 0'**
+  String get financialErrorMustBePositive;
+
+  /// Validation message for a financial input field that must be zero or greater.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a value of 0 or more'**
+  String get financialErrorMustBeNonNegative;
+
+  /// Validation message for a financial input field that exceeds its sane upper bound.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at most {max}'**
+  String financialErrorTooLarge(int max);
+
+  /// Validation message for a financial input field that must be a whole number of at least 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number of 1 or more'**
+  String get financialErrorMustBePositiveInteger;
+
+  /// Shown in a financial tool's result area while its inputs are incomplete or invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter every amount above to see a result.'**
+  String get financialResultPlaceholder;
+
+  /// Name of the EMI (loan instalment) calculator tool.
+  ///
+  /// In en, this message translates to:
+  /// **'EMI'**
+  String get financialToolEmi;
+
+  /// Name of the simple interest calculator tool.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple interest'**
+  String get financialToolSimpleInterest;
+
+  /// Name of the compound interest calculator tool.
+  ///
+  /// In en, this message translates to:
+  /// **'Compound interest'**
+  String get financialToolCompoundInterest;
+
+  /// Name of the GST calculator tool.
+  ///
+  /// In en, this message translates to:
+  /// **'GST'**
+  String get financialToolGst;
+
+  /// Name of the discount calculator tool.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get financialToolDiscount;
+
+  /// Name of the tip calculator tool.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip'**
+  String get financialToolTip;
+
+  /// Name of the percentage calculator tool.
+  ///
+  /// In en, this message translates to:
+  /// **'Percentage'**
+  String get financialToolPercentage;
+
+  /// Label of the EMI tool's loan amount field.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan amount'**
+  String get financialEmiPrincipalLabel;
+
+  /// Label of the EMI tool's interest rate field.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest rate (annual)'**
+  String get financialEmiRateLabel;
+
+  /// Label of the EMI tool's loan tenure field.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenure'**
+  String get financialEmiTenureLabel;
+
+  /// Option label for typing a loan tenure in years.
+  ///
+  /// In en, this message translates to:
+  /// **'Years'**
+  String get financialTenureUnitYears;
+
+  /// Option label for typing a loan tenure in months.
+  ///
+  /// In en, this message translates to:
+  /// **'Months'**
+  String get financialTenureUnitMonths;
+
+  /// Label of the EMI tool's computed monthly instalment.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly EMI'**
+  String get financialEmiMonthlyLabel;
+
+  /// Label of the EMI tool's computed total interest.
+  ///
+  /// In en, this message translates to:
+  /// **'Total interest'**
+  String get financialEmiTotalInterestLabel;
+
+  /// Label of the EMI tool's computed total payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Total payment'**
+  String get financialEmiTotalPaymentLabel;
+
+  /// Legend label for the principal segment of the EMI tool's share-of-whole bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Principal'**
+  String get financialEmiChartPrincipalLabel;
+
+  /// Legend label for the interest segment of the EMI tool's share-of-whole bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest'**
+  String get financialEmiChartInterestLabel;
+
+  /// Label of the simple interest tool's principal field.
+  ///
+  /// In en, this message translates to:
+  /// **'Principal'**
+  String get financialSiPrincipalLabel;
+
+  /// Label of the simple interest tool's rate field.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest rate (annual)'**
+  String get financialSiRateLabel;
+
+  /// Label of the simple interest tool's time field.
+  ///
+  /// In en, this message translates to:
+  /// **'Time (years)'**
+  String get financialSiTimeLabel;
+
+  /// Label of the simple interest tool's computed interest.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest'**
+  String get financialSiInterestLabel;
+
+  /// Label of the simple interest tool's computed total amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Total amount'**
+  String get financialSiTotalLabel;
+
+  /// Label of the compound interest tool's principal field.
+  ///
+  /// In en, this message translates to:
+  /// **'Principal'**
+  String get financialCiPrincipalLabel;
+
+  /// Label of the compound interest tool's rate field.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest rate (annual)'**
+  String get financialCiRateLabel;
+
+  /// Label of the compound interest tool's time field.
+  ///
+  /// In en, this message translates to:
+  /// **'Time (years)'**
+  String get financialCiTimeLabel;
+
+  /// Label of the compound interest tool's compounding frequency choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Compounding'**
+  String get financialCiFrequencyLabel;
+
+  /// Option label for interest compounding once a year.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual'**
+  String get financialCiFrequencyAnnual;
+
+  /// Option label for interest compounding twice a year.
+  ///
+  /// In en, this message translates to:
+  /// **'Semi-annual'**
+  String get financialCiFrequencySemiAnnual;
+
+  /// Option label for interest compounding four times a year.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarterly'**
+  String get financialCiFrequencyQuarterly;
+
+  /// Option label for interest compounding twelve times a year.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get financialCiFrequencyMonthly;
+
+  /// Label of the compound interest tool's computed interest.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest earned'**
+  String get financialCiInterestLabel;
+
+  /// Label of the compound interest tool's computed total amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Total amount'**
+  String get financialCiTotalLabel;
+
+  /// Label of the GST tool's amount field.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get financialGstAmountLabel;
+
+  /// Label of the GST tool's rate field.
+  ///
+  /// In en, this message translates to:
+  /// **'GST rate'**
+  String get financialGstRateLabel;
+
+  /// Label of the GST tool's exclusive/inclusive choice.
+  ///
+  /// In en, this message translates to:
+  /// **'GST is'**
+  String get financialGstModeLabel;
+
+  /// Option label: the entered amount excludes GST, which is added on top.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to amount'**
+  String get financialGstModeExclusive;
+
+  /// Option label: the entered amount already includes GST.
+  ///
+  /// In en, this message translates to:
+  /// **'Already included'**
+  String get financialGstModeInclusive;
+
+  /// Label of the GST tool's intra-state/inter-state choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Supply type'**
+  String get financialGstSupplyLabel;
+
+  /// Option label: a supply within the same state, shown as CGST+SGST.
+  ///
+  /// In en, this message translates to:
+  /// **'Intra-state (CGST+SGST)'**
+  String get financialGstSupplyIntraState;
+
+  /// Option label: a supply across states, shown as IGST.
+  ///
+  /// In en, this message translates to:
+  /// **'Inter-state (IGST)'**
+  String get financialGstSupplyInterState;
+
+  /// Label of the GST tool's computed base (pre-tax) amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Base amount'**
+  String get financialGstBaseLabel;
+
+  /// Label of the GST tool's computed CGST (central GST) share.
+  ///
+  /// In en, this message translates to:
+  /// **'CGST'**
+  String get financialGstCgstLabel;
+
+  /// Label of the GST tool's computed SGST (state GST) share.
+  ///
+  /// In en, this message translates to:
+  /// **'SGST'**
+  String get financialGstSgstLabel;
+
+  /// Label of the GST tool's computed IGST (integrated GST) amount.
+  ///
+  /// In en, this message translates to:
+  /// **'IGST'**
+  String get financialGstIgstLabel;
+
+  /// Label of the GST tool's computed total amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Total amount'**
+  String get financialGstTotalLabel;
+
+  /// Legend label for the GST segment of the GST tool's share-of-whole bar.
+  ///
+  /// In en, this message translates to:
+  /// **'GST amount'**
+  String get financialGstAmountResultLabel;
+
+  /// Label of the discount tool's price field.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get financialDiscountPriceLabel;
+
+  /// Label of the discount tool's discount percentage field.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get financialDiscountPercentLabel;
+
+  /// Label of the discount tool's computed final price.
+  ///
+  /// In en, this message translates to:
+  /// **'Final price'**
+  String get financialDiscountFinalPriceLabel;
+
+  /// Label of the discount tool's computed discount amount.
+  ///
+  /// In en, this message translates to:
+  /// **'You save'**
+  String get financialDiscountAmountLabel;
+
+  /// Label of the tip tool's bill amount field.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill amount'**
+  String get financialTipBillLabel;
+
+  /// Label of the tip tool's tip percentage field.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip'**
+  String get financialTipPercentLabel;
+
+  /// Label of the tip tool's split-count field.
+  ///
+  /// In en, this message translates to:
+  /// **'Split between'**
+  String get financialTipSplitLabel;
+
+  /// Label of the tip tool's computed per-person share.
+  ///
+  /// In en, this message translates to:
+  /// **'Per person'**
+  String get financialTipPerPersonLabel;
+
+  /// Label of the tip tool's computed tip amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip amount'**
+  String get financialTipAmountLabel;
+
+  /// Label of the tip tool's computed total (bill plus tip).
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get financialTipTotalLabel;
+
+  /// Label of the percentage tool's percentage field, in "X% of Y" mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Percentage (%)'**
+  String get financialPercentOfXLabel;
+
+  /// Label of the percentage tool's base amount field, in "X% of Y" mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Of this amount'**
+  String get financialPercentOfYLabel;
+
+  /// Label of the percentage tool's part-amount field, in "X is what % of Y" mode.
+  ///
+  /// In en, this message translates to:
+  /// **'This amount'**
+  String get financialPercentWhatXLabel;
+
+  /// Label of the percentage tool's whole-amount field, in "X is what % of Y" mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of this total'**
+  String get financialPercentWhatYLabel;
+
+  /// Label of the percentage tool's percentage field, in "increase/decrease Y by X%" mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Percentage (%)'**
+  String get financialPercentChangeXLabel;
+
+  /// Label of the percentage tool's starting-amount field, in "increase/decrease Y by X%" mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting amount'**
+  String get financialPercentChangeYLabel;
+
+  /// Option label for the "what is X% of Y" percentage operation.
+  ///
+  /// In en, this message translates to:
+  /// **'X% of Y'**
+  String get financialPercentOpPercentOf;
+
+  /// Option label for the "X is what percentage of Y" percentage operation.
+  ///
+  /// In en, this message translates to:
+  /// **'X is what % of Y'**
+  String get financialPercentOpWhatPercent;
+
+  /// Option label for the "increase or decrease Y by X percent" percentage operation.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase/decrease Y by X%'**
+  String get financialPercentOpChangeBy;
+
+  /// Label of the percentage tool's operation choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate'**
+  String get financialPercentOperationLabel;
+
+  /// Option label for increasing an amount by a percentage.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase'**
+  String get financialPercentDirectionIncrease;
+
+  /// Option label for decreasing an amount by a percentage.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease'**
+  String get financialPercentDirectionDecrease;
+
+  /// Label of the percentage tool's computed result.
+  ///
+  /// In en, this message translates to:
+  /// **'Result'**
+  String get financialPercentResultLabel;
 }
 
 class _AppLocalizationsDelegate

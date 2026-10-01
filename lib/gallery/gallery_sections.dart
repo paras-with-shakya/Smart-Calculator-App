@@ -16,6 +16,7 @@ import 'package:smart_calculator/core/widgets/app_text_field.dart';
 import 'package:smart_calculator/core/widgets/calculator_button.dart';
 import 'package:smart_calculator/core/widgets/display_text.dart';
 import 'package:smart_calculator/core/widgets/section_header.dart';
+import 'package:smart_calculator/core/widgets/share_of_whole_bar.dart';
 import 'package:smart_calculator/core/widgets/status_views.dart';
 
 /// The gallery's sections, in display order.
@@ -54,7 +55,10 @@ enum GallerySection {
   overlays('Header, sheet and dialog'),
 
   /// The converter's category tiles and a From/To card pair.
-  converter('Converter');
+  converter('Converter'),
+
+  /// The financial tool picker and a ShareOfWholeBar sample.
+  financial('Financial');
 
   const GallerySection(this.title);
 
@@ -95,6 +99,7 @@ class GallerySectionView extends StatelessWidget {
           GallerySection.states => const _StatesSection(),
           GallerySection.overlays => const _OverlaysSection(),
           GallerySection.converter => const _ConverterSection(),
+          GallerySection.financial => const _FinancialSection(),
         },
       ),
     ],
@@ -951,6 +956,76 @@ class _ConverterSection extends StatelessWidget {
                     Text('km', style: t.label),
                   ],
                 ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// A static sample of the financial tool picker and a `ShareOfWholeBar`
+/// (EMI's principal-vs-interest split). The working screen is
+/// `FinancialView`; these tiles do nothing.
+class _FinancialSection extends StatelessWidget {
+  const _FinancialSection();
+
+  static void _noop() {}
+
+  static const List<(IconData, String)> _tools = [
+    (Icons.payments_outlined, 'EMI'),
+    (Icons.trending_up, 'Simple interest'),
+    (Icons.show_chart, 'Compound interest'),
+    (Icons.receipt_long_outlined, 'GST'),
+    (Icons.sell_outlined, 'Discount'),
+    (Icons.room_service_outlined, 'Tip'),
+    (Icons.percent, 'Percentage'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppTypography.of(context);
+    return Column(
+      crossAxisAlignment: .stretch,
+      children: [
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: [
+            for (final (index, (icon, label)) in _tools.indexed)
+              SizedBox(
+                width: 96,
+                child: AppCard(
+                  selected: index == 0,
+                  onTap: _noop,
+                  child: Column(
+                    children: [
+                      Icon(icon),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(label, textAlign: .center, style: t.label),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.md),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: .start,
+            children: [
+              Text('Monthly EMI', style: t.caption),
+              const SizedBox(height: AppSpacing.xs),
+              Text('₹8,791.59', style: t.display),
+              const SizedBox(height: AppSpacing.md),
+              const ShareOfWholeBar(
+                baseLabel: 'Principal',
+                baseValue: 100000,
+                baseValueText: '₹1,00,000.00',
+                addedLabel: 'Interest',
+                addedValue: 5499.08,
+                addedValueText: '₹5,499.08',
               ),
             ],
           ),

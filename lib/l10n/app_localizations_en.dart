@@ -559,4 +559,230 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get converterSwapTooltip => 'Swap units';
+
+  @override
+  String get financialErrorMustBePositive => 'Enter a value greater than 0';
+
+  @override
+  String get financialErrorMustBeNonNegative => 'Enter a value of 0 or more';
+
+  @override
+  String financialErrorTooLarge(int max) {
+    return 'Enter at most $max';
+  }
+
+  @override
+  String get financialErrorMustBePositiveInteger =>
+      'Enter a whole number of 1 or more';
+
+  @override
+  String get financialResultPlaceholder =>
+      'Enter every amount above to see a result.';
+
+  @override
+  String get financialToolEmi => 'EMI';
+
+  @override
+  String get financialToolSimpleInterest => 'Simple interest';
+
+  @override
+  String get financialToolCompoundInterest => 'Compound interest';
+
+  @override
+  String get financialToolGst => 'GST';
+
+  @override
+  String get financialToolDiscount => 'Discount';
+
+  @override
+  String get financialToolTip => 'Tip';
+
+  @override
+  String get financialToolPercentage => 'Percentage';
+
+  @override
+  String get financialEmiPrincipalLabel => 'Loan amount';
+
+  @override
+  String get financialEmiRateLabel => 'Interest rate (annual)';
+
+  @override
+  String get financialEmiTenureLabel => 'Tenure';
+
+  @override
+  String get financialTenureUnitYears => 'Years';
+
+  @override
+  String get financialTenureUnitMonths => 'Months';
+
+  @override
+  String get financialEmiMonthlyLabel => 'Monthly EMI';
+
+  @override
+  String get financialEmiTotalInterestLabel => 'Total interest';
+
+  @override
+  String get financialEmiTotalPaymentLabel => 'Total payment';
+
+  @override
+  String get financialEmiChartPrincipalLabel => 'Principal';
+
+  @override
+  String get financialEmiChartInterestLabel => 'Interest';
+
+  @override
+  String get financialSiPrincipalLabel => 'Principal';
+
+  @override
+  String get financialSiRateLabel => 'Interest rate (annual)';
+
+  @override
+  String get financialSiTimeLabel => 'Time (years)';
+
+  @override
+  String get financialSiInterestLabel => 'Interest';
+
+  @override
+  String get financialSiTotalLabel => 'Total amount';
+
+  @override
+  String get financialCiPrincipalLabel => 'Principal';
+
+  @override
+  String get financialCiRateLabel => 'Interest rate (annual)';
+
+  @override
+  String get financialCiTimeLabel => 'Time (years)';
+
+  @override
+  String get financialCiFrequencyLabel => 'Compounding';
+
+  @override
+  String get financialCiFrequencyAnnual => 'Annual';
+
+  @override
+  String get financialCiFrequencySemiAnnual => 'Semi-annual';
+
+  @override
+  String get financialCiFrequencyQuarterly => 'Quarterly';
+
+  @override
+  String get financialCiFrequencyMonthly => 'Monthly';
+
+  @override
+  String get financialCiInterestLabel => 'Interest earned';
+
+  @override
+  String get financialCiTotalLabel => 'Total amount';
+
+  @override
+  String get financialGstAmountLabel => 'Amount';
+
+  @override
+  String get financialGstRateLabel => 'GST rate';
+
+  @override
+  String get financialGstModeLabel => 'GST is';
+
+  @override
+  String get financialGstModeExclusive => 'Added to amount';
+
+  @override
+  String get financialGstModeInclusive => 'Already included';
+
+  @override
+  String get financialGstSupplyLabel => 'Supply type';
+
+  @override
+  String get financialGstSupplyIntraState => 'Intra-state (CGST+SGST)';
+
+  @override
+  String get financialGstSupplyInterState => 'Inter-state (IGST)';
+
+  @override
+  String get financialGstBaseLabel => 'Base amount';
+
+  @override
+  String get financialGstCgstLabel => 'CGST';
+
+  @override
+  String get financialGstSgstLabel => 'SGST';
+
+  @override
+  String get financialGstIgstLabel => 'IGST';
+
+  @override
+  String get financialGstTotalLabel => 'Total amount';
+
+  @override
+  String get financialGstAmountResultLabel => 'GST amount';
+
+  @override
+  String get financialDiscountPriceLabel => 'Price';
+
+  @override
+  String get financialDiscountPercentLabel => 'Discount';
+
+  @override
+  String get financialDiscountFinalPriceLabel => 'Final price';
+
+  @override
+  String get financialDiscountAmountLabel => 'You save';
+
+  @override
+  String get financialTipBillLabel => 'Bill amount';
+
+  @override
+  String get financialTipPercentLabel => 'Tip';
+
+  @override
+  String get financialTipSplitLabel => 'Split between';
+
+  @override
+  String get financialTipPerPersonLabel => 'Per person';
+
+  @override
+  String get financialTipAmountLabel => 'Tip amount';
+
+  @override
+  String get financialTipTotalLabel => 'Total';
+
+  @override
+  String get financialPercentOfXLabel => 'Percentage (%)';
+
+  @override
+  String get financialPercentOfYLabel => 'Of this amount';
+
+  @override
+  String get financialPercentWhatXLabel => 'This amount';
+
+  @override
+  String get financialPercentWhatYLabel => 'Out of this total';
+
+  @override
+  String get financialPercentChangeXLabel => 'Percentage (%)';
+
+  @override
+  String get financialPercentChangeYLabel => 'Starting amount';
+
+  @override
+  String get financialPercentOpPercentOf => 'X% of Y';
+
+  @override
+  String get financialPercentOpWhatPercent => 'X is what % of Y';
+
+  @override
+  String get financialPercentOpChangeBy => 'Increase/decrease Y by X%';
+
+  @override
+  String get financialPercentOperationLabel => 'Calculate';
+
+  @override
+  String get financialPercentDirectionIncrease => 'Increase';
+
+  @override
+  String get financialPercentDirectionDecrease => 'Decrease';
+
+  @override
+  String get financialPercentResultLabel => 'Result';
 }

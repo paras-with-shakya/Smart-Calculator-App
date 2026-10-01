@@ -2,22 +2,30 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-09-30, end of Phase 6 (Converters: planned, independently reviewed, built, tested, committed `a119f9c`). **Phases 5 and 6 are both complete.**
+**Last updated:** 2026-10-01, end of Phase 7 (Financial: planned, independently reviewed, built, tested, phone-tested, committed). **Phases 5, 6 and 7 are all complete.**
 
 ## At a Glance
 
 | Question | Answer |
 | --- | --- |
-| Where are we? | **Phases 3, 4, 5 and 6 are all complete.** Phase 6 (Converters): six physical categories plus a real working currency category, all built, tested (1252 app tests, 0 failed), `flutter analyze`/format/debug build all clean, and now phone-tested too — every check passed, no bugs found. |
-| What exists in code? | Everything from Phase 3–5, plus a full unit converter (ARCHITECTURE.md §1.19, DEC-051): length/weight/temperature/area/volume/time, a user-editable currency category, a category-tile picker, From/To cards with a searchable unit-picker sheet and a swap button, and a compact numeric keypad. Converter mode no longer shows the "not available yet" placeholder. |
-| What is being worked on? | Nothing. Phase 6 is built, tested, documented and committed. The next phase needs the user's explicit approval before starting. |
-| What happens next? | Report Phase 6 to the user (including the two flagged implementation simplifications and the gallon/currency scope decisions), then wait for the user to pick and approve the next phase. |
-| Git? | Phase 5 (`ef7b0ba` … `8096bb4`) and Phase 6 (`a119f9c`) are all committed. **Claude never pushes; the user pushes themselves.** |
+| Where are we? | **Phases 3 through 7 are all complete.** Phase 7 (Financial): seven calculators (EMI, simple/compound interest, GST, discount, tip, percentage), all built, tested (1356 app tests, 0 failed), `flutter analyze`/format/debug build all clean, phone-tested — every check passed, no bugs found. |
+| What exists in code? | Everything from Phase 3–6, plus seven financial calculators (ARCHITECTURE.md §1.20, DEC-052): EMI, simple interest, compound interest, GST (with CGST/SGST/IGST), discount, tip and percentage, with a tool picker and a reusable `ShareOfWholeBar` chart for EMI/GST. Finance mode no longer shows the "not available yet" placeholder. |
+| What is being worked on? | Nothing. Phase 7 is built, tested, phone-tested, documented and committed. The next phase needs the user's explicit approval before starting. |
+| What happens next? | Report Phase 7 to the user (including the five fixes the independent review added and the validation-bound judgment calls), then wait for the user to pick and approve the next phase. |
+| Git? | Phase 5 (`ef7b0ba` … `8096bb4`), Phase 6 (`a119f9c`, `ae2781e`) and Phase 7 (see "Git" below) are all committed. **Claude never pushes; the user pushes themselves.** |
 | What must not be repeated? | See "Do NOT Repeat" |
-| Known issues? | See "Known Issues". Nothing new found in Phase 6. #16 (Basic's memory-key touch-target gap, found during Phase 5) is still open, still not this phase's to fix. |
-| Pending decisions? | P-5, P-7, P-9, P-10 (all long-standing, unrelated to Phases 5–6). Phase 6's own open questions (the gallon, currency's scope) are **resolved** — see DEC-051 and "Pending Decisions." |
+| Known issues? | See "Known Issues". Nothing new found in Phase 7. #16 (Basic's memory-key touch-target gap, found during Phase 5) is still open, still not this phase's to fix. |
+| Pending decisions? | P-5, P-9, P-10 (long-standing, unrelated to Phase 7). P-7 (app version source) is unrelated too. Phase 7's own validation-bound judgment calls are recorded in DEC-052, open to revision if the user disagrees. |
 
 ## Current Phase
+
+**Phase 7 (Financial): approved 2026-10-01 (a detailed process brief: audit, plan, independently review the plan for formula correctness, implement, test, phone-test, document). Complete as of 2026-10-01 — all seven tools are built, tested, phone-tested and documented.**
+
+- The user's brief was unusually detailed and explicit about process: audit the repo first, write a plan, have the plan **independently and adversarially reviewed** specifically for financial-formula correctness (wrong formulas, sign errors, rounding, division-by-zero, validation-range mistakes) before any code, then implement, test (including device testing this time, unlike Phase 6), and document.
+- **The independent review pass confirmed every formula correct** (re-derived from scratch, every worked example recomputed independently) but found **five real implementation gaps**, all fixed in the plan before coding started: a `NaN`/`Infinity` guard for extreme rates, a missing validation bound on simple/compound interest's time field, an unspecified tenure rounding rule, a genuine crash path in the proposed chart widget's proportion formula, and a landscape layout that didn't actually fit a form-heavy, system-keyboard-driven screen (unlike Converter's keypad-driven one).
+- **Built exactly as planned, with the five fixes incorporated** — see DEC-052 for the full architecture (seven independent domain files, no forced shared abstraction; no per-tool Riverpod Notifier; one reusable `ShareOfWholeBar` chart, not a donut, not `CustomPaint`; the CGST/SGST/IGST presentation-split convention; the percentage tool's 3-operation scope).
+- **A real bug caught by the test suite itself, not the planning review:** the first `FinancialResultRow` implementation (two plain `Text` widgets in a `Row`) overflowed at phone width once labels and formatted money values got long enough — fixed with `Expanded`/`Flexible` + `TextOverflow.ellipsis`, and reconfirmed on the actual device afterward.
+- Engine tests: 387 in `packages/calc_engine` (unchanged). App tests: 1356 (`flutter test`, was 1252), `flutter analyze` clean, formatting clean, debug APK builds. **Phone-tested** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`) — EMI (the classic ₹100,000/10%/12-month reference example, matching to the cent), GST (both modes, both CGST/SGST and IGST), discount's 101% rejection, tip's split, percentage's "what %" operation, and the landscape+keyboard-open layout on EMI specifically (the review's own flagged risk) all confirmed correct with no bugs found.
 
 **Phase 6 (Converters): approved 2026-09-30 ("okay phase 5 approve and next phase start"). Complete as of 2026-09-30 — all six physical categories plus currency are built, tested and documented.**
 
@@ -173,6 +181,22 @@ The phone was connected by USB at the user's request ("ek bar phone testing kro"
 - **Found and fixed during this pass:** none — every check passed on the first try.
 - **Phone settings:** rotation was not touched this pass (no landscape testing done); `accelerometer_rotation`/`user_rotation` were `0`/`0` both before and after. All screenshots taken during the test were deleted from the phone afterward.
 
+## Phase 7: Financial (2026-10-01, this session)
+
+The user gave an unusually detailed process brief: audit the repo, write a plan, have the plan **independently and adversarially reviewed** specifically for financial-formula correctness (wrong formulas, sign errors, percentage/decimal mistakes, rounding, division-by-zero, invalid ranges, floating-point precision) before any code, then implement, test (including real device testing, unlike Phase 6), and document — stopping before Phase 8.
+
+- **Three research passes, then a design pass, then a genuinely separate adversarial review pass** that re-derived every formula from scratch and read the actual source files rather than trusting citations — the same discipline DEC-050 and DEC-051 established. The review **confirmed every formula and every worked example correct** (EMI, simple interest, compound interest, GST inclusive/exclusive, CGST/SGST/IGST, discount, tip, percentage) but found five real, concrete implementation gaps, all incorporated into the plan before coding:
+  1. **A `NaN`/`Infinity` guard.** An uncapped rate combined with a long tenure could overflow `double` to `Infinity` in the EMI/compound-interest power term, producing a literal "NaN" in the result card. Fixed: a sane rate cap (1000%) plus a belt-and-braces `.isFinite` check on every computed result (mirroring `calc_engine`'s own `CalcError.overflow`).
+  2. **A missing validation bound.** EMI's tenure had an explicit bound; simple/compound interest's time field didn't. Added `0 < T ≤ 100` years.
+  3. **An unspecified rounding rule.** EMI's years→months tenure toggle had no stated behaviour for a fractional year. Fixed: round-to-nearest month.
+  4. **A genuine crash path** in the proposed `ShareOfWholeBar` chart's proportion formula (`total=0` throws `UnsupportedError` in Dart, confirmed by direct test). Fixed with a documented `assert(total > 0, ...)` precondition.
+  5. **A landscape layout that didn't fit the content.** The first draft proposed mirroring Converter's 2-column landscape split; the review correctly identified that Financial's form-heavy, system-keyboard-driven screens don't suit that split the way Converter's keypad-driven one does. Fixed: one scrollable column, the same in portrait and landscape.
+- **Built exactly as planned, with all five fixes in place.** Seven independent domain files (`lib/features/financial/domain/`, one per tool: `emi.dart`, `simple_interest.dart`, `compound_interest.dart`, `gst.dart`, `discount.dart`, `tip.dart`, `percentage.dart`), no forced shared abstraction across them (unlike Converter's uniform `ConversionCategory`, these are genuinely different shapes). No per-tool Riverpod `Notifier` — every input is a plain `AppTextField` (not a custom keypad), each tool view a `StatefulWidget` with `TextEditingController`s merged under one `ListenableBuilder` for live recompute. One new reusable core widget, `ShareOfWholeBar` (a proportional bar, not a donut, not `CustomPaint`), used for EMI's principal/interest split and GST's base/GST split. Full detail: ARCHITECTURE.md §1.20, DEC-052.
+- **A sixth bug, caught by the test suite itself rather than either review pass:** `FinancialResultRow`'s first implementation (two unconstrained `Text` widgets in a `Row`) genuinely overflowed at phone width once a label and a formatted money value were both long enough — a real `RenderFlex` overflow exception during `flutter test`, not a false alarm. Fixed with `Expanded`/`Flexible` + `TextOverflow.ellipsis`; reconfirmed with no overflow both in the automated suite and on the actual device afterward.
+- **The CGST/SGST/IGST convention, the percentage-tool scope, the validation bounds and what's explicitly not built** (sliders, the EMI donut/amortization/growth-over-time charts, a CGST/SGST chart, per-field persistence, history integration) are all recorded in DEC-052.
+- **Full QA gate:** `flutter analyze` (no issues), `dart format` (22 files needed it, applied), `flutter test` (1356 passed, 1 skipped, 0 failed — was 1252), `dart test` in `packages/calc_engine` (387, unchanged — no engine change), `flutter build apk --debug` (built, ~172 s).
+- **Phone-tested** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`, USB): every tool's picker tile, EMI's classic reference example matching to the cent (`₹8,791.59` for ₹100,000 at 10% over 12 months) with its share-of-whole bar rendering correctly, GST's exclusive/inclusive modes and intra-state (CGST+SGST)/inter-state (IGST) toggle, discount's 101% rejection showing the exact validation message, tip's 4-way split, percentage's "X is what % of Y" operation, and — the review's own specifically flagged risk — EMI in landscape with the system keyboard actually open, confirming the focused field auto-scrolls into view with no overflow. Every check passed; no bugs found on-device.
+
 ## Phase Status
 
 | Phase | Name | Status |
@@ -185,7 +209,7 @@ The phone was connected by USB at the user's request ("ek bar phone testing kro"
 | 4 | History and saved calculations | **Complete.** History (`1604248`) and saved calculations (`f02b23a`) both committed, phone-tested. |
 | 5 | Scientific | **Complete and phone-tested.** Module 1 (engine) `ef7b0ba`, Module 2 (input logic, DEC-048/049) `856d175`/`d42fa5f`, Module 3 (keypad, DEC-050) `8096bb4`. |
 | 6 | Converters | **Complete, committed `a119f9c`, phone-tested.** Plan (DEC-051) independently reviewed before code; six physical categories plus currency built, tested (1252 app tests), every on-device check passed. |
-| 7 | Financial | Not started |
+| 7 | Financial | **Complete, phone-tested, not yet committed.** Plan (DEC-052) independently and adversarially reviewed before code (five real gaps found and fixed); seven tools built, tested (1356 app tests), every on-device check passed. |
 | 8 | Date calculator | Not started |
 | 9 | Programmer calculator | Not started |
 | 10 | Settings screen | Not started |
@@ -365,21 +389,31 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.19; decision DEC-051 (the full p
 - 607 new tests (domain: `ConversionUnit`/`ConversionCategory`, the six physical categories' fixed-point/exact-integer/round-trip checks and `currencyCategory`, `NumberEntryBuffer`; application: `ConverterNotifier`; presentation: the whole screen end to end; settings: converter persistence; gallery: the new "Converter" section × 4 themes). 1252 app tests (was 645), 387 engine tests (unchanged).
 - **Phone-tested** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`, USB, a follow-up pass after the QA gate): every category, typing and live conversion, swap, the unit-picker sheet's search, the temperature sign toggle, the currency edit-rate dialog, and persistence across a restart. Every check passed. See "Test on the user's phone: the converter" above.
 
+### Phase 7: Financial, built, tested and phone-tested (2026-10-01, not yet committed)
+
+Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.20; decision DEC-052 (the full plan, its independent adversarial review and the five fixes it added, the CGST/SGST/IGST convention, the chart-scope decision, the validation bounds). See "Phase 7: Financial" above for the full narrative.
+
+- Planned first, then independently and adversarially reviewed for financial-formula correctness before any code (five real implementation gaps found and fixed — see above), then built exactly as planned: `lib/features/financial/{domain,application,presentation}/`, `lib/core/widgets/share_of_whole_bar.dart`, `app_shell.dart` wiring, a new gallery section, one new `SettingsRepository` member.
+- 104 new tests (domain: 69 across all seven tools' formulas/validation/edge cases; application: 3 for `FinancialToolNotifier`'s persistence; presentation: 20 for the whole screen plus one happy-path/boundary case per tool; `ShareOfWholeBar`: 4; settings: 4; gallery: 4 — the new "Financial" section × 4 themes). 1356 app tests (was 1252), 387 engine tests (unchanged).
+- **Phone-tested** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`, USB, requested right after the report): EMI's classic reference example and chart, GST's both modes and both supply-type toggles, discount's 101% rejection, tip's split, percentage's "what %" operation, and landscape with the keyboard open on EMI (the review's own flagged risk). Every check passed, no bugs found.
+
 ## Work In Progress
 
-None to hand off mid-task. Phases 5 and 6 are both complete and phone-tested: Phase 5 (Module 1 `ef7b0ba`, Module 2 `856d175`/`d42fa5f`, Module 3 `8096bb4`) all built, tested, phone-tested and committed; Phase 6 (Converters, DEC-051, `a119f9c`) built, tested, documented, committed and now phone-tested too.
+None to hand off mid-task. Phases 5, 6 and 7 are all complete and phone-tested: Phase 5 (Module 1 `ef7b0ba`, Module 2 `856d175`/`d42fa5f`, Module 3 `8096bb4`), Phase 6 (Converters, DEC-051, `a119f9c`/`ae2781e`) both built, tested, phone-tested and committed; Phase 7 (Financial, DEC-052) built, tested, phone-tested and documented, **not yet committed**.
 
 ## Current Task
 
-None. Phase 6 is finished, tested, phone-tested, documented and committed (`a119f9c`). The next phase needs the user's explicit choice and approval before starting — nothing should be assumed or started ahead of that.
+None. Phase 7 is finished, tested and phone-tested. The next phase needs the user's explicit choice and approval before starting — nothing should be assumed or started ahead of that.
 
-- **Screenshots:** none via the design-review generator this session — the new "Converter" gallery section is automatically covered by the existing generator loop (`test/design_review/design_review_screenshots_test.dart` iterates `GallerySection.values`) whenever it's next run, but it wasn't run this session (the phone test served as the visual review instead).
-- **On the phone:** the debug build with the converter is now installed (`4DEEEUKF6HNFHEIJ`/`23124RN87I`); rotation is unchanged (`0`/`0`); the app was left on the Converter screen, Currency category, `1 USD` typed, showing `90 INR` (the rate edited during testing).
+- **Screenshots:** none via the design-review generator this session — the new "Financial" gallery section is automatically covered by the existing generator loop (`test/design_review/design_review_screenshots_test.dart` iterates `GallerySection.values`) whenever it's next run, but it wasn't run this session (the phone test served as the visual review instead).
+- **On the phone:** the debug build with the financial calculators is now installed (`4DEEEUKF6HNFHEIJ`/`23124RN87I`); rotation is restored (`0`/`0`); the app was left on the Finance screen, EMI tool, inputs still showing the classic reference example (₹100,000/10%/12 months).
+- **Not committed:** every Phase 7 file is new/modified in the working tree. See "Next Task".
 
 ## Next Task
 
-1. **Report Phase 6 complete to the user**, explicitly flagging: the gallon and currency scope decisions as implemented (DEC-051); the two implementation simplifications (a single last-used-units pair instead of one per category; no separate `ConverterPreferencesNotifier`); that it wasn't phone-tested this session.
-2. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 7 Financial, Phase 8 Date, Phase 9 Programmer, Phase 10 Settings — in that planned order, but the user may choose differently). Don't start any of them without that explicit approval, per the phase gate (CLAUDE.md rule 9).
+1. **Commit Phase 7 locally** (never push — the user pushes themselves), then record the commit hash(es) in the docs that currently say "not yet committed."
+2. **Report Phase 7 complete to the user**, explicitly flagging: the five fixes the independent review added (the `NaN`/`Infinity` guard, the missing time-field bound, the tenure rounding rule, the `ShareOfWholeBar` precondition, the landscape layout change) and the validation-bound judgment calls (EMI tenure ≤600mo, rates ≤1000%, GST/discount/tip ≤100%) as open to revision.
+3. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 8 Date, Phase 9 Programmer, Phase 10 Settings — in that planned order, but the user may choose differently). Don't start any of them without that explicit approval, per the phase gate (CLAUDE.md rule 9).
 
 ## Do NOT Repeat
 
