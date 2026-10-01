@@ -46,10 +46,11 @@ flutter:
   generate: true
   uses-material-design: true
 
-  # The Manrope font's licence (SIL OFL 1.1), registered in
+  # The bundled fonts' licences (SIL OFL 1.1), registered in
   # lib/app/font_licenses.dart.
   assets:
     - assets/fonts/Manrope-OFL.txt
+    - assets/fonts/JetBrainsMono-OFL.txt
 
   # Bundled, never downloaded at runtime (DEC-014). Static instances from
   # github.com/googlefonts/manrope at commit 6f81ebe.
@@ -64,3 +65,15 @@ flutter:
           weight: 600
         - asset: assets/fonts/Manrope-Bold.ttf
           weight: 700
+
+    # Programmer mode's readouts (DEC-054). Static instances from the
+    # JetBrains Mono 2.304 release (github.com/JetBrains/JetBrainsMono).
+    # Every glyph is 0.600 em wide, so bits and hex digits line up.
+    - family: JetBrains Mono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/JetBrainsMono-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/JetBrainsMono-SemiBold.ttf
+          weight: 600

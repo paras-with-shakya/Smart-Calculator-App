@@ -24,10 +24,14 @@ class AppTypography extends ThemeExtension<AppTypography> {
     required this.caption,
     required this.button,
     required this.label,
+    required this.mono,
   });
 
   /// The bundled font family, declared in pubspec.yaml.
   static const String fontFamily = 'Manrope';
+
+  /// The bundled monospaced family, used for programmer mode's readouts.
+  static const String monoFontFamily = 'JetBrains Mono';
 
   static const List<FontFeature> _tabularFigures = [
     FontFeature.tabularFigures(),
@@ -111,6 +115,12 @@ class AppTypography extends ThemeExtension<AppTypography> {
       fontWeight: FontWeight.w600,
       letterSpacing: 0.1,
     ),
+    mono: TextStyle(
+      fontFamily: monoFontFamily,
+      fontSize: 20,
+      height: 1.2,
+      fontWeight: FontWeight.w500,
+    ),
   );
 
   /// Large numbers outside the calculator, such as a loan's monthly payment.
@@ -147,6 +157,10 @@ class AppTypography extends ThemeExtension<AppTypography> {
   /// Section headers, chips and navigation labels.
   final TextStyle label;
 
+  /// Programmer mode's readouts: every glyph, digits and hex letters
+  /// alike, is the same width, so bits line up between lines.
+  final TextStyle mono;
+
   /// The type scale of the nearest [Theme].
   static AppTypography of(BuildContext context) =>
       Theme.of(context).extension<AppTypography>()!;
@@ -164,6 +178,7 @@ class AppTypography extends ThemeExtension<AppTypography> {
     TextStyle? caption,
     TextStyle? button,
     TextStyle? label,
+    TextStyle? mono,
   }) => AppTypography(
     display: display ?? this.display,
     result: result ?? this.result,
@@ -176,6 +191,7 @@ class AppTypography extends ThemeExtension<AppTypography> {
     caption: caption ?? this.caption,
     button: button ?? this.button,
     label: label ?? this.label,
+    mono: mono ?? this.mono,
   );
 
   @override
@@ -194,6 +210,7 @@ class AppTypography extends ThemeExtension<AppTypography> {
       caption: mix(caption, other.caption),
       button: mix(button, other.button),
       label: mix(label, other.label),
+      mono: mix(mono, other.mono),
     );
   }
 }
