@@ -18,3 +18,13 @@ export 'src/calc_engine.dart' show CalcEngine;
 export 'src/calc_result.dart'
     show CalcError, CalcFailure, CalcResult, CalcSuccess;
 export 'src/number/calc_value.dart' show CalcValue;
+export 'src/programmer/programmer_engine.dart'
+    show
+        ProgrammerEngine,
+        ProgrammerError,
+        ProgrammerFailure,
+        ProgrammerOperation,
+        ProgrammerResult,
+        ProgrammerSuccess;
+export 'src/programmer/programmer_word.dart'
+    show ProgrammerBase, ProgrammerWord;
