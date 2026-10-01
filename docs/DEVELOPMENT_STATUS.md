@@ -2,7 +2,7 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-10-01, Phase 9 (Programmer calculator) built, tested and phone-tested (committed locally; see "Git" in the report). Phases 5 to 9 are complete and phone-tested.
+**Last updated:** 2026-10-01, Phase 9 (Programmer calculator) built, tested and phone-tested (commits `06ce7a5` engine, `afa9978` font, `5ace4cb` screen, `214d8cd` docs; local only). Phases 5 to 9 are complete and phone-tested.
 
 ## At a Glance
 
@@ -285,7 +285,7 @@ The phone was connected by USB. **Device:** `4DEEEUKF6HNFHEIJ`, model `23124RN87
 | 6 | Converters | **Complete, committed `a119f9c`, phone-tested.** Plan (DEC-051) independently reviewed before code; six physical categories plus currency built, tested (1252 app tests), every on-device check passed. |
 | 7 | Financial | **Complete, committed `16e7f87`, phone-tested.** Plan (DEC-052) independently and adversarially reviewed before code (five real gaps found and fixed); seven tools built, tested (1356 app tests), every on-device check passed. |
 | 8 | Date calculator | **Complete, committed `0e2c9fb`, phone-tested.** Plan (DEC-053) independently reviewed before code; the review caught a difference-vs-addMonths disagreement at month ends. |
-| 9 | Programmer calculator | **Complete, phone-tested.** Plan (DEC-054) independently reviewed before code (twelve defects fixed); engine validated against Dart typed-data and native-int oracles; 446 engine + 1552 app tests. |
+| 9 | Programmer calculator | **Complete, committed `06ce7a5`, `afa9978`, `5ace4cb`, `214d8cd`, phone-tested.** Plan (DEC-054) independently reviewed before code (twelve defects fixed); engine validated against Dart typed-data and native-int oracles; 446 engine + 1552 app tests. |
 | 10 | Settings screen | Not started |
 | 11 | Polish | Not started |
 | 12 | QA | Not started |

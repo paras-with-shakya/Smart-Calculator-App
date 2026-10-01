@@ -19,7 +19,7 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
-## 2026-10-01: Phase 9 (Programmer calculator) — Phase 9 complete
+## 2026-10-01: Phase 9 (Programmer calculator) — Phase 9 complete (commits `06ce7a5`, `afa9978`, `5ace4cb`, `214d8cd`)
 
 The user approved Phase 9 with a detailed brief (audit first, scope split into explicit / supporting / not built, a stated numeric model, an independent plan review, independent reference validation, a mandatory phone test, a check of Known Issue #17, documentation, local commits, stop). The repository had no Programmer work beyond the mode enum and its name (checked: `git status`, `git log`, a search of `lib/`, `test/`, `packages/` and `docs/`). A plan was written and independently reviewed before any code (DEC-054); the review found twelve defects, all fixed in the plan first.
 
