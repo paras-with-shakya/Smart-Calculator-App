@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/widgets/calculator_button.dart';
 import 'package:smart_calculator/features/converter/application/converter_notifier.dart';
+import 'package:smart_calculator/features/settings/application/key_feedback_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// A compact numeric-only keypad for the converter's typed amount: digits,
@@ -31,7 +31,7 @@ class ConverterKeypad extends ConsumerWidget {
     );
 
     void press(VoidCallback action) {
-      HapticFeedback.selectionClick();
+      ref.read(keyFeedbackProvider).key();
       action();
     }
 
@@ -53,7 +53,7 @@ class ConverterKeypad extends ConsumerWidget {
           semanticLabel: l10n.keyBackspaceLabel,
           onPressed: () => press(notifier.backspace),
           onLongPress: () {
-            HapticFeedback.mediumImpact();
+            ref.read(keyFeedbackProvider).heavy();
             notifier.clear();
           },
         ),

@@ -31,6 +31,9 @@ class SectionHeader extends StatelessWidget {
     padding: padding,
     child: Semantics(
       header: true,
+      // Its own node: without it the heading merges with whatever follows it
+      // in a list and screen readers hear one long block.
+      container: true,
       child: Text(
         title,
         style: AppTypography.of(context).label

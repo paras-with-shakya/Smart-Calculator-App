@@ -34,6 +34,33 @@ abstract final class PreferenceKeys {
   /// The last financial tool selected.
   static const String financialLastTool = 'financial.last_tool';
 
+  /// The mode the app opens in.
+  static const String defaultMode = 'settings.default_mode';
+
+  /// Whether keys give a haptic tick.
+  static const String haptics = 'settings.haptics';
+
+  /// Whether calculator keys make the click sound.
+  static const String keySound = 'settings.key_sound';
+
+  /// How many places calculator results are rounded to.
+  static const String decimalPlaces = 'settings.decimal_places';
+
+  /// Whether new calculations are added to the history.
+  static const String historyEnabled = 'settings.history_enabled';
+
+  /// How many history entries are kept.
+  static const String historyLimit = 'settings.history_limit';
+
+  /// The in-app text size.
+  static const String textSize = 'settings.text_size';
+
+  /// Whether fixed-height controls are larger.
+  static const String largerControls = 'settings.larger_controls';
+
+  /// Whether the high-contrast theme is forced.
+  static const String highContrast = 'settings.high_contrast';
+
   /// Every key above.
   static const Set<String> all = {
     themePreference,
@@ -46,5 +73,14 @@ abstract final class PreferenceKeys {
     converterCurrencyRateEur,
     converterCurrencyRateGbp,
     financialLastTool,
+    defaultMode,
+    haptics,
+    keySound,
+    decimalPlaces,
+    historyEnabled,
+    historyLimit,
+    textSize,
+    largerControls,
+    highContrast,
   };
 }

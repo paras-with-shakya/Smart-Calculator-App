@@ -26,3 +26,11 @@ final class SettingsRoute extends AppRoute {
   @override
   String get name => '/settings';
 }
+
+/// The list of open-source licences, opened from Settings > About.
+final class LicensesRoute extends AppRoute {
+  const LicensesRoute();
+
+  @override
+  String get name => '/licenses';
+}

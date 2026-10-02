@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/formatting/number_format_provider.dart';
@@ -7,6 +6,7 @@ import 'package:smart_calculator/core/widgets/calculator_button.dart';
 import 'package:smart_calculator/features/calculator/application/calculator_notifier.dart';
 import 'package:smart_calculator/features/calculator/domain/calculator_key.dart';
 import 'package:smart_calculator/features/calculator/domain/expression_buffer.dart';
+import 'package:smart_calculator/features/settings/application/key_feedback_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// The basic keypad: four columns, five rows, filling the space it is
@@ -42,7 +42,7 @@ class CalculatorKeypad extends ConsumerWidget {
     final notifier = ref.read(calculatorProvider.notifier);
 
     void press(CalculatorKey key) {
-      HapticFeedback.selectionClick();
+      ref.read(keyFeedbackProvider).key();
       notifier.press(key);
     }
 
@@ -138,7 +138,7 @@ class CalculatorKeypad extends ConsumerWidget {
           semanticLabel: l10n.keyBackspaceLabel,
           onPressed: () => press(CalculatorKey.backspace),
           onLongPress: () {
-            HapticFeedback.mediumImpact();
+            ref.read(keyFeedbackProvider).heavy();
             notifier.press(CalculatorKey.allClear);
           },
         ),

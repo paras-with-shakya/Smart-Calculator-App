@@ -15,6 +15,7 @@ import 'package:smart_calculator/features/converter/application/converter_notifi
 import 'package:smart_calculator/features/converter/domain/conversion_category.dart';
 import 'package:smart_calculator/features/converter/domain/number_entry_buffer.dart';
 import 'package:smart_calculator/features/converter/presentation/unit_picker_sheet.dart';
+import 'package:smart_calculator/features/settings/application/key_feedback_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// Which side of the conversion a [ConverterCard] shows.
@@ -59,7 +60,7 @@ class ConverterCard extends ConsumerWidget {
           currentUnitId: unitId,
         );
         if (picked == null) return;
-        unawaited(HapticFeedback.selectionClick());
+        ref.read(keyFeedbackProvider).select();
         if (isFrom) {
           notifier.selectFromUnit(picked);
         } else {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_calculator/app/navigation/app_route.dart';
+import 'package:smart_calculator/core/app_info.dart';
 import 'package:smart_calculator/features/history/presentation/history_page.dart';
 import 'package:smart_calculator/features/settings/presentation/settings_page.dart';
 
@@ -23,4 +24,8 @@ extension AppNavigator on BuildContext {
 Widget _pageFor(AppRoute route) => switch (route) {
   HistoryRoute() => const HistoryPage(),
   SettingsRoute() => const SettingsPage(),
+  // No legalese: the licences listed are the packages' and fonts' own.
+  LicensesRoute() => const LicensePage(
+    applicationVersion: AppInfo.displayVersion,
+  ),
 };

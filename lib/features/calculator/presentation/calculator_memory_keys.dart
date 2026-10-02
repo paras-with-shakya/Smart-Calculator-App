@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/widgets/calculator_button.dart';
 import 'package:smart_calculator/features/calculator/application/calculator_notifier.dart';
 import 'package:smart_calculator/features/calculator/application/memory_notifier.dart';
+import 'package:smart_calculator/features/settings/application/key_feedback_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// The memory row: MC, MR, M+, M−, MS.
@@ -29,7 +30,7 @@ class CalculatorMemoryKeys extends ConsumerWidget {
 
     VoidCallback? action(bool enabled, FutureOr<void> Function() run) => enabled
         ? () {
-            HapticFeedback.selectionClick();
+            ref.read(keyFeedbackProvider).key();
             unawaited(Future.sync(run));
           }
         : null;
@@ -63,7 +64,7 @@ class CalculatorMemoryKeys extends ConsumerWidget {
     ];
 
     return SizedBox(
-      height: kMinInteractiveDimension,
+      height: AppSizing.minTarget(context),
       child: Row(
         crossAxisAlignment: .stretch,
         children: [

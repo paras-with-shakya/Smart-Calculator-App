@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_calculator/app/theme/app_colors.dart';
 import 'package:smart_calculator/app/theme/app_motion.dart';
 import 'package:smart_calculator/app/theme/app_radius.dart';
+import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/app/theme/app_typography.dart';
 
@@ -147,9 +148,9 @@ class _CalculatorButtonState extends State<CalculatorButton> {
       selected: widget.selected,
       label: widget.semanticLabel,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minWidth: kMinInteractiveDimension,
-          minHeight: kMinInteractiveDimension,
+        constraints: BoxConstraints(
+          minWidth: AppSizing.minTarget(context),
+          minHeight: AppSizing.minTarget(context),
         ),
         child: AnimatedScale(
           scale: _pressed ? _pressedScale : 1,
@@ -160,6 +161,9 @@ class _CalculatorButtonState extends State<CalculatorButton> {
             shape: shape,
             clipBehavior: Clip.antiAlias,
             child: InkWell(
+              // KeyFeedback gives a key its tick and click (and Settings can turn
+              // them off); the Material click would ignore that.
+              enableFeedback: false,
               onTap: widget.onPressed,
               onLongPress: widget.onLongPress,
               onHighlightChanged: (pressed) =>

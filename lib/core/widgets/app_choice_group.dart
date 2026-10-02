@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_typography.dart';
 
 /// One option of an [AppChoiceGroup].
@@ -51,7 +52,7 @@ class AppChoiceGroup<T> extends StatelessWidget {
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) =>
         _labelsFitSegments(context, constraints.maxWidth)
-        ? _segmented()
+        ? _segmented(context)
         : _radioList(),
   );
 
@@ -74,7 +75,7 @@ class AppChoiceGroup<T> extends StatelessWidget {
     return true;
   }
 
-  Widget _segmented() => SegmentedButton<T>(
+  Widget _segmented(BuildContext context) => SegmentedButton<T>(
     segments: [
       for (final option in options)
         ButtonSegment(
@@ -85,6 +86,16 @@ class AppChoiceGroup<T> extends StatelessWidget {
     ],
     selected: {selected},
     onSelectionChanged: (selection) => onChanged(selection.single),
+    // "Larger controls" in Settings: a taller segment. A segment's height
+    // comes from the visual density (4 dp per unit), not a minimum size.
+    style: AppSizing.of(context) == 1
+        ? null
+        : SegmentedButton.styleFrom(
+            visualDensity: VisualDensity(
+              vertical:
+                  (AppSizing.of(context) - 1) * kMinInteractiveDimension / 4,
+            ),
+          ),
   );
 
   // The transparent Material gives the list tiles their own ink surface, so

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/widgets/app_bottom_sheet.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
 import 'package:smart_calculator/features/converter/domain/conversion_category.dart';
 import 'package:smart_calculator/features/converter/domain/unit.dart';
+import 'package:smart_calculator/features/settings/application/key_feedback_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// Opens a searchable sheet listing [category]'s units, [currentUnitId]
@@ -25,7 +26,7 @@ Future<String?> showUnitPicker(
   );
 }
 
-class _UnitPickerContent extends StatefulWidget {
+class _UnitPickerContent extends ConsumerStatefulWidget {
   const _UnitPickerContent({
     required this.category,
     required this.currentUnitId,
@@ -35,10 +36,10 @@ class _UnitPickerContent extends StatefulWidget {
   final String currentUnitId;
 
   @override
-  State<_UnitPickerContent> createState() => _UnitPickerContentState();
+  ConsumerState<_UnitPickerContent> createState() => _UnitPickerContentState();
 }
 
-class _UnitPickerContentState extends State<_UnitPickerContent> {
+class _UnitPickerContentState extends ConsumerState<_UnitPickerContent> {
   final TextEditingController _query = TextEditingController();
   String _filter = '';
 
@@ -81,7 +82,7 @@ class _UnitPickerContentState extends State<_UnitPickerContent> {
             AppCard(
               selected: unit.id == widget.currentUnitId,
               onTap: () {
-                HapticFeedback.selectionClick();
+                ref.read(keyFeedbackProvider).select();
                 Navigator.of(context).pop(unit.id);
               },
               child: Row(

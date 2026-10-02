@@ -9,6 +9,7 @@ import 'package:smart_calculator/core/widgets/display_text.dart';
 import 'package:smart_calculator/features/calculator/application/calculator_notifier.dart';
 import 'package:smart_calculator/features/calculator/application/memory_notifier.dart';
 import 'package:smart_calculator/features/calculator/presentation/calculator_display_formatter.dart';
+import 'package:smart_calculator/features/settings/application/decimal_places_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// The calculator's display, anchored to the bottom:
@@ -33,6 +34,7 @@ class CalculatorDisplay extends ConsumerWidget {
     final formatter = CalculatorDisplayFormatter(
       ref.watch(numberFormatProvider),
       l10n,
+      decimalPlaces: ref.watch(decimalPlacesProvider),
     );
     final colors = AppColors.of(context);
     final typography = AppTypography.of(context);

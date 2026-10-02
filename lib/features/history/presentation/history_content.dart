@@ -6,6 +6,7 @@ import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/app/theme/app_typography.dart';
 import 'package:smart_calculator/core/formatting/localized_number_format.dart';
 import 'package:smart_calculator/core/formatting/number_format_provider.dart';
+import 'package:smart_calculator/core/formatting/result_text.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_choice_group.dart';
 import 'package:smart_calculator/core/widgets/app_dialog.dart';
@@ -15,9 +16,12 @@ import 'package:smart_calculator/core/widgets/status_views.dart';
 import 'package:smart_calculator/features/calculator/application/calculator_notifier.dart';
 import 'package:smart_calculator/features/history/application/history_notifier.dart';
 import 'package:smart_calculator/features/history/domain/history_entry.dart';
+import 'package:smart_calculator/features/history/presentation/clear_history_confirmation.dart';
 import 'package:smart_calculator/features/saved_calculations/application/saved_calculations_notifier.dart';
 import 'package:smart_calculator/features/saved_calculations/domain/saved_calculation.dart';
 import 'package:smart_calculator/features/saved_calculations/presentation/save_name_sheet.dart';
+import 'package:smart_calculator/features/settings/application/app_settings_notifier.dart';
+import 'package:smart_calculator/features/settings/application/decimal_places_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 enum _Tab { history, saved }
@@ -156,12 +160,16 @@ class _HistorySection extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final asyncEntries = ref.watch(historyProvider);
     final format = ref.watch(numberFormatProvider);
+    final places = ref.watch(decimalPlacesProvider);
+    final historyOn = ref.watch(
+      appSettingsProvider.select((s) => s.historyEnabled),
+    );
 
     return asyncEntries.when(
       loading: () => LoadingState(message: l10n.historyTitle),
       error: (error, stackTrace) => ErrorState(message: '$error'),
       data: (entries) {
-        final filtered = _filtered(entries, format);
+        final filtered = _filtered(entries, format, places);
         return Column(
           children: [
             _SearchRow(
@@ -177,26 +185,51 @@ class _HistorySection extends ConsumerWidget {
               child: entries.isEmpty
                   ? EmptyState(
                       icon: Icons.history,
-                      title: l10n.historyEmptyTitle,
-                      message: l10n.historyEmptyMessage,
+                      title: historyOn
+                          ? l10n.historyEmptyTitle
+                          : l10n.historyOffTitle,
+                      message: historyOn
+                          ? l10n.historyEmptyMessage
+                          : l10n.historyOffMessage,
                     )
                   : filtered.isEmpty
                   ? EmptyState(
                       icon: Icons.search_off,
                       message: l10n.historySearchEmptyMessage,
                     )
-                  : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.md,
-                        0,
-                        AppSpacing.md,
-                        AppSpacing.md,
-                      ),
-                      itemCount: filtered.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: AppSpacing.sm),
-                      itemBuilder: (context, index) =>
-                          _HistoryTile(entry: filtered[index]),
+                  : Column(
+                      children: [
+                        if (!historyOn)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(
+                              AppSpacing.md,
+                              0,
+                              AppSpacing.md,
+                              AppSpacing.sm,
+                            ),
+                            child: Text(
+                              l10n.historyOffBanner,
+                              style: AppTypography.of(context).caption.copyWith(
+                                color: AppColors.of(context).textMuted,
+                              ),
+                            ),
+                          ),
+                        Expanded(
+                          child: ListView.separated(
+                            padding: const EdgeInsets.fromLTRB(
+                              AppSpacing.md,
+                              0,
+                              AppSpacing.md,
+                              AppSpacing.md,
+                            ),
+                            itemCount: filtered.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: AppSpacing.sm),
+                            itemBuilder: (context, index) =>
+                                _HistoryTile(entry: filtered[index]),
+                          ),
+                        ),
+                      ],
                     ),
             ),
           ],
@@ -208,16 +241,18 @@ class _HistorySection extends ConsumerWidget {
   List<HistoryEntry> _filtered(
     List<HistoryEntry> entries,
     LocalizedNumberFormat format,
+    int? places,
   ) {
     final needle = query.trim().toLowerCase();
     if (needle.isEmpty) return entries;
     return [
       for (final entry in entries)
         if (entry.expression.toLowerCase().contains(needle) ||
-            format
-                .formatCanonical(entry.result.toDecimalString())
-                .toLowerCase()
-                .contains(needle))
+            formatResult(
+              format,
+              entry.result,
+              decimalPlaces: places,
+            ).toLowerCase().contains(needle))
           entry,
     ];
   }
@@ -227,14 +262,9 @@ class _HistorySection extends ConsumerWidget {
     WidgetRef ref,
     AppLocalizations l10n,
   ) async {
-    final confirmed = await showConfirmationDialog(
-      context,
-      title: l10n.historyClearAllConfirmTitle,
-      message: l10n.historyClearAllConfirmMessage,
-      confirmLabel: l10n.historyClearAllConfirmAction,
-      isDestructive: true,
-    );
-    if (confirmed) await ref.read(historyProvider.notifier).clear();
+    if (await confirmClearHistory(context)) {
+      await ref.read(historyProvider.notifier).clear();
+    }
   }
 }
 
@@ -252,7 +282,11 @@ class _HistoryTile extends ConsumerWidget {
     final colors = AppColors.of(context);
     final typography = AppTypography.of(context);
     final format = ref.watch(numberFormatProvider);
-    final resultText = format.formatCanonical(entry.result.toDecimalString());
+    final resultText = formatResult(
+      format,
+      entry.result,
+      decimalPlaces: ref.watch(decimalPlacesProvider),
+    );
 
     return AppCard(
       onTap: () => _reuse(context, ref),
@@ -362,12 +396,13 @@ class _SavedSection extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final asyncEntries = ref.watch(savedCalculationsProvider);
     final format = ref.watch(numberFormatProvider);
+    final places = ref.watch(decimalPlacesProvider);
 
     return asyncEntries.when(
       loading: () => LoadingState(message: l10n.savedTabLabel),
       error: (error, stackTrace) => ErrorState(message: '$error'),
       data: (entries) {
-        final filtered = _filtered(entries, format);
+        final filtered = _filtered(entries, format, places);
         return Column(
           children: [
             _SearchRow(
@@ -414,6 +449,7 @@ class _SavedSection extends ConsumerWidget {
   List<SavedCalculation> _filtered(
     List<SavedCalculation> entries,
     LocalizedNumberFormat format,
+    int? places,
   ) {
     final needle = query.trim().toLowerCase();
     if (needle.isEmpty) return entries;
@@ -421,10 +457,11 @@ class _SavedSection extends ConsumerWidget {
       for (final entry in entries)
         if (entry.name.toLowerCase().contains(needle) ||
             entry.expression.toLowerCase().contains(needle) ||
-            format
-                .formatCanonical(entry.result.toDecimalString())
-                .toLowerCase()
-                .contains(needle))
+            formatResult(
+              format,
+              entry.result,
+              decimalPlaces: places,
+            ).toLowerCase().contains(needle))
           entry,
     ];
   }
@@ -459,7 +496,11 @@ class _SavedTile extends ConsumerWidget {
     final colors = AppColors.of(context);
     final typography = AppTypography.of(context);
     final format = ref.watch(numberFormatProvider);
-    final resultText = format.formatCanonical(entry.result.toDecimalString());
+    final resultText = formatResult(
+      format,
+      entry.result,
+      decimalPlaces: ref.watch(decimalPlacesProvider),
+    );
 
     return AppCard(
       onTap: () => _reuse(context, ref),

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/widgets/app_icon_button.dart';
 import 'package:smart_calculator/features/converter/application/converter_notifier.dart';
 import 'package:smart_calculator/features/converter/presentation/category_picker.dart';
 import 'package:smart_calculator/features/converter/presentation/converter_card.dart';
 import 'package:smart_calculator/features/converter/presentation/converter_keypad.dart';
+import 'package:smart_calculator/features/settings/application/key_feedback_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// The unit converter: category picker, From/To cards with a swap button,
@@ -89,7 +90,9 @@ class ConverterView extends StatelessWidget {
   double _keypadHeight(BuildContext context) {
     const rows = 4;
     const rowHeight = 56.0;
-    final scaledRow = MediaQuery.textScalerOf(context).scale(rowHeight);
+    final scaledRow =
+        MediaQuery.textScalerOf(context).scale(rowHeight) *
+        AppSizing.of(context);
     return rows * scaledRow + (rows - 1) * AppSpacing.sm;
   }
 }
@@ -111,7 +114,7 @@ class _AmountCards extends ConsumerWidget {
           tooltip: l10n.converterSwapTooltip,
           variant: AppIconButtonVariant.tonal,
           onPressed: () {
-            HapticFeedback.selectionClick();
+            ref.read(keyFeedbackProvider).select();
             notifier.swap();
           },
         ),

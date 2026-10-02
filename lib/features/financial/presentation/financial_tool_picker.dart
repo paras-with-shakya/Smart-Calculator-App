@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/app/theme/app_typography.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/features/financial/application/financial_tool_notifier.dart';
 import 'package:smart_calculator/features/financial/domain/financial_tool.dart';
+import 'package:smart_calculator/features/settings/application/key_feedback_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// The icon shown for [tool].
@@ -57,7 +57,7 @@ class FinancialToolPicker extends ConsumerWidget {
             child: AppCard(
               selected: tool == current,
               onTap: () {
-                HapticFeedback.selectionClick();
+                ref.read(keyFeedbackProvider).select();
                 notifier.selectTool(tool);
               },
               child: Column(

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:calc_engine/calc_engine.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/widgets/calculator_button.dart';
 import 'package:smart_calculator/features/calculator/presentation/calculator_display.dart';
@@ -10,6 +11,7 @@ import 'package:smart_calculator/features/calculator/presentation/calculator_key
 import 'package:smart_calculator/features/calculator/presentation/calculator_memory_keys.dart';
 import 'package:smart_calculator/features/calculator/presentation/scientific_function_tray.dart';
 import 'package:smart_calculator/features/settings/application/angle_mode_notifier.dart';
+import 'package:smart_calculator/features/settings/application/key_feedback_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// The scientific calculator: Basic's display, memory row and keypad
@@ -146,7 +148,7 @@ class _ScientificCalculatorViewState
   Widget _toggleRow() {
     final l10n = AppLocalizations.of(context);
     return SizedBox(
-      height: kMinInteractiveDimension,
+      height: AppSizing.minTarget(context),
       child: Row(
         children: [
           Expanded(
@@ -162,8 +164,10 @@ class _ScientificCalculatorViewState
                   semanticLabel: degrees
                       ? l10n.keyAngleModeDegreesLabel
                       : l10n.keyAngleModeRadiansLabel,
-                  onPressed: () =>
-                      ref.read(angleModeProvider.notifier).toggle(),
+                  onPressed: () {
+                    ref.read(keyFeedbackProvider).key();
+                    ref.read(angleModeProvider.notifier).toggle();
+                  },
                 );
               },
             ),
@@ -175,7 +179,10 @@ class _ScientificCalculatorViewState
               label: l10n.keySecond,
               semanticLabel: l10n.keySecondLabel,
               selected: _second,
-              onPressed: () => setState(() => _second = !_second),
+              onPressed: () {
+                ref.read(keyFeedbackProvider).key();
+                setState(() => _second = !_second);
+              },
             ),
           ),
         ],

@@ -122,8 +122,10 @@ const Map<String, String> currencySymbols = {
 
 /// A starting rate ("how many of this currency equal 1 USD") shown the
 /// first time the app runs, before the user edits it. These are round,
-/// clearly-illustrative numbers, not real exchange rates — the UI labels
-/// them as an example to edit, never as a live or accurate rate.
+/// illustrative numbers, not real exchange rates, and they are never
+/// fetched or updated: the user edits them in the converter. (The UI does not
+/// label them as examples; Settings > About says that they are sample
+/// values.)
 const Map<String, double> defaultCurrencyRatesPerUsd = {
   'usd': 1,
   'inr': 83,

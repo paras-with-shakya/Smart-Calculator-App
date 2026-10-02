@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/app/theme/app_typography.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/features/converter/application/converter_notifier.dart';
 import 'package:smart_calculator/features/converter/domain/conversion_category.dart';
+import 'package:smart_calculator/features/settings/application/key_feedback_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// The icon shown for [category].
@@ -60,7 +60,7 @@ class CategoryPicker extends ConsumerWidget {
             child: AppCard(
               selected: category == current,
               onTap: () {
-                HapticFeedback.selectionClick();
+                ref.read(keyFeedbackProvider).select();
                 notifier.selectCategory(category);
               },
               child: Column(

@@ -20,4 +20,8 @@ abstract interface class HistoryRepository {
 
   /// Removes every entry.
   Future<void> clear();
+
+  /// Keeps only the [keep] newest entries (newest by the same order as
+  /// [list]) and removes the rest. [keep] must be at least 1.
+  Future<void> trimTo(int keep);
 }

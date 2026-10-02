@@ -8,6 +8,7 @@ import 'package:smart_calculator/features/calculator/domain/calculator_key.dart'
 import 'package:smart_calculator/features/calculator/domain/expression_buffer.dart';
 import 'package:smart_calculator/features/history/application/history_notifier.dart';
 import 'package:smart_calculator/features/settings/application/angle_mode_notifier.dart';
+import 'package:smart_calculator/features/settings/application/app_settings_notifier.dart';
 
 /// What the calculator shows.
 ///
@@ -231,15 +232,19 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
           result: value,
           evaluatedExpression: evaluatedExpression,
         );
-        unawaited(
-          ref
-              .read(historyProvider.notifier)
-              .add(
-                expression: evaluatedExpression.toCanonicalText(),
-                result: value,
-                mode: ref.read(currentModeProvider),
-              ),
-        );
+        final settings = ref.read(appSettingsProvider);
+        if (settings.historyEnabled) {
+          unawaited(
+            ref
+                .read(historyProvider.notifier)
+                .add(
+                  expression: evaluatedExpression.toCanonicalText(),
+                  result: value,
+                  mode: ref.read(currentModeProvider),
+                  keepLast: settings.historyLimit.keep,
+                ),
+          );
+        }
       case CalcFailure(error: CalcError.empty):
         return;
       case CalcFailure(:final error):

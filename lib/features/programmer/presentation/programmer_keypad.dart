@@ -1,12 +1,12 @@
 import 'package:calc_engine/calc_engine.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/widgets/calculator_button.dart';
 import 'package:smart_calculator/core/widgets/key_grid.dart';
 import 'package:smart_calculator/features/programmer/application/programmer_notifier.dart';
 import 'package:smart_calculator/features/programmer/domain/programmer_session.dart';
+import 'package:smart_calculator/features/settings/application/key_feedback_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// The programmer keypad: five columns, six rows.
@@ -59,7 +59,7 @@ class ProgrammerKeypad extends ConsumerWidget {
     final mask = ref.watch(programmerProvider.select(availability));
 
     void press(VoidCallback action) {
-      HapticFeedback.selectionClick();
+      ref.read(keyFeedbackProvider).key();
       action();
     }
 
@@ -170,7 +170,7 @@ class ProgrammerKeypad extends ConsumerWidget {
             semanticLabel: l10n.keyBackspaceLabel,
             onPressed: () => press(notifier.backspace),
             onLongPress: () {
-              HapticFeedback.mediumImpact();
+              ref.read(keyFeedbackProvider).heavy();
               notifier.clear();
             },
           ),

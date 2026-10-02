@@ -1,5 +1,6 @@
 import 'package:calc_engine/calc_engine.dart';
 import 'package:smart_calculator/core/formatting/localized_number_format.dart';
+import 'package:smart_calculator/core/formatting/result_text.dart';
 import 'package:smart_calculator/features/calculator/domain/expression_buffer.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
@@ -11,7 +12,11 @@ typedef DisplayedExpression = ({String text, List<int> boundaries});
 final class CalculatorDisplayFormatter {
   /// Creates a formatter that writes numbers with [format] and words with
   /// [l10n].
-  const CalculatorDisplayFormatter(this.format, this.l10n);
+  const CalculatorDisplayFormatter(
+    this.format,
+    this.l10n, {
+    this.decimalPlaces,
+  });
 
   /// The region's number format.
   final LocalizedNumberFormat format;
@@ -19,10 +24,20 @@ final class CalculatorDisplayFormatter {
   /// The app's strings.
   final AppLocalizations l10n;
 
-  /// [value] as shown: 12 significant digits, such as `12,34,567.5` or
-  /// `1.5×10¹²`.
+  /// How many places results are rounded to, or null for none (the
+  /// "decimal places" setting). It applies to results only: a value placed
+  /// in an expression keeps its full 12 digits.
+  final int? decimalPlaces;
+
+  /// [value] as a result is shown: 12 significant digits, such as
+  /// `12,34,567.5` or `1.5×10¹²`, with the fraction rounded to
+  /// [decimalPlaces] first if that is set.
   String value(CalcValue value) =>
-      format.formatCanonical(value.toDecimalString());
+      formatResult(format, value, decimalPlaces: decimalPlaces);
+
+  /// [value] as it is written inside an expression: never rounded to
+  /// [decimalPlaces], so what is shown is what the calculation uses.
+  String valueInExpression(CalcValue value) => formatResult(format, value);
 
   /// [buffer] as shown. `boundaries[i]` is the text offset of the cursor
   /// position before unit `i`; the last entry is the text's length.
@@ -122,7 +137,7 @@ final class CalculatorDisplayFormatter {
           words.add(_spokenSymbol(symbol));
         case ValueUnit(value: final unitValue):
           endNumber();
-          words.add(value(unitValue));
+          words.add(valueInExpression(unitValue));
       }
     }
     endNumber();
@@ -139,7 +154,7 @@ final class CalculatorDisplayFormatter {
   };
 
   String _valueInExpression(CalcValue unitValue, int index) {
-    final shown = value(unitValue);
+    final shown = valueInExpression(unitValue);
     final negative = shown.startsWith(LocalizedNumberFormat.minusSign);
     return negative && index > 0 ? '($shown)' : shown;
   }

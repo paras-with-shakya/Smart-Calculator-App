@@ -2,6 +2,7 @@ import 'package:calc_engine/calc_engine.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_colors.dart';
+import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/app/theme/app_typography.dart';
 import 'package:smart_calculator/core/formatting/localized_number_format.dart';
@@ -132,8 +133,8 @@ class _BaseRow extends StatelessWidget {
           vertical: AppSpacing.sm,
         ),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minHeight: kMinInteractiveDimension - 2 * AppSpacing.sm,
+          constraints: BoxConstraints(
+            minHeight: AppSizing.minTarget(context) - 2 * AppSpacing.sm,
           ),
           child: Row(
             crossAxisAlignment: .center,

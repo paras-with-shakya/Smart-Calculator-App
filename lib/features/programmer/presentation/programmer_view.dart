@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/widgets/key_grid.dart';
 import 'package:smart_calculator/features/programmer/presentation/programmer_base_rows.dart';
@@ -35,7 +36,10 @@ class ProgrammerView extends StatelessWidget {
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       final scale = MediaQuery.textScalerOf(context).scale(baseRowHeight);
-      final rowHeight = math.min(scale, baseRowHeight * maxRowScale);
+      // "Larger controls" in Settings multiplies the rows (and the key labels
+      // shrink to fit, as ever).
+      final rowHeight =
+          math.min(scale, baseRowHeight * maxRowScale) * AppSizing.of(context);
       return constraints.maxWidth > constraints.maxHeight
           ? _landscape(constraints, rowHeight)
           : _portrait(rowHeight);

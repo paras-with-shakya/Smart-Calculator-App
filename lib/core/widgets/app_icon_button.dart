@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_calculator/app/theme/app_sizing.dart';
 
 /// How prominent an [AppIconButton] is.
 enum AppIconButtonVariant {
@@ -36,16 +37,26 @@ class AppIconButton extends StatelessWidget {
   final AppIconButtonVariant variant;
 
   @override
-  Widget build(BuildContext context) => switch (variant) {
-    AppIconButtonVariant.standard => IconButton(
-      icon: Icon(icon),
-      tooltip: tooltip,
-      onPressed: onPressed,
-    ),
-    AppIconButtonVariant.tonal => IconButton.filledTonal(
-      icon: Icon(icon),
-      tooltip: tooltip,
-      onPressed: onPressed,
-    ),
-  };
+  Widget build(BuildContext context) {
+    // "Larger controls" in Settings: a taller minimum (null: the theme's).
+    final style = AppSizing.of(context) == 1
+        ? null
+        : IconButton.styleFrom(
+            minimumSize: Size.square(AppSizing.minTarget(context)),
+          );
+    return switch (variant) {
+      AppIconButtonVariant.standard => IconButton(
+        icon: Icon(icon),
+        tooltip: tooltip,
+        onPressed: onPressed,
+        style: style,
+      ),
+      AppIconButtonVariant.tonal => IconButton.filledTonal(
+        icon: Icon(icon),
+        tooltip: tooltip,
+        onPressed: onPressed,
+        style: style,
+      ),
+    };
+  }
 }

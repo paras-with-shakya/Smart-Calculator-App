@@ -13,12 +13,14 @@ import 'package:smart_calculator/core/widgets/app_date_field.dart';
 import 'package:smart_calculator/core/widgets/app_dialog.dart';
 import 'package:smart_calculator/core/widgets/app_header.dart';
 import 'package:smart_calculator/core/widgets/app_icon_button.dart';
+import 'package:smart_calculator/core/widgets/app_switch_tile.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
 import 'package:smart_calculator/core/widgets/calculator_button.dart';
 import 'package:smart_calculator/core/widgets/display_text.dart';
 import 'package:smart_calculator/core/widgets/key_grid.dart';
 import 'package:smart_calculator/core/widgets/result_row.dart';
 import 'package:smart_calculator/core/widgets/section_header.dart';
+import 'package:smart_calculator/core/widgets/setting_row.dart';
 import 'package:smart_calculator/core/widgets/share_of_whole_bar.dart';
 import 'package:smart_calculator/core/widgets/status_views.dart';
 
@@ -67,7 +69,10 @@ enum GallerySection {
   date('Date'),
 
   /// A key grid with enabled and disabled digit keys.
-  programmer('Programmer');
+  programmer('Programmer'),
+
+  /// A setting row and switch rows, as Settings uses them.
+  settings('Settings');
 
   const GallerySection(this.title);
 
@@ -111,6 +116,7 @@ class GallerySectionView extends StatelessWidget {
           GallerySection.financial => const _FinancialSection(),
           GallerySection.date => const _DateSection(),
           GallerySection.programmer => const _ProgrammerSection(),
+          GallerySection.settings => const _SettingsSection(),
         },
       ),
     ],
@@ -1136,4 +1142,50 @@ class _ProgrammerSection extends StatelessWidget {
       ],
     );
   }
+}
+
+/// A setting row (label, hint, control) and switch rows in both states, as
+/// the Settings screen builds them. The working screen is `SettingsPage`.
+class _SettingsSection extends StatefulWidget {
+  const _SettingsSection();
+
+  @override
+  State<_SettingsSection> createState() => _SettingsSectionState();
+}
+
+class _SettingsSectionState extends State<_SettingsSection> {
+  int _places = 4;
+  bool _on = true;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: .stretch,
+    children: [
+      SettingRow(
+        label: 'Decimal places',
+        hint: 'Rounds the fraction of results. Whole numbers never change.',
+        child: AppChoiceGroup<int>(
+          options: const [
+            AppChoice(value: 0, label: 'Auto'),
+            AppChoice(value: 2, label: '2'),
+            AppChoice(value: 4, label: '4'),
+            AppChoice(value: 6, label: '6'),
+          ],
+          selected: _places,
+          onChanged: (value) => setState(() => _places = value),
+        ),
+      ),
+      AppSwitchTile(
+        title: 'Haptic feedback',
+        hint: 'A short tick when you press a key.',
+        value: _on,
+        onChanged: (value) => setState(() => _on = value),
+      ),
+      const AppSwitchTile(
+        title: 'High contrast',
+        value: false,
+        onChanged: null,
+      ),
+    ],
+  );
 }

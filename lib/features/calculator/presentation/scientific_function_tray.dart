@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/widgets/calculator_button.dart';
 import 'package:smart_calculator/features/calculator/application/calculator_notifier.dart';
 import 'package:smart_calculator/features/calculator/domain/calculator_key.dart';
 import 'package:smart_calculator/features/calculator/domain/expression_buffer.dart';
 import 'package:smart_calculator/features/calculator/domain/scientific_keys.dart';
+import 'package:smart_calculator/features/settings/application/key_feedback_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// The scientific function-key tray: every function from
@@ -34,7 +35,7 @@ class ScientificFunctionTray extends ConsumerWidget {
     final notifier = ref.read(calculatorProvider.notifier);
 
     void press(CalculatorKey key) {
-      HapticFeedback.selectionClick();
+      ref.read(keyFeedbackProvider).key();
       notifier.press(key);
     }
 
@@ -53,7 +54,7 @@ class ScientificFunctionTray extends ConsumerWidget {
     }
 
     return SizedBox(
-      height: kMinInteractiveDimension,
+      height: AppSizing.minTarget(context),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(

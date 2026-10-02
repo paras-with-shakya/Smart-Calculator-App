@@ -1043,4 +1043,169 @@ class AppLocalizationsEn extends AppLocalizations {
 
     return 'Overflow: wrapped to $bitsString bits';
   }
+
+  @override
+  String get historyOffTitle => 'History is off';
+
+  @override
+  String get historyOffMessage =>
+      'New calculations are not being saved. You can turn history on in Settings.';
+
+  @override
+  String get historyOffBanner =>
+      'History is off: new calculations are not being saved.';
+
+  @override
+  String get settingsCalculatorSection => 'Calculator';
+
+  @override
+  String get settingsHistorySection => 'History';
+
+  @override
+  String get settingsAccessibilitySection => 'Accessibility';
+
+  @override
+  String get settingsAboutSection => 'About';
+
+  @override
+  String get settingsDefaultModeLabel => 'Opens in';
+
+  @override
+  String get settingsDefaultModeHint =>
+      'The mode shown when the app starts. Changing it does not switch the mode you are using now.';
+
+  @override
+  String get settingsDefaultModeSheetTitle => 'Open the app in';
+
+  @override
+  String get settingsAngleModeLabel => 'Angle unit';
+
+  @override
+  String get settingsAngleDegrees => 'Degrees';
+
+  @override
+  String get settingsAngleRadians => 'Radians';
+
+  @override
+  String get settingsAngleModeHint =>
+      'Used by sin, cos, tan and their inverses in Scientific mode.';
+
+  @override
+  String get settingsDecimalPlacesLabel => 'Decimal places';
+
+  @override
+  String get settingsDecimalPlacesAuto => 'Auto';
+
+  @override
+  String get settingsDecimalPlacesHint =>
+      'Rounds the fraction of results in Basic and Scientific mode. Whole numbers never change. Auto shows up to 12 significant digits.';
+
+  @override
+  String get settingsHapticsLabel => 'Haptic feedback';
+
+  @override
+  String get settingsHapticsHint => 'A short tick when you press a key.';
+
+  @override
+  String get settingsKeySoundLabel => 'Key sounds';
+
+  @override
+  String get settingsKeySoundHint =>
+      'The click when you press a calculator key. It also follows your device\'s touch-sounds setting.';
+
+  @override
+  String get settingsHistoryEnabledLabel => 'Save history';
+
+  @override
+  String get settingsHistoryEnabledHint =>
+      'Add each result to the history. Turning it off keeps the entries you already have.';
+
+  @override
+  String get settingsHistoryLimitLabel => 'Keep the latest';
+
+  @override
+  String get settingsHistoryLimitAll => 'All';
+
+  @override
+  String get settingsHistoryLimitHint =>
+      'Older entries are deleted automatically. Saved calculations are not affected.';
+
+  @override
+  String get settingsHistoryLimitConfirmTitle => 'Delete older history?';
+
+  @override
+  String settingsHistoryLimitConfirmMessage(int count, int removed) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+    final intl.NumberFormat removedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String removedString = removedNumberFormat.format(removed);
+
+    return 'This keeps your latest $countString calculations and deletes the $removedString older ones. This can\'t be undone.';
+  }
+
+  @override
+  String get settingsHistoryLimitConfirmAction => 'Delete older';
+
+  @override
+  String get settingsClearHistoryLabel => 'Clear history';
+
+  @override
+  String get settingsClearHistoryHint =>
+      'Deletes every calculation in the history. Saved calculations are kept.';
+
+  @override
+  String get settingsHistoryCleared => 'History cleared';
+
+  @override
+  String get settingsTextSizeLabel => 'Text size';
+
+  @override
+  String get settingsTextSizeHint =>
+      'Makes text larger than your device\'s text size. A larger device size is never reduced.';
+
+  @override
+  String get settingsLargerControlsLabel => 'Larger controls';
+
+  @override
+  String get settingsLargerControlsHint =>
+      'Makes buttons and fixed-height rows 25% larger. The Basic and Scientific key grids already fill the screen, so they do not change.';
+
+  @override
+  String get settingsHighContrastLabel => 'High contrast';
+
+  @override
+  String get settingsHighContrastHint =>
+      'Stronger colours and outlines. Your device\'s own high-contrast setting also applies.';
+
+  @override
+  String get settingsVersionLabel => 'Version';
+
+  @override
+  String settingsVersionSemantics(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get settingsLicensesLabel => 'Open-source licences';
+
+  @override
+  String get settingsPrivacyTitle => 'Privacy';
+
+  @override
+  String get settingsPrivacyInternet =>
+      'Smart Calculator does not use the internet. The Android release build declares no internet permission, so the app itself cannot send your data anywhere.';
+
+  @override
+  String get settingsPrivacyStorage =>
+      'Your history, saved calculations, calculator memory and settings are stored on this device only. Currency rates are never downloaded: they start from built-in sample values that you can edit.';
+
+  @override
+  String get settingsPrivacyRemoval =>
+      'Clearing the history or uninstalling the app removes this data from the app. Your device\'s own backup may keep a copy, depending on its settings.';
+
+  @override
+  String get settingsPrivacyNotPolicy =>
+      'This is a summary of how the app works, not a legal privacy policy.';
 }

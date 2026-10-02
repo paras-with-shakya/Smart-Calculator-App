@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/shell/app_shell.dart';
 import 'package:smart_calculator/app/theme/app_motion.dart';
+import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_theme.dart';
 import 'package:smart_calculator/app/theme/theme_preference_mode.dart';
+import 'package:smart_calculator/app/theme/user_text_scaler.dart';
+import 'package:smart_calculator/features/settings/application/app_settings_notifier.dart';
 import 'package:smart_calculator/features/settings/application/theme_preference_notifier.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
@@ -14,19 +17,49 @@ class SmartCalculatorApp extends ConsumerWidget {
   const SmartCalculatorApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => MaterialApp(
-    onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-    theme: AppTheme.light,
-    darkTheme: AppTheme.dark,
-    highContrastTheme: AppTheme.highContrastLight,
-    highContrastDarkTheme: AppTheme.highContrastDark,
-    themeMode: ref.watch(themePreferenceProvider).themeMode,
-    themeAnimationStyle: const AnimationStyle(
-      duration: AppMotion.medium,
-      curve: AppMotion.standard,
-    ),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    home: const AppShell(),
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final highContrast = ref.watch(
+      appSettingsProvider.select((s) => s.highContrast),
+    );
+    final textSize = ref.watch(appSettingsProvider.select((s) => s.textSize));
+    final largerControls = ref.watch(
+      appSettingsProvider.select((s) => s.largerControls),
+    );
+
+    return MaterialApp(
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+      // With "High contrast" on in Settings, the high-contrast themes are
+      // the ordinary ones. The `highContrast*` slots stay as they were, so
+      // a device that asks for more contrast still gets them either way.
+      theme: highContrast ? AppTheme.highContrastLight : AppTheme.light,
+      darkTheme: highContrast ? AppTheme.highContrastDark : AppTheme.dark,
+      highContrastTheme: AppTheme.highContrastLight,
+      highContrastDarkTheme: AppTheme.highContrastDark,
+      themeMode: ref.watch(themePreferenceProvider).themeMode,
+      themeAnimationStyle: const AnimationStyle(
+        duration: AppMotion.medium,
+        curve: AppMotion.standard,
+      ),
+      // Always the same two wrappers, whatever the settings: wrapping
+      // conditionally would rebuild the Navigator and close the page the
+      // setting was changed on.
+      builder: (context, child) {
+        final media = MediaQuery.of(context);
+        return AppSizing(
+          controlScale: largerControls ? AppSizing.largerControlScale : 1,
+          child: MediaQuery(
+            data: media.copyWith(
+              textScaler: textSize.multiplier == 1
+                  ? media.textScaler
+                  : UserTextScaler(media.textScaler, textSize.multiplier),
+            ),
+            child: child!,
+          ),
+        );
+      },
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: const AppShell(),
+    );
+  }
 }

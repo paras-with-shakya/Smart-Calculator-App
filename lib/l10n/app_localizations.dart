@@ -1935,6 +1935,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Overflow: wrapped to {bits} bits'**
   String programmerOverflowNotice(int bits);
+
+  /// Title of the empty History screen while saving history is turned off in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'History is off'**
+  String get historyOffTitle;
+
+  /// Explains the empty History screen while saving history is turned off in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'New calculations are not being saved. You can turn history on in Settings.'**
+  String get historyOffMessage;
+
+  /// A one-line note above the list of history entries while saving history is turned off in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'History is off: new calculations are not being saved.'**
+  String get historyOffBanner;
+
+  /// Heading of the calculator settings group.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculator'**
+  String get settingsCalculatorSection;
+
+  /// Heading of the history settings group.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get settingsHistorySection;
+
+  /// Heading of the accessibility settings group.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessibility'**
+  String get settingsAccessibilitySection;
+
+  /// Heading of the About group at the end of Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get settingsAboutSection;
+
+  /// Label of the setting that chooses which calculator mode the app opens in.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens in'**
+  String get settingsDefaultModeLabel;
+
+  /// Explains the default mode setting.
+  ///
+  /// In en, this message translates to:
+  /// **'The mode shown when the app starts. Changing it does not switch the mode you are using now.'**
+  String get settingsDefaultModeHint;
+
+  /// Title of the sheet where the starting mode is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the app in'**
+  String get settingsDefaultModeSheetTitle;
+
+  /// Label of the setting that chooses degrees or radians for trigonometry.
+  ///
+  /// In en, this message translates to:
+  /// **'Angle unit'**
+  String get settingsAngleModeLabel;
+
+  /// Option: trigonometric functions work in degrees.
+  ///
+  /// In en, this message translates to:
+  /// **'Degrees'**
+  String get settingsAngleDegrees;
+
+  /// Option: trigonometric functions work in radians.
+  ///
+  /// In en, this message translates to:
+  /// **'Radians'**
+  String get settingsAngleRadians;
+
+  /// Explains the angle unit setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Used by sin, cos, tan and their inverses in Scientific mode.'**
+  String get settingsAngleModeHint;
+
+  /// Label of the setting that rounds calculator results to a number of places after the point.
+  ///
+  /// In en, this message translates to:
+  /// **'Decimal places'**
+  String get settingsDecimalPlacesLabel;
+
+  /// Option: results are not rounded further (up to 12 significant digits).
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get settingsDecimalPlacesAuto;
+
+  /// Explains the decimal places setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounds the fraction of results in Basic and Scientific mode. Whole numbers never change. Auto shows up to 12 significant digits.'**
+  String get settingsDecimalPlacesHint;
+
+  /// Label of the switch for the vibration tick when pressing keys.
+  ///
+  /// In en, this message translates to:
+  /// **'Haptic feedback'**
+  String get settingsHapticsLabel;
+
+  /// Explains the haptic feedback switch.
+  ///
+  /// In en, this message translates to:
+  /// **'A short tick when you press a key.'**
+  String get settingsHapticsHint;
+
+  /// Label of the switch for the click sound of calculator keys.
+  ///
+  /// In en, this message translates to:
+  /// **'Key sounds'**
+  String get settingsKeySoundLabel;
+
+  /// Explains the key sounds switch.
+  ///
+  /// In en, this message translates to:
+  /// **'The click when you press a calculator key. It also follows your device\'s touch-sounds setting.'**
+  String get settingsKeySoundHint;
+
+  /// Label of the switch that turns saving new calculations to the history on or off.
+  ///
+  /// In en, this message translates to:
+  /// **'Save history'**
+  String get settingsHistoryEnabledLabel;
+
+  /// Explains the save history switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Add each result to the history. Turning it off keeps the entries you already have.'**
+  String get settingsHistoryEnabledHint;
+
+  /// Label of the setting that limits how many history entries are kept.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the latest'**
+  String get settingsHistoryLimitLabel;
+
+  /// Option: keep every history entry.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get settingsHistoryLimitAll;
+
+  /// Explains the history limit setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Older entries are deleted automatically. Saved calculations are not affected.'**
+  String get settingsHistoryLimitHint;
+
+  /// Title of the confirmation shown when lowering the history limit would delete entries.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete older history?'**
+  String get settingsHistoryLimitConfirmTitle;
+
+  /// Explains what lowering the history limit deletes.
+  ///
+  /// In en, this message translates to:
+  /// **'This keeps your latest {count} calculations and deletes the {removed} older ones. This can\'t be undone.'**
+  String settingsHistoryLimitConfirmMessage(int count, int removed);
+
+  /// Button that confirms deleting the history entries beyond the new limit.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete older'**
+  String get settingsHistoryLimitConfirmAction;
+
+  /// Label of the button that deletes the whole history.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear history'**
+  String get settingsClearHistoryLabel;
+
+  /// Explains the clear history button.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletes every calculation in the history. Saved calculations are kept.'**
+  String get settingsClearHistoryHint;
+
+  /// Confirmation shown after the history was cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'History cleared'**
+  String get settingsHistoryCleared;
+
+  /// Label of the setting that makes text larger than the device's text size.
+  ///
+  /// In en, this message translates to:
+  /// **'Text size'**
+  String get settingsTextSizeLabel;
+
+  /// Explains the in-app text size setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Makes text larger than your device\'s text size. A larger device size is never reduced.'**
+  String get settingsTextSizeHint;
+
+  /// Label of the switch that makes buttons and fixed-height rows larger.
+  ///
+  /// In en, this message translates to:
+  /// **'Larger controls'**
+  String get settingsLargerControlsLabel;
+
+  /// Explains the larger controls switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Makes buttons and fixed-height rows 25% larger. The Basic and Scientific key grids already fill the screen, so they do not change.'**
+  String get settingsLargerControlsHint;
+
+  /// Label of the switch that forces the high-contrast colours.
+  ///
+  /// In en, this message translates to:
+  /// **'High contrast'**
+  String get settingsHighContrastLabel;
+
+  /// Explains the high contrast switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Stronger colours and outlines. Your device\'s own high-contrast setting also applies.'**
+  String get settingsHighContrastHint;
+
+  /// Label of the app version row in About.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get settingsVersionLabel;
+
+  /// What a screen reader announces for the app version row.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String settingsVersionSemantics(String version);
+
+  /// Label of the row that opens the list of licences of the software and fonts the app uses.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source licences'**
+  String get settingsLicensesLabel;
+
+  /// Heading of the privacy summary in About.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get settingsPrivacyTitle;
+
+  /// First paragraph of the privacy summary: the app has no network access.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Calculator does not use the internet. The Android release build declares no internet permission, so the app itself cannot send your data anywhere.'**
+  String get settingsPrivacyInternet;
+
+  /// Second paragraph of the privacy summary: what is stored and where.
+  ///
+  /// In en, this message translates to:
+  /// **'Your history, saved calculations, calculator memory and settings are stored on this device only. Currency rates are never downloaded: they start from built-in sample values that you can edit.'**
+  String get settingsPrivacyStorage;
+
+  /// Third paragraph of the privacy summary: removal, and the device backup caveat.
+  ///
+  /// In en, this message translates to:
+  /// **'Clearing the history or uninstalling the app removes this data from the app. Your device\'s own backup may keep a copy, depending on its settings.'**
+  String get settingsPrivacyRemoval;
+
+  /// Closing line of the privacy summary stating that it is not a legal policy.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a summary of how the app works, not a legal privacy policy.'**
+  String get settingsPrivacyNotPolicy;
 }
 
 class _AppLocalizationsDelegate

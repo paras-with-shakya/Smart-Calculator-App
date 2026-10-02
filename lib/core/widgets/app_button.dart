@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_calculator/app/theme/app_colors.dart';
+import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 
 /// How prominent an [AppButton] is.
@@ -100,22 +101,37 @@ class AppButton extends StatelessWidget {
       ],
     );
 
+    // "Larger controls" in Settings: a taller minimum (null: the theme's).
+    final size = AppSizing.of(context) == 1
+        ? null
+        : ButtonStyle(
+            minimumSize: WidgetStatePropertyAll(
+              Size.square(AppSizing.minTarget(context)),
+            ),
+          );
+
     final button = switch (variant) {
       AppButtonVariant.primary => FilledButton(
         onPressed: onPressed,
+        style: size,
         child: content,
       ),
       AppButtonVariant.secondary => FilledButton.tonal(
         onPressed: onPressed,
+        style: size,
         child: content,
       ),
-      AppButtonVariant.text => TextButton(onPressed: onPressed, child: content),
+      AppButtonVariant.text => TextButton(
+        onPressed: onPressed,
+        style: size,
+        child: content,
+      ),
       AppButtonVariant.destructive => FilledButton(
         onPressed: onPressed,
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.of(context).error,
           foregroundColor: AppColors.of(context).onError,
-        ),
+        ).merge(size),
         child: content,
       ),
     };

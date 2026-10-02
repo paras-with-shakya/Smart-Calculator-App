@@ -1368,5 +1368,204 @@
         "format": "decimalPattern"
       }
     }
+  },
+  "historyOffTitle": "History is off",
+  "@historyOffTitle": {
+    "description": "Title of the empty History screen while saving history is turned off in Settings."
+  },
+  "historyOffMessage": "New calculations are not being saved. You can turn history on in Settings.",
+  "@historyOffMessage": {
+    "description": "Explains the empty History screen while saving history is turned off in Settings."
+  },
+  "historyOffBanner": "History is off: new calculations are not being saved.",
+  "@historyOffBanner": {
+    "description": "A one-line note above the list of history entries while saving history is turned off in Settings."
+  },
+  "settingsCalculatorSection": "Calculator",
+  "@settingsCalculatorSection": {
+    "description": "Heading of the calculator settings group."
+  },
+  "settingsHistorySection": "History",
+  "@settingsHistorySection": {
+    "description": "Heading of the history settings group."
+  },
+  "settingsAccessibilitySection": "Accessibility",
+  "@settingsAccessibilitySection": {
+    "description": "Heading of the accessibility settings group."
+  },
+  "settingsAboutSection": "About",
+  "@settingsAboutSection": {
+    "description": "Heading of the About group at the end of Settings."
+  },
+  "settingsDefaultModeLabel": "Opens in",
+  "@settingsDefaultModeLabel": {
+    "description": "Label of the setting that chooses which calculator mode the app opens in."
+  },
+  "settingsDefaultModeHint": "The mode shown when the app starts. Changing it does not switch the mode you are using now.",
+  "@settingsDefaultModeHint": {
+    "description": "Explains the default mode setting."
+  },
+  "settingsDefaultModeSheetTitle": "Open the app in",
+  "@settingsDefaultModeSheetTitle": {
+    "description": "Title of the sheet where the starting mode is chosen."
+  },
+  "settingsAngleModeLabel": "Angle unit",
+  "@settingsAngleModeLabel": {
+    "description": "Label of the setting that chooses degrees or radians for trigonometry."
+  },
+  "settingsAngleDegrees": "Degrees",
+  "@settingsAngleDegrees": {
+    "description": "Option: trigonometric functions work in degrees."
+  },
+  "settingsAngleRadians": "Radians",
+  "@settingsAngleRadians": {
+    "description": "Option: trigonometric functions work in radians."
+  },
+  "settingsAngleModeHint": "Used by sin, cos, tan and their inverses in Scientific mode.",
+  "@settingsAngleModeHint": {
+    "description": "Explains the angle unit setting."
+  },
+  "settingsDecimalPlacesLabel": "Decimal places",
+  "@settingsDecimalPlacesLabel": {
+    "description": "Label of the setting that rounds calculator results to a number of places after the point."
+  },
+  "settingsDecimalPlacesAuto": "Auto",
+  "@settingsDecimalPlacesAuto": {
+    "description": "Option: results are not rounded further (up to 12 significant digits)."
+  },
+  "settingsDecimalPlacesHint": "Rounds the fraction of results in Basic and Scientific mode. Whole numbers never change. Auto shows up to 12 significant digits.",
+  "@settingsDecimalPlacesHint": {
+    "description": "Explains the decimal places setting."
+  },
+  "settingsHapticsLabel": "Haptic feedback",
+  "@settingsHapticsLabel": {
+    "description": "Label of the switch for the vibration tick when pressing keys."
+  },
+  "settingsHapticsHint": "A short tick when you press a key.",
+  "@settingsHapticsHint": {
+    "description": "Explains the haptic feedback switch."
+  },
+  "settingsKeySoundLabel": "Key sounds",
+  "@settingsKeySoundLabel": {
+    "description": "Label of the switch for the click sound of calculator keys."
+  },
+  "settingsKeySoundHint": "The click when you press a calculator key. It also follows your device's touch-sounds setting.",
+  "@settingsKeySoundHint": {
+    "description": "Explains the key sounds switch."
+  },
+  "settingsHistoryEnabledLabel": "Save history",
+  "@settingsHistoryEnabledLabel": {
+    "description": "Label of the switch that turns saving new calculations to the history on or off."
+  },
+  "settingsHistoryEnabledHint": "Add each result to the history. Turning it off keeps the entries you already have.",
+  "@settingsHistoryEnabledHint": {
+    "description": "Explains the save history switch."
+  },
+  "settingsHistoryLimitLabel": "Keep the latest",
+  "@settingsHistoryLimitLabel": {
+    "description": "Label of the setting that limits how many history entries are kept."
+  },
+  "settingsHistoryLimitAll": "All",
+  "@settingsHistoryLimitAll": {
+    "description": "Option: keep every history entry."
+  },
+  "settingsHistoryLimitHint": "Older entries are deleted automatically. Saved calculations are not affected.",
+  "@settingsHistoryLimitHint": {
+    "description": "Explains the history limit setting."
+  },
+  "settingsHistoryLimitConfirmTitle": "Delete older history?",
+  "@settingsHistoryLimitConfirmTitle": {
+    "description": "Title of the confirmation shown when lowering the history limit would delete entries."
+  },
+  "settingsHistoryLimitConfirmMessage": "This keeps your latest {count} calculations and deletes the {removed} older ones. This can't be undone.",
+  "@settingsHistoryLimitConfirmMessage": {
+    "description": "Explains what lowering the history limit deletes.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "removed": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "settingsHistoryLimitConfirmAction": "Delete older",
+  "@settingsHistoryLimitConfirmAction": {
+    "description": "Button that confirms deleting the history entries beyond the new limit."
+  },
+  "settingsClearHistoryLabel": "Clear history",
+  "@settingsClearHistoryLabel": {
+    "description": "Label of the button that deletes the whole history."
+  },
+  "settingsClearHistoryHint": "Deletes every calculation in the history. Saved calculations are kept.",
+  "@settingsClearHistoryHint": {
+    "description": "Explains the clear history button."
+  },
+  "settingsHistoryCleared": "History cleared",
+  "@settingsHistoryCleared": {
+    "description": "Confirmation shown after the history was cleared."
+  },
+  "settingsTextSizeLabel": "Text size",
+  "@settingsTextSizeLabel": {
+    "description": "Label of the setting that makes text larger than the device's text size."
+  },
+  "settingsTextSizeHint": "Makes text larger than your device's text size. A larger device size is never reduced.",
+  "@settingsTextSizeHint": {
+    "description": "Explains the in-app text size setting."
+  },
+  "settingsLargerControlsLabel": "Larger controls",
+  "@settingsLargerControlsLabel": {
+    "description": "Label of the switch that makes buttons and fixed-height rows larger."
+  },
+  "settingsLargerControlsHint": "Makes buttons and fixed-height rows 25% larger. The Basic and Scientific key grids already fill the screen, so they do not change.",
+  "@settingsLargerControlsHint": {
+    "description": "Explains the larger controls switch."
+  },
+  "settingsHighContrastLabel": "High contrast",
+  "@settingsHighContrastLabel": {
+    "description": "Label of the switch that forces the high-contrast colours."
+  },
+  "settingsHighContrastHint": "Stronger colours and outlines. Your device's own high-contrast setting also applies.",
+  "@settingsHighContrastHint": {
+    "description": "Explains the high contrast switch."
+  },
+  "settingsVersionLabel": "Version",
+  "@settingsVersionLabel": {
+    "description": "Label of the app version row in About."
+  },
+  "settingsVersionSemantics": "Version {version}",
+  "@settingsVersionSemantics": {
+    "description": "What a screen reader announces for the app version row.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLicensesLabel": "Open-source licences",
+  "@settingsLicensesLabel": {
+    "description": "Label of the row that opens the list of licences of the software and fonts the app uses."
+  },
+  "settingsPrivacyTitle": "Privacy",
+  "@settingsPrivacyTitle": {
+    "description": "Heading of the privacy summary in About."
+  },
+  "settingsPrivacyInternet": "Smart Calculator does not use the internet. The Android release build declares no internet permission, so the app itself cannot send your data anywhere.",
+  "@settingsPrivacyInternet": {
+    "description": "First paragraph of the privacy summary: the app has no network access."
+  },
+  "settingsPrivacyStorage": "Your history, saved calculations, calculator memory and settings are stored on this device only. Currency rates are never downloaded: they start from built-in sample values that you can edit.",
+  "@settingsPrivacyStorage": {
+    "description": "Second paragraph of the privacy summary: what is stored and where."
+  },
+  "settingsPrivacyRemoval": "Clearing the history or uninstalling the app removes this data from the app. Your device's own backup may keep a copy, depending on its settings.",
+  "@settingsPrivacyRemoval": {
+    "description": "Third paragraph of the privacy summary: removal, and the device backup caveat."
+  },
+  "settingsPrivacyNotPolicy": "This is a summary of how the app works, not a legal privacy policy.",
+  "@settingsPrivacyNotPolicy": {
+    "description": "Closing line of the privacy summary stating that it is not a legal policy."
   }
 }

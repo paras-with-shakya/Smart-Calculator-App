@@ -1,11 +1,13 @@
 import 'package:calc_engine/calc_engine.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smart_calculator/app/modes/calculator_mode.dart';
 import 'package:smart_calculator/core/persistence/preference_keys.dart';
 import 'package:smart_calculator/core/persistence/preferences.dart';
 import 'package:smart_calculator/features/converter/domain/conversion_category.dart';
 import 'package:smart_calculator/features/converter/domain/conversion_tables.dart';
 import 'package:smart_calculator/features/financial/domain/financial_tool.dart';
+import 'package:smart_calculator/features/settings/domain/app_settings.dart';
 import 'package:smart_calculator/features/settings/domain/settings_repository.dart';
 import 'package:smart_calculator/features/settings/domain/theme_preference.dart';
 
@@ -26,9 +28,23 @@ final class PreferencesSettingsRepository implements SettingsRepository {
 
   final SharedPreferencesWithCache _preferences;
 
+  /// The stored string for [key], or null if it is missing or not a string.
+  /// `SharedPreferencesWithCache.getString` would throw on a value of another
+  /// type; a damaged preferences file must never stop the app.
+  String? _string(String key) {
+    final value = _preferences.get(key);
+    return value is String ? value : null;
+  }
+
+  /// The stored bool for [key], or [fallback] if missing or not a bool.
+  bool _bool(String key, {required bool fallback}) {
+    final value = _preferences.get(key);
+    return value is bool ? value : fallback;
+  }
+
   @override
   ThemePreference get themePreference {
-    final stored = _preferences.getString(PreferenceKeys.themePreference);
+    final stored = _string(PreferenceKeys.themePreference);
     return ThemePreference.values.firstWhere(
       (preference) => _storedValue(preference) == stored,
       orElse: () => ThemePreference.system,
@@ -40,8 +56,7 @@ final class PreferencesSettingsRepository implements SettingsRepository {
       .setString(PreferenceKeys.themePreference, _storedValue(preference));
 
   @override
-  AngleMode get angleMode =>
-      _preferences.getString(PreferenceKeys.angleMode) == 'radians'
+  AngleMode get angleMode => _string(PreferenceKeys.angleMode) == 'radians'
       ? AngleMode.radians
       : AngleMode.degrees;
 
@@ -54,7 +69,7 @@ final class PreferencesSettingsRepository implements SettingsRepository {
 
   @override
   ConversionCategoryId? get lastConverterCategory {
-    final stored = _preferences.getString(PreferenceKeys.converterLastCategory);
+    final stored = _string(PreferenceKeys.converterLastCategory);
     for (final category in ConversionCategoryId.values) {
       if (_categoryStoredValue(category) == stored) return category;
     }
@@ -70,8 +85,8 @@ final class PreferencesSettingsRepository implements SettingsRepository {
 
   @override
   (String from, String to)? get lastConverterUnits {
-    final from = _preferences.getString(PreferenceKeys.converterLastFromUnit);
-    final to = _preferences.getString(PreferenceKeys.converterLastToUnit);
+    final from = _string(PreferenceKeys.converterLastFromUnit);
+    final to = _string(PreferenceKeys.converterLastToUnit);
     return from == null || to == null ? null : (from, to);
   }
 
@@ -84,7 +99,7 @@ final class PreferencesSettingsRepository implements SettingsRepository {
   @override
   double currencyRate(String currencyId) {
     final key = _currencyRateKey(currencyId);
-    final stored = key == null ? null : _preferences.getString(key);
+    final stored = key == null ? null : _string(key);
     return stored == null
         ? defaultCurrencyRatesPerUsd[currencyId]!
         : double.parse(stored);
@@ -119,7 +134,7 @@ final class PreferencesSettingsRepository implements SettingsRepository {
 
   @override
   FinancialToolId? get lastFinancialTool {
-    final stored = _preferences.getString(PreferenceKeys.financialLastTool);
+    final stored = _string(PreferenceKeys.financialLastTool);
     for (final tool in FinancialToolId.values) {
       if (_toolStoredValue(tool) == stored) return tool;
     }
@@ -138,6 +153,126 @@ final class PreferencesSettingsRepository implements SettingsRepository {
     FinancialToolId.discount => 'discount',
     FinancialToolId.tip => 'tip',
     FinancialToolId.percentage => 'percentage',
+  };
+
+  @override
+  AppSettings get appSettings {
+    const defaults = AppSettings();
+    return AppSettings(
+      defaultMode: switch (_string(PreferenceKeys.defaultMode)) {
+        final String id => CalculatorModeStorage.fromStorageId(id),
+        null => defaults.defaultMode,
+      },
+      haptics: _bool(PreferenceKeys.haptics, fallback: defaults.haptics),
+      keySound: _bool(PreferenceKeys.keySound, fallback: defaults.keySound),
+      decimalPlaces: _fromStored(
+        DecimalPlaces.values,
+        _decimalPlacesStoredValue,
+        _string(PreferenceKeys.decimalPlaces),
+        defaults.decimalPlaces,
+      ),
+      historyEnabled: _bool(
+        PreferenceKeys.historyEnabled,
+        fallback: defaults.historyEnabled,
+      ),
+      historyLimit: _fromStored(
+        HistoryLimit.values,
+        _historyLimitStoredValue,
+        _string(PreferenceKeys.historyLimit),
+        defaults.historyLimit,
+      ),
+      textSize: _fromStored(
+        TextSize.values,
+        _textSizeStoredValue,
+        _string(PreferenceKeys.textSize),
+        defaults.textSize,
+      ),
+      largerControls: _bool(
+        PreferenceKeys.largerControls,
+        fallback: defaults.largerControls,
+      ),
+      highContrast: _bool(
+        PreferenceKeys.highContrast,
+        fallback: defaults.highContrast,
+      ),
+    );
+  }
+
+  @override
+  Future<void> setDefaultMode(CalculatorMode mode) =>
+      _preferences.setString(PreferenceKeys.defaultMode, mode.storageId);
+
+  @override
+  Future<void> setHaptics({required bool enabled}) =>
+      _preferences.setBool(PreferenceKeys.haptics, enabled);
+
+  @override
+  Future<void> setKeySound({required bool enabled}) =>
+      _preferences.setBool(PreferenceKeys.keySound, enabled);
+
+  @override
+  Future<void> setDecimalPlaces(DecimalPlaces places) => _preferences.setString(
+    PreferenceKeys.decimalPlaces,
+    _decimalPlacesStoredValue(places),
+  );
+
+  @override
+  Future<void> setHistoryEnabled({required bool enabled}) =>
+      _preferences.setBool(PreferenceKeys.historyEnabled, enabled);
+
+  @override
+  Future<void> setHistoryLimit(HistoryLimit limit) => _preferences.setString(
+    PreferenceKeys.historyLimit,
+    _historyLimitStoredValue(limit),
+  );
+
+  @override
+  Future<void> setTextSize(TextSize size) => _preferences.setString(
+    PreferenceKeys.textSize,
+    _textSizeStoredValue(size),
+  );
+
+  @override
+  Future<void> setLargerControls({required bool enabled}) =>
+      _preferences.setBool(PreferenceKeys.largerControls, enabled);
+
+  @override
+  Future<void> setHighContrast({required bool enabled}) =>
+      _preferences.setBool(PreferenceKeys.highContrast, enabled);
+
+  /// The value of [values] whose stored form is [stored], or [fallback].
+  static T _fromStored<T>(
+    List<T> values,
+    String Function(T) storedValue,
+    String? stored,
+    T fallback,
+  ) {
+    for (final value in values) {
+      if (storedValue(value) == stored) return value;
+    }
+    return fallback;
+  }
+
+  static String _decimalPlacesStoredValue(DecimalPlaces places) =>
+      switch (places) {
+        DecimalPlaces.auto => 'auto',
+        DecimalPlaces.two => '2',
+        DecimalPlaces.four => '4',
+        DecimalPlaces.six => '6',
+        DecimalPlaces.eight => '8',
+      };
+
+  static String _historyLimitStoredValue(HistoryLimit limit) => switch (limit) {
+    HistoryLimit.fifty => '50',
+    HistoryLimit.hundred => '100',
+    HistoryLimit.fiveHundred => '500',
+    HistoryLimit.unlimited => 'unlimited',
+  };
+
+  static String _textSizeStoredValue(TextSize size) => switch (size) {
+    TextSize.normal => '100',
+    TextSize.large => '115',
+    TextSize.larger => '130',
   };
 
   static String _storedValue(ThemePreference preference) =>

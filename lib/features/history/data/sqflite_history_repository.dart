@@ -75,6 +75,20 @@ final class SqfliteHistoryRepository implements HistoryRepository {
     await db.delete(_table);
   }
 
+  @override
+  Future<void> trimTo(int keep) async {
+    assert(keep >= 1, 'keep at least one entry');
+    final db = await _database();
+    // The same order as list(), so the entries kept are the ones shown first.
+    await db.delete(
+      _table,
+      where:
+          'id NOT IN (SELECT id FROM $_table '
+          'ORDER BY created_at DESC, id DESC LIMIT ?)',
+      whereArgs: [keep],
+    );
+  }
+
   static HistoryEntry _entryFrom(Map<String, Object?> row) => HistoryEntry(
     id: row['id']! as int,
     expression: row['expression']! as String,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 
 /// The app's top bar: a title, the back button when there is somewhere to go
@@ -33,13 +34,19 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
-  Widget build(BuildContext context) => AppBar(
-    title: title,
-    primary: primary,
-    automaticallyImplyLeading: automaticallyImplyLeading,
-    actions: [
-      ...actions,
-      const SizedBox(width: AppSpacing.xs),
-    ],
+  Widget build(BuildContext context) => AppSizing(
+    // The bar is a fixed [kToolbarHeight] tall, so its controls keep their
+    // normal size when "Larger controls" is on: a 60 dp button would be
+    // clipped by it.
+    controlScale: 1,
+    child: AppBar(
+      title: title,
+      primary: primary,
+      automaticallyImplyLeading: automaticallyImplyLeading,
+      actions: [
+        ...actions,
+        const SizedBox(width: AppSpacing.xs),
+      ],
+    ),
   );
 }

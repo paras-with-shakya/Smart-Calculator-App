@@ -17,17 +17,38 @@ class HistoryNotifier extends AsyncNotifier<List<HistoryEntry>> {
       ref.watch(historyRepositoryProvider).list();
 
   /// Adds an entry for `expression` = `result` in `mode`, timestamped now.
+  ///
+  /// With [keepLast], the entries beyond that many newest ones are deleted
+  /// right after (the history's retention limit).
   Future<void> add({
     required String expression,
     required CalcValue result,
     required CalculatorMode mode,
+    int? keepLast,
   }) async {
-    final entry = await ref
-        .read(historyRepositoryProvider)
-        .add(expression: expression, result: result, mode: mode);
+    final repository = ref.read(historyRepositoryProvider);
+    final entry = await repository.add(
+      expression: expression,
+      result: result,
+      mode: mode,
+    );
     if (!ref.mounted) return;
+    if (keepLast != null) {
+      await repository.trimTo(keepLast);
+      if (!ref.mounted) return;
+      state = AsyncData(await repository.list());
+      return;
+    }
     final current = state.value ?? const [];
     state = AsyncData([entry, ...current]);
+  }
+
+  /// Deletes every entry but the [keep] newest, and shows what is left.
+  Future<void> trimTo(int keep) async {
+    final repository = ref.read(historyRepositoryProvider);
+    await repository.trimTo(keep);
+    if (!ref.mounted) return;
+    state = AsyncData(await repository.list());
   }
 
   /// Removes the entry with `id`.
