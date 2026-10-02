@@ -20,7 +20,7 @@ Phase 7  Financial ....................... COMPLETED 2026-10-01, phone-tested
 Phase 8  Date calculator ................. COMPLETED 2026-10-01, phone-tested
 Phase 9  Programmer calculator ........... COMPLETED 2026-10-01, phone-tested
 Phase 10 Settings screen ................. COMPLETED 2026-10-02, phone-tested
-Phase 11 Polish .......................... planned
+Phase 11 Polish .......................... BUILT 2026-10-02, awaiting the user's review
 Phase 12 QA .............................. planned
 ```
 
@@ -238,6 +238,7 @@ Seven independent calculators — EMI, simple interest, compound interest, GST, 
 
 ### Phase 11: Polish
 
+- **Status (2026-10-02):** built and tested (DEC-056; 1808 app + 459 engine tests, 126 design-review tests), phone-tested in part, waiting for the user's review. The §29 checklist walk is in DEVELOPMENT_STATUS.md ("Phase 11: Polish"). Tablet redesigns, one key shape and equal-height financial tiles were deferred by the user (Known Issues #22).
 - App icon, splash screen, motion, and screen-reader passes.
 - Tablet and dark-mode passes.
 - **Done when:** the master prompt's §29 UI checklist passes:
@@ -277,4 +278,4 @@ These need a phase assignment from the user:
 | Android predictive back gesture | The final report said it would be enabled, but it isn't in any phase's scope |
 | Release signing configuration | The template signs release builds with the debug key; this must be fixed before any release build is distributed |
 | Persisting the last-used mode | In the persistence plan, but not in the Phase 1 scope (DEC-021). Relates to the Phase 10 "default mode" setting. |
-| Project `README.md` | Still the `flutter create` template text |
+| ~~Project `README.md`~~ | **Done in Phase 11:** what the app is, its features, privacy, platforms, how to build and test, and how it is built |

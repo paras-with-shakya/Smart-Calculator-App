@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/formatting/number_format_provider.dart';
-import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_choice_group.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
 import 'package:smart_calculator/core/widgets/result_row.dart';
@@ -110,78 +109,67 @@ class _EmiToolViewState extends ConsumerState<EmiToolView> {
                     ),
             ),
             const SizedBox(height: AppSpacing.md),
-            Row(
-              crossAxisAlignment: .start,
-              children: [
-                Expanded(
-                  child: AppTextField(
-                    label: l10n.financialEmiTenureLabel,
-                    controller: _tenure,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
+            // The unit choice gets a row of its own: beside the field it had
+            // a fixed width that did not follow the text size (Phase 11).
+            AppTextField(
+              label: l10n.financialEmiTenureLabel,
+              controller: _tenure,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: _decimalFormatters,
+              errorText: tenureText.isEmpty
+                  ? null
+                  : fieldErrorMessage(
+                      l10n,
+                      errors.tenureMonths,
+                      max: maxEmiTenureMonths,
                     ),
-                    inputFormatters: _decimalFormatters,
-                    errorText: tenureText.isEmpty
-                        ? null
-                        : fieldErrorMessage(
-                            l10n,
-                            errors.tenureMonths,
-                            max: maxEmiTenureMonths,
-                          ),
-                  ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            AppChoiceGroup<TenureUnit>(
+              options: [
+                AppChoice(
+                  value: TenureUnit.years,
+                  label: l10n.financialTenureUnitYears,
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                SizedBox(
-                  width: 168,
-                  child: AppChoiceGroup<TenureUnit>(
-                    options: [
-                      AppChoice(
-                        value: TenureUnit.years,
-                        label: l10n.financialTenureUnitYears,
-                      ),
-                      AppChoice(
-                        value: TenureUnit.months,
-                        label: l10n.financialTenureUnitMonths,
-                      ),
-                    ],
-                    selected: _tenureUnit,
-                    onChanged: (unit) => setState(() => _tenureUnit = unit),
-                  ),
+                AppChoice(
+                  value: TenureUnit.months,
+                  label: l10n.financialTenureUnitMonths,
                 ),
               ],
+              selected: _tenureUnit,
+              onChanged: (unit) => setState(() => _tenureUnit = unit),
             ),
             const SizedBox(height: AppSpacing.lg),
             if (result == null)
               const FinancialResultPlaceholder()
             else
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: .stretch,
-                  children: [
-                    ResultRow(
-                      label: l10n.financialEmiMonthlyLabel,
-                      value: formatMoney(format, result.monthlyEmi),
-                      emphasized: true,
-                    ),
-                    ResultRow(
-                      label: l10n.financialEmiTotalInterestLabel,
-                      value: formatMoney(format, result.totalInterest),
-                    ),
-                    ResultRow(
-                      label: l10n.financialEmiTotalPaymentLabel,
-                      value: formatMoney(format, result.totalPayment),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    ShareOfWholeBar(
-                      baseLabel: l10n.financialEmiChartPrincipalLabel,
-                      baseValue: principal,
-                      baseValueText: formatMoney(format, principal),
-                      addedLabel: l10n.financialEmiChartInterestLabel,
-                      addedValue: result.totalInterest,
-                      addedValueText: formatMoney(format, result.totalInterest),
-                    ),
-                  ],
-                ),
+              ResultCard(
+                children: [
+                  ResultRow(
+                    label: l10n.financialEmiMonthlyLabel,
+                    value: formatMoney(format, result.monthlyEmi),
+                    emphasized: true,
+                  ),
+                  ResultRow(
+                    label: l10n.financialEmiTotalInterestLabel,
+                    value: formatMoney(format, result.totalInterest),
+                  ),
+                  ResultRow(
+                    label: l10n.financialEmiTotalPaymentLabel,
+                    value: formatMoney(format, result.totalPayment),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  ShareOfWholeBar(
+                    baseLabel: l10n.financialEmiChartPrincipalLabel,
+                    baseValue: principal,
+                    baseValueText: formatMoney(format, principal),
+                    addedLabel: l10n.financialEmiChartInterestLabel,
+                    addedValue: result.totalInterest,
+                    addedValueText: formatMoney(format, result.totalInterest),
+                  ),
+                ],
               ),
           ],
         );

@@ -1,7 +1,10 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
+import 'package:smart_calculator/core/layout/layout_limits.dart';
 import 'package:smart_calculator/core/widgets/app_icon_button.dart';
 import 'package:smart_calculator/features/converter/application/converter_notifier.dart';
 import 'package:smart_calculator/features/converter/presentation/category_picker.dart';
@@ -13,10 +16,10 @@ import 'package:smart_calculator/l10n/app_localizations.dart';
 /// The unit converter: category picker, From/To cards with a swap button,
 /// and a compact numeric keypad.
 ///
-/// **Portrait:** everything in one scrollable column, so nothing overflows
-/// at large text sizes — there's no fixed-grid touch-target math to protect
-/// here the way the calculator's square keypad needs, so a plain scroll is
-/// the simplest safe layout.
+/// **Portrait:** one column. With the category picker a single row of chips
+/// (Phase 11), the cards and the whole keypad fit a 360 × 800 dp phone
+/// without scrolling; at larger text sizes the column scrolls, so nothing
+/// overflows.
 /// **Landscape:** the category picker and cards on the left, the keypad on
 /// the right, so a short landscape phone doesn't have to squeeze both into
 /// one column.
@@ -25,7 +28,7 @@ class ConverterView extends StatelessWidget {
   const ConverterView({super.key});
 
   /// The widest the content column gets.
-  static const double maxContentWidth = 480;
+  static const double maxContentWidth = LayoutLimits.maxContentWidth;
 
   /// The share of the width the landscape keypad takes.
   static const double landscapeKeypadWidthFraction = 0.5;
@@ -76,7 +79,10 @@ class ConverterView extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.lg),
             SizedBox(
-              width: constraints.maxWidth * landscapeKeypadWidthFraction,
+              width: math.min(
+                constraints.maxWidth * landscapeKeypadWidthFraction,
+                LayoutLimits.maxContentWidth,
+              ),
               height: keypadHeight,
               child: const ConverterKeypad(),
             ),
@@ -110,7 +116,7 @@ class _AmountCards extends ConsumerWidget {
         const ConverterCard(role: ConverterCardRole.from),
         const SizedBox(height: AppSpacing.sm),
         AppIconButton(
-          icon: Icons.swap_horiz,
+          icon: Icons.swap_horiz_outlined,
           tooltip: l10n.converterSwapTooltip,
           variant: AppIconButtonVariant.tonal,
           onPressed: () {

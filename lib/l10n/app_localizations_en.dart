@@ -53,6 +53,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historySearchEmptyMessage => 'No matching calculations.';
 
   @override
+  String get historyLoadErrorTitle => 'Couldn\'t load your history';
+
+  @override
+  String get savedLoadErrorTitle => 'Couldn\'t load your saved calculations';
+
+  @override
+  String get loadErrorMessage =>
+      'Something went wrong while reading it from this device. Try again, or restart the app.';
+
+  @override
+  String get loadRetryAction => 'Try again';
+
+  @override
+  String get loadingMessage => 'Loading…';
+
+  @override
   String get historyClearAllTooltip => 'Clear all history';
 
   @override
@@ -207,6 +223,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get keyBackspaceLabel => 'Backspace';
+
+  @override
+  String get keyBackspaceLongPressHint => 'clear everything';
 
   @override
   String get memoryClear => 'MC';
@@ -1208,4 +1227,378 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsPrivacyNotPolicy =>
       'This is a summary of how the app works, not a legal privacy policy.';
+
+  @override
+  String converterUnitSpokenM(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount metres',
+      one: '$amount metre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenKm(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount kilometres',
+      one: '$amount kilometre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenCm(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount centimetres',
+      one: '$amount centimetre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenMm(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount millimetres',
+      one: '$amount millimetre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenMile(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount miles',
+      one: '$amount mile',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenYard(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount yards',
+      one: '$amount yard',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenFoot(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount feet',
+      one: '$amount foot',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenInch(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount inches',
+      one: '$amount inch',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenKg(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount kilograms',
+      one: '$amount kilogram',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenG(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount grams',
+      one: '$amount gram',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenMg(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount milligrams',
+      one: '$amount milligram',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenLb(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount pounds',
+      one: '$amount pound',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenOz(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount ounces',
+      one: '$amount ounce',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenCelsius(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount degrees Celsius',
+      one: '$amount degree Celsius',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenFahrenheit(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount degrees Fahrenheit',
+      one: '$amount degree Fahrenheit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenKelvin(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount kelvins',
+      one: '$amount kelvin',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenM2(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount square metres',
+      one: '$amount square metre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenKm2(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount square kilometres',
+      one: '$amount square kilometre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenFt2(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount square feet',
+      one: '$amount square foot',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenAcre(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount acres',
+      one: '$amount acre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenHectare(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount hectares',
+      one: '$amount hectare',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenL(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount litres',
+      one: '$amount litre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenMl(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount millilitres',
+      one: '$amount millilitre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenGallonUs(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount US gallons',
+      one: '$amount US gallon',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenM3(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount cubic metres',
+      one: '$amount cubic metre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenS(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount seconds',
+      one: '$amount second',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenMin(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount minutes',
+      one: '$amount minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenH(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount hours',
+      one: '$amount hour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenDay(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount days',
+      one: '$amount day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenWeek(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount weeks',
+      one: '$amount week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenUsd(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount US dollars',
+      one: '$amount US dollar',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenInr(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount Indian rupees',
+      one: '$amount Indian rupee',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenEur(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount euros',
+      one: '$amount euro',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String converterUnitSpokenGbp(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount British pounds',
+      one: '$amount British pound',
+    );
+    return '$_temp0';
+  }
 }

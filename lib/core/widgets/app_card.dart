@@ -35,12 +35,7 @@ class AppCard extends StatelessWidget {
     final foreground = selected
         ? colors.onPrimaryContainer
         : colors.textPrimary;
-    final shape = AppRadius.shape(
-      AppRadius.lg,
-      side: colors.contrastOutline.a > 0
-          ? BorderSide(color: colors.contrastOutline)
-          : BorderSide.none,
-    );
+    final shape = AppRadius.shape(AppRadius.lg, side: colors.contrastBorder);
 
     return Semantics(
       button: onTap != null,

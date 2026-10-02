@@ -4,12 +4,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_calculator/app/modes/calculator_mode.dart';
 import 'package:smart_calculator/app/modes/current_mode_notifier.dart';
 import 'package:smart_calculator/core/widgets/calculator_button.dart';
+import 'package:smart_calculator/core/widgets/display_text.dart';
 import 'package:smart_calculator/features/calculator/presentation/calculator_display.dart';
 import 'package:smart_calculator/features/calculator/presentation/calculator_keypad.dart';
 import 'package:smart_calculator/features/calculator/presentation/scientific_calculator_view.dart';
 import 'package:smart_calculator/features/calculator/presentation/scientific_function_tray.dart';
 
 import '../../../helpers/test_app.dart';
+import '../../../helpers/touch_targets.dart';
 
 /// The user's phone, 360 x 800 dp, in portrait and landscape.
 const Size phone = Size(360, 800);
@@ -19,27 +21,6 @@ Finder key(String semanticLabel) => find.byWidgetPredicate(
   (widget) =>
       widget is CalculatorButton && widget.semanticLabel == semanticLabel,
 );
-
-void expectTouchTargets(
-  WidgetTester tester, {
-  bool Function(CalculatorButton)? except,
-}) {
-  for (final element in find.byType(CalculatorButton).evaluate()) {
-    final widget = element.widget as CalculatorButton;
-    if (except != null && except(widget)) continue;
-    final size = (element.renderObject! as RenderBox).size;
-    expect(
-      size.height,
-      greaterThanOrEqualTo(kMinInteractiveDimension),
-      reason: widget.semanticLabel,
-    );
-    expect(
-      size.width,
-      greaterThanOrEqualTo(kMinInteractiveDimension),
-      reason: widget.semanticLabel,
-    );
-  }
-}
 
 void main() {
   setUp(useInMemoryPreferences);
@@ -134,6 +115,22 @@ void main() {
         } else {
           expectTouchTargets(tester);
         }
+
+        // The display scrolls, so a line taller than it would lose its top:
+        // the main line must fit (Phase 11; it was cut off on the phone
+        // portrait screen at 200%).
+        final viewport = tester.getRect(
+          find.descendant(
+            of: find.byType(CalculatorDisplay),
+            matching: find.byType(SingleChildScrollView),
+          ),
+        );
+        final mainLine = tester.getRect(
+          find.byWidgetPredicate(
+            (widget) => widget is DisplayText && widget.text == '0',
+          ),
+        );
+        expect(mainLine.top, greaterThanOrEqualTo(viewport.top - 0.5));
       });
     }
   });

@@ -51,6 +51,41 @@ void main() {
     expect(tester.getSize(find.byType(DisplayText)).height, closeTo(30, 1));
   });
 
+  group('maxLineHeight', () {
+    Future<void> pumpCapped(WidgetTester tester, double? maxLineHeight) =>
+        pumpThemed(
+          tester,
+          SizedBox(
+            width: 300,
+            child: DisplayText(
+              '12',
+              style: style,
+              color: color,
+              maxLineHeight: maxLineHeight,
+            ),
+          ),
+        );
+
+    testWidgets('shrinks a line that would be taller than it', (tester) async {
+      await pumpCapped(tester, 30);
+
+      expect(renderOf(tester).fontScale, closeTo(0.75, 0.01));
+      expect(tester.getSize(find.byType(DisplayText)).height, 30);
+    });
+
+    testWidgets('changes nothing when the line already fits', (tester) async {
+      await pumpCapped(tester, 80);
+
+      expect(renderOf(tester).fontScale, 1);
+    });
+
+    testWidgets('never shrinks below minScale', (tester) async {
+      await pumpCapped(tester, 4);
+
+      expect(renderOf(tester).fontScale, 0.5);
+    });
+  });
+
   testWidgets('beyond half size it wraps instead of shrinking further', (
     tester,
   ) async {

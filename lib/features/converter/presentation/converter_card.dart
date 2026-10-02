@@ -14,6 +14,7 @@ import 'package:smart_calculator/core/widgets/app_text_field.dart';
 import 'package:smart_calculator/features/converter/application/converter_notifier.dart';
 import 'package:smart_calculator/features/converter/domain/conversion_category.dart';
 import 'package:smart_calculator/features/converter/domain/number_entry_buffer.dart';
+import 'package:smart_calculator/features/converter/presentation/unit_names.dart';
 import 'package:smart_calculator/features/converter/presentation/unit_picker_sheet.dart';
 import 'package:smart_calculator/features/settings/application/key_feedback_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
@@ -49,6 +50,7 @@ class ConverterCard extends ConsumerWidget {
     final amountText = isFrom
         ? _formatAmount(format, state.amount)
         : _formatResult(format, state.result);
+    final amountValue = (isFrom ? state.amount.value : state.result) ?? 0;
     final showEditRate =
         state.category == ConversionCategoryId.currency && unitId != 'usd';
 
@@ -78,13 +80,25 @@ class ConverterCard extends ConsumerWidget {
                   style: AppTypography.of(context).caption,
                 ),
                 const SizedBox(height: AppSpacing.xs),
+                // Read as "80 metres": the symbol below is not spoken.
                 Text(
                   amountText,
+                  semanticsLabel: spokenAmount(
+                    l10n,
+                    unit,
+                    amountValue,
+                    amountText,
+                  ),
                   style: AppTypography.of(context).display,
                   overflow: .ellipsis,
                 ),
                 const SizedBox(height: AppSpacing.xs),
-                Text(unit.symbol, style: AppTypography.of(context).label),
+                ExcludeSemantics(
+                  child: Text(
+                    unit.symbol,
+                    style: AppTypography.of(context).label,
+                  ),
+                ),
               ],
             ),
           ),

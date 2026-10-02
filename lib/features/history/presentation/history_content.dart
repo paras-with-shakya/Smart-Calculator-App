@@ -7,6 +7,8 @@ import 'package:smart_calculator/app/theme/app_typography.dart';
 import 'package:smart_calculator/core/formatting/localized_number_format.dart';
 import 'package:smart_calculator/core/formatting/number_format_provider.dart';
 import 'package:smart_calculator/core/formatting/result_text.dart';
+import 'package:smart_calculator/core/persistence/database_providers.dart';
+import 'package:smart_calculator/core/widgets/app_button.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_choice_group.dart';
 import 'package:smart_calculator/core/widgets/app_dialog.dart';
@@ -166,8 +168,18 @@ class _HistorySection extends ConsumerWidget {
     );
 
     return asyncEntries.when(
-      loading: () => LoadingState(message: l10n.historyTitle),
-      error: (error, stackTrace) => ErrorState(message: '$error'),
+      loading: () => LoadingState(message: l10n.loadingMessage),
+      error: (error, stackTrace) => ErrorState(
+        title: l10n.historyLoadErrorTitle,
+        message: l10n.loadErrorMessage,
+        action: AppButton(
+          label: l10n.loadRetryAction,
+          onPressed: () {
+            _retryDatabase(ref);
+            ref.invalidate(historyProvider);
+          },
+        ),
+      ),
       data: (entries) {
         final filtered = _filtered(entries, format, places);
         return Column(
@@ -184,7 +196,7 @@ class _HistorySection extends ConsumerWidget {
             Expanded(
               child: entries.isEmpty
                   ? EmptyState(
-                      icon: Icons.history,
+                      icon: Icons.history_outlined,
                       title: historyOn
                           ? l10n.historyEmptyTitle
                           : l10n.historyOffTitle,
@@ -399,8 +411,18 @@ class _SavedSection extends ConsumerWidget {
     final places = ref.watch(decimalPlacesProvider);
 
     return asyncEntries.when(
-      loading: () => LoadingState(message: l10n.savedTabLabel),
-      error: (error, stackTrace) => ErrorState(message: '$error'),
+      loading: () => LoadingState(message: l10n.loadingMessage),
+      error: (error, stackTrace) => ErrorState(
+        title: l10n.savedLoadErrorTitle,
+        message: l10n.loadErrorMessage,
+        action: AppButton(
+          label: l10n.loadRetryAction,
+          onPressed: () {
+            _retryDatabase(ref);
+            ref.invalidate(savedCalculationsProvider);
+          },
+        ),
+      ),
       data: (entries) {
         final filtered = _filtered(entries, format, places);
         return Column(
@@ -576,5 +598,14 @@ class _SavedTile extends ConsumerWidget {
     );
     if (name == null || name == entry.name) return;
     await ref.read(savedCalculationsProvider.notifier).rename(entry.id, name);
+  }
+}
+
+/// Before a list is loaded again: a database that failed to open is
+/// opened again too, since its provider would otherwise hand back the
+/// same cached error.
+void _retryDatabase(WidgetRef ref) {
+  if (ref.read(appDatabaseProvider).hasError) {
+    ref.invalidate(appDatabaseProvider);
   }
 }

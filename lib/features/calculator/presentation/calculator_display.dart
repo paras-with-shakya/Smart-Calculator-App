@@ -41,10 +41,11 @@ class CalculatorDisplay extends ConsumerWidget {
     final duration = AppMotion.durationOf(context, AppMotion.medium);
 
     final evaluated = state.evaluatedExpression;
-    final topLine = DisplayText(
+    DisplayText topLine(double? maxLineHeight) => DisplayText(
       evaluated == null ? '' : formatter.expression(evaluated).text,
       key: ValueKey(evaluated),
       style: typography.expression,
+      maxLineHeight: maxLineHeight,
       color: colors.textMuted,
       semanticsLabel: evaluated == null
           ? ''
@@ -52,31 +53,34 @@ class CalculatorDisplay extends ConsumerWidget {
     );
 
     final result = state.result;
-    final Widget mainLine;
+    final DisplayText Function(double? maxLineHeight) mainLine;
     if (result != null) {
       final shown = formatter.value(result);
-      mainLine = DisplayText(
+      mainLine = (maxLineHeight) => DisplayText(
         shown,
         key: const ValueKey('result'),
         style: typography.result,
+        maxLineHeight: maxLineHeight,
         color: colors.textPrimary,
         semanticsLabel: l10n.displayResultLabel(shown),
         liveRegion: true,
       );
     } else if (state.buffer.isEmpty) {
-      mainLine = DisplayText(
+      mainLine = (maxLineHeight) => DisplayText(
         _placeholder,
         key: const ValueKey('expression'),
         style: typography.result,
+        maxLineHeight: maxLineHeight,
         color: colors.textMuted,
       );
     } else {
       final expression = formatter.expression(state.buffer);
       final buffer = state.buffer;
-      mainLine = DisplayText(
+      mainLine = (maxLineHeight) => DisplayText(
         expression.text,
         key: const ValueKey('expression'),
         style: typography.result,
+        maxLineHeight: maxLineHeight,
         color: colors.textPrimary,
         caretOffset: buffer.cursor == buffer.units.length
             ? null
@@ -92,26 +96,29 @@ class CalculatorDisplay extends ConsumerWidget {
 
     final error = state.error;
     final value = state.value;
-    final Widget bottomLine;
+    final DisplayText Function(double? maxLineHeight) bottomLine;
     if (error != null) {
-      bottomLine = DisplayText(
+      bottomLine = (maxLineHeight) => DisplayText(
         formatter.error(error),
         style: typography.expression,
+        maxLineHeight: maxLineHeight,
         color: colors.error,
         liveRegion: true,
       );
     } else if (state.showsPreview && value != null) {
       final shown = formatter.value(value);
-      bottomLine = DisplayText(
+      bottomLine = (maxLineHeight) => DisplayText(
         shown,
         style: typography.expression,
+        maxLineHeight: maxLineHeight,
         color: colors.textMuted,
         semanticsLabel: l10n.displayPreviewLabel(shown),
       );
     } else {
-      bottomLine = DisplayText(
+      bottomLine = (maxLineHeight) => DisplayText(
         '',
         style: typography.expression,
+        maxLineHeight: maxLineHeight,
         color: colors.textMuted,
       );
     }
@@ -122,28 +129,45 @@ class CalculatorDisplay extends ConsumerWidget {
         _MemoryBadge(value: memory == null ? null : formatter.value(memory)),
         Expanded(
           child: LayoutBuilder(
-            builder: (context, constraints) => SingleChildScrollView(
-              reverse: true,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Column(
-                  mainAxisAlignment: .end,
-                  crossAxisAlignment: .stretch,
-                  children: [
-                    _Switcher(duration: duration, child: topLine),
-                    const SizedBox(height: AppSpacing.xs),
-                    _Switcher(duration: duration, child: mainLine),
-                    const SizedBox(height: AppSpacing.xs),
-                    bottomLine,
-                  ],
+            builder: (context, constraints) {
+              final lines = constraints.maxHeight - 2 * AppSpacing.xs;
+              return SingleChildScrollView(
+                reverse: true,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Column(
+                    mainAxisAlignment: .end,
+                    crossAxisAlignment: .stretch,
+                    children: [
+                      _Switcher(
+                        duration: duration,
+                        child: topLine(lines * _sideLineShare),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      _Switcher(
+                        duration: duration,
+                        child: mainLine(lines * _mainLineShare),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      bottomLine(lines * _sideLineShare),
+                    ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ),
       ],
     );
   }
+
+  /// How much of the display's height each line may take, so all three fit
+  /// even at a large text size in a short display (Scientific's, at 200%):
+  /// the main line half, the expression above and the preview below a
+  /// quarter each, as their styles' sizes are (48 and 24). At ordinary
+  /// sizes the lines are smaller than this and nothing changes.
+  static const double _mainLineShare = 0.5;
+  static const double _sideLineShare = 0.25;
 
   /// What the main line shows, muted, before anything is typed.
   static const String _placeholder = '0';

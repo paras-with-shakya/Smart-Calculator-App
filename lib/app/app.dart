@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/shell/app_shell.dart';
 import 'package:smart_calculator/app/theme/app_motion.dart';
@@ -47,15 +48,18 @@ class SmartCalculatorApp extends ConsumerWidget {
       // setting was changed on.
       builder: (context, child) {
         final media = MediaQuery.of(context);
-        return AppSizing(
-          controlScale: largerControls ? AppSizing.largerControlScale : 1,
-          child: MediaQuery(
-            data: media.copyWith(
-              textScaler: textSize.multiplier == 1
-                  ? media.textScaler
-                  : UserTextScaler(media.textScaler, textSize.multiplier),
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: navigationBarStyle(Theme.of(context).brightness),
+          child: AppSizing(
+            controlScale: largerControls ? AppSizing.largerControlScale : 1,
+            child: MediaQuery(
+              data: media.copyWith(
+                textScaler: textSize.multiplier == 1
+                    ? media.textScaler
+                    : UserTextScaler(media.textScaler, textSize.multiplier),
+              ),
+              child: child!,
             ),
-            child: child!,
           ),
         );
       },
@@ -64,4 +68,20 @@ class SmartCalculatorApp extends ConsumerWidget {
       home: const AppShell(),
     );
   }
+
+  /// The system navigation bar over a screen of [brightness]: no bar colour
+  /// or scrim of its own (Android 15 draws apps edge to edge and ignores the
+  /// colour anyway), and buttons that contrast with the app's background.
+  /// Flutter's default styles always ask for light buttons, which vanish
+  /// over the light theme with 3-button navigation. The status bar is left
+  /// to each screen's app bar.
+  static SystemUiOverlayStyle navigationBarStyle(Brightness brightness) =>
+      SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+        systemNavigationBarContrastEnforced: false,
+        systemNavigationBarIconBrightness: brightness == Brightness.dark
+            ? Brightness.light
+            : Brightness.dark,
+      );
 }

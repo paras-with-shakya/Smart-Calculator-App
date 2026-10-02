@@ -39,7 +39,7 @@ class ShellHeader extends ConsumerWidget implements PreferredSizeWidget {
       actions: [
         if (showHistoryAction)
           AppIconButton(
-            icon: Icons.history,
+            icon: Icons.history_outlined,
             tooltip: l10n.historyTitle,
             onPressed: () => context.pushRoute<void>(const HistoryRoute()),
           ),

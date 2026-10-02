@@ -2,22 +2,24 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-10-02 (evening), after the user's commit `21c9513`: a git cleanup (Known Issues #14) and corrections to the commit status below. Before that, the end of the Phase 10 finalization and QA pass: Known Issue #21 (the Financial tool picker's mid-word breaks) fixed and the "DEBUG" ribbon removed at the user's request (see "Phase 10 finalization and QA pass" below). Claude did not commit the pass (rule 10; asked when a brief requested a commit, the user answered "NO"); **the user committed it as `21c9513` and pushed it**, and `main` and `origin/main` are in sync at `21c9513`. The Phase 10 commits are `c25108c` engine, `b249e42` app, `a556e24` docs, `504feba` hashes and `21c9513` finalization, all pushed. Uncommitted since then: the `android/build/` cleanup and these doc corrections, for the user to review. Phases 5 to 10 are complete and phone-tested.
+**Last updated:** 2026-10-02 (night), Phase 11 (Polish) built and tested (see "Phase 11: Polish" below; decision DEC-056). The phase is **uncommitted**: the user commits. Before it, the user committed the `android/build/` cleanup as `3836742` (`main` was ahead of `origin/main` by 1 when this was written). The Phase 10 commits are `c25108c`, `b249e42`, `a556e24`, `504feba` and `21c9513`, all pushed. Phases 5 to 10 are complete and phone-tested; Phase 11 is phone-tested in part.
 
 ## At a Glance
 
 | Question | Answer |
 | --- | --- |
-| Where are we? | **Phases 3 through 10 are complete.** Phase 10 (Settings) is built, tested (1704 app + 459 engine tests, `flutter analyze`, formatting and the debug build clean), phone-tested, and has had a finalization pass (privacy text verified against the release manifest and the code, the key click and vibration observed on the device, Known Issues #19 and #21 fixed, no "DEBUG" ribbon). |
-| What exists in code? | Everything from Phase 3–9, plus the full Settings screen (ARCHITECTURE.md §1.23, DEC-055): theme, default mode, angle unit, decimal places, haptics, key sounds, save history and a retention limit, clear history, text size, larger controls, high contrast, and About (version, privacy summary, licences). One `AppSettings` notifier; `KeyFeedback` is the one source of key feedback. |
-| What is being worked on? | Nothing. The finalization pass is committed (`21c9513`) and pushed. A small cleanup (`.gitignore` and untracking `android/build/`, Known Issues #14) and the doc corrections wait for the user's review and commit. The next phase needs the user's explicit approval before starting. |
-| What happens next? | The user reviews and commits the cleanup (Claude does not), and chooses the next phase (Phase 11, Polish, is next in the roadmap). |
-| Git? | Phases 3 to 10 are committed and pushed (Phase 10: `c25108c`, `b249e42`, `a556e24`, `504feba`, and the finalization commit `21c9513`, made by the user). `main`, `origin/main` and GitHub's `main` were all `21c9513` on 2026-10-02 (`git status -sb`, `git ls-remote`). **From 2026-10-02 Claude neither pushes nor commits; the user does both** (CLAUDE.md rule 10). Uncommitted now: the `android/build/` cleanup and the doc corrections. |
+| Where are we? | **Phases 3 to 10 are complete. Phase 11 (Polish) is built and tested** (1808 app + 459 engine tests, 126 design-review tests; `flutter analyze`, formatting, debug and release builds clean) and phone-tested in part. It waits for the user's review. Phase 12 (QA) is next in the roadmap. |
+| What exists in code? | Everything from Phases 3 to 10 (Settings: ARCHITECTURE.md §1.23, DEC-055), plus Phase 11 (§1.24, DEC-056): the user's logo as the launcher icon (Android adaptive and legacy, iOS) and splash; a mode cross-fade; result cards read as one item (Date's announced); spoken unit names; a one-row converter category picker (the keypad fits a phone); raised dark cards; navigation-bar buttons that follow the theme; `LayoutLimits`; plain-language load errors with retry; outlined icons; a real README. |
+| What is being worked on? | Nothing. Phase 11 waits for the user's review; some phone checks are still to do (see "Next Task"). |
+| What happens next? | The user reviews Phase 11, lets Claude finish the phone checks (with the phone left alone), commits it (Claude does not), and chooses the next phase (Phase 12, QA, in the roadmap). |
+| Git? | Phases 3 to 10 are committed and pushed (Phase 10: `c25108c`, `b249e42`, `a556e24`, `504feba`, and `21c9513` by the user). The user also committed the `android/build/` cleanup as `3836742`. **From 2026-10-02 Claude neither pushes nor commits; the user does both** (CLAUDE.md rule 10). Phase 11 is uncommitted. |
 | What must not be repeated? | See "Do NOT Repeat" |
-| Known issues? | See "Known Issues". Open: #16 (Basic's memory keys under 48 dp in landscape at 200% text), #17 (Date/Financial tools reset on rotation), #18 (six older screenshot tests fail), #20 (Phase 10's documented limits). #19 (the Converter's Temperature tile) and #21 (the Financial tool picker's mid-word breaks) are fixed. |
+| Known issues? | See "Known Issues". Open: #16 (Basic's memory keys under 48 dp in landscape at 200% text), #17 (Date/Financial tools reset on rotation), #20 (Phase 10's documented limits), #22 (design items the user deferred: tablets, one key shape, equal financial tiles), #23 (Phase 11 limits). Fixed in Phase 11: #18; #12's repeated outline; #5 in part (README, Android and iOS icons); #6 decided. |
 | Pending decisions? | P-5, P-9, P-10 (long-standing). P-7 is resolved (DEC-055). The user approved the Phase 10 decisions on 2026-10-02, including leaving `android:allowBackup` alone. |
 
 ## Current Phase
+
+**Phase 11 (Polish): approved 2026-10-02 ("phase 11 star now"). Built and tested 2026-10-02, phone-tested in part, waiting for the user's review. Details: "Phase 11: Polish" and "Test on the user's phone: Phase 11" below; decision DEC-056.**
 
 **Phase 10 (Settings screen): approved 2026-10-02 ("start phase 10", no brief). Complete as of 2026-10-02 — built, tested, phone-tested and documented. Details: "Phase 10: Settings screen" and "Test on the user's phone: the Settings screen" below; decision DEC-055.**
 
@@ -361,6 +363,85 @@ How the click and the vibration were observed without hearing or feeling them: `
 - **Phone settings after the follow-up:** `font_scale=1.0`, `user_rotation=0`, display rotation 0; `accelerometer_rotation` read 1 after the rotation unlock and was set back to 0. The app was left in Basic, with EMI as the Financial tool. Screenshots went straight to the PC.
 - **A test slip, recorded for honesty:** two of my taps landed on the wrong switches because the Settings scroll position differs by a few hundred pixels between swipes (Save history was switched off for a few minutes). The measurements above were repeated with the state confirmed by a screenshot first; the invalid reading was discarded.
 
+## Phase 11: Polish (2026-10-02, this session)
+
+The user approved Phase 11 with "phase 11 star now". Decision DEC-056; architecture §1.24; CHANGELOG 2026-10-02 (night).
+
+### Audit, plan and the user's answers
+
+- **Audit first:** three read-only passes.
+  - Icon, splash and template leftovers: every icon was the template's Flutter logo, and the launch screen matched neither theme.
+  - Motion and screen readers: no guideline test ran on a real screen, and results were read line by line.
+  - Tablet, dark mode, states and consistency: #18's screenshot tests failed, the error states showed raw exceptions, and constants were repeated.
+- **Plan reviewed independently before any code:** six major corrections (DEC-056). Reduced motion for routes and sheets is already done by the framework. A live region must be one merged node. It is the navigation bar, not the status bar, that needs fixing. A history "spoken expression" label conflicts with DEC-044. The icon generator needs its own skipped tag. `IntrinsicWidth` cannot wrap a `LayoutBuilder`.
+- **The user's answers:**
+  - Their own logo: an SVG whose only content is a 590 × 524 PNG, used byte for byte.
+  - Of the old issues, only #18 joins the phase.
+  - Spoken unit names: yes.
+  - After a review of about 66 rendered screenshots: the converter keypad fit on phones and dark-mode cards are in; tablet redesigns are deferred (#22).
+
+### Built
+
+- **Brand:** the icon generator and its guard tests; launch colours; the Android 12+ splash; the README.
+- **Tooling:** #18 fixed; design-review screenshots of every screen; a real-screen accessibility guideline test (36 tests); `expectTouchTargets` shared; tablet layout tests.
+- **Motion:** the mode cross-fade.
+- **Screen readers:** `ResultCard`; spoken unit names and name search; the backspace long-press hint.
+- **Responsive:** `LayoutLimits`; capped landscape keypads; History page width; `DisplayText.maxLineHeight`; a stacking `ResultRow`.
+- **Dark mode and consistency:** the dark card token; the navigation-bar style; outlined icons and the rail's selected icon; `contrastBorder`; EMI's tenure row; named share-bar constants.
+- **States:** load errors with retry; "Loading…"; the Settings history-limit guard.
+- **Converter:** the chip-row category picker.
+
+### Found while building and testing
+
+- **200% text:** the Scientific display cut off its main line, and result rows ellipsized their labels. Both fixed.
+- **On the phone:** HyperOS showed no splash icon, then an unmasked square. Fixed with an explicit `splash_icon`.
+- **On the phone:** the EMI/GST share-of-whole bar was invisible, 0 dp tall since Phase 7. Fixed.
+- **Regression tests seen failing before their fixes:**
+  - the 200% display (main line top 74 < viewport top 110.5);
+  - the converter keypad fit (keypad bottom 1276 > 800 with the old grid);
+  - the share-bar height (0 dp).
+
+### The §29 UI checklist (the phase's exit criterion), with the evidence
+
+| Item | Result |
+| --- | --- |
+| Alignment, spacing | Tokens only. `LayoutLimits` gives every column the same 480 dp. Screenshots of every screen at four sizes were reviewed. Tablet alignment issues are deferred (#22) |
+| Typography | `AppTypography` only. At 200% text nothing is cut off any more (display, result rows; tests) |
+| Button sizing | 48 dp touch targets on every real screen in four themes (`androidTapTargetGuideline`, tablet tests). One key shape (pill vs squircle) is deferred (#22) |
+| Icon consistency | Outlined set throughout; filled for the selected rail mode; icon size fixed by decision (#6) |
+| Colours, contrast | Palette contrast tests; `textContrastGuideline` on every screen in four themes; the dark card step (≥ 1.2:1, tested) |
+| Radius, shadows | Radius tokens only; no shadows (elevation 0) |
+| Responsive behaviour | Phone portrait and landscape and tablet sizes render without overflow (tests and screenshots); the converter fits a phone; tablet redesigns deferred (#22) |
+| Dark mode | Every screen rendered dark; cards separate; navigation-bar buttons follow the theme |
+| Empty, error, loading states | Plain-language errors with retry; a localized loading message; the unit picker's empty state |
+| Accessibility | Guideline tests on every screen; result cards read as one item; spoken units; the backspace hint; 200% text |
+
+**Verdict:** the checklist passes on phones, the primary platform. On tablets it passes for overflow and touch targets, but the layout redesigns the screenshot review suggested were deferred by the user (#22).
+
+## Test on the user's phone: Phase 11 (2026-10-02, this session)
+
+**Device:** `4DEEEUKF6HNFHEIJ`, model `23124RN87I`, HyperOS, Android 15, 720 × 1600 px. **Method:**
+- `adb install -r` of the debug build;
+- `screencap` straight to the PC;
+- `uiautomator dump` for screen-reader labels;
+- `logcat` for the starting window;
+- `cmd uimode night` for the light splash.
+
+| Check | Result |
+| --- | --- |
+| Launcher icon | **PASS.** The S logo in the app drawer and the launcher's search; HyperOS masks it as a rounded square; nothing is cut |
+| Splash, system dark mode | **PASS after a fix.** First no icon at all (HyperOS shows none by default; the starting window was there for 3.4 s), then a hard-edged square (the adaptive icon unmasked). With the explicit `splash_icon`: the rounded tile on `#141312` |
+| Splash, light | **PASS.** The tile on `#F2EFEA` (launched with `am start`) |
+| Converter | **PASS.** The chip row, both cards and every keypad row on screen without scrolling (dark) |
+| Converter, screen reader | **PASS** (content-desc): "From\n80 metres", "To\n0.08 kilometres" |
+| EMI | **PASS.** ₹8,791.59 a month. The result card is one node: "Monthly EMI ₹ 8,791.59 Total interest … Interest ₹ 5,499.06". The tenure field is full width, with Years/Months as segments. The dark result card stands out from the background |
+| Share-of-whole bar | **FAIL found:** invisible (0 dp). Fixed and rebuilt; **not re-checked on the phone** (see below) |
+| 200% text, reduced motion, light-theme navigation-bar buttons, the mode fade | **Not checked on the phone** (postponed by the user); widget tests and screenshots only |
+
+- **Mis-taps:** twice, a tap on the launcher's search panel opened another app ("Da Fit", Clock). Both were closed with Home and nothing was changed in them.
+- **An interrupted run:** during the last run the user was using the phone (they said the screen had moved). Taps and text ("100000", "10", "1") meant for the EMI form may have gone to another app (a "Projects" list). The user was told and asked to check it. No more input was sent, and the user postponed the remaining checks.
+- **Phone settings:** night mode was set to `no` for the light splash and back to the user's `custom_schedule`. `font_scale=1.0`, rotation `0/0` and the animation scales were not changed. App data was intact (the INR rate of 90 saved in Phase 6 is still there).
+
 ## Phase Status
 
 | Phase | Name | Status |
@@ -377,7 +458,7 @@ How the click and the vibration were observed without hearing or feeling them: `
 | 8 | Date calculator | **Complete, committed `0e2c9fb`, phone-tested.** Plan (DEC-053) independently reviewed before code; the review caught a difference-vs-addMonths disagreement at month ends. |
 | 9 | Programmer calculator | **Complete, committed `06ce7a5`, `afa9978`, `5ace4cb`, `214d8cd`, phone-tested.** Plan (DEC-054) independently reviewed before code (twelve defects fixed); engine validated against Dart typed-data and native-int oracles; 446 engine + 1552 app tests. |
 | 10 | Settings screen | **Complete, phone-tested, finalized.** Commits `c25108c`, `b249e42`, `a556e24`, `504feba`; the finalization pass (2026-10-02) is `21c9513`, committed and pushed by the user. Plan (DEC-055) independently reviewed before code; one `AppSettings` notifier, `KeyFeedback`, decimal places, larger controls, privacy and version guard tests; 459 engine + 1704 app tests. |
-| 11 | Polish | Not started |
+| 11 | Polish | **Built and tested, phone-tested in part; waiting for the user's review.** Plan (DEC-056) independently reviewed before code; the user's logo as icon and splash; screen-reader, responsive, dark-mode and state passes; Known Issues #18 fixed; 1808 app + 459 engine tests. Uncommitted. |
 | 12 | QA | Not started |
 
 ## Completed Work
@@ -563,22 +644,28 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.20; decision DEC-052 (the full p
 
 ## Work In Progress
 
-None to hand off mid-task. Phases 3 to 10 are complete; Phases 5 to 10 are phone-tested.
+Phase 11 is built and tested; some phone checks remain (Next Task 2).
 
 ## Current Task
 
-None. Phase 10 (Settings) is finished, tested, phone-tested, finalized and documented. The next phase needs the user's explicit choice and approval before starting; nothing should be assumed or started ahead of that.
+Phase 11 waits for the user's review.
 
-- **On the phone:** the debug build with the Temperature and Financial tile fixes, the corrected privacy sentence and no "DEBUG" ribbon is installed (`4DEEEUKF6HNFHEIJ`/`23124RN87I`); every app setting is at its default; `sound_effects_enabled=0`, rotation (`0`/`0`) and `font_scale=1.0` are restored.
-- **Committed and pushed by the user:** the whole finalization pass, as `21c9513` ("feat: enhance accessibility and UI polish"); `main` = `origin/main` = `21c9513`. That commit also took in `android/build/reports/problems/problems-report.html`, a generated Gradle report, because `.gitignore` did not cover `android/build/` (Known Issues #14).
-- **Uncommitted, for the user to review and commit** (the user's cleanup brief, 2026-10-02): `.gitignore` (adds `/android/build/`); the removal of `android/build/reports/problems/problems-report.html` from the index (`git rm -r --cached android/build`, staged; the file stays on disk); and the commit-status corrections in this file, CLAUDE.md and CHANGELOG.md. Nothing else.
-- **Screenshots:** none via the design-review generator this session (the new "Settings" gallery section is covered by the existing loop and the accessibility test); the phone test served as the visual review.
+- **On the phone:** the debug build with the share-bar fix is installed (`4DEEEUKF6HNFHEIJ`/`23124RN87I`). Night mode is back on the user's `custom_schedule`, `font_scale=1.0`, rotation `0/0`.
+- **Uncommitted** (the user commits): every Phase 11 change. `git status` lists them; new files include `assets/brand/`, `test/brand/`, the new `android/app/src/main/res/` folders, `lib/core/layout/layout_limits.dart` and `lib/features/converter/presentation/unit_names.dart`. `build/` is not tracked.
+- **Screenshots:** `build/design_review/` was regenerated after the last visual change (126 tests). Never commit them.
 
 ## Next Task
 
-1. **The user reviews and commits the cleanup** (`.gitignore`, the build report taken out of the index, the doc corrections) themselves (rule 10). Don't run `git commit` or `git push`, even when a brief asks for a commit (the user answered "NO" to exactly that on 2026-10-02).
-2. Nothing else is open in Phase 10: the privacy correction, #19, #21 and the ribbon are done, tested and phone-checked.
-3. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 11, Polish, then Phase 12, QA). Don't start either without that explicit approval, per the phase gate (CLAUDE.md rule 9).
+1. **The user reviews Phase 11 and commits it** (rule 10). Don't run `git add`, `git commit` or `git push`.
+2. **Finish the phone checks**, only with the user's go-ahead and with the phone left alone. Check first which app is in front (`dumpsys activity activities | grep topResumedActivity`).
+   - The EMI/GST share bar (now 16 dp).
+   - 200% text: the Scientific display, and the Date and Financial result rows.
+   - Reduced motion: `settings put global transition_animation_scale 0`; record and restore all three scales.
+   - The light theme's navigation-bar buttons (with 3-button navigation if the phone allows).
+   - The mode cross-fade.
+
+   Restore every setting afterwards.
+3. **Wait for the user to choose and approve the next phase** (ROADMAP.md: Phase 12, QA). Don't start it without that explicit approval (CLAUDE.md rule 9).
 
 ## Do NOT Repeat
 
@@ -617,6 +704,13 @@ None. Phase 10 (Settings) is finished, tested, phone-tested, finalized and docum
 - **A tile grid whose tiles have a fixed width breaks long labels mid-word** at default size or larger text. `CategoryPicker` sizes its tiles from the widest label (Known Issues #19) and `FinancialToolPicker` from the widest *word*, because its labels have several words (#21). A new tile grid should do the same (or reuse one of them), never a fixed width.
 - **Don't turn the "DEBUG" ribbon back on** (`debugShowCheckedModeBanner: false` in `lib/app/app.dart`, the user's request; `app_test.dart` checks it).
 - **`AppHeader` resets `AppSizing` to 1.** Don't remove that: the toolbar is a fixed 56 dp and larger controls clip the mode pill (found on the phone, DEC-055).
+- **A `ColoredBox` with no child sizes itself to the smallest it may be.** In a `Row` or `Column` that does not stretch it, that is 0 dp. `ShareOfWholeBar` was invisible from Phase 7 to Phase 11 for this reason, and Phase 7's phone report missed it. Look at bars and fills on the device, and test their rendered size.
+- **Regenerate the launcher icons only with the generator** (`flutter test --tags launcher-icons --run-skipped test/brand/generate_launcher_icons_test.dart`), never by hand. `test/brand/launcher_icons_test.dart` checks the sizes and that the iOS icons have no alpha.
+- **Keep `windowSplashScreenAnimatedIcon` explicit** (`@drawable/splash_icon`). Without it HyperOS shows no splash icon, and given the adaptive icon it draws a hard-edged square.
+- **Don't make a result that changes with every keystroke a live region** (Financial, Converter): TalkBack would read it on every key. Merge it with `ResultCard` instead (DEC-056, DEC-043).
+- **A live region must be one merged node whose own label changes** (`ResultCard(liveRegion: true)`). A `Semantics(liveRegion: true)` without its own node puts the flag on the wrong node, and Android announces only a change of a live node's own label.
+- **Before sending taps to the phone, check what is in front** (`dumpsys activity activities | grep topResumedActivity`), and ask the user to leave the phone alone. Taps meant for the app reached other apps three times in Phase 11. In Git Bash, set `MSYS_NO_PATHCONV=1` before `adb shell` commands with `/sdcard/...` paths.
+- **Android's reduced-motion flag comes from `transition_animation_scale`**, not `animator_duration_scale`. The framework already shortens routes, sheets and theme changes; only custom durations need `AppMotion.durationOf`.
 
 ## Pending Decisions
 
@@ -711,6 +805,20 @@ None. Phase 10 (Settings) is finished, tested, phone-tested, finalized and docum
 - **Still planned:** ARCHITECTURE.md §3.8.
 
 ## Tests
+
+**Run in the Phase 11 session (2026-10-02), in `smart_calculator/`, after the last code change (the share-of-whole bar):**
+
+| Command | Result |
+| --- | --- |
+| `flutter analyze` | `No issues found!` |
+| `dart format --set-exit-if-changed lib test packages` | `Formatted 245 files (0 changed)` |
+| `flutter test` (whole suite) | `All tests passed!`: 1808 passed, 2 skipped (the design-review and launcher-icon generators), 0 failed. Was 1704 passed |
+| `dart test` in `packages/calc_engine` | `All tests passed!`: 459, unchanged (no engine change) |
+| `flutter test --tags design-review --run-skipped --update-goldens` | 126 passed. Before Phase 11, 6 of them failed (Known Issues #18); 62 passed once #18 was fixed, before the new screens were added |
+| `flutter test --tags launcher-icons --run-skipped test/brand/generate_launcher_icons_test.dart` | Passed. Tile 453 × 452 px, artwork radius 201 px, adaptive tile 74.3 dp, background `#0C1231` |
+| `flutter build apk --debug` | Built several times, the last after the share-bar fix; installed |
+| `flutter build apk --release` + `aapt` | Built (55.0 MB, ~282 s). Permissions: only the app's own `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`. No `INTERNET`, no `allowBackup`. The adaptive icon, `splash_icon` and `launch_background` (light and night) are present |
+| Regression tests seen failing before their fix | The 200% Scientific display (3 sizes); the converter keypad fit (with the old grid picker); the share-bar segment height (0 dp) |
 
 **Run in the Phase 10 finalization pass (2026-10-02), in `smart_calculator/`, after the last code change (the Financial tool picker, #21, and the "DEBUG" ribbon):**
 
@@ -894,8 +1002,8 @@ Not run this session: the release build, the design-review screenshots (nothing 
 2. **DEC-027:** Kotlin incremental compilation is disabled (drives `C:`/`D:`).
 3. **`dart format .`** crashes on long paths inside `build/`. Use `dart format lib test packages`.
 4. **Release signing:** release APKs are signed with the debug key. Not scheduled.
-5. **Template leftovers:** web and desktop identifiers, the web manifest and `index.html` text, `README.md`, and the default launcher icons (Phase 11).
-6. **Icons don't grow with text size,** which matches Android's behaviour. To review in Phase 11.
+5. **Template leftovers:** ~~`README.md` and the default launcher icons~~ (Phase 11: a real README, and the user's logo on Android and iOS, DEC-056). Still template: the web and desktop identifiers, names and icons, and the web manifest and `index.html` text (the user kept them out of Phase 11; DEC-025).
+6. **Icons don't grow with text size,** which matches Android's behaviour. **Decided in Phase 11 (DEC-056): kept.** Labels scale and carry the meaning, and touch targets stay 48 dp.
 7. ~~**High contrast follows only the platform setting.**~~ **Resolved in Phase 10:** an in-app High contrast switch (DEC-055); the platform setting still applies.
 8. **The current mode isn't persisted** (DEC-021). Phase 10 added a *default mode* setting (the mode the app opens in), not persistence of the mode last used.
 9. **Only checked on one device:** one phone (Android 15, 360 dp), plus test-rendered screenshots. No tablet or iOS device yet.
@@ -907,16 +1015,16 @@ Not run this session: the release build, the design-review screenshots (nothing 
     - **Paste** works only through a hardware keyboard (Ctrl+V). There is no touch copy or paste menu yet.
     - ~~**Haptics are always on.**~~ **Resolved in Phase 10:** a Haptic feedback switch and a Key sounds switch (DEC-055).
 12. **Review findings, not changed (awaiting the user's decision):**
-    - The high-contrast outline expression is repeated in 3 places (the theme, `AppCard`, `CalculatorButton`); it could become one `AppColors` getter.
+    - ~~The high-contrast outline expression is repeated in 3 places (the theme, `AppCard`, `CalculatorButton`).~~ **Fixed in Phase 11:** `AppColors.contrastBorder`.
     - `AppTextField` passes through parameters that nothing uses yet.
     - `AppTextField`, `AppDialog`, `ErrorState` and `LoadingState` are used only by the gallery and tests until Phases 4–7.
 13. ~~Blocking: a stray Flutter app inside `packages/calc_engine`~~ **Resolved 2026-09-29.** A full `flutter create`-style scaffold appeared there during this session — `lib/main.dart` (imports `package:flutter/material.dart`), `android/`, `.metadata`, `analysis_options.yaml`, `.gitignore`, `.idea/`, `calc_engine.iml` — all untracked, all created in the same second. The triggering command was never confirmed with certainty. `packages/calc_engine/pubspec.yaml` and every real engine source file were confirmed unaffected throughout (`git diff` empty; all 260 engine tests kept passing). Claude tried to delete the files and was correctly refused by the sandbox's safety layer (a destructive operation on a directory); the user deleted them ("okay delete"). `flutter analyze` and `flutter test` are both clean afterwards (see "Tests"). **Watch for a repeat** — the exact cause is still unknown.
-14. ~~**`.gitignore` doesn't cover `android/build/`**~~ **Addressed 2026-10-02, after `21c9513` (uncommitted; the user commits).** `.gitignore` covered only `/android/app/{debug,profile,release}`, and its `/build/` is root-anchored, so `android/build/` (written by every `flutter build apk`) was never ignored. The gap let `android/build/reports/problems/problems-report.html`, a generated Gradle report, into `21c9513`. `.gitignore` now has `/android/build/`, and `git rm -r --cached android/build` took the report out of the index (the file stays on disk). `git check-ignore -v android/build/reports/problems/problems-report.html` prints `.gitignore:46:/android/build/`.
+14. ~~**`.gitignore` doesn't cover `android/build/`**~~ **Addressed 2026-10-02, after `21c9513`; committed by the user as `3836742`.** `.gitignore` covered only `/android/app/{debug,profile,release}`, and its `/build/` is root-anchored, so `android/build/` (written by every `flutter build apk`) was never ignored. The gap let `android/build/reports/problems/problems-report.html`, a generated Gradle report, into `21c9513`. `.gitignore` now has `/android/build/`, and `git rm -r --cached android/build` took the report out of the index (the file stays on disk). `git check-ignore -v android/build/reports/problems/problems-report.html` prints `.gitignore:46:/android/build/`.
 15. **A base of exactly `1` or `−1` raised to an exponent past the ±2000 magnitude cutoff loses exactness** (`evaluator.dart`'s near-1-base overflow fix always returns an approximate `CalcValue`, even though `1^n=1` and `(−1)^n=±1` are exact for any `n`). Found during the Module 2 audit, not fixed — cosmetically invisible (`toDecimalString()` still prints `1`), narrow (only reachable past the exponent cutoff), and out of the audit's requested scope. Worth a one-line fix (`if base.exactValue is 1 or -1, return that base directly`) if anyone hits it.
 16. **`CalculatorMemoryKeys` (Basic, unchanged since Phase 3) narrows its 5 keys below 48 dp width in landscape at 200% text.** Found while writing a stricter touch-target test for the scientific keypad (Module 3) — reproduced identically with plain `CalculatorView`, confirming it predates Phase 5 and isn't something Module 3 introduced. Not fixed: `calculator_memory_keys.dart` is Basic's already-approved widget, and this wasn't part of what Module 3 was asked to do. The Scientific screen's own test excludes memory keys from this one check, with a comment explaining why, so the gap is documented rather than silently accepted or silently patched.
 17. **Rotating the phone resets the Date calculator's tool and dates** (found on the device, Phase 8). The shell swaps between a bottom-bar and a rail layout, which rebuilds the screen, and `DateCalculatorView` and its tool views keep their state locally (like the financial tools, which very likely behave the same; not checked). Not data loss in the usual sense (nothing is saved anywhere), but a typed amount or picked dates disappear on rotation. A fix would move the state somewhere that outlives the layout swap (a provider), or key the screen so the shell reuses it. Not fixed: out of Phase 8's scope and it affects the shell's approved design; flagged for the user.
     - **Observation, Phase 9:** the Programmer calculator does **not** show this behaviour. Its state is in a Riverpod provider (like Basic, Scientific and Converter), so a typed number, the pending operation, the base, the word size and the signedness all survive a rotation (checked on the phone and in a test). The Date and Financial tools remain affected.
-18. **Six older design-review screenshot tests fail** (`flutter test --tags design-review --run-skipped`, which is skipped in a normal run): an "app screens … shell" test that times out in `pumpAndSettle`, and several "calculator …" tests that start the whole app through a real `sqflite` (`MissingPluginException … getDatabasesPath`). Found in Phase 9 and reproduced in a clean worktree at the previous commit, so they predate it. They need the in-memory database that `pumpApp` uses; not fixed (outside this phase). They do not affect the normal test run.
+18. ~~**Six older design-review screenshot tests fail**~~ **Fixed in Phase 11 (DEC-056).** They built `AppRoot` without the in-memory database that `pumpApp` gives, so a widget test reached the real sqflite plugin (`MissingPluginException`) and the history panel loaded forever (`pumpAndSettle` timeout). `inMemoryDatabaseOverride()` (`test/helpers/test_app.dart`) is now shared by all three helpers; all 126 design-review tests pass.
 
 19. ~~**The Converter's "Temperature" category tile breaks mid-word** ("Tempera / ture")~~ **Fixed in the Phase 10 finalization pass (2026-10-02).** Found on the phone (720×1600 px, 360 dp) at default settings, so it predates Phase 10. `CategoryPicker`'s tiles were a fixed 96 dp wide with 16 dp side padding (64 dp for a label that needs about 87 dp at 100% text; "Currency" breaks from 115%). The tile width is now measured from the longest label at the current text size (at least 96 dp, the same for every tile), and the tile's side padding is `AppSpacing.sm`. At 100% on a 360 dp phone the tiles still sit three to a row; at larger text they get wider (one per row at 200%). `test/features/converter/presentation/category_picker_test.dart` (10 tests, real fonts) checks that no label wraps in portrait and landscape at 100%, 115%, 130% and 200%, that every tile is the same size, and the three-to-a-row layout; it failed before the fix. Checked on the phone: portrait 100% and 200%, landscape 100% and 130%.
 20. **Phase 10 limits, all stated in the UI or the docs:**
@@ -928,6 +1036,22 @@ Not run this session: the release build, the design-review screenshots (nothing 
     - **`android:allowBackup` is not set**, so Android's default (backup on) applies; the privacy summary says the device backup may keep a copy.
     - **No developer information** is shown (the user said not now; the content must come from the user).
 21. ~~**The Financial tool picker has the same mid-word break** ("Compou / nd interest", "Percenta / ge")~~ **Fixed in the Phase 10 finalization pass (2026-10-02, a follow-up the user asked for).** Found on the phone at default settings; it predates Phase 10 (Phase 7's phone test did not flag it). **Root cause:** `FinancialToolPicker`'s tiles were a fixed 96 dp wide with `AppCard`'s default 16 dp side padding, which left 64 dp for a label; at 100% text "Percentage" needs about 79 dp and "Compound" about 75 dp, and a word longer than its line is broken between letters. **Fix:** these labels have several words, so sizing to the whole label (the Converter's #19 rule) would have made "Compound interest" one 132 dp line and the tiles two to a row. Instead every tile is as wide as the widest *word* of any label at the current text size (at least 96 dp, the same for every tile, capped at the available width; measured with a `TextPainter`, the ambient text style and `TextScaler`, and bold when the platform asks for bold text), with `AppSpacing.sm` side padding like the Converter's tiles. A label may wrap between words ("Compound / interest"), never inside one. At 100% on a 360 dp phone the tiles are still 96 dp and three to a row, as before. Tile heights still follow their labels, as before the fix (a two-line tile is taller). `test/features/financial/presentation/financial_tool_picker_test.dart` (12 tests, real fonts) checks that no word is split across lines in portrait and landscape at 100%, 115%, 130% and 200% and with bold text at 100% and 200%, that every tile is the same width, and the three-to-a-row layout; 10 of them failed before the fix. Checked on the phone: portrait at 100%, 130% and 200%, landscape at 100%, 130% and 200%.
+
+22. **Design items from the Phase 11 screenshot review, deferred by the user:**
+    - **Tablets** (no tablet device has been used; tablets are checked with rendered screenshots only):
+      - Programmer's 48 dp keys leave large empty areas;
+      - Scientific's one-row function tray could be a grid on a taller window;
+      - the Basic and Scientific display text stays phone-sized;
+      - the 320 dp History panel leaves little room for long expressions.
+    - **One key shape:** Programmer and Converter keys are pills, Basic and Scientific squircles.
+    - **Equal-height Financial tiles:** a two-line label makes its tile taller.
+23. **Phase 11 limits:**
+    - **No Android 13 themed (monochrome) icon:** the logo is a gradient raster with no clean one-colour shape.
+    - **The iOS 1024 px App Store icon looks soft:** it is upscaled from a 452 px tile. A sharper source is needed before an App Store release.
+    - **iOS is unchecked:** the icons, the launch screen (still the template's white) and Info.plist were not built or checked (no Mac).
+    - **The splash follows the system dark mode,** not the in-app Theme setting.
+    - **On HyperOS the splash needs the explicit icon.**
+    - **Phone checks still to do:** see Next Task 2.
 
 ## Blockers
 
@@ -947,6 +1071,31 @@ None. Phase 10 is built, tested, phone-tested and documented. The next blocker i
 7. **Phase 5, Module 2 audit session:** this session's very first action — reading `expression_buffer.dart` to make a small unrelated edit — found `insertFunction`/`insertConstant`/`insertFactorial` already there, contradicting this session's own last chat report ("Module 2 hasn't started"). `git log` explained it: a *different* Claude Code session (co-authored "Claude Sonnet 5.5") built and committed all of Module 2 (`856d175`) while this session was between turns. Treated the committed code as ground truth rather than re-deriving or distrusting it. Separately, the "Where the tests are" table (below, under "Tests") had the same staleness pattern as #6: the Module 2 session updated the headline pass count but not this row-by-row breakdown, so it still showed Module 1's 465-test-total shape under a section reporting 592. Rebuilt from freshly re-run per-file counts in this session, not guessed.
 
 ## Last Session Summary
+
+**2026-10-02 (night), Phase 11 (Polish): audit, plan and review, build, test, part of the phone test.**
+
+1. **Start:** the user approved Phase 11 ("phase 11 star now"). Three read-only audits, a plan, and an independent review that corrected six major points (DEC-056).
+2. **The user's answers:**
+   - their own logo (an SVG wrapping a PNG, used byte for byte);
+   - only #18 of the older known issues;
+   - spoken unit names: yes;
+   - after a review of about 66 rendered screenshots, the converter keypad fit and dark cards; tablet redesigns deferred.
+3. **Built:**
+   - **Brand:** icons and splash from the logo (a generator and guard tests, no dependency); the README.
+   - **Tooling:** #18 fixed, and screenshots of every screen; real-screen accessibility tests.
+   - **Motion:** the mode cross-fade.
+   - **Screen readers:** `ResultCard`; spoken unit names and name search; the backspace hint.
+   - **Responsive:** `LayoutLimits`; capped keypads; the History page width; `DisplayText.maxLineHeight` and a stacking `ResultRow` (200% text).
+   - **Converter:** the chip row.
+   - **Dark mode and consistency:** the dark card token; the navigation-bar style; outlined icons and the rail's selected icon; `contrastBorder` (#12).
+   - **States:** load errors with retry.
+4. **Found on the phone and fixed:** the HyperOS splash icon; the share-of-whole bar, invisible since Phase 7.
+5. **Gate:** analyze, format, 1808 app + 459 engine tests, 126 design-review tests, debug and release builds, `aapt`.
+6. **Phone:**
+   - Passed: the icon, the splash in both themes, the converter fit and its spoken amounts, and EMI with its merged result card.
+   - Postponed by the user: the rest.
+   - A run was disturbed by the user using the phone; taps may have reached another app, and the user was told.
+7. **Docs:** DEC-056, this file, CHANGELOG, ARCHITECTURE (§1.24), ROADMAP, CLAUDE.md, PROJECT_MEMORY (the app icon). **Nothing committed, nothing pushed.** Phase 12 not started.
 
 **2026-10-02 (evening), after the user's commit `21c9513`: two cleanups.**
 
@@ -1093,9 +1242,9 @@ None. Phase 10 is built, tested, phone-tested and documented. The next blocker i
 ## Instructions For Next Session
 
 1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md). **Reply to the user in Hinglish** (CLAUDE.md rule 13).
-2. **Phases 3 to 10 are complete and pushed** (Phase 10: `c25108c`, `b249e42`, `a556e24`, `504feba` by Claude, and the finalization `21c9513` by the user). **From 2026-10-02 Claude neither commits nor pushes; the user does both** (CLAUDE.md rule 10), so expect uncommitted changes in `git status` (at the last update: the `android/build/` cleanup and the doc corrections) and leave them alone. Confirm with `git log --oneline -12` and `git status` if in doubt.
+2. **Phases 3 to 10 are complete and pushed** (Phase 10: `c25108c`, `b249e42`, `a556e24`, `504feba` by Claude, and `21c9513` by the user; the user also committed `3836742`). **From 2026-10-02 Claude neither commits nor pushes; the user does both** (CLAUDE.md rule 10), so expect Phase 11's changes uncommitted in `git status` until the user commits them, and leave them alone.
 3. **Don't redo the engine, the input logic, the keypads, the converter, the financial or date tools, the programmer calculator or Settings.** If the user wants a specific default, mapping or scope choice changed, it's a targeted edit (see DEC-047 to DEC-055 for exactly what to touch), not a rebuild.
-4. **Don't start Phase 11 (or any other phase) without the user's explicit choice and approval** — ROADMAP.md lists Phase 11 (Polish) next, then Phase 12 (QA), but the user may pick differently. Ask, don't assume. Known Issues #16, #17, #18 and #20 are the likely Polish candidates (#19 and #21 are fixed).
+4. **Phase 11 waits for the user's review. Don't start Phase 12 (QA) or any other phase without the user's explicit choice and approval.** If the user wants more polish first, Known Issues #16, #17, #20, #22 and #23 are the candidates.
 5. **A pre-existing Basic bug is still known but not fixed:** `CalculatorMemoryKeys` narrows below 48 dp in landscape at 200% text (Known Issues #16). It's Basic's widget, not any later phase's to fix unless the user asks for it specifically.
 6. **For any future toggle-style key** (a persisted or ephemeral on/off shown on a button), reuse `CalculatorButton.selected` (tinted `primary`/`onPrimary`) rather than inventing a new pattern — and re-verify the tint is distinct from the button's resting tone in all four palettes before picking a color, the way DEC-050 had to.
 7. **For any future "composite" key** (one press, multiple buffer operations), give it its own small, atomic `ExpressionBuffer` method, tested directly — chaining existing methods at the notifier level has already been shown to silently misbehave in several positions (DEC-050).

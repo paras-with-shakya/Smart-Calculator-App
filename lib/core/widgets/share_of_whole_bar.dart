@@ -51,6 +51,10 @@ class ShareOfWholeBar extends StatelessWidget {
 
   static const double _barHeight = 16;
 
+  /// The gap between the two segments, so they read as two parts even
+  /// where their colours are close.
+  static const double _segmentGap = 2;
+
   /// The smallest share of the bar a segment ever gets (2%), so a
   /// near-zero segment still renders a visible sliver. The legend's value
   /// always shows the true figure regardless of the bar's visual width.
@@ -76,13 +80,17 @@ class ShareOfWholeBar extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: SizedBox(
             height: _barHeight,
+            // Stretch: a ColoredBox without a child takes the smallest
+            // height it is allowed, so without it both segments were 0 dp
+            // tall and the bar was invisible (found on the phone, Phase 11).
             child: Row(
+              crossAxisAlignment: .stretch,
               children: [
                 Expanded(
                   flex: baseFlex,
                   child: ColoredBox(color: colors.secondary),
                 ),
-                const SizedBox(width: 2),
+                const SizedBox(width: _segmentGap),
                 Expanded(
                   flex: addedFlex,
                   child: ColoredBox(color: colors.primary),
@@ -138,7 +146,7 @@ class _Legend extends StatelessWidget {
       crossAxisAlignment: .start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 4),
+          padding: const EdgeInsets.only(top: AppSpacing.xs),
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: swatchColor,

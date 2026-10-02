@@ -14,6 +14,7 @@ This file holds the stable, long-lived facts about the project. Current status i
 | Application ID | `com.parasshakya.smartcalculator` | CONFIRMED, **applied on Android and iOS** in Phase 1 (DEC-025). Web and desktop keep template identifiers. |
 | Display name | Smart Calculator | CONFIRMED, **applied**: the Android label, and iOS `CFBundleDisplayName` and `CFBundleName`. |
 | Version | `1.0.0+1` | Template default |
+| App icon | The user's own logo (an "S" with + − × ÷ on a dark tile), `assets/brand/smart_calculator_logo.png`, from their `smart_calculator_logo.svg` | CONFIRMED 2026-10-02, **applied** on Android (adaptive and legacy icon, splash) and iOS (icons; unverified) in Phase 11 (DEC-056). Web and desktop keep the template icon. |
 | Purpose | A production-quality, portfolio-level Flutter project | CONFIRMED |
 
 ## Project Goal

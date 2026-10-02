@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
+import 'package:smart_calculator/core/layout/layout_limits.dart';
 import 'package:smart_calculator/core/widgets/key_grid.dart';
 import 'package:smart_calculator/features/programmer/presentation/programmer_base_rows.dart';
 import 'package:smart_calculator/features/programmer/presentation/programmer_keypad.dart';
@@ -23,7 +24,7 @@ class ProgrammerView extends StatelessWidget {
   const ProgrammerView({super.key});
 
   /// The widest the content gets.
-  static const double maxContentWidth = 480;
+  static const double maxContentWidth = LayoutLimits.maxContentWidth;
 
   /// The height of a key row at the default text size.
   static const double baseRowHeight = 48;
@@ -102,7 +103,10 @@ class ProgrammerView extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.lg),
             SizedBox(
-              width: constraints.maxWidth * 0.5,
+              width: math.min(
+                constraints.maxWidth * 0.5,
+                LayoutLimits.maxContentWidth,
+              ),
               height: KeyGrid.heightOf(
                 ProgrammerKeypad.rowCount,
                 rowHeight,

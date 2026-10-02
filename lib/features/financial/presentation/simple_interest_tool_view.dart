@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/formatting/number_format_provider.dart';
-import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
 import 'package:smart_calculator/core/widgets/result_row.dart';
 import 'package:smart_calculator/features/financial/domain/simple_interest.dart';
@@ -123,21 +122,18 @@ class _SimpleInterestToolViewState
             if (result == null)
               const FinancialResultPlaceholder()
             else
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: .stretch,
-                  children: [
-                    ResultRow(
-                      label: l10n.financialSiInterestLabel,
-                      value: formatMoney(format, result.interest),
-                      emphasized: true,
-                    ),
-                    ResultRow(
-                      label: l10n.financialSiTotalLabel,
-                      value: formatMoney(format, result.totalAmount),
-                    ),
-                  ],
-                ),
+              ResultCard(
+                children: [
+                  ResultRow(
+                    label: l10n.financialSiInterestLabel,
+                    value: formatMoney(format, result.interest),
+                    emphasized: true,
+                  ),
+                  ResultRow(
+                    label: l10n.financialSiTotalLabel,
+                    value: formatMoney(format, result.totalAmount),
+                  ),
+                ],
               ),
           ],
         );

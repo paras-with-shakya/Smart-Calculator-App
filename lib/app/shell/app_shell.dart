@@ -4,6 +4,8 @@ import 'package:smart_calculator/app/modes/calculator_mode.dart';
 import 'package:smart_calculator/app/modes/current_mode_notifier.dart';
 import 'package:smart_calculator/app/shell/mode_navigation_rail.dart';
 import 'package:smart_calculator/app/shell/shell_header.dart';
+import 'package:smart_calculator/app/theme/app_motion.dart';
+import 'package:smart_calculator/core/layout/layout_limits.dart';
 import 'package:smart_calculator/core/layout/window_size_class.dart';
 import 'package:smart_calculator/features/calculator/presentation/calculator_view.dart';
 import 'package:smart_calculator/features/calculator/presentation/scientific_calculator_view.dart';
@@ -29,7 +31,7 @@ class AppShell extends StatelessWidget {
 
   /// The shortest window that shows the history panel: Material's compact
   /// height class ends here.
-  static const double historyPanelMinHeight = 480;
+  static const double historyPanelMinHeight = LayoutLimits.compactHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -91,18 +93,48 @@ class _RailShell extends StatelessWidget {
   );
 }
 
-/// The current mode's content.
+/// The current mode's content. Switching modes cross-fades the two screens
+/// ([AppMotion.medium]; instant when the platform asks for reduced motion).
 class _CurrentModeView extends ConsumerWidget {
   const _CurrentModeView();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) =>
-      switch (ref.watch(currentModeProvider)) {
-        CalculatorMode.basic => const CalculatorView(),
-        CalculatorMode.scientific => const ScientificCalculatorView(),
-        CalculatorMode.converter => const ConverterView(),
-        CalculatorMode.finance => const FinancialView(),
-        CalculatorMode.date => const DateCalculatorView(),
-        CalculatorMode.programmer => const ProgrammerView(),
-      };
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = ref.watch(currentModeProvider);
+    return AnimatedSwitcher(
+      duration: AppMotion.durationOf(context, AppMotion.medium),
+      switchInCurve: AppMotion.standard,
+      switchOutCurve: AppMotion.standard,
+      layoutBuilder: _layout,
+      child: KeyedSubtree(
+        key: ValueKey(mode),
+        child: switch (mode) {
+          CalculatorMode.basic => const CalculatorView(),
+          CalculatorMode.scientific => const ScientificCalculatorView(),
+          CalculatorMode.converter => const ConverterView(),
+          CalculatorMode.finance => const FinancialView(),
+          CalculatorMode.date => const DateCalculatorView(),
+          CalculatorMode.programmer => const ProgrammerView(),
+        },
+      ),
+    );
+  }
+
+  /// Both screens fill the space (as the one screen did before), and the one
+  /// fading out can no longer be tapped or read by a screen reader. Every
+  /// child gets the same wrapper, keyed like the child, so a screen keeps its
+  /// state when it moves from incoming to outgoing.
+  static Widget _layout(Widget? current, List<Widget> previous) => Stack(
+    fit: StackFit.expand,
+    children: [
+      for (final child in previous) _wrap(child, outgoing: true),
+      if (current != null) _wrap(current, outgoing: false),
+    ],
+  );
+
+  static Widget _wrap(Widget child, {required bool outgoing}) => IgnorePointer(
+    key: child.key,
+    ignoring: outgoing,
+    child: ExcludeSemantics(excluding: outgoing, child: child),
+  );
 }

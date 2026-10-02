@@ -13,12 +13,12 @@ import 'package:smart_calculator/l10n/app_localizations.dart';
 /// The icon shown for [tool].
 IconData iconFor(FinancialToolId tool) => switch (tool) {
   FinancialToolId.emi => Icons.payments_outlined,
-  FinancialToolId.simpleInterest => Icons.trending_up,
-  FinancialToolId.compoundInterest => Icons.show_chart,
+  FinancialToolId.simpleInterest => Icons.trending_up_outlined,
+  FinancialToolId.compoundInterest => Icons.show_chart_outlined,
   FinancialToolId.gst => Icons.receipt_long_outlined,
   FinancialToolId.discount => Icons.sell_outlined,
   FinancialToolId.tip => Icons.room_service_outlined,
-  FinancialToolId.percentage => Icons.percent,
+  FinancialToolId.percentage => Icons.percent_outlined,
 };
 
 /// The label shown for [tool].

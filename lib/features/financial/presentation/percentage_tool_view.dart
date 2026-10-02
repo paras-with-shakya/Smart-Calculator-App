@@ -5,7 +5,6 @@ import 'package:smart_calculator/app/theme/app_colors.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/app/theme/app_typography.dart';
 import 'package:smart_calculator/core/formatting/number_format_provider.dart';
-import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_choice_group.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
 import 'package:smart_calculator/core/widgets/result_row.dart';
@@ -186,14 +185,16 @@ class _PercentageToolViewState extends ConsumerState<PercentageToolView> {
             if (result == null)
               const FinancialResultPlaceholder()
             else
-              AppCard(
-                child: ResultRow(
-                  label: l10n.financialPercentResultLabel,
-                  value: _operation == PercentageOperation.whatPercent
-                      ? '${formatPercent(format, result)}%'
-                      : formatMoney(format, result),
-                  emphasized: true,
-                ),
+              ResultCard(
+                children: [
+                  ResultRow(
+                    label: l10n.financialPercentResultLabel,
+                    value: _operation == PercentageOperation.whatPercent
+                        ? '${formatPercent(format, result)}%'
+                        : formatMoney(format, result),
+                    emphasized: true,
+                  ),
+                ],
               ),
           ],
         );

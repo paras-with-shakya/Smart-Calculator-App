@@ -19,6 +19,71 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-10-02 (night): Phase 11, Polish — uncommitted
+
+The user approved Phase 11 ("phase 11 star now"). The phase was audited three ways (read-only), planned, and the plan independently reviewed before any code; the review corrected six major points (DEC-056). **Not committed** (the user commits); nothing pushed; Phase 12 not started.
+
+### Added
+
+- **The user's logo as the app icon and splash.** The logo (`smart_calculator_logo.svg`) contains only an embedded 590 × 524 PNG; it is kept byte for byte as `assets/brand/smart_calculator_logo.png` (not bundled).
+  - A skipped, tagged generator renders every icon from it: `test/brand/generate_launcher_icons_test.dart`, tag `launcher-icons`, declared in `dart_test.yaml`.
+  - Android: an adaptive icon (`mipmap-anydpi-v26/ic_launcher.xml`, background `#0C1231`, foreground per density), legacy icons, and an Android 12+ splash icon (`drawable-*/splash_icon.png`).
+  - iOS: all 19 icons as RGB PNGs without alpha, through `test/brand/rgb_png.dart`.
+  - No new dependency.
+- **Launch screen colours** (`values/colors.xml`, `values-night/colors.xml`) equal to the app's background, plus `values-v31` and `values-night-v31` splash styles.
+- **`ResultCard`** (core): a result card that screen readers read as one item, optionally a live region.
+- **Spoken unit names** for all 34 converter units ("80 metres", "1 foot", "83 Indian rupees"); the unit picker reads and searches them.
+- **`LayoutLimits`** (core): the 480 dp content width and compact height.
+- **A mode cross-fade** (`AppMotion.medium`; instant with reduced motion).
+- **A real `README.md`.**
+- **Tests:**
+  - `screen_accessibility_test.dart`: 36 tests, every screen in four themes;
+  - `tablet_layout_test.dart`;
+  - `launcher_icons_test.dart` and `launch_screen_colours_test.dart`;
+  - `unit_names_test.dart`, `result_row_test.dart`;
+  - design-review screenshots of every mode, History and Settings (126 tests).
+
+### Changed
+
+- The Converter's category picker is one row of chips that scrolls sideways (the user's choice), so the cards and the whole keypad fit a 360 × 800 dp phone without scrolling.
+- The dark palette's `card` is `#2A2825` (was `#1F1E1C`, about 1.1:1 against the background; now about 1.26:1).
+- The system navigation bar's buttons follow the theme.
+- Outlined icons throughout, and a filled icon for the rail's selected mode.
+- EMI's Years/Months choice has its own row (no fixed 168 dp box).
+- `ResultRow` puts the value under the label when they do not fit side by side.
+- `DisplayText` can cap a line's height (`maxLineHeight`), used by the calculator display.
+- The Converter and Programmer landscape keypads are capped at 480 dp.
+- The History page is a centred column on wide windows.
+- Backspace announces "clear everything" for its long press.
+- `AppColors.contrastBorder` replaces three copies of the high-contrast edge (Known Issues #12).
+
+### Fixed
+
+- **Known Issues #18:** the six failing design-review tests. They now use the shared in-memory database (`inMemoryDatabaseOverride()`).
+- **Scientific at 200% text:** the display's main line was cut off at the top.
+- **200% text:** result labels were ellipsized ("Differen…").
+- **History and Saved:** they showed the raw exception when they could not load. They now show a plain message, "Try again" (which reopens a failed database) and "Loading…".
+- **Settings:** choosing a history limit while the history could not be read threw. The choice is now kept.
+- **Found on the phone:** the EMI/GST share-of-whole bar was invisible (its segments were 0 dp tall) since Phase 7.
+- **Found on the phone:** HyperOS showed no splash icon, then an unmasked square, until the splash icon was named explicitly.
+
+### Tests
+
+- `flutter analyze`: no issues.
+- `dart format --set-exit-if-changed lib test packages`: 0 changed.
+- `flutter test`: 1808 passed, 2 skipped (the two generators), 0 failed; was 1704.
+- `dart test` in `packages/calc_engine`: 459 passed (no engine change).
+- Design review: 126 passed.
+- `flutter build apk --debug`: built.
+- `flutter build apk --release`: built, 55.0 MB.
+  - `aapt`: no `INTERNET`, no `allowBackup`; the icon, splash and colour resources are present.
+- Three regression tests were seen failing before their fixes: the 200% display, the converter keypad fit, and the share-bar height.
+- **Phone (`23124RN87I`):**
+  - Passed: the launcher icon, the splash in dark and light, the converter fit and its spoken amounts, and the EMI result as one screen-reader item.
+  - Postponed by the user: the share bar after its fix, 200% text, reduced motion and the navigation-bar buttons.
+
+---
+
 ## 2026-10-02 (evening): stop tracking `android/build/`; the docs record `21c9513` — uncommitted
 
 After the user committed the Phase 10 finalization pass as `21c9513` and pushed it (`main` and `origin/main` in sync). No code or behaviour change, no Phase 11 work. Left uncommitted for the user.

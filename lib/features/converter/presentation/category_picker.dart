@@ -1,7 +1,7 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smart_calculator/app/theme/app_motion.dart';
+import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/app/theme/app_typography.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
@@ -12,13 +12,13 @@ import 'package:smart_calculator/l10n/app_localizations.dart';
 
 /// The icon shown for [category].
 IconData iconFor(ConversionCategoryId category) => switch (category) {
-  ConversionCategoryId.length => Icons.straighten,
-  ConversionCategoryId.weight => Icons.scale,
-  ConversionCategoryId.temperature => Icons.thermostat,
-  ConversionCategoryId.area => Icons.crop_square,
+  ConversionCategoryId.length => Icons.straighten_outlined,
+  ConversionCategoryId.weight => Icons.scale_outlined,
+  ConversionCategoryId.temperature => Icons.thermostat_outlined,
+  ConversionCategoryId.area => Icons.crop_square_outlined,
   ConversionCategoryId.volume => Icons.local_drink_outlined,
-  ConversionCategoryId.time => Icons.schedule,
-  ConversionCategoryId.currency => Icons.currency_exchange,
+  ConversionCategoryId.time => Icons.schedule_outlined,
+  ConversionCategoryId.currency => Icons.currency_exchange_outlined,
 };
 
 /// The label shown for [category].
@@ -33,110 +33,101 @@ String labelFor(AppLocalizations l10n, ConversionCategoryId category) =>
       ConversionCategoryId.currency => l10n.converterCategoryCurrency,
     };
 
-/// A wrapping grid of tiles, one per [ConversionCategoryId], the current
-/// one tinted with [AppCard.selected] — not `AppChoiceGroup`, which falls
-/// back to a tall vertical radio list once labels stop fitting a segmented
-/// row (likely with this many options on a phone width), losing the icon
-/// grid this app's own gallery already uses for a similar choice.
+/// One row of chips, one per [ConversionCategoryId], that scrolls sideways;
+/// the current one is tinted with [AppCard.selected] and kept in view.
 ///
-/// Every tile is the same width: at least [_minTileWidth], and wide enough
-/// for the longest label on one line at the current text size, so a label
-/// ("Temperature") is never broken mid-word, at any text size.
-class CategoryPicker extends ConsumerWidget {
+/// A row rather than the earlier grid of tiles (Phase 11, the user's
+/// choice): the grid took three rows on a phone, which pushed the bottom
+/// keypad rows off the screen. Each chip is as wide as its label, so a label
+/// is never broken (Known Issues #19), at any text size.
+class CategoryPicker extends ConsumerStatefulWidget {
   /// Creates the picker.
   const CategoryPicker({super.key});
 
-  static const double _minTileWidth = 96;
+  @override
+  ConsumerState<CategoryPicker> createState() => _CategoryPickerState();
+}
 
-  /// Side padding of a tile. Narrower than [AppCard]'s default, so that the
-  /// longest label at 100% text still leaves three tiles to a row on a
-  /// 360 dp phone.
-  static const EdgeInsets _tilePadding = EdgeInsets.symmetric(
-    horizontal: AppSpacing.sm,
-    vertical: AppSpacing.md,
-  );
+class _CategoryPickerState extends ConsumerState<CategoryPicker> {
+  final Map<ConversionCategoryId, GlobalKey> _chipKeys = {
+    for (final category in ConversionCategoryId.values) category: GlobalKey(),
+  };
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    // The saved category may be at the end of the row, out of view.
+    _revealSelected(animate: false);
+  }
+
+  /// Scrolls the selected chip into view after this frame.
+  void _revealSelected({required bool animate}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final chip =
+          _chipKeys[ref.read(converterProvider).category]!.currentContext;
+      if (chip == null) return;
+      Scrollable.ensureVisible(
+        chip,
+        alignment: 0.5,
+        duration: animate
+            ? AppMotion.durationOf(context, AppMotion.medium)
+            : Duration.zero,
+        curve: AppMotion.standard,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final current = ref.watch(
       converterProvider.select((state) => state.category),
     );
+    ref.listen(
+      converterProvider.select((state) => state.category),
+      (_, _) => _revealSelected(animate: true),
+    );
     final notifier = ref.read(converterProvider.notifier);
     final labelStyle = AppTypography.of(context).label;
-    final widest = _widestLabel(
-      [
-        for (final category in ConversionCategoryId.values)
-          labelFor(l10n, category),
-      ],
-      labelStyle,
-      MediaQuery.textScalerOf(context),
-      Directionality.of(context),
-    );
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final fitting = math.max(
-          _minTileWidth,
-          widest.ceilToDouble() + _tilePadding.horizontal,
-        );
-        // Never wider than the space there is; a label then breaks only if
-        // even a whole row cannot hold it.
-        final tileWidth = constraints.hasBoundedWidth
-            ? math.min(fitting, constraints.maxWidth)
-            : fitting;
-
-        return Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
-          children: [
-            for (final category in ConversionCategoryId.values)
-              SizedBox(
-                width: tileWidth,
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (final (index, category) in ConversionCategoryId.values.indexed)
+            Padding(
+              padding: EdgeInsetsDirectional.only(
+                start: index == 0 ? 0 : AppSpacing.sm,
+              ),
+              child: ConstrainedBox(
+                key: _chipKeys[category],
+                constraints: BoxConstraints(
+                  minHeight: AppSizing.minTarget(context),
+                ),
                 child: AppCard(
                   selected: category == current,
-                  padding: _tilePadding,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.sm,
+                  ),
                   onTap: () {
                     ref.read(keyFeedbackProvider).select();
                     notifier.selectCategory(category);
                   },
-                  child: Column(
+                  child: Row(
+                    mainAxisSize: .min,
                     children: [
                       Icon(iconFor(category)),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        labelFor(l10n, category),
-                        textAlign: .center,
-                        style: labelStyle,
-                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Text(labelFor(l10n, category), style: labelStyle),
                     ],
                   ),
                 ),
               ),
-          ],
-        );
-      },
+            ),
+        ],
+      ),
     );
-  }
-
-  /// The width of the widest of [labels] on one line.
-  static double _widestLabel(
-    List<String> labels,
-    TextStyle style,
-    TextScaler textScaler,
-    TextDirection textDirection,
-  ) {
-    var widest = 0.0;
-    for (final label in labels) {
-      final painter = TextPainter(
-        text: TextSpan(text: label, style: style),
-        textDirection: textDirection,
-        textScaler: textScaler,
-        maxLines: 1,
-      )..layout();
-      widest = math.max(widest, painter.width);
-      painter.dispose();
-    }
-    return widest;
   }
 }

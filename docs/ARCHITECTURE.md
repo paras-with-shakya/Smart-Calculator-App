@@ -260,8 +260,8 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 
 | Platform | Identity | Verification |
 | --- | --- | --- |
-| Android | `com.parasshakya.smartcalculator`, label "Smart Calculator"; the Kotlin package matches | APK builds, and it was tested on the user's phone (Android 15, 360 dp; see DEVELOPMENT_STATUS.md) |
-| iOS | Bundle ID `com.parasshakya.smartcalculator` (tests: `.RunnerTests`), `CFBundleName` and `CFBundleDisplayName` "Smart Calculator" | Can't be built on Windows (P-5) |
+| Android | `com.parasshakya.smartcalculator`, label "Smart Calculator"; the Kotlin package matches | APK builds, and it was tested on the user's phone (Android 15, 360 dp; see DEVELOPMENT_STATUS.md). Launcher icon, adaptive icon and splash from the user's logo (§1.24) |
+| iOS | Bundle ID `com.parasshakya.smartcalculator` (tests: `.RunnerTests`), `CFBundleName` and `CFBundleDisplayName` "Smart Calculator" | Can't be built on Windows (P-5). App icons generated from the user's logo (§1.24), unverified; the launch screen is still the template's |
 | web, Windows, Linux, macOS | Template identifiers (DEC-025) | Not built. Not supported targets (DEC-004). |
 
 ### 1.15 Tests (1356 passed in the normal app run, plus 387 in the engine)
@@ -301,7 +301,7 @@ Pure Dart; the app depends on it by path. Dependencies: `rational` ^2.2.3, and `
 | `test/features/converter/presentation/converter_view_test.dart` | 14 tests: the whole screen — portrait/landscape layout and touch targets, 200%-text at four sizes, category switching, typing and the computed result, backspace, swap, the unit-picker sheet (open, search-filter, pick, no-matches), and the sign toggle enabled only for temperature (DEC-051) |
 | `test/features/financial/domain/{emi,simple_interest,compound_interest,gst,discount,tip,percentage}_test.dart` | 69 tests across all seven tools: formula correctness against independently-verified reference values (including the classic EMI example, to the cent), validation-boundary cases, the r=0/zero-time/extreme-rate edge cases, the GST inclusive/exclusive exact round-trip, `splitIntraState`'s CGST+SGST invariant, and the tip per-person rounding artifact (documented as expected, not a bug) |
 | `test/features/financial/application/financial_tool_notifier_test.dart` | 3 tests: defaults to EMI, `selectTool` persists, a fresh notifier picks up the saved tool after a restart |
-| `test/features/converter/presentation/category_picker_test.dart` | 10 tests (real fonts): no category label wraps in portrait and landscape at 100%, 115%, 130% and 200% text, every tile is the same size, three tiles to a row at 100% on a 360 dp phone (Known Issues #19) |
+| `test/features/converter/presentation/category_picker_test.dart` | 10 tests (real fonts): no category label wraps in portrait and landscape at 100%, 115%, 130% and 200% text (Known Issues #19); the chips sit in one row, each at least 48 dp tall; a category at the end of the row is scrolled into view |
 | `test/features/financial/presentation/financial_tool_picker_test.dart` | 12 tests (real fonts): no word of a tool label is broken across lines in portrait and landscape at 100%, 115%, 130% and 200% text, nor with bold text at 100% and 200%; every tile is the same width; three tiles to a row at 100% on a 360 dp phone (Known Issues #21) |
 | `test/features/financial/presentation/financial_view_test.dart` | 20 tests: the whole screen — layout at all four `TestWindows` sizes plus 200% text, the tool picker (switching, persistence across a restart), and one happy-path plus one validation-boundary case per tool (EMI's classic reference example and its chart, GST's exclusive/inclusive and intra/inter-state modes, discount's 100%/101% boundary, tip's split, all three percentage operations) |
 | `test/core/widgets/share_of_whole_bar_test.dart` | 4 tests: legend rendering, a near-zero segment still rendering, the legend showing the true value regardless of the bar's rounded flex width, and the documented `total>0` precondition tripping its `assert` |
@@ -380,7 +380,7 @@ Its own state (`converterProvider`, not `calculatorProvider` — DEC-013's reaso
 - **application:** `ConverterNotifier`/`ConverterState` — category, `fromUnitId`, `toUnitId`, the typed `amount`, and (for currency) the live `currencyRates` map. `table` resolves to the active category's live conversion table; `result` is `table.convert(...)` or null while nothing's typed. `swap()` exchanges `fromUnitId`/`toUnitId` only, leaving the typed text unchanged (re-typing the previous result would need its own number-to-text formatting, with its own edge cases — DEC-051). Persistence (last category, last from/to unit pair, each currency's rate) is folded directly into this notifier, reading/writing through `SettingsRepository` — no separate preferences notifier, since (unlike `AngleModeNotifier`) nothing else needs to read converter preferences (DEC-051).
 - **presentation:**
   - `ConverterView`: the screen `app_shell.dart` renders for `CalculatorMode.converter`. One scrollable column in portrait; category picker and cards on the left, keypad on the right in landscape.
-  - `CategoryPicker`: a wrapping `AppCard` grid, one tile per `ConversionCategoryId`, `selected` tint on the active one — not `AppChoiceGroup`, which falls back to a vertical radio list once labels stop fitting a segmented row (likely with 7 options). Every tile has the same width: at least 96 dp, and wide enough for the longest label on one line at the current text size (measured with a `TextPainter` and the ambient `TextScaler`, capped at the available width), with `AppSpacing.sm` side padding, so no label ("Temperature") breaks mid-word at any text size (Phase 10 finalization, Known Issues #19; the Financial tool picker uses the same rule per word, §1.20).
+  - `CategoryPicker`: one row of `AppCard` chips (icon and label, at least 48 dp tall) that scrolls sideways, the current one tinted and scrolled into view. It was a wrapping tile grid until Phase 11, when the grid's three rows pushed the keypad off a phone screen (DEC-056). A chip is as wide as its label, so no label breaks (Known Issues #19).
   - `ConverterCard`: shows one side's amount and unit; tapping opens `unit_picker_sheet.dart`'s searchable bottom sheet (mirroring `history_content.dart`'s own search pattern). A non-USD currency unit also gets a small "edit rate" button opening a dialog (an `AppTextField` in an `AlertDialog` — `AppDialog` itself is message-only, so this one dialog is built directly rather than stretched to fit a form field).
   - `ConverterKeypad`: digits, `.`, ⌫ (held clears) and a ± key (enabled only where the category allows a negative amount), built directly from `CalculatorButton` — not `CalculatorKeypad`, which is wired to the main calculator's own notifier and grammar.
 - **Reused as-is:** `AppCard`, `AppIconButton`, `showAppBottomSheet`/`AppTextField`, `CalculatorButton`, `LocalizedNumberFormat` (region-correct grouping/decimal separator for both the typed amount and the computed result).
@@ -448,6 +448,51 @@ The Settings page and everything it controls. Decision: DEC-055.
 - **About and the claims it makes:** `AppInfo` (`lib/core/app_info.dart`: `1.0.0`, build `1`) is checked against `pubspec.yaml` and the Gradle build; the privacy summary (`settingsPrivacy*` strings) is checked by `test/core/privacy_claims_test.dart`: the app manifest declares no permission, no `dart:io`/`http`/socket import exists in `lib/` or the engine, and the direct dependencies are a fixed list (a new one fails the test on purpose). It does not claim data never leaves the device (Android backup is on by default; `android:allowBackup` is not set). The removal paragraph says that clearing the history deletes only the history and that uninstalling removes all of the app's data (corrected in the finalization pass: it had said clearing the history removes "this data").
 - **Tests:** `test/features/settings/app_settings_test.dart` (defaults, round trips, wrong-typed and unrecognised values, the notifier), `settings_page_test.dart` (every control, persistence across a restart, the history confirmations, About, layouts, 200% text, semantics), `test/core/feedback/key_feedback_test.dart`, `test/features/history/history_retention_test.dart`, `test/features/calculator/presentation/decimal_places_display_test.dart`, `test/app/accessibility_settings_test.dart` (text scaler, `AppSizing`, high contrast with the platform flag, default mode), `test/core/{app_info,privacy_claims}_test.dart`, `test/core/widgets/settings_widgets_test.dart`, and `packages/calc_engine/test/decimal_places_test.dart`.
 - **Not built, by decision (DEC-055):** developer information; a legal privacy policy or link; language choice; per-mode angle defaults; haptic strength; sound choices; accent colours; backup/export; any new dependency.
+
+### 1.24 Polish (Phase 11)
+
+Full reasoning: DEC-056.
+
+- **Brand assets:**
+  - **Source:** the user's logo, kept as `assets/brand/smart_calculator_logo.png`, byte for byte the PNG inside their `smart_calculator_logo.svg`. It is not listed under `flutter: assets:`, so it is not bundled.
+  - **Generator:** `test/brand/generate_launcher_icons_test.dart` (tag `launcher-icons`, skipped in `dart_test.yaml`). It measures the logo's tile, its edge colour and the artwork's radius, then renders with `dart:ui`:
+    - the Android legacy icons (`mipmap-*/ic_launcher.png`, 48 dp);
+    - the adaptive foregrounds (`mipmap-*/ic_launcher_foreground.png`, 108 dp, artwork inside the 66 dp safe zone), with `values/ic_launcher_background.xml` (`#0C1231`);
+    - the Android 12+ splash icons (`drawable-*/splash_icon.png`: the rounded tile, 120 dp on 288 dp);
+    - the 19 iOS icons, as opaque RGB PNGs (`rgb_png.dart`).
+  - **Shared spec and checks:** `launcher_icon_spec.dart` holds the sizes; `launcher_icons_test.dart` checks every size, the adaptive XML and that the iOS icons have no alpha.
+  - **Rerun** the generator after the logo changes.
+- **Launch screen:**
+  - **Colours:** `launch_background` in `values/colors.xml` (`#F2EFEA`) and `values-night/colors.xml` (`#141312`).
+  - **Before Android 12:** the window background of `LaunchTheme` (through `drawable-v21/launch_background.xml`) and of `NormalTheme`.
+  - **Android 12+:** `values-v31` and `values-night-v31` set `windowSplashScreenBackground` and `windowSplashScreenAnimatedIcon` (`@drawable/splash_icon`).
+  - **Test:** `launch_screen_colours_test.dart` keeps the colours equal to `AppColors`.
+  - **iOS:** `LaunchScreen.storyboard` is unchanged (template white; no Mac to check).
+- **Shell:**
+  - **Mode switches:** `_CurrentModeView` cross-fades the outgoing and incoming screens (`AnimatedSwitcher`, `AppMotion.medium` through `durationOf`). Both fill the space (`StackFit.expand`), and the outgoing one is wrapped in `IgnorePointer` and `ExcludeSemantics`. Every child gets the same wrapper, keyed like the child, so no state is rebuilt.
+  - **Rail icons:** each destination shows `CalculatorMode.icon` (outlined) and `selectedIcon` (filled).
+  - **Navigation bar:** `SmartCalculatorApp.builder` also wraps an `AnnotatedRegion<SystemUiOverlayStyle>` (`navigationBarStyle`): navigation-bar buttons that contrast with the theme, a transparent bar, no enforced scrim. The status bar is left to each app bar.
+- **Core additions:**
+  - **`LayoutLimits`** (`lib/core/layout/`): `maxContentWidth` and `compactHeight`, both 480. The screens' old constants are now aliases of these.
+  - **`ResultCard`** (`result_row.dart`): `MergeSemantics` around `Semantics(liveRegion:)` around an `AppCard`, so a card is one node. `ResultPlaceholder` takes `liveRegion` too.
+  - **`ResultRow`:** an `OverflowBar` (label and value side by side, else stacked).
+  - **`DisplayText.maxLineHeight`:** `CalculatorDisplay` gives the main line half the display's height and each side line a quarter.
+  - **`CalculatorButton.longPressHint`:** for the backspace keys.
+  - **`AppColors.contrastBorder`:** the high-contrast edge, used by the theme, `AppCard` and `CalculatorButton`.
+- **Screen readers:**
+  - **Results:** the financial and date results are `ResultCard`s; only Date's are live.
+  - **Converter cards:** they read "From, 80 metres". `unit_names.dart` (presentation) maps unit ids to plural ICU messages (`converterUnitSpoken*`), and the unit picker reads and searches the names.
+- **Converter:** `CategoryPicker` is a horizontally scrolling row of chips (at least 48 dp tall), and it scrolls the selected one into view. The landscape keypad is `min(50%, 480)`, and so is Programmer's.
+- **States:**
+  - **History and Saved:** `ErrorState` with a title, a message and "Try again". Try again invalidates `appDatabaseProvider` when it is in error, then the list's provider. `LoadingState` shows "Loading…".
+  - **Settings:** changing the history limit tolerates an unreadable history.
+- **Tests and tooling:**
+  - **`inMemoryDatabaseOverride()`** (`test/helpers/test_app.dart`), shared by `pumpApp` and the design-review helpers.
+  - **`expectTouchTargets`:** now in `test/helpers/touch_targets.dart`.
+  - **`screen_accessibility_test.dart`:** Flutter's text-contrast, tap-target and label guidelines on every real screen in four themes.
+  - **`tablet_layout_test.dart`.**
+  - **Design review:** the "every screen" group renders each mode, History and Settings at four sizes, light and dark, plus 200% text.
+- **Deferred (the user's choice, Known Issues #22):** tablet redesigns, one key shape, and equal-height financial tiles.
 
 ## 2. Confirmed Decisions
 
@@ -519,7 +564,7 @@ The scientific engine (functions, `^`, exact/approximate values, angle mode, the
 
 - ~~**In-app switches** (Phase 10): high contrast, "larger buttons", and possibly haptics on or off.~~ **Done in Phase 10** (DEC-055): high contrast, larger controls, text size, haptics and key sounds are all in Settings.
 - ~~**Programmer mode font** (Phase 9): JetBrains Mono, which must be re-verified and bundled first (DEC-028).~~ **Done in Phase 9** (DEC-054): verified monospaced (every glyph 0.600 em) and bundled.
-- **Icon scaling review** (Phase 11): icons follow the platform and don't grow with text size.
+- ~~**Icon scaling review** (Phase 11)~~ **Decided in Phase 11** (DEC-056): icons follow the platform and stay a fixed size while text scales; labels carry the meaning and touch targets stay 48 dp.
 
 ### 3.7 Localization still to come
 

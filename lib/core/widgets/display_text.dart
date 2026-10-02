@@ -25,6 +25,7 @@ class DisplayText extends LeafRenderObjectWidget {
     required this.style,
     required this.color,
     this.minScale = 0.5,
+    this.maxLineHeight,
     this.caretOffset,
     this.onTapOffset,
     this.semanticsLabel,
@@ -42,6 +43,11 @@ class DisplayText extends LeafRenderObjectWidget {
 
   /// How far the text may shrink before it wraps, as a fraction of [style].
   final double minScale;
+
+  /// The tallest one line may be; the text shrinks (down to [minScale]) so a
+  /// line is no taller. For a display too short for its style at a large
+  /// text size. Null for no limit.
+  final double? maxLineHeight;
 
   /// Where to draw a caret, as an offset into [text]; null for none.
   final int? caretOffset;
@@ -64,6 +70,7 @@ class DisplayText extends LeafRenderObjectWidget {
         style: style,
         color: color,
         minScale: minScale,
+        maxLineHeight: maxLineHeight,
         caretOffset: caretOffset,
         caretColor: AppColors.of(context).primary,
         onTapOffset: onTapOffset,
@@ -83,6 +90,7 @@ class DisplayText extends LeafRenderObjectWidget {
       ..style = style
       ..color = color
       ..minScale = minScale
+      ..maxLineHeight = maxLineHeight
       ..caretOffset = caretOffset
       ..caretColor = AppColors.of(context).primary
       ..onTapOffset = onTapOffset
@@ -101,6 +109,7 @@ class RenderDisplayText extends RenderBox {
     required this._style,
     required this._color,
     required this._minScale,
+    required this._maxLineHeight,
     required this._caretOffset,
     required this._caretColor,
     required this._onTapOffset,
@@ -150,6 +159,13 @@ class RenderDisplayText extends RenderBox {
   set minScale(double value) {
     if (value == _minScale) return;
     _minScale = value;
+    markNeedsLayout();
+  }
+
+  double? _maxLineHeight;
+  set maxLineHeight(double? value) {
+    if (value == _maxLineHeight) return;
+    _maxLineHeight = value;
     markNeedsLayout();
   }
 
@@ -205,12 +221,23 @@ class RenderDisplayText extends RenderBox {
   );
 
   /// Lays [painter] out for [maxWidth] at the largest scale at which the
-  /// text fits on one line (at least `minScale`), and returns that scale.
+  /// text fits on one line no taller than `maxLineHeight` (at least
+  /// `minScale`), and returns that scale.
   double _layoutFitted(TextPainter painter, double maxWidth) {
     painter
       ..textDirection = _textDirection
       ..textScaler = _textScaler;
     var scale = 1.0;
+    final maxLineHeight = _maxLineHeight;
+    if (maxLineHeight != null) {
+      painter
+        ..text = _span(1)
+        ..layout();
+      final lineHeight = painter.preferredLineHeight;
+      if (lineHeight > maxLineHeight) {
+        scale = math.max(_minScale, maxLineHeight / lineHeight);
+      }
+    }
     for (var attempt = 0; attempt < _fitAttempts; attempt++) {
       painter
         ..text = _span(scale)

@@ -4,3 +4,9 @@ tags:
   #   flutter test --tags design-review --run-skipped --update-goldens
   design-review:
     skip: "Design-review screenshot generator; run it on demand."
+  # Regenerates the Android and iOS launcher icons from
+  # assets/brand/smart_calculator_logo.png. It rewrites files under android/
+  # and ios/, so it never runs in a normal run. Run it after the logo changes:
+  #   flutter test --tags launcher-icons --run-skipped test/brand/generate_launcher_icons_test.dart
+  launcher-icons:
+    skip: "Launcher icon generator; run it on demand."

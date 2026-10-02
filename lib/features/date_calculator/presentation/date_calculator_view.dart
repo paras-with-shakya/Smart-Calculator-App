@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_calculator/app/theme/app_colors.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/app/theme/app_typography.dart';
+import 'package:smart_calculator/core/layout/layout_limits.dart';
 import 'package:smart_calculator/core/widgets/app_choice_group.dart';
 import 'package:smart_calculator/features/date_calculator/presentation/date_difference_tool_view.dart';
 import 'package:smart_calculator/features/date_calculator/presentation/date_offset_tool_view.dart';
@@ -20,7 +21,7 @@ class DateCalculatorView extends StatefulWidget {
   const DateCalculatorView({super.key});
 
   /// The widest the content column gets.
-  static const double maxContentWidth = 480;
+  static const double maxContentWidth = LayoutLimits.maxContentWidth;
 
   @override
   State<DateCalculatorView> createState() => _DateCalculatorViewState();

@@ -37,9 +37,7 @@ abstract final class AppTheme {
 
   static ThemeData _build(AppColors colors, Brightness brightness) {
     const typography = AppTypography.standard;
-    final outline = colors.contrastOutline.a > 0
-        ? BorderSide(color: colors.contrastOutline)
-        : BorderSide.none;
+    final outline = colors.contrastBorder;
     final buttonShape = AppRadius.shape(AppRadius.md, side: outline);
     const buttonPadding = EdgeInsets.symmetric(
       horizontal: AppSpacing.lg,

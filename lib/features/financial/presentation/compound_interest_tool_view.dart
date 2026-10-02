@@ -5,7 +5,6 @@ import 'package:smart_calculator/app/theme/app_colors.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/app/theme/app_typography.dart';
 import 'package:smart_calculator/core/formatting/number_format_provider.dart';
-import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_choice_group.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
 import 'package:smart_calculator/core/widgets/result_row.dart';
@@ -157,21 +156,18 @@ class _CompoundInterestToolViewState
             if (result == null)
               const FinancialResultPlaceholder()
             else
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: .stretch,
-                  children: [
-                    ResultRow(
-                      label: l10n.financialCiInterestLabel,
-                      value: formatMoney(format, result.interest),
-                      emphasized: true,
-                    ),
-                    ResultRow(
-                      label: l10n.financialCiTotalLabel,
-                      value: formatMoney(format, result.totalAmount),
-                    ),
-                  ],
-                ),
+              ResultCard(
+                children: [
+                  ResultRow(
+                    label: l10n.financialCiInterestLabel,
+                    value: formatMoney(format, result.interest),
+                    emphasized: true,
+                  ),
+                  ResultRow(
+                    label: l10n.financialCiTotalLabel,
+                    value: formatMoney(format, result.totalAmount),
+                  ),
+                ],
               ),
           ],
         );

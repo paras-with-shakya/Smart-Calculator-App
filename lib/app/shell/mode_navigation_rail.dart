@@ -32,6 +32,7 @@ class ModeNavigationRail extends ConsumerWidget {
                 for (final mode in CalculatorMode.values)
                   NavigationRailDestination(
                     icon: Icon(mode.icon),
+                    selectedIcon: Icon(mode.selectedIcon),
                     label: Text(mode.label(l10n)),
                   ),
               ],

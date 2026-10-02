@@ -114,4 +114,26 @@ void main() {
       });
     });
   }
+
+  test('only the high-contrast palettes draw an edge around shapes', () {
+    expect(AppColors.light.contrastBorder, BorderSide.none);
+    expect(AppColors.dark.contrastBorder, BorderSide.none);
+    for (final colors in [
+      AppColors.highContrastLight,
+      AppColors.highContrastDark,
+    ]) {
+      expect(colors.contrastBorder, BorderSide(color: colors.contrastOutline));
+    }
+  });
+
+  test('in the dark palette a card stands out from the background, and is '
+      'no dimmer than a field', () {
+    const dark = AppColors.dark;
+    // Cards have no shadow, so only this step separates them.
+    expect(_contrast(dark.card, dark.background), greaterThanOrEqualTo(1.2));
+    expect(
+      dark.card.computeLuminance(),
+      greaterThanOrEqualTo(dark.surfaceMuted.computeLuminance() * 0.95),
+    );
+  });
 }

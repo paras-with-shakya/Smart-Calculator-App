@@ -11,6 +11,7 @@ import 'package:smart_calculator/features/calculator/presentation/calculator_key
 import 'package:smart_calculator/features/calculator/presentation/calculator_view.dart';
 
 import '../../../helpers/test_app.dart';
+import '../../../helpers/touch_targets.dart';
 
 /// The user's phone, 360 x 800 dp, in portrait and landscape.
 const Size phone = Size(360, 800);
@@ -405,14 +406,6 @@ void main() {
   });
 
   group('layout', () {
-    void expectTouchTargets(WidgetTester tester) {
-      for (final element in find.byType(CalculatorButton).evaluate()) {
-        final size = (element.renderObject! as RenderBox).size;
-        expect(size.height, greaterThanOrEqualTo(kMinInteractiveDimension));
-        expect(size.width, greaterThanOrEqualTo(kMinInteractiveDimension));
-      }
-    }
-
     testWidgets('portrait: the keypad is below the display', (tester) async {
       await pumpCalculator(tester);
 

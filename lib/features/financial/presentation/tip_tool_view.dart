@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/formatting/number_format_provider.dart';
-import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
 import 'package:smart_calculator/core/widgets/result_row.dart';
 import 'package:smart_calculator/features/financial/domain/tip.dart';
@@ -115,25 +114,22 @@ class _TipToolViewState extends ConsumerState<TipToolView> {
             if (result == null)
               const FinancialResultPlaceholder()
             else
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: .stretch,
-                  children: [
-                    ResultRow(
-                      label: l10n.financialTipPerPersonLabel,
-                      value: formatMoney(format, result.perPerson),
-                      emphasized: true,
-                    ),
-                    ResultRow(
-                      label: l10n.financialTipAmountLabel,
-                      value: formatMoney(format, result.tipAmount),
-                    ),
-                    ResultRow(
-                      label: l10n.financialTipTotalLabel,
-                      value: formatMoney(format, result.total),
-                    ),
-                  ],
-                ),
+              ResultCard(
+                children: [
+                  ResultRow(
+                    label: l10n.financialTipPerPersonLabel,
+                    value: formatMoney(format, result.perPerson),
+                    emphasized: true,
+                  ),
+                  ResultRow(
+                    label: l10n.financialTipAmountLabel,
+                    value: formatMoney(format, result.tipAmount),
+                  ),
+                  ResultRow(
+                    label: l10n.financialTipTotalLabel,
+                    value: formatMoney(format, result.total),
+                  ),
+                ],
               ),
           ],
         );

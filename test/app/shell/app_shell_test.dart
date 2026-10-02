@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_calculator/app/modes/calculator_mode.dart';
 import 'package:smart_calculator/app/modes/calculator_mode_presentation.dart';
+import 'package:smart_calculator/app/modes/current_mode_notifier.dart';
 import 'package:smart_calculator/app/shell/mode_picker.dart';
+import 'package:smart_calculator/app/theme/app_motion.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
+import 'package:smart_calculator/features/calculator/presentation/calculator_view.dart';
+import 'package:smart_calculator/features/calculator/presentation/scientific_calculator_view.dart';
 import 'package:smart_calculator/features/history/presentation/history_panel.dart';
 
 import '../../helpers/test_app.dart';
@@ -155,6 +160,79 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(selectedRailIndex(tester), CalculatorMode.values.last.index);
+    });
+  });
+
+  testWidgets('the rail shows outlined icons, the selected one filled', (
+    tester,
+  ) async {
+    await pumpApp(tester, size: TestWindows.tabletPortrait);
+
+    final rail = tester.widget<NavigationRail>(find.byType(NavigationRail));
+    for (final (index, mode) in CalculatorMode.values.indexed) {
+      final destination = rail.destinations[index];
+      expect((destination.icon as Icon).icon, mode.icon);
+      expect((destination.selectedIcon as Icon).icon, mode.selectedIcon);
+    }
+  });
+
+  group('switching modes', () {
+    Future<void> switchToScientific(WidgetTester tester) async {
+      ProviderScope.containerOf(tester.element(find.byType(MaterialApp)))
+          .read(currentModeProvider.notifier)
+          .select(CalculatorMode.scientific);
+      await tester.pump();
+    }
+
+    T nearest<T extends Widget>(WidgetTester tester, Type screen) =>
+        tester.widget<T>(
+          find
+              .ancestor(of: find.byType(screen), matching: find.byType(T))
+              .first,
+        );
+
+    testWidgets('cross-fades the screens; the outgoing one is inert', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await switchToScientific(tester);
+      await tester.pump(AppMotion.medium ~/ 2);
+
+      expect(find.byType(CalculatorView), findsOneWidget);
+      expect(find.byType(ScientificCalculatorView), findsOneWidget);
+      expect(nearest<IgnorePointer>(tester, CalculatorView).ignoring, isTrue);
+      expect(
+        nearest<ExcludeSemantics>(tester, CalculatorView).excluding,
+        isTrue,
+      );
+      expect(
+        nearest<IgnorePointer>(tester, ScientificCalculatorView).ignoring,
+        isFalse,
+      );
+      expect(
+        nearest<ExcludeSemantics>(tester, ScientificCalculatorView).excluding,
+        isFalse,
+      );
+
+      await tester.pumpAndSettle();
+      expect(find.byType(CalculatorView), findsNothing);
+      expect(find.byType(ScientificCalculatorView), findsOneWidget);
+    });
+
+    testWidgets('is instant when the platform asks for reduced motion', (
+      tester,
+    ) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      await pumpApp(tester);
+      await switchToScientific(tester);
+      await tester.pump();
+
+      expect(find.byType(CalculatorView), findsNothing);
+      expect(find.byType(ScientificCalculatorView), findsOneWidget);
     });
   });
 }

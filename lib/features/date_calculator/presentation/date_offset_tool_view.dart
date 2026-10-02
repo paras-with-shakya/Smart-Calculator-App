@@ -6,7 +6,6 @@ import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/app/theme/app_typography.dart';
 import 'package:smart_calculator/core/formatting/date_format_provider.dart';
 import 'package:smart_calculator/core/time/clock_provider.dart';
-import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_choice_group.dart';
 import 'package:smart_calculator/core/widgets/app_date_field.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
@@ -121,22 +120,28 @@ class _DateOffsetToolViewState extends ConsumerState<DateOffsetToolView> {
               onChanged: (unit) => setState(() => _unit = unit),
             ),
             const SizedBox(height: AppSpacing.lg),
-            Semantics(
-              liveRegion: true,
-              child: switch (result) {
-                DateOffsetResult(:final date?) => AppCard(
-                  child: ResultRow(
+            switch (result) {
+              DateOffsetResult(:final date?) => ResultCard(
+                liveRegion: true,
+                children: [
+                  ResultRow(
                     label: l10n.dateResultDate,
                     value: format.long(date),
                     emphasized: true,
                     wrapValue: true,
                   ),
+                ],
+              ),
+              DateOffsetResult(error: DateOffsetError.outOfRange) =>
+                ResultPlaceholder(
+                  message: l10n.dateErrorOutOfRange,
+                  liveRegion: true,
                 ),
-                DateOffsetResult(error: DateOffsetError.outOfRange) =>
-                  ResultPlaceholder(message: l10n.dateErrorOutOfRange),
-                _ => ResultPlaceholder(message: l10n.dateOffsetPlaceholder),
-              },
-            ),
+              _ => ResultPlaceholder(
+                message: l10n.dateOffsetPlaceholder,
+                liveRegion: true,
+              ),
+            },
           ],
         );
       },

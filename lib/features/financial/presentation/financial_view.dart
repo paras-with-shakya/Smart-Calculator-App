@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
+import 'package:smart_calculator/core/layout/layout_limits.dart';
 import 'package:smart_calculator/features/financial/application/financial_tool_notifier.dart';
 import 'package:smart_calculator/features/financial/domain/financial_tool.dart';
 import 'package:smart_calculator/features/financial/presentation/compound_interest_tool_view.dart';
@@ -29,7 +30,7 @@ class FinancialView extends ConsumerWidget {
   const FinancialView({super.key});
 
   /// The widest the content column gets.
-  static const double maxContentWidth = 480;
+  static const double maxContentWidth = LayoutLimits.maxContentWidth;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

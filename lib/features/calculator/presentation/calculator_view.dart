@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/formatting/number_format_provider.dart';
+import 'package:smart_calculator/core/layout/layout_limits.dart';
 import 'package:smart_calculator/features/calculator/application/calculator_notifier.dart';
 import 'package:smart_calculator/features/calculator/domain/calculator_key.dart';
 import 'package:smart_calculator/features/calculator/presentation/calculator_display.dart';
@@ -30,7 +31,7 @@ class CalculatorView extends ConsumerStatefulWidget {
   const CalculatorView({super.key});
 
   /// The widest the keypad gets.
-  static const double keypadMaxWidth = 480;
+  static const double keypadMaxWidth = LayoutLimits.maxContentWidth;
 
   /// The largest share of the height the portrait keypad takes.
   static const double keypadMaxHeightFraction = 0.6;
@@ -40,7 +41,7 @@ class CalculatorView extends ConsumerStatefulWidget {
 
   /// Windows shorter than this use tighter spacing (Material's compact
   /// height class).
-  static const double compactHeight = 480;
+  static const double compactHeight = LayoutLimits.compactHeight;
 
   @override
   ConsumerState<CalculatorView> createState() => _CalculatorViewState();

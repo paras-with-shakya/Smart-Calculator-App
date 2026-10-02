@@ -15,6 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_calculator/app/app_root.dart';
+import 'package:smart_calculator/app/modes/calculator_mode.dart';
+import 'package:smart_calculator/app/modes/current_mode_notifier.dart';
 import 'package:smart_calculator/app/shell/mode_picker.dart';
 import 'package:smart_calculator/app/theme/app_colors.dart';
 import 'package:smart_calculator/app/theme/app_theme.dart';
@@ -147,7 +149,10 @@ void main() {
       await tester.pumpWidget(
         RepaintBoundary(
           key: _capture,
-          child: AppRoot(preferences: preferences),
+          child: AppRoot(
+            preferences: preferences,
+            overrides: [inMemoryDatabaseOverride()],
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -234,7 +239,10 @@ void main() {
       await tester.pumpWidget(
         RepaintBoundary(
           key: _capture,
-          child: AppRoot(preferences: preferences),
+          child: AppRoot(
+            preferences: preferences,
+            overrides: [inMemoryDatabaseOverride()],
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -341,5 +349,134 @@ void main() {
       );
       await capture('calc_tablet_landscape_dark');
     });
+  });
+
+  // Every mode, History and Settings, at every layout size, light and dark:
+  // the Phase 11 tablet, dark-mode and §29 checklist review.
+  group('every screen', () {
+    setUp(useInMemoryPreferences);
+
+    const sizes = {
+      'phone': Size(360, 800),
+      'phone_landscape': Size(800, 360),
+      'tablet_portrait': TestWindows.tabletPortrait,
+      'tablet_landscape': TestWindows.tabletLandscape,
+    };
+
+    Future<ProviderContainer> pumpScreen(
+      WidgetTester tester, {
+      required Size size,
+      required ThemePreference theme,
+      double textScale = 1,
+    }) async {
+      tester.platformDispatcher.localeTestValue = const Locale('en', 'IN');
+      tester.platformDispatcher.textScaleFactorTestValue = textScale;
+      addTearDown(tester.platformDispatcher.clearAllTestValues);
+      final preferences = await openPreferences();
+      await PreferencesSettingsRepository(preferences)
+          .setThemePreference(theme);
+      tester.view
+        ..physicalSize = size
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        RepaintBoundary(
+          key: _capture,
+          child: AppRoot(
+            preferences: preferences,
+            overrides: [inMemoryDatabaseOverride()],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      return ProviderScope.containerOf(
+        tester.element(find.byType(MaterialApp)),
+      );
+    }
+
+    /// Three calculations, so History is not empty.
+    Future<void> seedHistory(
+      WidgetTester tester,
+      ProviderContainer container,
+    ) async {
+      final calculator = container.read(calculatorProvider.notifier);
+      for (final expression in ['1234.5×12', '48000+18%', '125÷8']) {
+        calculator
+          ..typeText(expression)
+          ..press(CalculatorKey.equals)
+          ..press(CalculatorKey.allClear);
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 50)),
+        );
+        await tester.pumpAndSettle();
+      }
+    }
+
+    Future<void> capture(String name) =>
+        expectLater(find.byKey(_capture), matchesGoldenFile(_file(name)));
+
+    for (final mode in CalculatorMode.values) {
+      for (final MapEntry(key: sizeName, value: size) in sizes.entries) {
+        for (final theme in [ThemePreference.light, ThemePreference.dark]) {
+          testWidgets('${mode.name} $sizeName (${theme.name})', (tester) async {
+            final container = await pumpScreen(
+              tester,
+              size: size,
+              theme: theme,
+            );
+            container.read(currentModeProvider.notifier).select(mode);
+            await tester.pumpAndSettle();
+            await capture('mode_${mode.name}_${sizeName}_${theme.name}');
+          });
+        }
+      }
+
+      testWidgets('${mode.name} phone, 200% text (light)', (tester) async {
+        final container = await pumpScreen(
+          tester,
+          size: sizes['phone']!,
+          theme: ThemePreference.light,
+          textScale: 2,
+        );
+        container.read(currentModeProvider.notifier).select(mode);
+        await tester.pumpAndSettle();
+        await capture('mode_${mode.name}_phone_text200_light');
+      });
+    }
+
+    for (final theme in [ThemePreference.light, ThemePreference.dark]) {
+      for (final sizeName in ['phone', 'tablet_portrait']) {
+        testWidgets('history $sizeName (${theme.name})', (tester) async {
+          final container = await pumpScreen(
+            tester,
+            size: sizes[sizeName]!,
+            theme: theme,
+          );
+          await seedHistory(tester, container);
+          await tester.tap(find.byTooltip(l10n.historyTitle).first);
+          await tester.pumpAndSettle();
+          await capture('history_${sizeName}_${theme.name}');
+        });
+
+        testWidgets('settings $sizeName (${theme.name})', (tester) async {
+          await pumpScreen(tester, size: sizes[sizeName]!, theme: theme);
+          await tester.tap(find.byTooltip(l10n.settingsTitle));
+          await tester.pumpAndSettle();
+          await capture('settings_${sizeName}_${theme.name}');
+        });
+      }
+
+      testWidgets('history panel, tablet landscape (${theme.name})', (
+        tester,
+      ) async {
+        final container = await pumpScreen(
+          tester,
+          size: sizes['tablet_landscape']!,
+          theme: theme,
+        );
+        await seedHistory(tester, container);
+        await capture('history_panel_tablet_landscape_${theme.name}');
+      });
+    }
   });
 }

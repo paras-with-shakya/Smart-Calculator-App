@@ -5,7 +5,6 @@ import 'package:smart_calculator/app/theme/app_colors.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/app/theme/app_typography.dart';
 import 'package:smart_calculator/core/formatting/number_format_provider.dart';
-import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_choice_group.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
 import 'package:smart_calculator/core/widgets/result_row.dart';
@@ -142,50 +141,47 @@ class _GstToolViewState extends ConsumerState<GstToolView> {
             if (result == null)
               const FinancialResultPlaceholder()
             else
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: .stretch,
-                  children: [
+              ResultCard(
+                children: [
+                  ResultRow(
+                    label: l10n.financialGstBaseLabel,
+                    value: formatMoney(format, result.baseAmount),
+                  ),
+                  if (_supplyType == _SupplyType.intraState) ...[
                     ResultRow(
-                      label: l10n.financialGstBaseLabel,
-                      value: formatMoney(format, result.baseAmount),
+                      label: l10n.financialGstCgstLabel,
+                      value: formatMoney(
+                        format,
+                        splitIntraState(result.gstAmount).cgst,
+                      ),
                     ),
-                    if (_supplyType == _SupplyType.intraState) ...[
-                      ResultRow(
-                        label: l10n.financialGstCgstLabel,
-                        value: formatMoney(
-                          format,
-                          splitIntraState(result.gstAmount).cgst,
-                        ),
-                      ),
-                      ResultRow(
-                        label: l10n.financialGstSgstLabel,
-                        value: formatMoney(
-                          format,
-                          splitIntraState(result.gstAmount).sgst,
-                        ),
-                      ),
-                    ] else
-                      ResultRow(
-                        label: l10n.financialGstIgstLabel,
-                        value: formatMoney(format, result.gstAmount),
-                      ),
                     ResultRow(
-                      label: l10n.financialGstTotalLabel,
-                      value: formatMoney(format, result.totalAmount),
-                      emphasized: true,
+                      label: l10n.financialGstSgstLabel,
+                      value: formatMoney(
+                        format,
+                        splitIntraState(result.gstAmount).sgst,
+                      ),
                     ),
-                    const SizedBox(height: AppSpacing.md),
-                    ShareOfWholeBar(
-                      baseLabel: l10n.financialGstBaseLabel,
-                      baseValue: result.baseAmount,
-                      baseValueText: formatMoney(format, result.baseAmount),
-                      addedLabel: l10n.financialGstAmountResultLabel,
-                      addedValue: result.gstAmount,
-                      addedValueText: formatMoney(format, result.gstAmount),
+                  ] else
+                    ResultRow(
+                      label: l10n.financialGstIgstLabel,
+                      value: formatMoney(format, result.gstAmount),
                     ),
-                  ],
-                ),
+                  ResultRow(
+                    label: l10n.financialGstTotalLabel,
+                    value: formatMoney(format, result.totalAmount),
+                    emphasized: true,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  ShareOfWholeBar(
+                    baseLabel: l10n.financialGstBaseLabel,
+                    baseValue: result.baseAmount,
+                    baseValueText: formatMoney(format, result.baseAmount),
+                    addedLabel: l10n.financialGstAmountResultLabel,
+                    addedValue: result.gstAmount,
+                    addedValueText: formatMoney(format, result.gstAmount),
+                  ),
+                ],
               ),
           ],
         );

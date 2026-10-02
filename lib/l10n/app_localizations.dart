@@ -178,6 +178,36 @@ abstract class AppLocalizations {
   /// **'No matching calculations.'**
   String get historySearchEmptyMessage;
 
+  /// Heading shown when the history cannot be read from the device.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your history'**
+  String get historyLoadErrorTitle;
+
+  /// Heading shown when the saved calculations cannot be read from the device.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your saved calculations'**
+  String get savedLoadErrorTitle;
+
+  /// Explanation under a load-error heading (history or saved calculations).
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong while reading it from this device. Try again, or restart the app.'**
+  String get loadErrorMessage;
+
+  /// Button that tries to load the history or saved calculations again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get loadRetryAction;
+
+  /// Shown, and announced to screen readers, while a list is loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get loadingMessage;
+
   /// Tooltip and accessibility label of the button that clears the whole calculation history.
   ///
   /// In en, this message translates to:
@@ -459,6 +489,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Backspace'**
   String get keyBackspaceLabel;
+
+  /// What holding the backspace key does, as a screen reader hint (TalkBack reads it as "Double-tap and hold to clear everything"). Lower case, an action.
+  ///
+  /// In en, this message translates to:
+  /// **'clear everything'**
+  String get keyBackspaceLongPressHint;
 
   /// Visible label of the key that empties the calculator memory. Keep it very short.
   ///
@@ -2211,6 +2247,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This is a summary of how the app works, not a legal privacy policy.'**
   String get settingsPrivacyNotPolicy;
+
+  /// What a screen reader says for an amount in the converter unit 'm' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} metre} other{{amount} metres}}'**
+  String converterUnitSpokenM(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'km' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} kilometre} other{{amount} kilometres}}'**
+  String converterUnitSpokenKm(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'cm' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} centimetre} other{{amount} centimetres}}'**
+  String converterUnitSpokenCm(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'mm' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} millimetre} other{{amount} millimetres}}'**
+  String converterUnitSpokenMm(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'mile' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} mile} other{{amount} miles}}'**
+  String converterUnitSpokenMile(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'yard' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} yard} other{{amount} yards}}'**
+  String converterUnitSpokenYard(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'foot' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} foot} other{{amount} feet}}'**
+  String converterUnitSpokenFoot(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'inch' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} inch} other{{amount} inches}}'**
+  String converterUnitSpokenInch(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'kg' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} kilogram} other{{amount} kilograms}}'**
+  String converterUnitSpokenKg(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'g' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} gram} other{{amount} grams}}'**
+  String converterUnitSpokenG(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'mg' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} milligram} other{{amount} milligrams}}'**
+  String converterUnitSpokenMg(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'lb' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} pound} other{{amount} pounds}}'**
+  String converterUnitSpokenLb(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'oz' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} ounce} other{{amount} ounces}}'**
+  String converterUnitSpokenOz(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'celsius' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} degree Celsius} other{{amount} degrees Celsius}}'**
+  String converterUnitSpokenCelsius(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'fahrenheit' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} degree Fahrenheit} other{{amount} degrees Fahrenheit}}'**
+  String converterUnitSpokenFahrenheit(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'kelvin' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} kelvin} other{{amount} kelvins}}'**
+  String converterUnitSpokenKelvin(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'm2' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} square metre} other{{amount} square metres}}'**
+  String converterUnitSpokenM2(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'km2' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} square kilometre} other{{amount} square kilometres}}'**
+  String converterUnitSpokenKm2(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'ft2' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} square foot} other{{amount} square feet}}'**
+  String converterUnitSpokenFt2(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'acre' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} acre} other{{amount} acres}}'**
+  String converterUnitSpokenAcre(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'hectare' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} hectare} other{{amount} hectares}}'**
+  String converterUnitSpokenHectare(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'l' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} litre} other{{amount} litres}}'**
+  String converterUnitSpokenL(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'ml' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} millilitre} other{{amount} millilitres}}'**
+  String converterUnitSpokenMl(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'gallonUs' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} US gallon} other{{amount} US gallons}}'**
+  String converterUnitSpokenGallonUs(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'm3' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} cubic metre} other{{amount} cubic metres}}'**
+  String converterUnitSpokenM3(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 's' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} second} other{{amount} seconds}}'**
+  String converterUnitSpokenS(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'min' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} minute} other{{amount} minutes}}'**
+  String converterUnitSpokenMin(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'h' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} hour} other{{amount} hours}}'**
+  String converterUnitSpokenH(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'day' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} day} other{{amount} days}}'**
+  String converterUnitSpokenDay(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'week' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} week} other{{amount} weeks}}'**
+  String converterUnitSpokenWeek(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'usd' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} US dollar} other{{amount} US dollars}}'**
+  String converterUnitSpokenUsd(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'inr' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} Indian rupee} other{{amount} Indian rupees}}'**
+  String converterUnitSpokenInr(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'eur' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} euro} other{{amount} euros}}'**
+  String converterUnitSpokenEur(num count, String amount);
+
+  /// What a screen reader says for an amount in the converter unit 'gbp' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{amount} British pound} other{{amount} British pounds}}'**
+  String converterUnitSpokenGbp(num count, String amount);
 }
 
 class _AppLocalizationsDelegate

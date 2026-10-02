@@ -56,6 +56,26 @@
   "@historySearchEmptyMessage": {
     "description": "Shown when a history search matches nothing."
   },
+  "historyLoadErrorTitle": "Couldn't load your history",
+  "@historyLoadErrorTitle": {
+    "description": "Heading shown when the history cannot be read from the device."
+  },
+  "savedLoadErrorTitle": "Couldn't load your saved calculations",
+  "@savedLoadErrorTitle": {
+    "description": "Heading shown when the saved calculations cannot be read from the device."
+  },
+  "loadErrorMessage": "Something went wrong while reading it from this device. Try again, or restart the app.",
+  "@loadErrorMessage": {
+    "description": "Explanation under a load-error heading (history or saved calculations)."
+  },
+  "loadRetryAction": "Try again",
+  "@loadRetryAction": {
+    "description": "Button that tries to load the history or saved calculations again."
+  },
+  "loadingMessage": "Loading…",
+  "@loadingMessage": {
+    "description": "Shown, and announced to screen readers, while a list is loading."
+  },
   "historyClearAllTooltip": "Clear all history",
   "@historyClearAllTooltip": {
     "description": "Tooltip and accessibility label of the button that clears the whole calculation history."
@@ -279,6 +299,10 @@
   "keyBackspaceLabel": "Backspace",
   "@keyBackspaceLabel": {
     "description": "What screen readers say for the key that deletes the last input. Holding it clears everything."
+  },
+  "keyBackspaceLongPressHint": "clear everything",
+  "@keyBackspaceLongPressHint": {
+    "description": "What holding the backspace key does, as a screen reader hint (TalkBack reads it as \"Double-tap and hold to clear everything\"). Lower case, an action."
   },
   "memoryClear": "MC",
   "@memoryClear": {
@@ -1567,5 +1591,277 @@
   "settingsPrivacyNotPolicy": "This is a summary of how the app works, not a legal privacy policy.",
   "@settingsPrivacyNotPolicy": {
     "description": "Closing line of the privacy summary stating that it is not a legal policy."
+  },
+  "converterUnitSpokenM": "{count, plural, =1{{amount} metre} other{{amount} metres}}",
+  "@converterUnitSpokenM": {
+    "description": "What a screen reader says for an amount in the converter unit 'm' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenKm": "{count, plural, =1{{amount} kilometre} other{{amount} kilometres}}",
+  "@converterUnitSpokenKm": {
+    "description": "What a screen reader says for an amount in the converter unit 'km' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenCm": "{count, plural, =1{{amount} centimetre} other{{amount} centimetres}}",
+  "@converterUnitSpokenCm": {
+    "description": "What a screen reader says for an amount in the converter unit 'cm' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenMm": "{count, plural, =1{{amount} millimetre} other{{amount} millimetres}}",
+  "@converterUnitSpokenMm": {
+    "description": "What a screen reader says for an amount in the converter unit 'mm' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenMile": "{count, plural, =1{{amount} mile} other{{amount} miles}}",
+  "@converterUnitSpokenMile": {
+    "description": "What a screen reader says for an amount in the converter unit 'mile' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenYard": "{count, plural, =1{{amount} yard} other{{amount} yards}}",
+  "@converterUnitSpokenYard": {
+    "description": "What a screen reader says for an amount in the converter unit 'yard' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenFoot": "{count, plural, =1{{amount} foot} other{{amount} feet}}",
+  "@converterUnitSpokenFoot": {
+    "description": "What a screen reader says for an amount in the converter unit 'foot' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenInch": "{count, plural, =1{{amount} inch} other{{amount} inches}}",
+  "@converterUnitSpokenInch": {
+    "description": "What a screen reader says for an amount in the converter unit 'inch' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenKg": "{count, plural, =1{{amount} kilogram} other{{amount} kilograms}}",
+  "@converterUnitSpokenKg": {
+    "description": "What a screen reader says for an amount in the converter unit 'kg' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenG": "{count, plural, =1{{amount} gram} other{{amount} grams}}",
+  "@converterUnitSpokenG": {
+    "description": "What a screen reader says for an amount in the converter unit 'g' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenMg": "{count, plural, =1{{amount} milligram} other{{amount} milligrams}}",
+  "@converterUnitSpokenMg": {
+    "description": "What a screen reader says for an amount in the converter unit 'mg' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenLb": "{count, plural, =1{{amount} pound} other{{amount} pounds}}",
+  "@converterUnitSpokenLb": {
+    "description": "What a screen reader says for an amount in the converter unit 'lb' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenOz": "{count, plural, =1{{amount} ounce} other{{amount} ounces}}",
+  "@converterUnitSpokenOz": {
+    "description": "What a screen reader says for an amount in the converter unit 'oz' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenCelsius": "{count, plural, =1{{amount} degree Celsius} other{{amount} degrees Celsius}}",
+  "@converterUnitSpokenCelsius": {
+    "description": "What a screen reader says for an amount in the converter unit 'celsius' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenFahrenheit": "{count, plural, =1{{amount} degree Fahrenheit} other{{amount} degrees Fahrenheit}}",
+  "@converterUnitSpokenFahrenheit": {
+    "description": "What a screen reader says for an amount in the converter unit 'fahrenheit' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenKelvin": "{count, plural, =1{{amount} kelvin} other{{amount} kelvins}}",
+  "@converterUnitSpokenKelvin": {
+    "description": "What a screen reader says for an amount in the converter unit 'kelvin' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenM2": "{count, plural, =1{{amount} square metre} other{{amount} square metres}}",
+  "@converterUnitSpokenM2": {
+    "description": "What a screen reader says for an amount in the converter unit 'm2' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenKm2": "{count, plural, =1{{amount} square kilometre} other{{amount} square kilometres}}",
+  "@converterUnitSpokenKm2": {
+    "description": "What a screen reader says for an amount in the converter unit 'km2' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenFt2": "{count, plural, =1{{amount} square foot} other{{amount} square feet}}",
+  "@converterUnitSpokenFt2": {
+    "description": "What a screen reader says for an amount in the converter unit 'ft2' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenAcre": "{count, plural, =1{{amount} acre} other{{amount} acres}}",
+  "@converterUnitSpokenAcre": {
+    "description": "What a screen reader says for an amount in the converter unit 'acre' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenHectare": "{count, plural, =1{{amount} hectare} other{{amount} hectares}}",
+  "@converterUnitSpokenHectare": {
+    "description": "What a screen reader says for an amount in the converter unit 'hectare' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenL": "{count, plural, =1{{amount} litre} other{{amount} litres}}",
+  "@converterUnitSpokenL": {
+    "description": "What a screen reader says for an amount in the converter unit 'l' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenMl": "{count, plural, =1{{amount} millilitre} other{{amount} millilitres}}",
+  "@converterUnitSpokenMl": {
+    "description": "What a screen reader says for an amount in the converter unit 'ml' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenGallonUs": "{count, plural, =1{{amount} US gallon} other{{amount} US gallons}}",
+  "@converterUnitSpokenGallonUs": {
+    "description": "What a screen reader says for an amount in the converter unit 'gallonUs' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenM3": "{count, plural, =1{{amount} cubic metre} other{{amount} cubic metres}}",
+  "@converterUnitSpokenM3": {
+    "description": "What a screen reader says for an amount in the converter unit 'm3' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenS": "{count, plural, =1{{amount} second} other{{amount} seconds}}",
+  "@converterUnitSpokenS": {
+    "description": "What a screen reader says for an amount in the converter unit 's' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenMin": "{count, plural, =1{{amount} minute} other{{amount} minutes}}",
+  "@converterUnitSpokenMin": {
+    "description": "What a screen reader says for an amount in the converter unit 'min' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenH": "{count, plural, =1{{amount} hour} other{{amount} hours}}",
+  "@converterUnitSpokenH": {
+    "description": "What a screen reader says for an amount in the converter unit 'h' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenDay": "{count, plural, =1{{amount} day} other{{amount} days}}",
+  "@converterUnitSpokenDay": {
+    "description": "What a screen reader says for an amount in the converter unit 'day' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenWeek": "{count, plural, =1{{amount} week} other{{amount} weeks}}",
+  "@converterUnitSpokenWeek": {
+    "description": "What a screen reader says for an amount in the converter unit 'week' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenUsd": "{count, plural, =1{{amount} US dollar} other{{amount} US dollars}}",
+  "@converterUnitSpokenUsd": {
+    "description": "What a screen reader says for an amount in the converter unit 'usd' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenInr": "{count, plural, =1{{amount} Indian rupee} other{{amount} Indian rupees}}",
+  "@converterUnitSpokenInr": {
+    "description": "What a screen reader says for an amount in the converter unit 'inr' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenEur": "{count, plural, =1{{amount} euro} other{{amount} euros}}",
+  "@converterUnitSpokenEur": {
+    "description": "What a screen reader says for an amount in the converter unit 'eur' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
+  },
+  "converterUnitSpokenGbp": "{count, plural, =1{{amount} British pound} other{{amount} British pounds}}",
+  "@converterUnitSpokenGbp": {
+    "description": "What a screen reader says for an amount in the converter unit 'gbp' (shown as its symbol). {amount} is the amount as shown, such as 1,28,747.52; {count} is its value, for the plural.",
+    "placeholders": {
+      "count": {"type": "num"},
+      "amount": {"type": "String"}
+    }
   }
 }

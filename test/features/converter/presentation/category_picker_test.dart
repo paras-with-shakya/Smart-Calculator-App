@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_calculator/app/modes/calculator_mode.dart';
 import 'package:smart_calculator/app/modes/current_mode_notifier.dart';
+import 'package:smart_calculator/features/converter/application/converter_notifier.dart';
 import 'package:smart_calculator/features/converter/domain/conversion_category.dart';
 import 'package:smart_calculator/features/converter/presentation/category_picker.dart';
 
@@ -75,45 +76,47 @@ void main() {
     }
   });
 
-  testWidgets('every tile is the same size', (tester) async {
-    await pumpConverter(tester, size: const Size(360, 800));
-
-    final sizes = {
-      for (final label in labels())
-        tester.getSize(
-          find
-              .ancestor(
-                of: find.descendant(
-                  of: find.byType(CategoryPicker),
-                  matching: find.text(label),
-                ),
-                matching: find.byType(Material),
-              )
-              .first,
+  /// The chip (its card) showing [label].
+  Finder chipOf(String label) => find
+      .ancestor(
+        of: find.descendant(
+          of: find.byType(CategoryPicker),
+          matching: find.text(label),
         ),
-    };
+        matching: find.byType(Material),
+      )
+      .first;
 
-    expect(sizes, hasLength(1));
-  });
-
-  testWidgets('at 100% on a 360 dp phone the tiles still sit three to a row', (
+  testWidgets('the chips sit in one row, each at least 48 dp tall', (
     tester,
   ) async {
     await pumpConverter(tester, size: const Size(360, 800));
 
     final tops = {
-      for (final label in labels())
-        tester
-            .getTopLeft(
-              find.descendant(
-                of: find.byType(CategoryPicker),
-                matching: find.text(label),
-              ),
-            )
-            .dy,
+      for (final label in labels()) tester.getTopLeft(chipOf(label)).dy,
     };
+    expect(tops, hasLength(1));
+    for (final label in labels()) {
+      expect(
+        tester.getSize(chipOf(label)).height,
+        greaterThanOrEqualTo(kMinInteractiveDimension),
+        reason: label,
+      );
+    }
+  });
 
-    // Seven tiles: rows of 3, 3 and 1.
-    expect(tops, hasLength(3));
+  testWidgets('a saved category at the end of the row starts in view', (
+    tester,
+  ) async {
+    await pumpConverter(tester, size: const Size(360, 800));
+    ProviderScope.containerOf(tester.element(find.byType(MaterialApp)))
+        .read(converterProvider.notifier)
+        .selectCategory(ConversionCategoryId.currency);
+    await tester.pumpAndSettle();
+
+    final picker = tester.getRect(find.byType(CategoryPicker));
+    final chip = tester.getRect(chipOf(l10n.converterCategoryCurrency));
+    expect(chip.left, greaterThanOrEqualTo(picker.left));
+    expect(chip.right, lessThanOrEqualTo(picker.right));
   });
 }

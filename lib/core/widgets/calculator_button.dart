@@ -43,6 +43,7 @@ class CalculatorButton extends StatefulWidget {
     this.label,
     this.icon,
     this.onLongPress,
+    this.longPressHint,
     this.selected = false,
   }) : assert(
          (label == null) != (icon == null),
@@ -60,6 +61,10 @@ class CalculatorButton extends StatefulWidget {
 
   /// Called on long press, such as backspace clearing everything.
   final VoidCallback? onLongPress;
+
+  /// What a screen reader says [onLongPress] does ("clear everything"),
+  /// so the gesture is not hidden from people who cannot see the key.
+  final String? longPressHint;
 
   /// Visible text, such as "7" or "÷".
   final String? label;
@@ -120,14 +125,12 @@ class _CalculatorButtonState extends State<CalculatorButton> {
     final labelColor = enabled
         ? foreground
         : foreground.withValues(alpha: _disabledOpacity);
-    final outlined =
-        colors.contrastOutline.a > 0 &&
-        widget.kind != CalculatorButtonKind.memory;
     final shape = AppRadius.shape(
       AppRadius.xl,
-      side: outlined
-          ? BorderSide(color: colors.contrastOutline)
-          : BorderSide.none,
+      // Memory keys have no fill, so no edge either.
+      side: widget.kind == CalculatorButtonKind.memory
+          ? BorderSide.none
+          : colors.contrastBorder,
     );
 
     final visual = widget.label != null
@@ -147,6 +150,7 @@ class _CalculatorButtonState extends State<CalculatorButton> {
       enabled: enabled,
       selected: widget.selected,
       label: widget.semanticLabel,
+      onLongPressHint: widget.onLongPress == null ? null : widget.longPressHint,
       child: ConstrainedBox(
         constraints: BoxConstraints(
           minWidth: AppSizing.minTarget(context),

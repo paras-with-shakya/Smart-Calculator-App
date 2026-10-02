@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:smart_calculator/app/app_root.dart';
+import 'package:smart_calculator/core/persistence/app_database.dart';
+import 'package:smart_calculator/core/persistence/database_providers.dart';
+import 'package:smart_calculator/core/persistence/preferences.dart';
 import 'package:smart_calculator/core/widgets/app_dialog.dart';
 import 'package:smart_calculator/features/calculator/presentation/calculator_view.dart';
 import 'package:smart_calculator/features/history/presentation/history_content.dart';
 import 'package:smart_calculator/features/history/presentation/history_page.dart';
+
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../../../helpers/test_app.dart';
 
@@ -48,6 +54,44 @@ void main() {
     await tester.tap(find.byTooltip(l10n.historyTitle));
     await tester.pumpAndSettle();
   }
+
+  testWidgets('a history that cannot be read says so in plain words, and '
+      '"Try again" loads it', (tester) async {
+    sqfliteFfiInit();
+    var failing = true;
+    tester.view
+      ..physicalSize = TestWindows.phonePortrait
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      AppRoot(
+        preferences: await openPreferences(),
+        overrides: [
+          appDatabaseProvider.overrideWith((ref) async {
+            if (failing) throw StateError('database disk image is malformed');
+            return AppDatabase.open(
+              databaseFactoryFfiNoIsolate,
+              inMemoryDatabasePath,
+              singleInstance: false,
+            );
+          }),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip(l10n.historyTitle));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.historyLoadErrorTitle), findsOneWidget);
+    expect(find.textContaining('malformed'), findsNothing);
+
+    failing = false;
+    await tester.tap(find.text(l10n.loadRetryAction));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.historyLoadErrorTitle), findsNothing);
+    expect(find.text(l10n.historyEmptyTitle), findsOneWidget);
+  });
 
   testWidgets('starts empty', (tester) async {
     await pumpApp(tester);

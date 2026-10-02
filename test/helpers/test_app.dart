@@ -49,6 +49,20 @@ void _ensureInMemoryDatabase() {
   _databaseFfiReady = true;
 }
 
+/// An override that gives the app a fresh in-memory database (history, saved
+/// calculations) instead of the real sqflite plugin, which a widget test
+/// does not have. Pass it to any `AppRoot` a test builds itself.
+Override inMemoryDatabaseOverride() {
+  _ensureInMemoryDatabase();
+  return appDatabaseProvider.overrideWith(
+    (ref) => AppDatabase.open(
+      databaseFactoryFfiNoIsolate,
+      inMemoryDatabasePath,
+      singleInstance: false,
+    ),
+  );
+}
+
 /// Starts the app the way `main` does, in a window of [size].
 ///
 /// Uses [preferences] if given, otherwise opens them from the current store.
@@ -59,7 +73,6 @@ Future<void> pumpApp(
   SharedPreferencesWithCache? preferences,
   List<Override> overrides = const [],
 }) async {
-  _ensureInMemoryDatabase();
   tester.view
     ..physicalSize = size
     ..devicePixelRatio = 1;
@@ -67,16 +80,7 @@ Future<void> pumpApp(
   await tester.pumpWidget(
     AppRoot(
       preferences: preferences ?? await openPreferences(),
-      overrides: [
-        appDatabaseProvider.overrideWith(
-          (ref) => AppDatabase.open(
-            databaseFactoryFfiNoIsolate,
-            inMemoryDatabasePath,
-            singleInstance: false,
-          ),
-        ),
-        ...overrides,
-      ],
+      overrides: [inMemoryDatabaseOverride(), ...overrides],
     ),
   );
   await tester.pumpAndSettle();

@@ -12,6 +12,7 @@ import 'package:smart_calculator/app/theme/app_colors.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/app/theme/app_typography.dart';
 import 'package:smart_calculator/core/app_info.dart';
+import 'package:smart_calculator/core/layout/layout_limits.dart';
 import 'package:smart_calculator/core/widgets/app_bottom_sheet.dart';
 import 'package:smart_calculator/core/widgets/app_button.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
@@ -22,6 +23,7 @@ import 'package:smart_calculator/core/widgets/app_switch_tile.dart';
 import 'package:smart_calculator/core/widgets/section_header.dart';
 import 'package:smart_calculator/core/widgets/setting_row.dart';
 import 'package:smart_calculator/features/history/application/history_notifier.dart';
+import 'package:smart_calculator/features/history/domain/history_entry.dart';
 import 'package:smart_calculator/features/history/presentation/clear_history_confirmation.dart';
 import 'package:smart_calculator/features/settings/application/angle_mode_notifier.dart';
 import 'package:smart_calculator/features/settings/application/app_settings_notifier.dart';
@@ -41,7 +43,7 @@ class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   /// The widest the settings column gets.
-  static const double maxContentWidth = 480;
+  static const double maxContentWidth = LayoutLimits.maxContentWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +228,15 @@ class _HistorySection extends ConsumerWidget {
     Future<void> changeLimit(HistoryLimit limit) async {
       final keep = limit.keep;
       if (keep != null) {
-        final entries = await ref.read(historyProvider.future);
+        final List<HistoryEntry> entries;
+        try {
+          entries = await ref.read(historyProvider.future);
+        } on Object {
+          // History cannot be read just now: keep the choice anyway. Older
+          // entries are trimmed the next time a calculation is saved.
+          await notifier.setHistoryLimit(limit);
+          return;
+        }
         if (!context.mounted) return;
         if (entries.length > keep) {
           final confirmed = await showConfirmationDialog(

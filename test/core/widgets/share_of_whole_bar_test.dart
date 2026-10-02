@@ -81,4 +81,33 @@ void main() {
       throwsA(isA<AssertionError>()),
     );
   });
+
+  testWidgets('both segments are drawn as tall as the bar, in proportion', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      const ShareOfWholeBar(
+        baseLabel: 'Principal',
+        baseValue: 75,
+        baseValueText: '75',
+        addedLabel: 'Interest',
+        addedValue: 25,
+        addedValueText: '25',
+      ),
+    );
+
+    // The two segments are the only ColoredBoxes in the bar's Row.
+    final segments = find.descendant(
+      of: find.byType(ShareOfWholeBar),
+      matching: find.byType(ColoredBox),
+    );
+    expect(segments, findsNWidgets(2));
+    final base = tester.getSize(segments.at(0));
+    final added = tester.getSize(segments.at(1));
+    // 0 dp tall made the bar invisible on the phone (Phase 11).
+    expect(base.height, 16);
+    expect(added.height, 16);
+    expect(base.width / added.width, closeTo(3, 0.05));
+  });
 }

@@ -260,4 +260,37 @@ void main() {
     );
     expect(pressDuration(), Duration.zero);
   });
+
+  testWidgets('screen readers hear what a long press does', (tester) async {
+    Widget backspace({VoidCallback? onLongPress}) => SizedBox.square(
+      dimension: 80,
+      child: CalculatorButton(
+        kind: CalculatorButtonKind.function,
+        icon: Icons.backspace_outlined,
+        semanticLabel: 'Backspace',
+        onPressed: () {},
+        onLongPress: onLongPress,
+        longPressHint: 'clear everything',
+      ),
+    );
+
+    await pumpThemed(tester, backspace(onLongPress: () {}));
+    expect(
+      tester
+          .getSemantics(find.byType(CalculatorButton))
+          .hintOverrides
+          ?.onLongPressHint,
+      'clear everything',
+    );
+
+    // No long press, so nothing to hint at.
+    await pumpThemed(tester, backspace());
+    expect(
+      tester
+          .getSemantics(find.byType(CalculatorButton))
+          .hintOverrides
+          ?.onLongPressHint,
+      isNull,
+    );
+  });
 }

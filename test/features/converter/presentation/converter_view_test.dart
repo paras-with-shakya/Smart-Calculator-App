@@ -11,6 +11,7 @@ import 'package:smart_calculator/features/converter/presentation/converter_keypa
 import 'package:smart_calculator/features/converter/presentation/converter_view.dart';
 
 import '../../../helpers/test_app.dart';
+import '../../../helpers/touch_targets.dart';
 
 const Size phone = Size(360, 800);
 const Size phoneLandscape = Size(800, 360);
@@ -31,23 +32,6 @@ Finder toCard() => find.byType(ConverterCard).at(1);
 /// also, textually, `Text('5')`).
 Finder textIn(Finder card, String text) =>
     find.descendant(of: card, matching: find.text(text));
-
-void expectTouchTargets(WidgetTester tester) {
-  for (final element in find.byType(CalculatorButton).evaluate()) {
-    final widget = element.widget as CalculatorButton;
-    final size = (element.renderObject! as RenderBox).size;
-    expect(
-      size.height,
-      greaterThanOrEqualTo(kMinInteractiveDimension),
-      reason: widget.semanticLabel,
-    );
-    expect(
-      size.width,
-      greaterThanOrEqualTo(kMinInteractiveDimension),
-      reason: widget.semanticLabel,
-    );
-  }
-}
 
 void main() {
   setUp(useInMemoryPreferences);
@@ -72,6 +56,21 @@ void main() {
   }
 
   group('layout', () {
+    testWidgets('on a 360 x 800 phone the cards and the whole keypad fit '
+        'without scrolling', (tester) async {
+      await pumpConverter(tester);
+
+      final screen = tester.view.physicalSize / tester.view.devicePixelRatio;
+      expect(
+        tester.getRect(find.byType(ConverterKeypad)).bottom,
+        lessThanOrEqualTo(screen.height),
+      );
+      expect(
+        tester.getRect(find.byType(ConverterCard).at(0)).top,
+        greaterThanOrEqualTo(0),
+      );
+    });
+
     testWidgets('portrait: renders every converter area with no exception', (
       tester,
     ) async {
@@ -209,6 +208,44 @@ void main() {
 
       expect(find.text('No matching units.'), findsOneWidget);
     });
+
+    testWidgets('search also matches unit names, which screen readers hear', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpConverter(tester);
+
+      await tapVisible(tester, fromCard());
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'kilo');
+      await tester.pumpAndSettle();
+
+      Finder inSheet(String text) => find.descendant(
+        of: find.byType(BottomSheet),
+        matching: find.text(text),
+      );
+      expect(inSheet('km'), findsOneWidget);
+      expect(inSheet('cm'), findsNothing);
+      expect(find.bySemanticsLabel('kilometres'), findsOneWidget);
+      handle.dispose();
+    });
+  });
+
+  testWidgets('a card reads its amount with the unit name, not the symbol', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await pumpConverter(tester);
+
+    await tapVisible(tester, keypadKey('8'));
+    await tapVisible(tester, keypadKey('0'));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getSemantics(fromCard()).label,
+      allOf(contains('80 metres'), isNot(contains('\nm\n'))),
+    );
+    handle.dispose();
   });
 
   group('temperature sign toggle', () {

@@ -1772,3 +1772,104 @@ Then stop.
 - **Rejected:** one notifier per setting (nine near-identical files); the theme and angle notifiers were left as they are rather than churned.
 
 **Impact:** `SettingsRepository` gained `appSettings` and nine setters; `PreferenceKeys` gained nine keys; `CurrentModeNotifier` now reads the default mode; `CalculatorButton` is silent on its own (`enableFeedback: false`); every haptic call goes through `KeyFeedback`; `ModeGrid` is public and `mode_picker.dart` uses it; `HistoryRepository` gained `trimTo`; `CalcValue.toDecimalString` gained `decimalPlaces`; `SectionHeader` is its own semantics node; `SmartCalculatorApp` watches three settings and has a `builder`; `AppButton`, `AppIconButton`, `AppChoiceGroup` and the fixed-height rows read `AppSizing`. All defaults keep the previous behaviour.
+
+---
+
+### [DEC-056] Phase 11, Polish: the user's logo as the launcher icon and splash, a screen-reader and responsive pass, and two phone-layout fixes
+
+- **Status:** Adopted. The phase was audited by three read-only passes and planned, and the plan was independently reviewed before any code (as for DEC-050 to DEC-055). The review corrected six major points, listed below. The user approved the phase ("phase 11 star now") and answered the product questions.
+- **Date:** 2026-10-02
+- **Implemented:** Yes. `android/app/src/main/res/**`, `ios/Runner/Assets.xcassets/AppIcon.appiconset/*`, `assets/brand/`, `test/brand/**`, `lib/app/{app.dart,shell/app_shell.dart,modes/calculator_mode_presentation.dart}`, `lib/core/layout/layout_limits.dart`, `lib/core/widgets/{result_row,display_text,calculator_button,share_of_whole_bar,app_card}.dart`, `lib/app/theme/{app_colors,app_theme}.dart`, `lib/features/converter/presentation/{category_picker,converter_card,converter_view,unit_names,unit_picker_sheet}.dart`, the financial and date tool views, `lib/features/history/presentation/{history_content,history_page}.dart`, `lib/features/settings/presentation/settings_page.dart`, `README.md`, `dart_test.yaml`.
+
+**Context:** ROADMAP.md's Phase 11 covers the app icon, the splash screen, motion and screen-reader passes, tablet and dark-mode passes, and the master prompt's §29 UI checklist. The audit found:
+
+- the template's Flutter-logo icons on every platform;
+- a white or black launch screen that matched neither theme, and no Android 12+ splash setting;
+- result cards that screen readers read line by line, and converter units read as bare symbols;
+- no accessibility guideline test on any real screen;
+- six design-review screenshot tests failing (Known Issues #18).
+
+**The user's answers (2026-10-02):**
+
+| Question | Answer |
+| --- | --- |
+| The app icon | The user's own logo (`smart_calculator_logo.svg`). Its only content is an embedded 590 × 524 PNG, used byte for byte (`assets/brand/smart_calculator_logo.png`, not bundled). |
+| Known issues in the phase | Only #18. #16, #17 and #5's web/desktop names and icons stay out. |
+| Spoken unit names in the converter | Yes. |
+| Design changes from the screenshot review | The converter keypad fit on phones, and dark-mode cards. Tablet redesigns (Programmer key height, a Scientific function grid, a larger display on tablets) come later. |
+
+**Decision:**
+
+- **Icons are generated from the logo by one skipped, tagged test** (`test/brand/generate_launcher_icons_test.dart`, tag `launcher-icons`). No new dependency. It writes:
+  - an Android adaptive icon: background `#0C1231` (the tile's own edge colour), foreground with the artwork inside the 66 dp safe zone;
+  - legacy 48 dp icons for Android 7;
+  - the 19 iOS icons, as opaque RGB PNGs through a small encoder (`test/brand/rgb_png.dart`). `toByteData(png)` always writes alpha, which the App Store refuses.
+
+  There is no themed (monochrome) icon: a gradient raster gives no clean one-colour shape.
+- **Splash:**
+  - Before Android 12, and as the window background, the app's own background colour (`values/colors.xml`, `values-night/colors.xml`). A test checks it against `AppColors`.
+  - On Android 12+, `windowSplashScreenBackground` plus an explicit `windowSplashScreenAnimatedIcon` (`drawable-*/splash_icon.png`: the logo's rounded tile, 120 dp on a 288 dp canvas). The icon is explicit because HyperOS (the test phone) shows no icon when it is left to the default, and draws an adaptive icon unmasked, as a hard-edged square.
+  - The splash follows the system dark mode, not the in-app Theme setting, because Flutter has not started yet.
+- **Motion:** only a cross-fade between modes (`AnimatedSwitcher`, `AppMotion.medium`); the outgoing screen ignores taps and is hidden from screen readers. When the system asks for reduced motion, the framework already shortens every route, sheet and theme animation to 5%, so no code was added for those.
+- **Screen readers:**
+  - `ResultCard` (core) makes a result card one merged node, read as one item. With `liveRegion` it is also announced when it changes (Date).
+  - Financial and Converter results are merged but not live: they change with every keystroke. The calculator's preview is not live for the same reason (DEC-043).
+  - Converter amounts read as "80 metres" (34 plural messages); the unit picker reads and searches names too.
+  - Backspace announces its long press ("clear everything").
+  - The mode pill already reads "Basic, Change mode" through its tooltip; unchanged.
+- **Responsive:**
+  - `LayoutLimits` (core) holds the 480 dp content width and the 480 dp compact height that ten constants repeated.
+  - The Converter and Programmer landscape keypads are capped like Basic's.
+  - The History page is a centred column on wide windows.
+  - `DisplayText.maxLineHeight` lets the calculator display give each line a share of its height, so a short display (Scientific at 200% text) no longer cuts off the main line.
+  - `ResultRow` puts the value under the label when they do not fit side by side, instead of ellipsizing both.
+- **Converter on phones:** the category picker is one row of chips that scrolls sideways, with the current one kept in view, instead of a three-row grid. The cards and the whole keypad now fit a 360 × 800 dp phone without scrolling.
+- **Dark mode:**
+  - The dark `card` token is `#2A2825` (was `#1F1E1C`). Against the background it goes from about 1.1:1 to about 1.26:1, and it is no dimmer than a field.
+  - The system navigation bar's buttons follow the theme, through an `AnnotatedRegion` in `MaterialApp.builder`. Flutter's defaults always ask for light buttons, which vanish over the light theme with 3-button navigation.
+- **Consistency:**
+  - Outlined icons throughout, with a filled icon for the rail's selected mode.
+  - `AppColors.contrastBorder` replaces three copies of the high-contrast edge (Known Issues #12).
+  - EMI's tenure unit choice has its own row instead of a fixed 168 dp box.
+  - The share bar's literals are named constants.
+- **States:**
+  - History and Saved show a plain-language error with "Try again" instead of the raw exception. Try again also reopens a database that failed to open.
+  - "Loading…" while loading.
+  - Settings keeps a new history limit even when the history cannot be read.
+- **Found and fixed on the phone:** `ShareOfWholeBar` (EMI, GST) was invisible. Its two `ColoredBox`es had no child, inside a `Row` that did not stretch them, so they were 0 dp tall. Phase 7's phone report had called it correct.
+- **Tooling:**
+  - Known Issues #18 fixed: `inMemoryDatabaseOverride()` is shared by `pumpApp` and the design-review helpers.
+  - Design-review screenshots of every mode, History and Settings at four sizes, light and dark, plus 200% text.
+  - A real-screen accessibility guideline test (`test/app/screen_accessibility_test.dart`, 36 tests): every mode, the mode sheet, History and Settings, in four themes.
+  - `expectTouchTargets` shared in `test/helpers/`.
+
+**Corrections from the independent review of the plan (before any code):**
+
+- The reduced-motion work for theme, routes and sheets was unnecessary: the framework already does it, and Android sets the flag from `transition_animation_scale`.
+- A merged row inside a live card would have silenced Android's announcement, which fires only when the live node's own label changes.
+- The system-bar diagnosis was wrong: the status bar was fine and the navigation bar was not, and an annotation at the shell would miss pushed pages.
+- The planned history "spoken expression" label conflicts with DEC-044 (history stores canonical text that is never re-parsed), so it was dropped.
+- The icon generator needed its own skipped tag.
+- `IntrinsicWidth` around a `LayoutBuilder` throws.
+
+**Alternatives:**
+
+- **Rejected:** `flutter_launcher_icons` and `flutter_native_splash`, dependencies for what a test can render. The SVG would have needed `flutter_svg` and gives the same pixels.
+- **Rejected:** live regions on Financial and Converter results (chatter on every keystroke).
+- **Deferred (the user's choice):** tablet redesigns; one key shape (pill vs squircle) and equal-height Financial tiles; web and desktop names and icons (#5).
+- **Kept (Known Issues #6):** icons stay a fixed size while text scales, as on Android. Labels carry the meaning, and touch targets stay 48 dp.
+
+**Impact:**
+
+- Changed widgets and APIs:
+  - `AppCard`;
+  - `CalculatorButton` (new `longPressHint`);
+  - `DisplayText` (new `maxLineHeight`);
+  - `ResultRow`, `ResultCard` and `ResultPlaceholder`;
+  - `AppColors` (new `contrastBorder`, dark `card`);
+  - `CalculatorMode` (new `selectedIcon`);
+  - `CategoryPicker` (now a chip row);
+  - `HistoryContent` and `HistoryPage`;
+  - `SmartCalculatorApp` (a navigation-bar region).
+- 40 new strings: 34 unit names, 5 load and loading strings, and 1 backspace hint.
+- No dependency, no permission and no engine change.

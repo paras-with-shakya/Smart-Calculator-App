@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ always shows the system splash screen: the logo's tile
+         (drawable-*/splash_icon.png, generated from the user's logo) on this
+         background, which is the app's own (values/colors.xml), so the splash
+         matches the first frame. The icon is named explicitly: HyperOS (the
+         test phone) shows no icon when it is left to the default, and draws
+         an adaptive icon unmasked, as a hard-edged square. -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+        <item name="android:windowSplashScreenBackground">@color/launch_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+</resources>

@@ -101,6 +101,12 @@ class AppColors extends ThemeExtension<AppColors> {
   /// palettes, where shapes need a visible edge.
   final Color contrastOutline;
 
+  /// The edge [contrastOutline] draws around a key, card or button: a
+  /// hairline in the high-contrast palettes, none otherwise.
+  BorderSide get contrastBorder => contrastOutline.a > 0
+      ? BorderSide(color: contrastOutline)
+      : BorderSide.none;
+
   /// Digit keys (0-9 and the decimal point): the plain tone.
   final Color digitKey;
 
@@ -160,7 +166,10 @@ class AppColors extends ThemeExtension<AppColors> {
   static const AppColors dark = AppColors(
     background: Color(0xFF141312),
     surface: Color(0xFF1F1E1C),
-    card: Color(0xFF1F1E1C),
+    // Raised in Phase 11 (was 1F1E1C, about 1.1:1 against the background):
+    // with no shadow, a card needs a visible step (about 1.26:1), and a
+    // result card should not look dimmer than the fields above it.
+    card: Color(0xFF2A2825),
     surfaceMuted: Color(0xFF2B2926),
     textPrimary: Color(0xFFEEEBE6),
     textMuted: Color(0xFFADA79E),

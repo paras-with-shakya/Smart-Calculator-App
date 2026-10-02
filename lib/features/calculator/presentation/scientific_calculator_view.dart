@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_sizing.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
+import 'package:smart_calculator/core/layout/layout_limits.dart';
 import 'package:smart_calculator/core/widgets/calculator_button.dart';
 import 'package:smart_calculator/features/calculator/presentation/calculator_display.dart';
 import 'package:smart_calculator/features/calculator/presentation/calculator_keypad.dart';
@@ -32,7 +33,7 @@ class ScientificCalculatorView extends ConsumerStatefulWidget {
   const ScientificCalculatorView({super.key});
 
   /// The widest the keypad gets, matching `CalculatorView`.
-  static const double keypadMaxWidth = 480;
+  static const double keypadMaxWidth = LayoutLimits.maxContentWidth;
 
   /// The largest share of the height the portrait keypad takes — smaller
   /// than Basic's, since the toggle row and the tray need room too.
@@ -44,7 +45,7 @@ class ScientificCalculatorView extends ConsumerStatefulWidget {
 
   /// Windows shorter than this use tighter spacing, matching
   /// `CalculatorView`.
-  static const double compactHeight = 480;
+  static const double compactHeight = LayoutLimits.compactHeight;
 
   @override
   ConsumerState<ScientificCalculatorView> createState() =>

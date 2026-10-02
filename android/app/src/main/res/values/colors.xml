@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The app's background (AppColors.light.background), shown while the
+         app starts so the launch screen matches the first frame.
+         test/brand/launch_screen_colours_test.dart keeps it in sync. -->
+    <color name="launch_background">#F2EFEA</color>
+</resources>

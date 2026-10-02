@@ -168,6 +168,7 @@ class ProgrammerKeypad extends ConsumerWidget {
             kind: CalculatorButtonKind.function,
             icon: Icons.backspace_outlined,
             semanticLabel: l10n.keyBackspaceLabel,
+            longPressHint: l10n.keyBackspaceLongPressHint,
             onPressed: () => press(notifier.backspace),
             onLongPress: () {
               ref.read(keyFeedbackProvider).heavy();

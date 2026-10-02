@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
+import 'package:smart_calculator/app/theme/app_typography.dart';
 import 'package:smart_calculator/core/widgets/app_bottom_sheet.dart';
 import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_text_field.dart';
+import 'package:smart_calculator/core/widgets/status_views.dart';
 import 'package:smart_calculator/features/converter/domain/conversion_category.dart';
 import 'package:smart_calculator/features/converter/domain/unit.dart';
+import 'package:smart_calculator/features/converter/presentation/unit_names.dart';
 import 'package:smart_calculator/features/settings/application/key_feedback_provider.dart';
 import 'package:smart_calculator/l10n/app_localizations.dart';
 
@@ -49,18 +52,24 @@ class _UnitPickerContentState extends ConsumerState<_UnitPickerContent> {
     super.dispose();
   }
 
-  List<ConversionUnit> get _filtered {
+  /// The units whose symbol ("km") or name ("kilometres") contains the
+  /// search text.
+  List<ConversionUnit> _filtered(AppLocalizations l10n) {
     final query = _filter.trim().toLowerCase();
     if (query.isEmpty) return widget.category.units;
     return widget.category.units
-        .where((unit) => unit.symbol.toLowerCase().contains(query))
+        .where(
+          (unit) =>
+              unit.symbol.toLowerCase().contains(query) ||
+              unitName(l10n, unit).toLowerCase().contains(query),
+        )
         .toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final units = _filtered;
+    final units = _filtered(l10n);
 
     return Column(
       crossAxisAlignment: .stretch,
@@ -72,9 +81,9 @@ class _UnitPickerContentState extends ConsumerState<_UnitPickerContent> {
         ),
         const SizedBox(height: AppSpacing.sm),
         if (units.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-            child: Text(l10n.converterUnitSearchNoMatches),
+          EmptyState(
+            icon: Icons.search_off,
+            message: l10n.converterUnitSearchNoMatches,
           )
         else
           for (final (index, unit) in units.indexed) ...[
@@ -87,9 +96,14 @@ class _UnitPickerContentState extends ConsumerState<_UnitPickerContent> {
               },
               child: Row(
                 children: [
-                  Expanded(child: Text(unit.symbol)),
-                  if (unit.id == widget.currentUnitId)
-                    const Icon(Icons.check, size: 20),
+                  Expanded(
+                    child: Text(
+                      unit.symbol,
+                      semanticsLabel: unitName(l10n, unit),
+                      style: AppTypography.of(context).body,
+                    ),
+                  ),
+                  if (unit.id == widget.currentUnitId) const Icon(Icons.check),
                 ],
               ),
             ),

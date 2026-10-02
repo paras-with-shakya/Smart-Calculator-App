@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_calculator/app/theme/app_spacing.dart';
 import 'package:smart_calculator/core/formatting/date_format_provider.dart';
 import 'package:smart_calculator/core/time/clock_provider.dart';
-import 'package:smart_calculator/core/widgets/app_card.dart';
 import 'package:smart_calculator/core/widgets/app_date_field.dart';
 import 'package:smart_calculator/core/widgets/result_row.dart';
 import 'package:smart_calculator/features/date_calculator/domain/calendar_date.dart';
@@ -56,36 +55,31 @@ class _DateDifferenceToolViewState
           onChanged: (date) => setState(() => _to = date),
         ),
         const SizedBox(height: AppSpacing.lg),
-        Semantics(
+        ResultCard(
           liveRegion: true,
-          child: AppCard(
-            child: Column(
-              crossAxisAlignment: .stretch,
-              children: [
-                ResultRow(
-                  label: l10n.dateResultDifference,
-                  value: describeSpan(l10n, gap),
-                  emphasized: true,
-                  wrapValue: true,
-                ),
-                ResultRow(
-                  label: l10n.dateResultTotalDays,
-                  value: l10n.dateDays(gap.totalDays),
-                  wrapValue: true,
-                ),
-                ResultRow(
-                  label: l10n.dateResultWeeks,
-                  value: describeWeeks(l10n, gap),
-                  wrapValue: true,
-                ),
-                ResultRow(
-                  label: l10n.dateResultTotalMonths,
-                  value: l10n.dateMonths(gap.totalMonths),
-                  wrapValue: true,
-                ),
-              ],
+          children: [
+            ResultRow(
+              label: l10n.dateResultDifference,
+              value: describeSpan(l10n, gap),
+              emphasized: true,
+              wrapValue: true,
             ),
-          ),
+            ResultRow(
+              label: l10n.dateResultTotalDays,
+              value: l10n.dateDays(gap.totalDays),
+              wrapValue: true,
+            ),
+            ResultRow(
+              label: l10n.dateResultWeeks,
+              value: describeWeeks(l10n, gap),
+              wrapValue: true,
+            ),
+            ResultRow(
+              label: l10n.dateResultTotalMonths,
+              value: l10n.dateMonths(gap.totalMonths),
+              wrapValue: true,
+            ),
+          ],
         ),
       ],
     );
