@@ -19,7 +19,7 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
-## 2026-10-02: Phase 10 (Settings screen) — Phase 10 complete (commits: see DEVELOPMENT_STATUS.md)
+## 2026-10-02: Phase 10 (Settings screen) — Phase 10 complete (commits `c25108c`, `b249e42`, `a556e24`)
 
 The user approved Phase 10 with "start phase 10", no brief. The roadmap scope was audited against the code (the Settings page had only the theme choice and the angle unit; nothing else existed). A plan was written and independently reviewed before any code (DEC-055); the review found real defects, all fixed in the plan first. Four product questions were put to the user (app version source, developer information, privacy text, then sound/precision/larger buttons/history and text-size values) and answered; they are recorded in DEC-055.
 

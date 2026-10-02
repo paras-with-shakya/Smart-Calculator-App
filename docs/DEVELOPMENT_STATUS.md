@@ -2,7 +2,7 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-10-02, Phase 10 (Settings screen) built, tested and phone-tested (DEC-055; commits are listed under "Phase 10" below; local only). Phases 5 to 10 are complete and phone-tested.
+**Last updated:** 2026-10-02, Phase 10 (Settings screen) built, tested and phone-tested (DEC-055; commits `c25108c` engine, `b249e42` app, `a556e24` docs; local only). Phases 5 to 10 are complete and phone-tested.
 
 ## At a Glance
 
@@ -323,7 +323,7 @@ The phone was connected by USB. **Device:** `4DEEEUKF6HNFHEIJ`, model `23124RN87
 | 7 | Financial | **Complete, committed `16e7f87`, phone-tested.** Plan (DEC-052) independently and adversarially reviewed before code (five real gaps found and fixed); seven tools built, tested (1356 app tests), every on-device check passed. |
 | 8 | Date calculator | **Complete, committed `0e2c9fb`, phone-tested.** Plan (DEC-053) independently reviewed before code; the review caught a difference-vs-addMonths disagreement at month ends. |
 | 9 | Programmer calculator | **Complete, committed `06ce7a5`, `afa9978`, `5ace4cb`, `214d8cd`, phone-tested.** Plan (DEC-054) independently reviewed before code (twelve defects fixed); engine validated against Dart typed-data and native-int oracles; 446 engine + 1552 app tests. |
-| 10 | Settings screen | **Complete, phone-tested** (commits: see "Phase 10" above and the git log). Plan (DEC-055) independently reviewed before code; one `AppSettings` notifier, `KeyFeedback`, decimal places, larger controls, privacy and version guard tests; 459 engine + 1681 app tests. |
+| 10 | Settings screen | **Complete, phone-tested** (commits `c25108c`, `b249e42`, `a556e24`). Plan (DEC-055) independently reviewed before code; one `AppSettings` notifier, `KeyFeedback`, decimal places, larger controls, privacy and version guard tests; 459 engine + 1681 app tests. |
 | 11 | Polish | Not started |
 | 12 | QA | Not started |
 
