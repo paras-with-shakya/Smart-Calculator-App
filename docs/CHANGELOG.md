@@ -19,9 +19,27 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
-## 2026-10-02 (later still): Known Issue #21 and the "DEBUG" ribbon — uncommitted
+## 2026-10-02 (evening): stop tracking `android/build/`; the docs record `21c9513` — uncommitted
 
-The end of the Phase 10 finalization pass, from a follow-up brief. No Phase 11 work. **Not committed:** the brief asked for one local commit; asked about it (CLAUDE.md rule 10), the user answered "NO". Nothing pushed.
+After the user committed the Phase 10 finalization pass as `21c9513` and pushed it (`main` and `origin/main` in sync). No code or behaviour change, no Phase 11 work. Left uncommitted for the user.
+
+### Fixed
+
+- **Known Issue #14, `android/build/` was not ignored.** `21c9513` had taken in `android/build/reports/problems/problems-report.html`, a generated Gradle report. `.gitignore` now has `/android/build/` (the root-anchored `/build/` never reached it), and `git rm -r --cached android/build` removed the report from the index; the file stays on disk. `git check-ignore -v` matches `.gitignore:46:/android/build/`.
+
+### Changed
+
+- Docs: DEVELOPMENT_STATUS.md and CLAUDE.md no longer call the finalization pass uncommitted; they record `21c9513`, committed and pushed by the user (checked with `git status -sb` and `git ls-remote`). The headings of the two entries below now say the same.
+
+### Tests
+
+- None run: only `.gitignore`, the git index and docs changed.
+
+---
+
+## 2026-10-02 (later still): Known Issue #21 and the "DEBUG" ribbon — committed by the user as `21c9513`
+
+The end of the Phase 10 finalization pass, from a follow-up brief. No Phase 11 work. **Not committed by Claude:** the brief asked for one local commit; asked about it (CLAUDE.md rule 10), the user answered "NO". The user then committed and pushed the pass as `21c9513`.
 
 ### Fixed
 
@@ -39,9 +57,9 @@ The end of the Phase 10 finalization pass, from a follow-up brief. No Phase 11 w
 
 ---
 
-## 2026-10-02 (later): Phase 10 finalization and QA pass — uncommitted
+## 2026-10-02 (later): Phase 10 finalization and QA pass — committed by the user as `21c9513`
 
-A focused pass after the user approved the Phase 10 decisions. No new feature, no Phase 11 work. **Not committed:** mid-pass the user said Claude must no longer commit (CLAUDE.md rule 10, DEC-006 update); the changes below are in the working tree for the user to commit.
+A focused pass after the user approved the Phase 10 decisions. No new feature, no Phase 11 work. **Not committed by Claude:** mid-pass the user said Claude must no longer commit (CLAUDE.md rule 10, DEC-006 update); the changes below were left in the working tree, and the user committed and pushed them as `21c9513`.
 
 ### Fixed
 
