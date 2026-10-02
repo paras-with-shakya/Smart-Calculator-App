@@ -139,7 +139,15 @@ sealed class CalcValue {
   /// scientific notation, which is used when the value is 10^[significantDigits]
   /// or more in size, or smaller than 10^-6. Trailing zeros are dropped, and
   /// zero is always `0` (never `-0`).
-  String toDecimalString({int significantDigits = 12});
+  ///
+  /// With [decimalPlaces], the value is first rounded (half away from zero)
+  /// to that many places after the point, then written as above. Only the
+  /// fraction is ever rounded, so a whole number is unchanged; there are
+  /// still at most [significantDigits] significant digits, and a result that
+  /// rounds to zero is `0`. An approximate value is rounded from its
+  /// [significantDigits]-digit form (so `0.285` at two places is `0.29`, not
+  /// the `0.28` of its binary expansion).
+  String toDecimalString({int significantDigits = 12, int? decimalPlaces});
 
   @override
   bool operator ==(Object other) =>
@@ -186,9 +194,16 @@ final class _ExactCalcValue extends CalcValue {
       : '${_value.numerator}/${_value.denominator}';
 
   @override
-  String toDecimalString({int significantDigits = 12}) {
+  String toDecimalString({int significantDigits = 12, int? decimalPlaces}) {
     if (significantDigits < 1) {
       throw RangeError.value(significantDigits, 'significantDigits');
+    }
+    if (decimalPlaces != null) {
+      if (decimalPlaces < 0) {
+        throw RangeError.value(decimalPlaces, 'decimalPlaces');
+      }
+      return _roundedToPlaces(decimalPlaces)
+          .toDecimalString(significantDigits: significantDigits);
     }
     if (isZero) return '0';
     final sign = _value.signum < 0 ? '-' : '';
@@ -235,6 +250,20 @@ final class _ExactCalcValue extends CalcValue {
     return '$sign${mantissa}e$exponent';
   }
 
+  /// This value rounded half away from zero to [places] places.
+  _ExactCalcValue _roundedToPlaces(int places) {
+    final scale = CalcValue._ten.pow(places);
+    final scaled = _value.numerator.abs() * scale;
+    final denominator = _value.denominator;
+    var rounded = scaled ~/ denominator;
+    if ((scaled - rounded * denominator) * BigInt.two >= denominator) {
+      rounded += BigInt.one;
+    }
+    return _ExactCalcValue(
+      Rational(_value.signum < 0 ? -rounded : rounded, scale),
+    );
+  }
+
   static String _trimTrailingZeros(String digits) =>
       digits.replaceFirst(RegExp(r'0+$'), '');
 
@@ -278,9 +307,23 @@ final class _ApproximateCalcValue extends CalcValue {
   String toStorageString() => '~$_value';
 
   @override
-  String toDecimalString({int significantDigits = 12}) {
+  String toDecimalString({int significantDigits = 12, int? decimalPlaces}) {
     if (significantDigits < 1) {
       throw RangeError.value(significantDigits, 'significantDigits');
+    }
+    if (decimalPlaces != null) {
+      if (decimalPlaces < 0) {
+        throw RangeError.value(decimalPlaces, 'decimalPlaces');
+      }
+      // Round the digits that are shown, not the binary expansion behind
+      // them: 0.285 is 0.28499999999999998 as a double.
+      final shown = Rational.parse(
+        toDecimalString(significantDigits: significantDigits),
+      );
+      return _ExactCalcValue(shown).toDecimalString(
+        significantDigits: significantDigits,
+        decimalPlaces: decimalPlaces,
+      );
     }
     // The evaluator always checks isTooLarge (true for non-finite values)
     // before a result reaches here.
