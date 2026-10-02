@@ -97,6 +97,9 @@ The widget tests start the app through the same `AppRoot`, so they run the real 
 | `converterProvider` | `NotifierProvider<ConverterNotifier, ConverterState>` | converter/application | The current category, its two selected units, the typed amount and the live currency rates (§1.19) |
 | `financialToolProvider` | `NotifierProvider<FinancialToolNotifier, FinancialToolId>` | financial/application | Which financial tool tile is selected (§1.20) |
 | `programmerProvider` | `NotifierProvider<ProgrammerNotifier, ProgrammerSession>` | programmer/application | The programmer calculator's whole input state (§1.22). Survives rotation; nothing persisted. |
+| `appSettingsProvider` | `NotifierProvider<AppSettingsNotifier, AppSettings>` | settings/application | Every setting except the theme and the angle mode (§1.23). Read one field with `select`. |
+| `keyFeedbackProvider` | `Provider<KeyFeedback>` | settings/application | The tick and click a key gives, from the haptics and key-sound settings. Read at press time. |
+| `decimalPlacesProvider` | `Provider<int?>` | settings/application | How many places Basic/Scientific results are rounded to; null = up to 12 significant digits. |
 
 Conventions:
 
@@ -425,6 +428,25 @@ A fixed-width integer calculator on `BigInt`: four bases, a word size, signed or
 - **Tests:** `packages/calc_engine/test/programmer_test.dart` (59: ranges, every 8- and 16-bit pattern against typed data, hand-computed reference tables for every word, all operations on boundary and random patterns against Dart's typed-data lists and native `int` operations as an independent oracle, independent overflow-flag oracles, shift counts 0 to 70 and huge counts, division by zero); `test/features/programmer/domain/programmer_session_test.dart` (typing and limits for every base, left-to-right chains, base/word/sign changes mid-chain, overflow lifecycle, negate and NOT, shifts, AC); `.../presentation/programmer_view_test.dart` (layout and 48 dp keys on three phone shapes, 200% text, keypad does not move while typing, conversion readouts, disabled keys and their semantics, operations, word and sign sheets, accessibility labels, rotation) and `programmer_formatting_test.dart`; `test/core/widgets/key_grid_test.dart`; `test/app/font_licenses_test.dart` (the fonts are bundled, monospaced, and their licences registered).
 - **Not built, by decision (DEC-054):** a tappable bit grid, rotations, NAND/NOR, modulo, byte swap, a separate shift-type selector, an expression grammar with precedence and brackets, history/saved/memory integration, persistence, hardware-keyboard and paste input.
 
+### 1.23 Settings (`lib/features/settings/`, Phase 10)
+
+The Settings page and everything it controls. Decision: DEC-055.
+
+- **domain** (no Flutter imports): `AppSettings` (defaultMode, haptics, keySound, decimalPlaces, historyEnabled, historyLimit, textSize, largerControls, highContrast; every default is the behaviour before Phase 10) with the enums `DecimalPlaces` (`auto`, 2, 4, 6, 8), `HistoryLimit` (50, 100, 500, unlimited) and `TextSize` (100%, 115%, 130%). `SettingsRepository` gained `appSettings` and nine setters.
+- **data:** `PreferencesSettingsRepository` reads with `is` checks (a missing, wrong-typed or unrecognised value is the default, never an exception) and stores fixed strings and bools under nine new `settings.*` keys in `PreferenceKeys.all`.
+- **application:** `appSettingsProvider` / `AppSettingsNotifier` (each setter saves, then builds the new state from the state after the save; an unchanged value is not written); `keyFeedbackProvider` (a `KeyFeedback` built from `haptics` and `keySound`; read at press time); `decimalPlacesProvider` (`int?`). The theme and angle mode keep `themePreferenceProvider` and `angleModeProvider`.
+- **presentation:** `SettingsPage` (one `ListView`, content at most 480 dp wide, centred) with five sections. Appearance: the theme choice. Calculator: opens-in (a button opening a sheet with `ModeGrid`), angle unit, decimal places (a picker row), haptic feedback, key sounds. History: save history, keep the latest 50 / 100 / 500 / all (a picker row: a button showing the choice that opens a bottom sheet with an `AppChoiceGroup`, `_SheetChoiceSetting<T>`; asks first when entries would be deleted), clear history (the shared `confirmClearHistory`, disabled while empty). Accessibility: text size, larger controls, high contrast. About: the version, the privacy summary, a licences row (a typed `LicensesRoute` to Flutter's `LicensePage`). No developer information (DEC-055). Built from `SettingRow` (label, hint, control) and `AppSwitchTile` (both new, in `lib/core/widgets/`, with a gallery "Settings" section) plus `AppChoiceGroup`, `AppButton`, `AppCard` and `SectionHeader`.
+- **What the settings reach:**
+  - `CurrentModeNotifier.build` reads the default mode once (changing it never switches the mode on screen).
+  - `KeyFeedback` (`lib/core/feedback/`) is the only feedback source for calculator keys: `CalculatorButton`'s `InkWell` has `enableFeedback: false`; `key()` = tick + click, `select()` = tick, `heavy()` = firm tick. 13 former `HapticFeedback` calls and the DEG and 2nd keys use it. Menus, buttons and switches keep the platform default (which follows the device's touch-sounds setting).
+  - `formatResult` (`lib/core/formatting/result_text.dart`) applies `decimalPlaces` to every Basic and Scientific result display: the live preview and result, the memory badge, the history and saved lists and their search. Values inside an expression and the spoken expression keep 12 digits. The engine side is `CalcValue.toDecimalString(decimalPlaces:)` (exact, half away from zero, fraction only).
+  - `CalculatorNotifier` skips the history write when `historyEnabled` is off and passes `keepLast` otherwise; `HistoryNotifier.add(keepLast:)` and `.trimTo(n)` call `HistoryRepository.trimTo(keep)` (same order as `list()`) and re-list. The History screen shows "History is off" (empty) or a banner.
+  - `SmartCalculatorApp` picks the high-contrast themes for `theme`/`darkTheme` when High contrast is on (the platform slots stay), and has one `builder` that always wraps `AppSizing` (control scale 1 or 1.25) and a `MediaQuery` whose `textScaler` is `UserTextScaler` (the system scaler times the text-size multiplier, increase capped at 2.5 times; the system scaler itself when 100%). The wrappers are unconditional so changing a setting never rebuilds the `Navigator`.
+  - `AppSizing` (an `InheritedWidget`, default 1) is read by `AppButton`, `AppIconButton`, `AppChoiceGroup` (segments, through the visual density), `CalculatorButton` (minimum), the Converter and Programmer key rows, the memory keys, the scientific toggle and function rows, and the Programmer base cards. The Basic and Scientific key grids fill the space they are given and do not change. `AppHeader` resets it to 1 (its toolbar is a fixed 56 dp, and the 60 dp mode pill was clipped by it).
+- **About and the claims it makes:** `AppInfo` (`lib/core/app_info.dart`: `1.0.0`, build `1`) is checked against `pubspec.yaml` and the Gradle build; the privacy summary (`settingsPrivacy*` strings) is checked by `test/core/privacy_claims_test.dart`: the app manifest declares no permission, no `dart:io`/`http`/socket import exists in `lib/` or the engine, and the direct dependencies are a fixed list (a new one fails the test on purpose). It does not claim data never leaves the device (Android backup is on by default; `android:allowBackup` is not set).
+- **Tests:** `test/features/settings/app_settings_test.dart` (defaults, round trips, wrong-typed and unrecognised values, the notifier), `settings_page_test.dart` (every control, persistence across a restart, the history confirmations, About, layouts, 200% text, semantics), `test/core/feedback/key_feedback_test.dart`, `test/features/history/history_retention_test.dart`, `test/features/calculator/presentation/decimal_places_display_test.dart`, `test/app/accessibility_settings_test.dart` (text scaler, `AppSizing`, high contrast with the platform flag, default mode), `test/core/{app_info,privacy_claims}_test.dart`, `test/core/widgets/settings_widgets_test.dart`, and `packages/calc_engine/test/decimal_places_test.dart`.
+- **Not built, by decision (DEC-055):** developer information; a legal privacy policy or link; language choice; per-mode angle defaults; haptic strength; sound choices; accent colours; backup/export; any new dependency.
+
 ## 2. Confirmed Decisions
 
 Decided by the user. The "Implemented" column reflects the state after Phase 4's History module.
@@ -486,14 +508,14 @@ The scientific engine (functions, `^`, exact/approximate values, angle mode, the
 ### 3.5 Persistence still to come
 
 - Paged queries.
-- A history retention limit and an off switch (values not decided).
+- ~~A history retention limit and an off switch (values not decided).~~ **Done in Phase 10** (DEC-055, §1.23): keep 50, 100, 500 or all (default all); Save history on or off (default on).
 - Saved calculations reopening the right *tool* from `kind` plus `inputs_json` (Phase 7 and later): only `kind: 'basic'` exists so far (§1.18), which just reuses the result; a future kind's own screen reopening from its saved inputs is still to come.
 - The last mode in preferences. Right now the current mode isn't persisted (DEC-021). The memory already is (§1.10).
 - If desktop is ever wanted, only the database setup would need a desktop SQLite driver.
 
 ### 3.6 Design system: still to come
 
-- **In-app switches** (Phase 10): high contrast, "larger buttons", and possibly haptics on or off. Today high contrast follows only the platform setting, and haptics are always on.
+- ~~**In-app switches** (Phase 10): high contrast, "larger buttons", and possibly haptics on or off.~~ **Done in Phase 10** (DEC-055): high contrast, larger controls, text size, haptics and key sounds are all in Settings.
 - ~~**Programmer mode font** (Phase 9): JetBrains Mono, which must be re-verified and bundled first (DEC-028).~~ **Done in Phase 9** (DEC-054): verified monospaced (every glyph 0.600 em) and bundled.
 - **Icon scaling review** (Phase 11): icons follow the platform and don't grow with text size.
 
@@ -508,7 +530,7 @@ Each must be re-verified before it is added (DEC-015).
 | Package | When | Purpose |
 | --- | --- | --- |
 | `integration_test` (SDK) | When the first end-to-end flow exists | Integration tests |
-| `package_info_plus` | Phase 10, if chosen (P-7) | App version on the About screen |
+| ~~`package_info_plus`~~ | Rejected in Phase 10 (DEC-055) | (the About version is a constant with a sync test) |
 | `http` | Only if live currency rates are approved | Currency service |
 
 ### 3.9 Platform configuration still to come
@@ -527,11 +549,11 @@ Each must be re-verified before it is added (DEC-015).
 The decisions that affect architecture (full list: [DEVELOPMENT_STATUS.md](DEVELOPMENT_STATUS.md#pending-decisions)):
 
 - **P-6 (rest):** the power and trigonometry defaults, before Phase 5. Percent is settled (DEC-036).
-- **P-7:** where the app version comes from (Phase 10).
+- ~~**P-7:** where the app version comes from (Phase 10).~~ **Resolved in Phase 10:** a constant (`AppInfo`) with a sync test against `pubspec.yaml` (DEC-055).
 - **P-9:** Windows Developer Mode (symlinks), which affects `flutter pub get` on this machine.
 - **P-10:** Kotlin incremental compilation across drives.
 
-**Not decided at all yet:** the history retention default; the currency-rate service beyond "behind a service interface, no committed keys"; the release signing setup; the scientific keys in landscape (Phase 5).
+**Not decided at all yet:** the currency-rate service beyond "behind a service interface, no committed keys"; the release signing setup; the scientific keys in landscape (Phase 5).
 
 ## 5. Rejected Alternatives (summary)
 

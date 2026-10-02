@@ -2,22 +2,24 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-10-01, Phase 9 (Programmer calculator) built, tested and phone-tested (commits `06ce7a5` engine, `afa9978` font, `5ace4cb` screen, `214d8cd` docs; local only). Phases 5 to 9 are complete and phone-tested.
+**Last updated:** 2026-10-02, Phase 10 (Settings screen) built, tested and phone-tested (DEC-055; commits are listed under "Phase 10" below; local only). Phases 5 to 10 are complete and phone-tested.
 
 ## At a Glance
 
 | Question | Answer |
 | --- | --- |
-| Where are we? | **Phases 3 through 9 are complete.** Phase 9 (Programmer calculator) is built, tested (446 engine + 1552 app tests, `flutter analyze`, formatting and the debug build clean) and phone-tested. |
-| What exists in code? | Everything from Phase 3–8, plus the programmer calculator (ARCHITECTURE.md §1.22, DEC-054): 8/16/32/64-bit signed or unsigned integers on `BigInt`, HEX/DEC/OCT/BIN readouts that double as the base selector, `+ − × ÷ ± AND OR XOR NOT << >>`, overflow notice, bundled JetBrains Mono. Every mode is now built; the shell has no placeholder fallback. |
-| What is being worked on? | Nothing. Phase 9 is built, tested, phone-tested and documented. The next phase needs the user's explicit approval before starting. |
-| What happens next? | Report Phase 9 to the user, then wait for the user to pick and approve the next phase (Phase 10, Settings, is next in the roadmap). |
+| Where are we? | **Phases 3 through 10 are complete.** Phase 10 (Settings) is built, tested (1681 app + 459 engine tests, `flutter analyze`, formatting and the debug build clean) and phone-tested. |
+| What exists in code? | Everything from Phase 3–9, plus the full Settings screen (ARCHITECTURE.md §1.23, DEC-055): theme, default mode, angle unit, decimal places, haptics, key sounds, save history and a retention limit, clear history, text size, larger controls, high contrast, and About (version, privacy summary, licences). One `AppSettings` notifier; `KeyFeedback` is the one source of key feedback. |
+| What is being worked on? | Nothing. Phase 10 is built, tested, phone-tested and documented. The next phase needs the user's explicit approval before starting. |
+| What happens next? | Report Phase 10 to the user, then wait for the user to approve the next phase (Phase 11, Polish, is next in the roadmap). |
 | Git? | Phase 5 (`ef7b0ba` … `8096bb4`), Phase 6 (`a119f9c`, `ae2781e`) and Phase 7 (`16e7f87`) are all committed. **Claude never pushes; the user pushes themselves.** |
 | What must not be repeated? | See "Do NOT Repeat" |
 | Known issues? | See "Known Issues". Nothing new found in Phase 7. #16 (Basic's memory-key touch-target gap, found during Phase 5) is still open, still not this phase's to fix. |
 | Pending decisions? | P-5, P-9, P-10 (long-standing, unrelated to Phase 7). P-7 (app version source) is unrelated too. Phase 7's own validation-bound judgment calls are recorded in DEC-052, open to revision if the user disagrees. |
 
 ## Current Phase
+
+**Phase 10 (Settings screen): approved 2026-10-02 ("start phase 10", no brief). Complete as of 2026-10-02 — built, tested, phone-tested and documented. Details: "Phase 10: Settings screen" and "Test on the user's phone: the Settings screen" below; decision DEC-055.**
 
 **Phase 7 (Financial): approved 2026-10-01 (a detailed process brief: audit, plan, independently review the plan for formula correctness, implement, test, phone-test, document). Complete as of 2026-10-01 — all seven tools are built, tested, phone-tested and documented.**
 
@@ -271,6 +273,41 @@ The phone was connected by USB. **Device:** `4DEEEUKF6HNFHEIJ`, model `23124RN87
 - **Found on the phone and fixed:** the 64-bit layout was ~24 dp taller than the screen; at 200% text the labels broke mid-word, the "Signed" button broke and the overflow notice was truncated. The 64-bit fit and the 200% text fixes were re-checked on the device. **Not re-checked on the device:** the overflow notice sat on two lines beside an empty pending-operation text (it now gets the whole line when nothing is pending); that fix was made last, and the phone had been unplugged by the time it could be looked at again. It is a layout nicety, not a correctness issue, and there is no reliable widget test for it (the test font is wider than the real one).
 - **Phone settings:** rotation was forced to landscape and font scale to 200% for the checks; both restored (`accelerometer_rotation=0`, `user_rotation=0`, display rotation 0, `font_scale=1.0`). `accelerometer_rotation` had flipped to 1 along the way and was set back to 0 (as in earlier sessions, the cause is unclear). Screenshots went straight to the PC; none were left on the phone.
 
+## Phase 10: Settings screen (2026-10-02, this session)
+
+The user approved Phase 10 with "start phase 10" and no brief. Full detail: ARCHITECTURE.md §1.23; decision DEC-055; CHANGELOG 2026-10-02.
+
+- **Audit first:** the Settings page had only the theme choice and the angle unit; nothing else on the roadmap list existed (the Phase 3 audit had deferred always-on haptics to this phase).
+- **Questions put to the user, and answered:** app version = a build-time constant plus a test that syncs it with `pubspec.yaml` (no `package_info_plus`; P-7 resolved); developer information = not shown for now; privacy = a factual summary derived from the code, saying plainly it is not a legal policy; sound = a "Key sounds" switch (default on, calculator keys only); precision = Decimal places (Auto, 2, 4, 6, 8, fraction only); larger buttons = "Larger controls" x1.25 on fixed-height controls (stated honestly: the Basic and Scientific key grids do not change); history keep 50 / 100 / 500 / unlimited and Save history on/off; text size 100 / 115 / 130% on top of the system size.
+- **Plan reviewed independently before any code:** eleven defect groups found and fixed in the plan (DEC-055): a sound switch would have doubled Android's own click and silenced nothing; a wrong-typed stored value would have thrown; significant digits would have turned integers into scientific notation; the text-scaler composition, a conditional builder that would have closed Settings, an incomplete list of fixed-height widgets, a privacy claim ("never leaves your device") that Android backup contradicts, history gating in the wrong notifier, and more.
+- **Built:** engine `toDecimalString(decimalPlaces:)`; `AppSettings` + `appSettingsProvider`; `KeyFeedback` (the one source of key haptics and clicks); `formatResult`; `HistoryRepository.trimTo`; `UserTextScaler`; `AppSizing`; in-app high contrast; `AppSwitchTile`, `SettingRow`, a public `ModeGrid`; `AppInfo`; the privacy summary; a licences route; the Settings page in five sections; a gallery "Settings" section; about 45 strings.
+- **Guard tests:** `test/core/privacy_claims_test.dart` (the app manifest declares no permission, no `dart:io`/`http`/socket import in `lib/` or the engine, and the direct dependencies equal a fixed list, so a new one fails the test on purpose) and `test/core/app_info_test.dart` (the About version equals `pubspec.yaml`).
+- **Found while building, tested and fixed:** `SectionHeader` headings merged with the content below them for a screen reader; `SegmentedButton` ignores `minimumSize`; the version row overflowed at 200% text; radio-list fallbacks for Decimal places and Keep the latest made the page far too tall (now picker rows).
+- **Full QA gate (2026-10-02):** `flutter analyze` (no issues), `dart format --set-exit-if-changed lib test packages` (0 changed), `flutter test` (1681 passed, 1 skipped, 0 failed — was 1552 passed), `dart test` in `packages/calc_engine` (459 passed — was 446), `flutter build apk --debug` (built (~126 s)).
+- **Phone-tested:** see the next section.
+- **Not built, by decision (DEC-055):** developer information, a legal privacy policy or a link, language choice, per-mode angle defaults, haptic strength, sound choices, accent colours, backup/export, any new dependency.
+- **Open to the user's review (DEC-055):** the exact wording of the privacy summary (written from the code; it says the device's own backup may keep a copy, because `android:allowBackup` is not set, so Android's default applies; setting it to `false` would be the user's platform decision); the "Larger controls" scope; the decimal-places semantics (the fraction only, so whole numbers never change); that "Key sounds" governs calculator keys only.
+
+## Test on the user's phone: the Settings screen (2026-10-02, this session)
+
+The phone was connected by USB. **Device:** `4DEEEUKF6HNFHEIJ`, model `23124RN87I`, Android, 720×1600 px. **Method:** `adb install -r` (the debug build from the QA gate, rebuilt after each fix), `adb shell input tap`/`swipe`, `exec-out screencap` straight to the PC; landscape through `cmd window user-rotation lock 1`.
+
+| Check | Result |
+| --- | --- |
+| Settings, portrait and landscape | Five sections in order (Appearance, Calculator, History, Accessibility, About); in landscape the content is one centred column, no overflow, and it scrolls to the end |
+| Decimal places | First built as a five-option radio list, which was far too tall on the phone; replaced by a picker row opening a bottom sheet (Auto, 2, 4, 6, 8, the current one selected). With 2 chosen, `1 ÷ 3` showed `0.33` |
+| Text size 130%, Larger controls, High contrast | Each applied at once and the Settings page stayed open (the unconditional `MaterialApp.builder` works on a device, not only in tests) |
+| Larger controls, header | **Found on the phone:** the header's 60 dp mode pill was clipped by the 56 dp toolbar. Fixed (`AppHeader` resets the scale), rebuilt and re-checked: the pill is the normal size with the switch on |
+| Larger controls, Programmer | Keys are 60 dp and the page scrolls (the documented trade-off) |
+| Default mode | Set to Date in the sheet, then the app was restarted: it opened in Date. Set back to Basic afterwards |
+| Clear history | Disabled while empty; with entries, a confirmation dialog, then "History cleared" and the button disabled again |
+| Save history off | With the history already empty (just cleared), the switch was turned off and the History screen showed "History is off — New calculations are not being saved. You can turn history on in Settings." Whether a new calculation is then skipped was not tried on the device (widget and notifier tests cover it) |
+| About | Version `1.0.0 (1)`; the privacy card (four paragraphs and "This is a summary of how the app works, not a legal privacy policy."); "Open-source licences" opened Flutter's licence page headed "Smart Calculator 1.0.0 (1)" (also in landscape) |
+
+- **Found, not fixed (pre-existing):** the Converter's "Temperature" category tile breaks mid-word ("Tempera / ture"), seen on the phone with text size at 130% and again at default settings. Recorded as Known Issues #19.
+- **Not checked on the device:** the key click and the vibration themselves (a screenshot cannot show them; covered by `key_feedback_test.dart` for what is called and when), the Settings page at 200% device text (covered by widget tests only), the Keep-the-latest sheet and trimming, and a calculation being skipped while Save history is off (widget, notifier and repository tests only).
+- **Phone settings:** every Settings value was returned to its default (Basic, Auto, haptics and key sounds on, history saved and unlimited, text 100%, larger controls and high contrast off, theme System); rotation (`accelerometer_rotation=0`, `user_rotation=0`) and `font_scale=1.0` restored. No screenshots were left on the phone.
+
 ## Phase Status
 
 | Phase | Name | Status |
@@ -286,7 +323,7 @@ The phone was connected by USB. **Device:** `4DEEEUKF6HNFHEIJ`, model `23124RN87
 | 7 | Financial | **Complete, committed `16e7f87`, phone-tested.** Plan (DEC-052) independently and adversarially reviewed before code (five real gaps found and fixed); seven tools built, tested (1356 app tests), every on-device check passed. |
 | 8 | Date calculator | **Complete, committed `0e2c9fb`, phone-tested.** Plan (DEC-053) independently reviewed before code; the review caught a difference-vs-addMonths disagreement at month ends. |
 | 9 | Programmer calculator | **Complete, committed `06ce7a5`, `afa9978`, `5ace4cb`, `214d8cd`, phone-tested.** Plan (DEC-054) independently reviewed before code (twelve defects fixed); engine validated against Dart typed-data and native-int oracles; 446 engine + 1552 app tests. |
-| 10 | Settings screen | Not started |
+| 10 | Settings screen | **Complete, phone-tested** (commits: see "Phase 10" above and the git log). Plan (DEC-055) independently reviewed before code; one `AppSettings` notifier, `KeyFeedback`, decimal places, larger controls, privacy and version guard tests; 459 engine + 1681 app tests. |
 | 11 | Polish | Not started |
 | 12 | QA | Not started |
 
@@ -473,20 +510,19 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md) §1.20; decision DEC-052 (the full p
 
 ## Work In Progress
 
-None to hand off mid-task. Phases 5, 6, 7 and 8 are all complete and phone-tested (Phase 8: `0e2c9fb`). Earlier: Phase 5 (Module 1 `ef7b0ba`, Module 2 `856d175`/`d42fa5f`, Module 3 `8096bb4`), Phase 6 (Converters, DEC-051, `a119f9c`/`ae2781e`) both built, tested, phone-tested and committed; Phase 7 (Financial, DEC-052) built, tested, phone-tested and documented, **not yet committed**.
+None to hand off mid-task. Phases 3 to 10 are complete; Phases 5 to 10 are phone-tested.
 
 ## Current Task
 
-None. Phase 8 is finished, tested and phone-tested. The next phase needs the user's explicit choice and approval before starting — nothing should be assumed or started ahead of that.
+None. Phase 10 (Settings) is finished, tested, phone-tested and documented. The next phase needs the user's explicit choice and approval before starting; nothing should be assumed or started ahead of that.
 
-- **Screenshots:** none via the design-review generator this session — the new "Financial" gallery section is automatically covered by the existing generator loop (`test/design_review/design_review_screenshots_test.dart` iterates `GallerySection.values`) whenever it's next run, but it wasn't run this session (the phone test served as the visual review instead).
-- **On the phone:** the debug build with the financial calculators is now installed (`4DEEEUKF6HNFHEIJ`/`23124RN87I`); rotation is restored (`0`/`0`); the app was left on the Finance screen, EMI tool, inputs still showing the classic reference example (₹100,000/10%/12 months).
-- **Not committed:** every Phase 7 file is new/modified in the working tree. See "Next Task".
+- **On the phone:** the debug build with the Settings screen is installed (`4DEEEUKF6HNFHEIJ`/`23124RN87I`); every setting is back at its default; rotation (`0`/`0`) and `font_scale=1.0` are restored.
+- **Screenshots:** none via the design-review generator this session (the new "Settings" gallery section is covered by the existing loop and the accessibility test); the phone test served as the visual review.
 
 ## Next Task
 
-1. **Report Phase 9 to the user**, flagging: the conventions the user may want to revisit (immediate left-to-right execution with no precedence; shifts never flag overflow; a shift count is read as an unsigned bit pattern; the signed/unsigned and word-size changes are order-dependent by design), the optional items left out (tappable bit grid, rotations, modulo, hardware keyboard and paste), that JetBrains Mono was bundled (DEC-028 had scheduled it), and that Known Issue #17 does not recur here.
-2. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 10, Settings, then Phase 11 Polish and Phase 12 QA). Don't start any of them without that explicit approval, per the phase gate (CLAUDE.md rule 9).
+1. **Report Phase 10 to the user**, flagging: the plan-review defects and how they were fixed; the user's decisions (version constant, no developer information, privacy summary, key sounds, decimal places, larger controls, history and text-size values); the honest limit of "Larger controls" (the Basic and Scientific key grids do not change); the privacy wording, for the user's approval, and the `android:allowBackup` caveat (not set, so Android's default backup applies; the summary says the device backup may keep a copy; changing it is the user's platform decision); the pre-existing issues found (Known Issues #19, #20); and that developer information is still missing because its content must come from the user.
+2. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 11, Polish, then Phase 12, QA). Don't start either without that explicit approval, per the phase gate (CLAUDE.md rule 9).
 
 ## Do NOT Repeat
 
@@ -516,13 +552,19 @@ None. Phase 8 is finished, tested and phone-tested. The next phase needs the use
 - **For any affine unit conversion (`toBase(v) = v*scale + offset`), never copy a human-readable formula's constant directly into `offset`.** `offset` must be derived in *base-unit* terms for the `toBase` direction — the familiar `F = C×9/5+32` gives `fromBase`'s constant, not `toBase`'s (the correct pair is `scale=5/9, offset=−160/9`, not `offset=32`). This is the single most common bug in this kind of feature; a future category (Programmer mode's bases, if it's ever affine rather than purely a ratio) should get the same fixed-point-test treatment `conversion_tables_test.dart` uses, not just a round-trip test (DEC-051).
 - **A round-trip test alone can't catch a wrong conversion constant** — `fromBase(toBase(x)) ≈ x` holds even if `scale`/`offset` are both wrong by a consistent factor. Pair every round-trip test with independent fixed-point or exact-integer cross-checks (1 mile=5280 ft, 1 US gallon=231 in³, …) that don't depend on the same code path being self-consistent (DEC-051).
 - **A unit's persisted id must never be reused for a different real-world unit later** — `gallonUs`, not `gallon`, specifically so an imperial gallon can be added as a new id without a silent meaning-change for anyone whose "last used unit" preference already holds the old id (DEC-051).
+- **Calculator key feedback goes through `KeyFeedback` only (DEC-055).** Never call `HapticFeedback` or `SystemSound` directly from a key handler, and don't remove `enableFeedback: false` from `CalculatorButton`'s `InkWell`: Android already clicks on every `InkWell` tap, so a second source doubles the sound and the Key sounds switch stops governing it.
+- **Read a preference with an `is` check, never `getString`/`getBool` directly.** `SharedPreferencesWithCache.getString` throws a `TypeError` on a stored value of another type; the repository's `_string`/`_bool` helpers fall back to the default (DEC-055).
+- **Don't make the `MaterialApp.builder` conditional.** It always wraps `AppSizing` and `MediaQuery`; wrapping only when a setting is on rebuilds the `Navigator` and closes Settings the moment a setting changes (DEC-055, tested).
+- **Don't round values placed inside an expression or the spoken expression with the decimal places setting.** Only results shown (`formatResult`) are rounded; an inserted value keeps 12 digits (DEC-055).
+- **A new direct dependency fails `test/core/privacy_claims_test.dart` on purpose.** Check what it does (network, usage reports), then update both the test's list and the privacy summary in `app_en.arb` if needed. Don't add an internet permission or a `dart:io`/`http` import without revising the summary first.
+- **`AppHeader` resets `AppSizing` to 1.** Don't remove that: the toolbar is a fixed 56 dp and larger controls clip the mode pill (found on the phone, DEC-055).
 
 ## Pending Decisions
 
 | ID | Decision | Needed by | Notes |
 | --- | --- | --- | --- |
 | **P-5** | iOS verification: does the user have access to a Mac? | Before any iOS claim | iOS was not built (Windows) |
-| **P-7** | App version source for the About screen | Phase 10 | `package_info_plus` or a build-time constant |
+| ~~**P-7**~~ | App version source for the About screen | **Resolved 2026-10-02** | A build-time constant plus a sync test (DEC-055); `package_info_plus` rejected |
 | **P-9** | Windows Developer Mode, or accept the one-time `pub get` failure after plugin changes | Whenever convenient | Symlinks for the kept desktop folders |
 | **P-10** | Keep `kotlin.incremental=false`, or put the project and the pub cache on one drive | Optional | DEC-027 |
 
@@ -585,6 +627,12 @@ None. Phase 8 is finished, tested and phone-tested. The next phase needs the use
 | `lib/features/converter/application/converter_notifier.dart` | `ConverterNotifier`/`ConverterState`, its own provider, persistence folded in directly |
 | `lib/features/converter/presentation/*` | `ConverterView`, `CategoryPicker`, `ConverterCard` (+ the currency edit-rate dialog), `unit_picker_sheet.dart`, `ConverterKeypad` |
 | `lib/features/settings/domain/settings_repository.dart`, `data/preferences_settings_repository.dart`, `lib/core/persistence/preference_keys.dart` | Now also converter's last category, last unit pair, and per-currency rates (additive; existing theme/angle-mode tests re-run unchanged) |
+| `lib/features/settings/{domain/app_settings.dart,application/app_settings_notifier.dart,presentation/settings_page.dart}` | Phase 10: `AppSettings` and its enums, the one settings notifier, the Settings page (DEC-055) |
+| `lib/core/feedback/key_feedback.dart`, `lib/features/settings/application/key_feedback_provider.dart` | The only source of haptics and key clicks for calculator keys |
+| `lib/core/formatting/result_text.dart` | `formatResult`: the one place decimal places is applied to a shown result |
+| `lib/app/theme/{app_sizing,user_text_scaler}.dart`, `lib/app/app.dart` | Larger controls, the text-size scaler, the high-contrast theme choice, the one `MaterialApp.builder` |
+| `lib/core/app_info.dart` | The About version (checked against `pubspec.yaml` by `test/core/app_info_test.dart`) |
+| `test/core/privacy_claims_test.dart` | Guards the privacy summary's claims (manifest permissions, network imports, the dependency list) |
 | (Phase 1 files) | See ARCHITECTURE.md §1: startup, navigation, shell, persistence, l10n |
 
 ## Dependencies
@@ -599,10 +647,22 @@ None. Phase 8 is finished, tested and phone-tested. The next phase needs the use
 - **Actually in `pubspec.yaml` and `pubspec.lock`:**
   - app: `flutter_riverpod` 3.4.3, `riverpod` 3.4.3, `shared_preferences` 2.5.5, `sqflite` 2.4.4, `path` 1.9.1, `intl` 0.20.3, `flutter_localizations`, `calc_engine`
   - dev: `flutter_test`, `flutter_lints` 6.0.0, `shared_preferences_platform_interface` 2.4.2, `sqflite_common_ffi` 2.4.3
+- **Added in Phase 10 (Settings):** none. `package_info_plus` was **rejected** (DEC-055): the About version is a constant checked by a test. No audio package: the key click is `SystemSound.click`.
 - **Not added:** `decimal` (DEC-038).
 - **Still planned:** ARCHITECTURE.md §3.8.
 
 ## Tests
+
+**Run in the Phase 10 session (2026-10-02), in `smart_calculator/`, after the last code change:**
+
+| Command | Result |
+| --- | --- |
+| `flutter analyze` | `No issues found!` |
+| `dart format --set-exit-if-changed lib test packages` | `Formatted 231 files (0 changed)` |
+| `flutter test` (whole suite) | `All tests passed!` (1681 passed, 1 skipped; 0 failed; was 1552) |
+| `dart test` in `packages/calc_engine` | `All tests passed!` (459; was 446; +13 in `decimal_places_test.dart`) |
+| `flutter build apk --debug` | built (~126 s) |
+| `flutter test --tags design-review --run-skipped --update-goldens` | not run this session (Known Issues #18 still applies to the six older screenshot tests) |
 
 **Run in the Phase 9 session (2026-10-01), in `smart_calculator/`:**
 
@@ -764,8 +824,8 @@ Not run this session: the release build, the design-review screenshots (nothing 
 4. **Release signing:** release APKs are signed with the debug key. Not scheduled.
 5. **Template leftovers:** web and desktop identifiers, the web manifest and `index.html` text, `README.md`, and the default launcher icons (Phase 11).
 6. **Icons don't grow with text size,** which matches Android's behaviour. To review in Phase 11.
-7. **High contrast follows only the platform setting.** The in-app switch is Phase 10.
-8. **The current mode isn't persisted** (DEC-021).
+7. ~~**High contrast follows only the platform setting.**~~ **Resolved in Phase 10:** an in-app High contrast switch (DEC-055); the platform setting still applies.
+8. **The current mode isn't persisted** (DEC-021). Phase 10 added a *default mode* setting (the mode the app opens in), not persistence of the mode last used.
 9. **Only checked on one device:** one phone (Android 15, 360 dp), plus test-rendered screenshots. No tablet or iOS device yet.
 10. ~~`appDatabaseProvider` has no consumers yet~~ **Resolved in Phase 4:** `historyRepositoryProvider` reads it now (ARCHITECTURE.md §1.17).
 11. **Calculator limitations (Phase 3):**
@@ -773,7 +833,7 @@ Not run this session: the release build, the design-review screenshots (nothing 
     - **Two values next to each other:** deleting the `×` between two inserted values (results or memory) leaves them adjacent. They still multiply, but on screen they read as one number. This needs cursor editing to happen.
     - **The region format is read at startup.** A region change applies after the app restarts.
     - **Paste** works only through a hardware keyboard (Ctrl+V). There is no touch copy or paste menu yet.
-    - **Haptics are always on.** There is no setting until Phase 10.
+    - ~~**Haptics are always on.**~~ **Resolved in Phase 10:** a Haptic feedback switch and a Key sounds switch (DEC-055).
 12. **Review findings, not changed (awaiting the user's decision):**
     - The high-contrast outline expression is repeated in 3 places (the theme, `AppCard`, `CalculatorButton`); it could become one `AppColors` getter.
     - `AppTextField` passes through parameters that nothing uses yet.
@@ -786,9 +846,19 @@ Not run this session: the release build, the design-review screenshots (nothing 
     - **Observation, Phase 9:** the Programmer calculator does **not** show this behaviour. Its state is in a Riverpod provider (like Basic, Scientific and Converter), so a typed number, the pending operation, the base, the word size and the signedness all survive a rotation (checked on the phone and in a test). The Date and Financial tools remain affected.
 18. **Six older design-review screenshot tests fail** (`flutter test --tags design-review --run-skipped`, which is skipped in a normal run): an "app screens … shell" test that times out in `pumpAndSettle`, and several "calculator …" tests that start the whole app through a real `sqflite` (`MissingPluginException … getDatabasesPath`). Found in Phase 9 and reproduced in a clean worktree at the previous commit, so they predate it. They need the in-memory database that `pumpApp` uses; not fixed (outside this phase). They do not affect the normal test run.
 
+19. **The Converter's "Temperature" category tile breaks mid-word** ("Tempera / ture") on the phone (720×1600 px, 360 dp): seen with the text size at 130% and again at default settings, so it predates Phase 10. Found on the device in Phase 10; not fixed (the Converter's approved layout, outside this phase). A fix would be a smaller label style or `softWrap` with an ellipsis in `CategoryPicker`'s tiles.
+20. **Phase 10 limits, all stated in the UI or the docs:**
+    - **Larger controls** does not change the Basic and Scientific key grids (they already fill the space they are given); the switch's hint says so. With it on, Programmer's page scrolls (keys are 60 dp).
+    - **The default mode** applies at the next start; changing it never switches the mode on screen.
+    - **Key sounds** governs calculator keys only; menus, buttons and switches keep the platform default (the device's touch-sounds setting).
+    - **Decimal places** applies to Basic and Scientific results only; the other modes have their own formatting.
+    - **The licences page in a debug build** lists development-tool packages (a debug build bundles them); a release build lists what the app ships.
+    - **`android:allowBackup` is not set**, so Android's default (backup on) applies; the privacy summary says the device backup may keep a copy.
+    - **No developer information** is shown (the user said not now; the content must come from the user).
+
 ## Blockers
 
-None. Phase 6 is built, tested and documented; it just needs a local commit (see "Next Task"). The next blocker after that is the user choosing and approving the next phase. iOS still can't be built on Windows, as always.
+None. Phase 10 is built, tested, phone-tested and documented. The next blocker is the user choosing and approving the next phase. iOS still can't be built on Windows, as always.
 
 ## Discrepancies Found
 
@@ -804,6 +874,17 @@ None. Phase 6 is built, tested and documented; it just needs a local commit (see
 7. **Phase 5, Module 2 audit session:** this session's very first action — reading `expression_buffer.dart` to make a small unrelated edit — found `insertFunction`/`insertConstant`/`insertFactorial` already there, contradicting this session's own last chat report ("Module 2 hasn't started"). `git log` explained it: a *different* Claude Code session (co-authored "Claude Sonnet 5.5") built and committed all of Module 2 (`856d175`) while this session was between turns. Treated the committed code as ground truth rather than re-deriving or distrusting it. Separately, the "Where the tests are" table (below, under "Tests") had the same staleness pattern as #6: the Module 2 session updated the headline pass count but not this row-by-row breakdown, so it still showed Module 1's 465-test-total shape under a section reporting 592. Rebuilt from freshly re-run per-file counts in this session, not guessed.
 
 ## Last Session Summary
+
+**2026-10-02, Phase 10 session (Settings — audit, plan and review, build, test, phone test).**
+
+1. The user approved Phase 10 ("start phase 10"), no brief. Audited the repo: only the theme choice and the angle unit existed on the Settings page.
+2. Wrote a plan and had it independently reviewed before any code (eleven defect groups found; see DEC-055). Put the four product questions only the user could settle (version source, developer information, privacy text; then sound, precision, larger buttons, history and text-size values); the answers are in DEC-055.
+3. Built the whole phase: engine `decimalPlaces`; `AppSettings` and one notifier; `KeyFeedback`; `formatResult`; history retention and the off switch; `UserTextScaler`, `AppSizing` and in-app high contrast; `AppInfo`, the privacy summary and a licences route; the Settings page; core `AppSwitchTile`/`SettingRow`; a gallery section; about 45 strings; guard tests for the privacy claims and the version.
+4. **Found and fixed on the way:** screen-reader headings merged with their content; `SegmentedButton` ignoring `minimumSize`; a version row overflowing at 200% text; radio-list fallbacks making Decimal places and Keep the latest far too tall (now picker rows); and, **only on the phone**, the header's mode pill clipped by the 56 dp toolbar when Larger controls was on (`AppHeader` resets the scale).
+5. **Phone-tested** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`) and every Settings value, the rotation and the font scale were restored (see "Test on the user's phone: the Settings screen"). Not checked on the device: the click and vibration themselves, 200% device text on Settings, the Keep-the-latest sheet, a calculation being skipped with Save history off.
+6. Full QA gate clean (see "Tests"): 1681 app and 459 engine tests, analyze, format, debug build.
+7. Docs: this file, ARCHITECTURE.md (§1.23, provider rows, §3.5/§3.6/P-7), DECISIONS.md (DEC-055; DEC-015's `package_info_plus` Rejected), ROADMAP.md, PROJECT_MEMORY.md, CHANGELOG.md, CLAUDE.md's snapshot. Committed locally; **not pushed**.
+8. **Phase 10 is now complete.** The next phase needs the user's explicit choice and approval before starting.
 
 **2026-09-30, Phase 6 session (Converters — plan, build, test, phone test).**
 
@@ -914,9 +995,9 @@ None. Phase 6 is built, tested and documented; it just needs a local commit (see
 ## Instructions For Next Session
 
 1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md). **Reply to the user in Hinglish** (CLAUDE.md rule 13).
-2. **All of Phase 6 is committed** (`a119f9c`). Confirm with `git log --oneline -8` if in doubt.
-3. **Phases 5 and 6 are both complete.** Don't redo the engine, the input logic, the keypad or the converter. If the user wants a specific default, mapping or scope choice changed, it's a targeted edit (see DEC-047/048/049/050/051 for exactly what to touch), not a rebuild.
-4. **Don't start Phase 7 (or any other phase) without the user's explicit choice and approval** — ROADMAP.md lists Phase 7 (Financial) next in the planned order, but the user may pick differently. Ask, don't assume.
+2. **Phases 3 to 10 are complete and committed locally.** Confirm with `git log --oneline -12` if in doubt (Phase 10's hashes are in the git log; none of it is pushed, and Claude never pushes).
+3. **Don't redo the engine, the input logic, the keypads, the converter, the financial or date tools, the programmer calculator or Settings.** If the user wants a specific default, mapping or scope choice changed, it's a targeted edit (see DEC-047 to DEC-055 for exactly what to touch), not a rebuild.
+4. **Don't start Phase 11 (or any other phase) without the user's explicit choice and approval** — ROADMAP.md lists Phase 11 (Polish) next, then Phase 12 (QA), but the user may pick differently. Ask, don't assume. Known Issues #16 to #20 are the likely Polish candidates.
 5. **A pre-existing Basic bug is still known but not fixed:** `CalculatorMemoryKeys` narrows below 48 dp in landscape at 200% text (Known Issues #16). It's Basic's widget, not any later phase's to fix unless the user asks for it specifically.
 6. **For any future toggle-style key** (a persisted or ephemeral on/off shown on a button), reuse `CalculatorButton.selected` (tinted `primary`/`onPrimary`) rather than inventing a new pattern — and re-verify the tint is distinct from the button's resting tone in all four palettes before picking a color, the way DEC-050 had to.
 7. **For any future "composite" key** (one press, multiple buffer operations), give it its own small, atomic `ExpressionBuffer` method, tested directly — chaining existing methods at the notifier level has already been shown to silently misbehave in several positions (DEC-050).

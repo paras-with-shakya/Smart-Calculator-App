@@ -429,7 +429,7 @@ Phase 2 ends with a design review: a debug-only gallery of every component, in l
 - The release build requests no INTERNET permission.
 - Fonts are bundled, not downloaded.
 - Any future remote API sits behind a service, and secrets are never hardcoded or committed.
-- *(Proposed in the final report; values not decided):* history gets a retention limit and an off switch.
+- *(Proposed in the final report; values not decided at the time):* history gets a retention limit and an off switch. **Built in Phase 10 (DEC-055):** keep 50, 100, 500 or all (default all), and a Save history switch (default on).
 
 **Reason:** The user's privacy requirements.
 
@@ -456,7 +456,7 @@ Phase 2 ends with a design review: a debug-only gallery of every component, in l
 - The planned set was verified 2026-09-28 in a scratch project: each package resolved at its latest version, none is discontinued, and each passed a runtime smoke test. **Correction (Phase 1 re-check):** the earlier claim that all were released within the past year was wrong for `path`. Its latest version, 1.9.1, dates from 2024-10; it is a stable dart.dev core package and stays in the plan.
 - **Re-verified on pub.dev, 2026-09-28, before adding in Phase 1:** `flutter_riverpod` 3.4.3 (2026-09-03), `shared_preferences` 2.5.5 (2026-03-25), `shared_preferences_platform_interface` 2.4.2 (2026-03-25), `sqflite` 2.4.4 (2026-09-10), `sqflite_common_ffi` 2.4.3 (2026-09-10), `path` 1.9.1 (2024-10-17). All are the latest versions, none is discontinued, and all come from verified publishers. The packages still to be added are listed in ARCHITECTURE.md §3.8.
 - **Deferred:**
-  - `package_info_plus` (P-7), which pulls in `http` and `win32`
+  - `package_info_plus` (P-7), which pulls in `http` and `win32`. **Rejected in Phase 10 (DEC-055):** the About version is a constant checked by a test against `pubspec.yaml`.
   - `http`, until live currency rates exist
 - **Removed in Phase 1:** `cupertino_icons` (unused).
 
@@ -1691,3 +1691,74 @@ Then stop.
 - **Rejected:** persisting base, word size or signedness (the same reasoning as DEC-051 to DEC-053).
 
 **Impact:** New engine files and 59 engine tests; a new feature directory; `AppTypography` gained `mono` (a required constructor argument, so any direct construction needs it); two fonts' licences are registered; `modeNotAvailableYet` and its fallback were removed because every mode is now built.
+
+
+### [DEC-055] Phase 10, Settings: one `AppSettings` notifier, key feedback in one place, decimal places, larger controls, and a factual privacy summary
+
+- **Status:** Adopted (a plan was written, then independently reviewed before any code, the same practice as DEC-050 to DEC-054; the review found real defects, listed below). **Resolves P-7** (the app version source) and **completes** the history retention and off switch that DEC-014 and ARCHITECTURE.md §3.5 had left "not decided", and the in-app switches §3.6 had listed.
+- **Date:** 2026-10-02
+- **Implemented:** Yes (`lib/features/settings/**`, `lib/core/feedback/key_feedback.dart`, `lib/core/app_info.dart`, `lib/core/formatting/result_text.dart`, `lib/core/widgets/{app_switch_tile,setting_row}.dart`, `lib/app/{app.dart,theme/app_sizing.dart,theme/user_text_scaler.dart,modes/mode_grid.dart}`, `packages/calc_engine` (`decimalPlaces`), `lib/features/history/**`). Phone-tested.
+
+**Context:** The user approved Phase 10 with "start phase 10" and no brief. ROADMAP.md fixed the scope (Appearance; Calculator: default mode, haptics, sound, decimal precision, angle mode; History: history settings, clear history; Accessibility: larger buttons, text scaling, high contrast; About: app version, developer information, privacy information, licences). Four things only the user could settle were asked, and answered:
+
+| Question | Answer |
+| --- | --- |
+| Where does the app version come from (P-7)? | A build-time constant (`AppInfo`) plus a test that fails if it differs from `pubspec.yaml`. No new dependency. |
+| What developer information is shown? | None for now (the roadmap says the content must come from the user). |
+| What privacy information? | A factual summary derived from the code, saying plainly that it is not a legal policy. |
+| (after the review) Sound switch, decimal precision, larger buttons, history and text-size values | Key-sounds switch, default on; **decimal places** (Auto, 2, 4, 6, 8); "Larger controls" x1.25 on fixed-height controls only; history keep 50 / 100 / 500 / unlimited (default unlimited), text size 100 / 115 / 130%. |
+
+**Scope split:**
+
+- **A. Explicit:** theme (existed); default mode; haptics; key sounds; decimal places; angle unit; save-history switch and a retention limit; clear history; larger controls; text size; high contrast; About: version, privacy summary, licences.
+- **B. Supporting:** `SettingsRepository` members and `PreferenceKeys`; `AppSettings` + `appSettingsProvider`; `KeyFeedback` + `keyFeedbackProvider`; `AppSizing`; `UserTextScaler`; `CalcValue.toDecimalString(decimalPlaces:)`; `formatResult`; `HistoryRepository.trimTo`; core `AppSwitchTile` and `SettingRow`; a public `ModeGrid`; a shared clear-history confirmation; a licences route; `AppInfo`; guard tests for the privacy claims.
+- **C. Not built:** developer information (the user said not now); a legal privacy policy or a link to one; language choice; per-mode angle defaults; haptic strength; sound choices; accent colours; backup/export; history search settings; a schedule for clearing; any new dependency (`package_info_plus` is **Rejected**, P-7 resolved without it).
+
+**Decisions:**
+
+- **Settings model.** Everything except the theme and the angle mode is one immutable `AppSettings` held by `AppSettingsNotifier` (the two existing notifiers are left alone). Each setter saves first, then builds the new state from the state *after* the save, so two quick changes cannot overwrite each other; a value it already has is not written. Widgets read one field with `select`. The defaults are the behaviour before Phase 10 (Basic, haptics on, key sound on, auto places, history on and unlimited, text 100%, larger controls off, high contrast off). Stored values are fixed strings, bools and settings keys; **a value that is missing, of the wrong type, or not recognised falls back to its default** (the repository reads with `is` checks, because `SharedPreferencesWithCache.getString` throws a `TypeError` on another type; the theme and angle readers got the same fix).
+- **Default mode.** `CurrentModeNotifier.build` *reads* it once; changing it applies at the next start and never switches the mode being shown. Chosen in a sheet with the same `ModeGrid` the mode sheet uses (made public and given `selected`/`onSelected`).
+- **Haptics and key sounds (`KeyFeedback`).** Review finding: Android already plays the system click for every `InkWell` tap, and a long press already vibrates, so an added sound would have doubled, and an off switch would have silenced nothing. So: `CalculatorButton`'s `InkWell` sets `enableFeedback: false`, and `KeyFeedback` is the only source of feedback for calculator keys: `key()` (tick + click), `select()` (tick only: pickers, categories, tools, swap) and `heavy()` (firm tick: hold-backspace). The 13 direct `HapticFeedback` calls were replaced; the DEG and 2nd keys, which had only the Material click, now call `key()`. "Key sounds" governs the calculator keys only; menus, buttons and switches keep the platform default, which follows the device's touch-sounds setting, and the hint says so. The click is `SystemSound.click` (no audio package, DEC-015).
+- **Decimal places.** `CalcValue.toDecimalString({significantDigits: 12, decimalPlaces})`: the exact value (for an approximate value, the digits shown) is rounded half away from zero to N places, then written by the existing rules. Only the fraction is rounded, so whole numbers never change (the review showed that rounding to 6 *significant* digits turns 987654 + 123456 into 1.11111e6), a result that rounds to zero is `0`, trailing zeros are not padded, and there are still at most 12 significant digits. One helper, `formatResult`, is used by the display, the memory badge, the history and saved lists and their search (so a search matches what is shown). A value placed inside an expression, and the spoken expression, keep the full 12 digits. Copy puts the shown (rounded) text on the clipboard. Applies to Basic and Scientific only; the other modes have their own formatting.
+- **History.** `historyEnabled` is checked in `CalculatorNotifier` (the only writer), not in `HistoryNotifier`, which stays settings-free. `HistoryRepository.trimTo(keep)` deletes everything but the newest `keep`, in the *same order as `list()`* (`created_at DESC, id DESC`), so a clock that went backwards cannot make the wrong rows survive. After an add with a limit the notifier trims and re-lists. Lowering the limit below the entries held asks first (the entries are deleted), and only then; "All" and a limit the entries already fit under need no question. Clear history reuses the History screen's confirmation (extracted to `confirmClearHistory`), is disabled while the history is empty, and says so afterwards. With history off, the History screen says "History is off" (empty) or shows a one-line banner above old entries. Saved calculations are not affected by any of this.
+- **Text size.** `UserTextScaler` multiplies whatever the system's scaler returns for a font size (right for the nonlinear scalers of Android 14 and later; the system scale is never read as one number), capped at 2.5 times the font size for the increase only: a system scale above that is never reduced. 100% leaves the system scaler untouched.
+- **Larger controls.** `AppSizing` (an `InheritedWidget` in `MaterialApp.builder`, default 1 with none above) scales the fixed-height controls by 1.25: `AppButton`, `AppIconButton`, `AppChoiceGroup` segments (through the visual density, because `SegmentedButton` ignores a minimum size), `CalculatorButton`'s minimum, the Converter and Programmer key rows, the memory and scientific rows, the Programmer base cards. **It does not reach the Basic and Scientific key grids**, which already fill the space they are given; the hint says so. **`AppHeader` resets it to 1**: the top bar is a fixed 56 dp, and on the phone the 60 dp mode pill was clipped by it with larger controls on (found there, see below). It is not a theme extension (the deviation from `AppColors`/`AppTypography`) because the themes are `static final` with their button sizes built in.
+- **High contrast.** With the switch on, `theme`/`darkTheme` are the existing high-contrast themes; the `highContrast*` slots are unchanged, so a device that asks for more contrast still gets it with the switch off (checked for all four combinations).
+- **One `MaterialApp.builder`, always the same wrappers** (`AppSizing` then `MediaQuery`): wrapping conditionally would rebuild the `Navigator` and close Settings the moment a setting changed. Tested.
+- **About.** Version `1.0.0 (1)` from `AppInfo` (sync test against `pubspec.yaml` and against the Gradle build's use of `flutter.versionName`); the privacy summary shown in full in a card; "Open-source licences" opens Flutter's licence page through a new typed `LicensesRoute` (no legalese passed; the two bundled fonts' licences were already registered).
+- **The privacy summary** says: no internet permission in the Android release build, so the app itself cannot send data anywhere; history, saved calculations, memory and settings stay on the device; currency rates are never downloaded and start from built-in sample values; clearing the history or uninstalling removes the data from the app, and the device's own backup may keep a copy; and it is not a legal policy. Each claim is checked by `test/core/privacy_claims_test.dart` (the app manifest has no `uses-permission`; no `dart:io`, `http` or socket import in `lib/` or the engine; the direct dependencies equal a fixed list, so adding one fails the test on purpose; the sample-rate table exists). It deliberately does **not** say "your data never leaves your device": `android:allowBackup` is not set, so Android's default (backup on) applies. Setting it to `false` would be a platform decision, left to the user.
+
+**Defects found by the independent review of the first draft, all fixed before coding:**
+
+1. "No sound today" was false: Android already clicks on every `InkWell` tap and vibrates on a long press, so a sound switch would have doubled the click and an off switch would have silenced nothing (and the planned test would have failed under `FLUTTER_TEST`). Fixed by `enableFeedback: false` on `CalculatorButton` and one source of feedback (above); the scope of "Key sounds" was narrowed and the user asked.
+2. Gating history inside `HistoryNotifier` would have broken its 5 existing tests (no preferences in their container). Gated in `CalculatorNotifier` instead, with `keepLast` passed in.
+3. "A corrupt value falls back to the default" was false for a value of the wrong type (a `TypeError`). Fixed and tested with wrong-typed values.
+4. Significant digits changed integers, and `value()` was shared with expression values and the spoken expression, the memory badge and the search were missed. Replaced by decimal places (the user chose it) and a split between results and in-expression values.
+5. The text-size multiplier had no `TextScaler` composition API, the clamp would have cut a large system scale, and a conditional wrapper would have closed Settings. Fixed (`UserTextScaler`, increase-only cap, unconditional wrappers).
+6. "Larger buttons" did nothing for the main keypad, the list of fixed-height widgets was incomplete (`AppIconButton`, segments, base cards), and the theme cannot carry the scale. Fixed and narrowed (above).
+7. The privacy summary could not say "never leaves your device" (backup), and the planned manifest test did not cover the dependency list or network code. Fixed (the guard tests).
+8. History: `AppChoiceGroup<int?>` cannot select `null` in its radio fallback (an enum was used), `trimTo` must order like `list()`, state must be re-listed rather than patched when the history is not loaded, the confirm must only appear when entries would be deleted, the off state needed a message, and the clear-all confirmation had to be shared rather than copied.
+9. Licences: the default registry reads a bundled file tests do not have (the test resets it); `showLicensePage` would bypass the typed routes (a `LicensesRoute` was added).
+10. Convention: a `SettingRow` and an `AppSwitchTile` were needed instead of repeating the label/hint/control layout ten times; `AngleModeNotifier` updates state before saving (unlike the theme notifier), which the plan had misstated.
+11. Docs checklist (DEC-014, ARCHITECTURE §3.5/3.6/P-7, Known Issues 7 and 8) and a doc comment in `conversion_tables.dart` that claimed the UI labels the sample currency rates as examples (it does not; the comment now says so).
+
+**Found while building and testing (not by the review):**
+
+- `SectionHeader`'s `Semantics(header: true)` was not its own node, so a screen reader heard each heading merged with everything under it as one block. Fixed with `container: true`.
+- `SegmentedButton` ignores `minimumSize`; its height comes from the visual density.
+- The Settings column is about 3,500 dp tall at 400 dp wide (a page of hints); tests use a tall window or scroll.
+- **Many-choice settings are picker rows.** `AppChoiceGroup` falls back to a vertical radio list when the options do not fit as segments. For Decimal places (five options) and Keep the latest (four) that made the page far taller on a phone. Both are now one button showing the current choice that opens a bottom sheet (`_SheetChoiceSetting<T>` in `settings_page.dart`, an `AppChoiceGroup` inside the sheet). The sheet's result is wrapped in a record so "dismissed" cannot be confused with a choice. Theme, angle unit and text size (two or three short options) stay segmented.
+- **Found on the phone, not by any test:** with Larger controls on, the header's mode pill (60 dp) was clipped by the fixed 56 dp toolbar. `AppHeader` now wraps its `AppBar` in `AppSizing(controlScale: 1)`, and a test checks the pill is the normal size with the switch on.
+- **Pre-existing, found on the phone, not fixed:** the Converter's "Temperature" category tile breaks mid-word ("Tempera / ture") at default settings (Known Issues #19).
+
+**Alternatives:**
+
+- **Rejected:** `package_info_plus` (a dependency that pulls in `http` and `win32` for one string; the constant plus a sync test is enough). DEC-015's "deferred" entry is now Rejected.
+- **Rejected:** significant digits as "decimal precision" (turns integers into scientific notation at low settings).
+- **Rejected:** a Sound switch that silences every control (it would need every Material widget's `enableFeedback` turned off through static themes) and removing the Sound switch altogether (the user chose the narrower switch).
+- **Rejected:** persisting the current mode (DEC-021) instead of a default-mode setting.
+- **Rejected:** a text-size choice smaller than 100% (12 sp captions would go under Material's minimum) and a clamp of the *total* scale at 2.5 (it would reduce a large system size).
+- **Rejected:** `showLicensePage` called directly (bypasses the typed routes).
+- **Rejected:** one notifier per setting (nine near-identical files); the theme and angle notifiers were left as they are rather than churned.
+
+**Impact:** `SettingsRepository` gained `appSettings` and nine setters; `PreferenceKeys` gained nine keys; `CurrentModeNotifier` now reads the default mode; `CalculatorButton` is silent on its own (`enableFeedback: false`); every haptic call goes through `KeyFeedback`; `ModeGrid` is public and `mode_picker.dart` uses it; `HistoryRepository` gained `trimTo`; `CalcValue.toDecimalString` gained `decimalPlaces`; `SectionHeader` is its own semantics node; `SmartCalculatorApp` watches three settings and has a `builder`; `AppButton`, `AppIconButton`, `AppChoiceGroup` and the fixed-height rows read `AppSizing`. All defaults keep the previous behaviour.

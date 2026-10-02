@@ -19,6 +19,54 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-10-02: Phase 10 (Settings screen) — Phase 10 complete (commits: see DEVELOPMENT_STATUS.md)
+
+The user approved Phase 10 with "start phase 10", no brief. The roadmap scope was audited against the code (the Settings page had only the theme choice and the angle unit; nothing else existed). A plan was written and independently reviewed before any code (DEC-055); the review found real defects, all fixed in the plan first. Four product questions were put to the user (app version source, developer information, privacy text, then sound/precision/larger buttons/history and text-size values) and answered; they are recorded in DEC-055.
+
+### Added
+
+- **Engine:** `CalcValue.toDecimalString({significantDigits: 12, decimalPlaces})` — rounds the exact value (for an approximate value, the digits shown) half away from zero to N places, only the fraction, then writes it by the existing rules.
+- **Settings** (`lib/features/settings/`): `AppSettings` with `DecimalPlaces`, `HistoryLimit`, `TextSize`; `SettingsRepository` gained `appSettings` and nine setters (nine new `settings.*` preference keys); `appSettingsProvider`/`AppSettingsNotifier`; `keyFeedbackProvider`; `decimalPlacesProvider`; the full `SettingsPage` (Appearance, Calculator, History, Accessibility, About).
+- **Feedback:** `KeyFeedback` (`lib/core/feedback/`) is the one source of haptics and key clicks for calculator keys; `CalculatorButton`'s `InkWell` no longer plays its own.
+- **Formatting:** `formatResult` (`lib/core/formatting/result_text.dart`) applies the decimal places to the live result, memory badge, history and saved lists and their search.
+- **History:** `HistoryRepository.trimTo(keep)`, `HistoryNotifier.add(keepLast:)`/`trimTo`, a shared `confirmClearHistory`, and a "History is off" message and banner.
+- **Accessibility:** `UserTextScaler` (the system scaler times 1, 1.15 or 1.3, increase capped at 2.5x, never reducing a larger system size), `AppSizing` (larger controls x1.25), high-contrast themes chosen by an in-app switch.
+- **Core widgets:** `AppSwitchTile`, `SettingRow`; `ModeGrid` made public (the default-mode sheet reuses the mode sheet's grid); a gallery "Settings" section.
+- **About:** `AppInfo` (1.0.0, build 1), a privacy summary, an open-source licences page through a typed `LicensesRoute`.
+- About 45 new `app_en.arb` strings.
+
+### Changed
+
+- `CurrentModeNotifier.build` reads the default mode (applies at the next start; the mode on screen never changes when it is edited).
+- Every `HapticFeedback` call in the calculator, converter, programmer, financial picker and the DEG and 2nd keys now goes through `KeyFeedback`; the two settings readers in `PreferencesSettingsRepository` and the theme and angle-mode reads use `is` checks, so a stored value of the wrong type is the default, never an exception.
+- `AppButton`, `AppIconButton`, `AppChoiceGroup`, `CalculatorButton`, the Converter and Programmer key rows, the memory and scientific rows and the Programmer base cards read `AppSizing`. `AppHeader` resets it to 1 (fixed 56 dp toolbar). `SectionHeader` is its own semantics node.
+- `conversion_tables.dart`: the doc comment on the sample currency rates no longer claims the UI labels them as examples (it does not).
+- Docs: DEC-055 (new), DEC-015's `package_info_plus` marked Rejected, ARCHITECTURE.md §1.23 and the provider table, §3.5/§3.6/P-7, ROADMAP.md Phase 10, PROJECT_MEMORY.md, Known Issues 7, 8, 19, 20.
+
+### Fixed (found by the plan's independent review, before any code)
+
+- "No sound today" was false: Android already clicks on every `InkWell` tap and vibrates on a long press, so a sound switch would have doubled the click and an off switch would have silenced nothing. One source of feedback (`KeyFeedback`) fixes it.
+- Gating history inside `HistoryNotifier` would have broken its tests; gated in `CalculatorNotifier`. A wrong-typed stored value threw a `TypeError` (`getString`); every read is now an `is` check.
+- Significant digits turned integers into scientific notation; replaced by decimal places (fraction only). The memory badge, history, saved lists and their search were missing from the first draft.
+- The text-size multiplier had no `TextScaler` composition API, the clamp would have reduced a large system size, and a conditional wrapper would have closed Settings the moment a setting changed. Larger buttons did nothing for the main keypad and the theme cannot carry the scale (an `InheritedWidget` instead; the hint says the Basic and Scientific grids do not change). The privacy summary could not say "never leaves your device" (Android backup). More in DEC-055.
+
+### Fixed (found while building and on the phone)
+
+- A screen reader read a section heading merged with everything under it (`SectionHeader`'s semantics node was not its own); `SegmentedButton` ignores `minimumSize` (the visual density is used instead); the version row overflowed at 200% text (a `Wrap`).
+- Decimal places (five options) and Keep the latest (four) as `AppChoiceGroup` radio lists made the Settings page far taller on a phone; both are now picker rows opening a bottom sheet.
+- **Found only on the phone:** with Larger controls on, the header's 60 dp mode pill was clipped by the 56 dp toolbar; fixed in `AppHeader`, with a test.
+
+### Tests
+
+- `dart test` in `packages/calc_engine`: 459 passed (was 446; +13 in `decimal_places_test.dart`).
+- `flutter test`: 1681 passed, 1 skipped, 0 failed (was 1552 passed; +129).
+- `flutter analyze`: no issues. `dart format --set-exit-if-changed lib test packages`: 0 changed. `flutter build apk --debug`: built (~126 s).
+- New tests: `app_settings_test`, `settings_page_test` (33), `key_feedback_test`, `history_retention_test`, `decimal_places_display_test`, `accessibility_settings_test` (22), `app_info_test`, `privacy_claims_test` (the manifest declares no permission, no network imports, a fixed dependency list), `settings_widgets_test`.
+- **Phone-tested** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`, USB): see DEVELOPMENT_STATUS.md, "Test on the user's phone: the Settings screen". The settings were restored to their defaults afterwards.
+- Not re-run: `flutter test --tags design-review` (6 older screenshot tests fail since before this phase, Known Issues #18).
+
+---
+
 ## 2026-10-01: Phase 9 (Programmer calculator) — Phase 9 complete (commits `06ce7a5`, `afa9978`, `5ace4cb`, `214d8cd`)
 
 The user approved Phase 9 with a detailed brief (audit first, scope split into explicit / supporting / not built, a stated numeric model, an independent plan review, independent reference validation, a mandatory phone test, a check of Known Issue #17, documentation, local commits, stop). The repository had no Programmer work beyond the mode enum and its name (checked: `git status`, `git log`, a search of `lib/`, `test/`, `packages/` and `docs/`). A plan was written and independently reviewed before any code (DEC-054); the review found twelve defects, all fixed in the plan first.

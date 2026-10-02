@@ -19,7 +19,7 @@ Phase 6  Converters ...................... COMPLETED 2026-09-30
 Phase 7  Financial ....................... COMPLETED 2026-10-01, phone-tested
 Phase 8  Date calculator ................. COMPLETED 2026-10-01, phone-tested
 Phase 9  Programmer calculator ........... COMPLETED 2026-10-01, phone-tested
-Phase 10 Settings screen ................. planned
+Phase 10 Settings screen ................. COMPLETED 2026-10-02, phone-tested
 Phase 11 Polish .......................... planned
 Phase 12 QA .............................. planned
 ```
@@ -139,7 +139,7 @@ The user approved Phase 4 on 2026-09-29. ARCHITECTURE.md §1.17 (history) and §
   - grouping by Today, Yesterday and earlier; paging
   - swipe-to-delete with Undo (a labelled delete button was used instead, for discoverability and easier accessibility)
   - a result "tape" on the calculator display
-  - a retention limit and an off switch
+  - ~~a retention limit and an off switch~~ built in Phase 10 (DEC-055)
 - **Done when:** the storage tests and widget tests pass. **Done** — `test/features/history/` and `test/features/saved_calculations/` (repository, notifier, widget, 48 tests together) plus the engine-side `ExpressionBuffer.toCanonicalText` tests, all passing; verified again on the user's phone.
 
 ---
@@ -226,14 +226,15 @@ Seven independent calculators — EMI, simple interest, compound interest, GST, 
 - **Not built, by decision (DEC-054):** rotations, NAND/NOR, modulo, byte swap, a separate shift-type selector, precedence and brackets, history/saved/memory integration, persistence, hardware-keyboard and paste input.
 - **Done when:** the two's complement and overflow tests pass. **Done** — 446 engine tests (59 new) check every operation against Dart's typed-data lists and native `int` operations as an independent oracle, plus hand-computed reference tables; 1552 app tests; phone-tested (every base, signed and unsigned, 8 and 64 bits, shifts, overflow, divide by zero, portrait, landscape, 200% text, rotation).
 
-### Phase 10: Settings screen
+### Phase 10: Settings screen — COMPLETED 2026-10-02 (DEC-055), phone-tested
 
-- **Appearance:** light, dark or system. Phase 1 built the theme choice itself; this phase builds the full screen around it.
-- **Calculator:** default mode, haptics, sound, decimal precision, angle mode.
-- **History:** history settings, clear history.
-- **Accessibility:** larger buttons, text scaling, high contrast.
-- **About:** app version (P-7), developer information (the content must come from the user), privacy information and licenses.
-- **Done when:** the widget tests pass.
+- **Appearance:** light, dark or system. **Done** (the Phase 1 choice, now one section of the full screen).
+- **Calculator:** default mode, haptics, sound, decimal precision, angle mode. **Done** — *opens in* (applies at the next start), haptic feedback, **key sounds** (the calculator keys' click; it follows the device's touch-sounds setting), **decimal places** (Auto, 2, 4, 6, 8: only the fraction of Basic and Scientific results is rounded), angle unit.
+- **History:** history settings, clear history. **Done** — Save history on or off, keep the latest 50 / 100 / 500 / all (default all), Clear history with a confirmation.
+- **Accessibility:** larger buttons, text scaling, high contrast. **Done** — text size 100 / 115 / 130% on top of the device's, **larger controls** (x1.25 on buttons and fixed-height rows; the Basic and Scientific key grids already fill the screen and do not change), high contrast.
+- **About:** app version (P-7), developer information (the content must come from the user), privacy information and licenses. **Done, except developer information**: the version (a constant checked against `pubspec.yaml`; P-7 resolved, `package_info_plus` rejected), a factual privacy summary (checked by tests; not a legal policy), and the open-source licences page. **Developer information is not shown: the user said not now** (the content has to come from the user).
+- **Not built, by decision (DEC-055):** developer information; a legal privacy policy or a link to one; language choice; per-mode angle defaults; haptic strength; sound choices; accent colours; backup or export.
+- **Done when:** the widget tests pass. **Done** — 1681 app and 459 engine tests (DEVELOPMENT_STATUS.md, "Tests"); phone-tested (every section, portrait and landscape, the accessibility switches, the default mode across a restart, the history off state, the licences page). Not judged on the device: the key click and vibration themselves, and the Settings page at 200% device text (widget tests only).
 
 ### Phase 11: Polish
 
@@ -263,7 +264,7 @@ Seven independent calculators — EMI, simple interest, compound interest, GST, 
 | `go_router` / deep links | DEC-003 | Deep links or web become requirements |
 | Web and desktop as supported targets, and their identifiers | DEC-004, DEC-025 | The user asks |
 | `drift` | Only needed for web | Web becomes a target |
-| `package_info_plus` | P-7 | Phase 10 |
+| ~~`package_info_plus`~~ | Rejected (P-7 resolved, DEC-055) | — |
 | iOS build verification | No Mac (P-5) | A Mac is available |
 | Extra saved-calculation tools (BMI, tax, monthly budget) | Examples in the master prompt; not in any phase's scope | After Phase 7, if the user wants them |
 

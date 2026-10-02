@@ -165,7 +165,7 @@ It must reach portfolio quality.
 - Any future remote API (for example currency rates) is isolated behind a service. **API secrets are never hardcoded or committed.**
 - The release Android manifest requests **no INTERNET permission**. Currently only the debug and profile manifests do, as the Flutter tooling needs. Keep it that way, so the app can honestly claim to work fully offline.
 - Fonts are bundled, never fetched at runtime (so no `google_fonts`).
-- History gets a retention limit and an off switch (PROPOSED; the values are not yet decided).
+- History gets a retention limit and an off switch (built in Phase 10, DEC-055: keep 50 / 100 / 500 / all, default all; a Save history switch, default on).
 
 ## Testing Principles
 
