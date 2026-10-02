@@ -2203,7 +2203,7 @@ abstract class AppLocalizations {
   /// Third paragraph of the privacy summary: removal, and the device backup caveat.
   ///
   /// In en, this message translates to:
-  /// **'Clearing the history or uninstalling the app removes this data from the app. Your device\'s own backup may keep a copy, depending on its settings.'**
+  /// **'Clearing the history deletes only the history. Uninstalling the app removes all of this data from the app. Your device\'s own backup may keep a copy, depending on its settings.'**
   String get settingsPrivacyRemoval;
 
   /// Closing line of the privacy summary stating that it is not a legal policy.

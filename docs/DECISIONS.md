@@ -205,6 +205,8 @@ The 17.x line has had no releases since 18.0.0, so pinning 17.x would mean pinni
 - The rule for Claude: **never push, and never add or change remotes.** The user said on 2026-09-28: *"tumko mera code push nhi krna, mere github mai khud krunga"*, meaning they push their own code. Claude makes local commits only (CLAUDE.md rule 10).
 - **The user confirmed (2026-09-28):** they pushed the app to GitHub themselves, and the remote stays as it is.
 
+**Update, 2026-10-02 (during the Phase 10 finalization pass):** the user said *"tum ne commit kiya mat karo, mere code mai khud kar diya karunga, ye dhyan rakhna aage se"*: Claude no longer commits either. This supersedes "Claude makes local commits only". Phases 3 to 10 were committed locally by Claude (the last, Phase 10, as `c25108c`, `b249e42`, `a556e24`, `504feba`); from here on every change stays in the working tree for the user to commit (CLAUDE.md rule 10).
+
 ---
 
 ### [DEC-007] State management: Riverpod 3 without code generation
@@ -1750,6 +1752,14 @@ Then stop.
 - **Many-choice settings are picker rows.** `AppChoiceGroup` falls back to a vertical radio list when the options do not fit as segments. For Decimal places (five options) and Keep the latest (four) that made the page far taller on a phone. Both are now one button showing the current choice that opens a bottom sheet (`_SheetChoiceSetting<T>` in `settings_page.dart`, an `AppChoiceGroup` inside the sheet). The sheet's result is wrapped in a record so "dismissed" cannot be confused with a choice. Theme, angle unit and text size (two or three short options) stay segmented.
 - **Found on the phone, not by any test:** with Larger controls on, the header's mode pill (60 dp) was clipped by the fixed 56 dp toolbar. `AppHeader` now wraps its `AppBar` in `AppSizing(controlScale: 1)`, and a test checks the pill is the normal size with the switch on.
 - **Pre-existing, found on the phone, not fixed:** the Converter's "Temperature" category tile breaks mid-word ("Tempera / ture") at default settings (Known Issues #19).
+
+**Addendum, 2026-10-02 (finalization pass, after the user approved these decisions):**
+
+- **Approved as written:** the version constant and its sync test; no developer information; the factual privacy summary; `android:allowBackup` left unchanged (the user said explicitly not to set it to `false`); the Larger controls scope; Key sounds (default on, through `KeyFeedback`); decimal places Auto, 2, 4, 6, 8; History keep 50, 100, 500, unlimited (labelled "All" in the UI); text size 100, 115, 130%; Larger controls; High contrast.
+- **Privacy wording, one factual correction.** The third paragraph said "Clearing the history or uninstalling the app removes this data from the app", but clearing the history deletes only the history (saved calculations, memory and settings stay). Now "Clearing the history deletes only the history. Uninstalling the app removes all of this data from the app. Your device's own backup may keep a copy, depending on its settings." The other paragraphs were checked against the app manifest, the imports, the dependency list, the currency-rate table and where each kind of data is stored, and are unchanged.
+- **Key feedback, verified on the phone** (not redesigned): one haptic tick per key press with Haptic feedback on and none with it off; one system click per key press with Key sounds on (no second Android click) and none with it off; the two switches are independent. The device's own touch-sounds setting must also be on for the click to be audible (the hint says so).
+- **Known Issue #19 fixed:** the Converter's category tiles size to the longest label (see ARCHITECTURE.md §1.19). The same defect in the Financial tool picker is recorded as Known Issue #21, not fixed.
+- **Known Issue #21 fixed (a follow-up the same day):** the Financial tool picker's tiles size to the widest *word* of any label, not the whole label: its labels have several words, and sizing to "Compound interest" on one line would have made the tiles two to a row at 100% text. A label now wraps only between words (see ARCHITECTURE.md §1.20). At the user's request the app's `MaterialApp` also hides the debug "DEBUG" ribbon (`debugShowCheckedModeBanner: false`).
 
 **Alternatives:**
 

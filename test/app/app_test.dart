@@ -22,6 +22,14 @@ void main() {
     expect(find.byType(CalculatorView), findsOneWidget);
   });
 
+  testWidgets('shows no "DEBUG" ribbon', (tester) async {
+    await pumpApp(tester);
+
+    final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
+    expect(app.debugShowCheckedModeBanner, isFalse);
+    expect(find.byType(CheckedModeBanner), findsNothing);
+  });
+
   testWidgets('Programmer mode shows the programmer calculator', (
     tester,
   ) async {

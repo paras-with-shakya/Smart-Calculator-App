@@ -19,6 +19,52 @@ When one date has more than one entry, each heading names its session.
 
 ---
 
+## 2026-10-02 (later still): Known Issue #21 and the "DEBUG" ribbon — uncommitted
+
+The end of the Phase 10 finalization pass, from a follow-up brief. No Phase 11 work. **Not committed:** the brief asked for one local commit; asked about it (CLAUDE.md rule 10), the user answered "NO". Nothing pushed.
+
+### Fixed
+
+- **Known Issue #21, the Financial tool picker broke words in the middle** ("Compou / nd interest", "Percenta / ge" at default settings). The tiles were a fixed 96 dp wide with 16 dp side padding, 64 dp for the text, and "Percentage" needs about 79 dp at 100%. Every tile is now as wide as the widest word of any label at the current text size (at least 96 dp, all the same width, capped at the available width, bold text included), with `AppSpacing.sm` side padding, so a label wraps only between words. At 100% on a 360 dp phone the tiles keep their size and still sit three to a row. New `test/features/financial/presentation/financial_tool_picker_test.dart` (12 tests, real fonts); 10 failed before the fix. No other calculator changed.
+
+### Changed
+
+- **No "DEBUG" ribbon** in debug builds (the user's request): `debugShowCheckedModeBanner: false` on the app's `MaterialApp`, as the gallery app already had; a test in `test/app/app_test.dart`.
+- Docs: DEVELOPMENT_STATUS.md (Known Issues #21 fixed, the follow-up phone checks, tests), ARCHITECTURE.md (§1.19, §1.20, the tests table), DECISIONS.md (DEC-055 addendum), ROADMAP.md (the Phase 10 test count), CLAUDE.md snapshot.
+
+### Tests
+
+- `flutter analyze`: no issues. `dart format --set-exit-if-changed lib test packages`: 233 files, 0 changed (the new test file needed formatting once; applied). `flutter test`: 1704 passed, 1 skipped, 0 failed (was 1691: +12 in `financial_tool_picker_test.dart`, +1 in `app_test.dart`). `dart test` in `packages/calc_engine`: 459 passed. `flutter build apk --debug`: built (Gradle ~130 s) and installed. The release APK was not rebuilt (no manifest, permission or dependency change since its check earlier in the pass).
+- **Phone** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`): the Financial tiles in portrait and landscape at 100%, 130% and 200% device text (no word broken, no overflow), selecting tiles, the EMI reference example (₹8,791.59 a month), no ribbon on any screen, and Basic, Scientific, Programmer, Converter, Date and Settings opening normally (a smoke pass). Bold text was checked in widget tests only.
+
+---
+
+## 2026-10-02 (later): Phase 10 finalization and QA pass — uncommitted
+
+A focused pass after the user approved the Phase 10 decisions. No new feature, no Phase 11 work. **Not committed:** mid-pass the user said Claude must no longer commit (CLAUDE.md rule 10, DEC-006 update); the changes below are in the working tree for the user to commit.
+
+### Fixed
+
+- **Known Issue #19, the Converter's "Temperature" category tile broke mid-word.** `CategoryPicker`'s tiles were a fixed 96 dp wide with 16 dp side padding. The tile width is now the longest label's width at the current text size (at least 96 dp, the same for every tile) with `AppSpacing.sm` side padding, so no label wraps at any text size; at 100% on a 360 dp phone the tiles still sit three to a row. New `test/features/converter/presentation/category_picker_test.dart` (10 tests, real fonts); it failed before the fix.
+- **Privacy summary, third paragraph (factual correction).** "Clearing the history or uninstalling the app removes this data from the app" overstated what clearing the history does (it deletes only the history). Now: "Clearing the history deletes only the history. Uninstalling the app removes all of this data from the app. Your device's own backup may keep a copy, depending on its settings." The other three paragraphs were verified against the manifest and the code and left unchanged. `android:allowBackup` was not touched.
+
+### Changed
+
+- CLAUDE.md rule 10 and the per-phase exit gate: Claude no longer commits (the user commits and pushes). DEC-006 got an update note. The user-memory note `never-push` was widened to "never push or commit".
+- Docs: DEVELOPMENT_STATUS.md (a finalization section with the phone QA results, Known Issues #19 fixed and #21 added), DECISIONS.md (DEC-055 addendum), ARCHITECTURE.md (§1.23 and the Converter picker), ROADMAP.md, CLAUDE.md snapshot.
+
+### Found, not fixed
+
+- **Known Issue #21:** the Financial tool picker has the same mid-word break ("Compou / nd interest", "Percenta / ge") at default settings. It predates Phase 10 and was outside the pass's scope.
+
+### Tests
+
+- `flutter analyze`: no issues. `dart format --set-exit-if-changed lib test packages`: 232 files, 0 changed. `flutter test`: 1691 passed, 1 skipped, 0 failed; was 1681 passed (+10 in `category_picker_test.dart`). `dart test` in `packages/calc_engine`: 459 passed (unchanged). `flutter build apk --debug`: built.
+- Release manifest: `flutter build apk --release` built `app-release.apk` (54.0 MB, ~269 s); `aapt dump permissions` lists only the app's own `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` (an AndroidX signature permission); **no `INTERNET`**, and the manifest has no `allowBackup` attribute (so Android's default applies, as the third paragraph says). Sentence 1 holds.
+- **Phone QA** (`4DEEEUKF6HNFHEIJ`/`23124RN87I`): the key click and the vibration were observed through the system's own logs (`dumpsys vibrator_manager`, `logcat`): haptics ON/OFF and Key sounds ON/OFF each behaved as set, with one tick and one click per key press and no doubled click; Settings at 200% text, the Keep-the-latest picker and its persistence, Save history OFF and ON, rotation, the accessibility switches and the Temperature tile were checked. The audible click itself could not be judged (no way to hear it). Details: DEVELOPMENT_STATUS.md, "Phone QA".
+
+---
+
 ## 2026-10-02: Phase 10 (Settings screen) — Phase 10 complete (commits `c25108c`, `b249e42`, `a556e24`)
 
 The user approved Phase 10 with "start phase 10", no brief. The roadmap scope was audited against the code (the Settings page had only the theme choice and the angle unit; nothing else existed). A plan was written and independently reviewed before any code (DEC-055); the review found real defects, all fixed in the plan first. Four product questions were put to the user (app version source, developer information, privacy text, then sound/precision/larger buttons/history and text-size values) and answered; they are recorded in DEC-055.

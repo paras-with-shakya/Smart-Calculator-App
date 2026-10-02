@@ -2,20 +2,20 @@
 
 > **The most important file for context recovery.** Rewrite it to the current truth at the end of every meaningful session, following the Session Handoff Protocol in [CLAUDE.md](../CLAUDE.md). Every claim here must be backed by code, by Git, or by a command that was actually run.
 
-**Last updated:** 2026-10-02, Phase 10 (Settings screen) built, tested and phone-tested (DEC-055; commits `c25108c` engine, `b249e42` app, `a556e24` docs; local only). Phases 5 to 10 are complete and phone-tested.
+**Last updated:** 2026-10-02 (later still), the end of the Phase 10 finalization and QA pass: Known Issue #21 (the Financial tool picker's mid-word breaks) fixed and the "DEBUG" ribbon removed at the user's request (see "Phase 10 finalization and QA pass" below). The whole pass is **uncommitted**: the user commits. A follow-up brief asked Claude to commit; asked about it (rule 10), the user answered "NO". The Phase 10 commits are `c25108c` engine, `b249e42` app, `a556e24` docs, `504feba` hashes (local only). Phases 5 to 10 are complete and phone-tested.
 
 ## At a Glance
 
 | Question | Answer |
 | --- | --- |
-| Where are we? | **Phases 3 through 10 are complete.** Phase 10 (Settings) is built, tested (1681 app + 459 engine tests, `flutter analyze`, formatting and the debug build clean) and phone-tested. |
+| Where are we? | **Phases 3 through 10 are complete.** Phase 10 (Settings) is built, tested (1704 app + 459 engine tests, `flutter analyze`, formatting and the debug build clean), phone-tested, and has had a finalization pass (privacy text verified against the release manifest and the code, the key click and vibration observed on the device, Known Issues #19 and #21 fixed, no "DEBUG" ribbon). |
 | What exists in code? | Everything from Phase 3–9, plus the full Settings screen (ARCHITECTURE.md §1.23, DEC-055): theme, default mode, angle unit, decimal places, haptics, key sounds, save history and a retention limit, clear history, text size, larger controls, high contrast, and About (version, privacy summary, licences). One `AppSettings` notifier; `KeyFeedback` is the one source of key feedback. |
-| What is being worked on? | Nothing. Phase 10 is built, tested, phone-tested and documented. The next phase needs the user's explicit approval before starting. |
-| What happens next? | Report Phase 10 to the user, then wait for the user to approve the next phase (Phase 11, Polish, is next in the roadmap). |
-| Git? | Phase 5 (`ef7b0ba` … `8096bb4`), Phase 6 (`a119f9c`, `ae2781e`) and Phase 7 (`16e7f87`) are all committed. **Claude never pushes; the user pushes themselves.** |
+| What is being worked on? | Nothing. The finalization pass is done and waiting for the user to review and commit it. The next phase needs the user's explicit approval before starting. |
+| What happens next? | The user commits the finalization changes (Claude does not), and chooses the next phase (Phase 11, Polish, is next in the roadmap). |
+| Git? | Phases 3 to 10 are committed locally (Phase 10: `c25108c`, `b249e42`, `a556e24`, `504feba`). **From 2026-10-02 Claude neither pushes nor commits; the user does both** (CLAUDE.md rule 10). The finalization pass's changes sit uncommitted in the working tree. |
 | What must not be repeated? | See "Do NOT Repeat" |
-| Known issues? | See "Known Issues". Nothing new found in Phase 7. #16 (Basic's memory-key touch-target gap, found during Phase 5) is still open, still not this phase's to fix. |
-| Pending decisions? | P-5, P-9, P-10 (long-standing, unrelated to Phase 7). P-7 (app version source) is unrelated too. Phase 7's own validation-bound judgment calls are recorded in DEC-052, open to revision if the user disagrees. |
+| Known issues? | See "Known Issues". Open: #16 (Basic's memory keys under 48 dp in landscape at 200% text), #17 (Date/Financial tools reset on rotation), #18 (six older screenshot tests fail), #20 (Phase 10's documented limits). #19 (the Converter's Temperature tile) and #21 (the Financial tool picker's mid-word breaks) are fixed. |
+| Pending decisions? | P-5, P-9, P-10 (long-standing). P-7 is resolved (DEC-055). The user approved the Phase 10 decisions on 2026-10-02, including leaving `android:allowBackup` alone. |
 
 ## Current Phase
 
@@ -305,8 +305,61 @@ The phone was connected by USB. **Device:** `4DEEEUKF6HNFHEIJ`, model `23124RN87
 | About | Version `1.0.0 (1)`; the privacy card (four paragraphs and "This is a summary of how the app works, not a legal privacy policy."); "Open-source licences" opened Flutter's licence page headed "Smart Calculator 1.0.0 (1)" (also in landscape) |
 
 - **Found, not fixed (pre-existing):** the Converter's "Temperature" category tile breaks mid-word ("Tempera / ture"), seen on the phone with text size at 130% and again at default settings. Recorded as Known Issues #19.
-- **Not checked on the device:** the key click and the vibration themselves (a screenshot cannot show them; covered by `key_feedback_test.dart` for what is called and when), the Settings page at 200% device text (covered by widget tests only), the Keep-the-latest sheet and trimming, and a calculation being skipped while Save history is off (widget, notifier and repository tests only).
+- **Not checked in this first pass** (completed in the finalization pass below): the key click and the vibration, the Settings page at 200% device text, the Keep-the-latest sheet, and a calculation being skipped while Save history is off.
 - **Phone settings:** every Settings value was returned to its default (Basic, Auto, haptics and key sounds on, history saved and unlimited, text 100%, larger controls and high contrast off, theme System); rotation (`accelerometer_rotation=0`, `user_rotation=0`) and `font_scale=1.0` restored. No screenshots were left on the phone.
+
+## Phase 10 finalization and QA pass (2026-10-02, later the same day)
+
+The user approved the Phase 10 decisions (version constant, no developer information, the factual privacy summary, Android backup left alone, Larger controls' scope, Key sounds, decimal places, history options, accessibility options) and asked for a focused QA pass: verify the privacy text against the code, complete the phone checks the first pass could not do, fix Known Issue #19, check the other modes, and test rotation. **Mid-pass the user also said Claude must stop committing** ("tum ne commit kiya mat karo, mere code mai khud kar diya karunga"): everything from this pass is **uncommitted** in the working tree (CLAUDE.md rule 10, DEC-006 update).
+
+- **Starting state:** `git status` clean apart from the untracked `android/build/`; the four Phase 10 commits (`c25108c`, `b249e42`, `a556e24`, `504feba`) are local only (`main` ahead of `origin/main` by 25). Nothing was amended or pushed.
+- **Privacy text, verified against the project:**
+  - The app manifest (`android/app/src/main/AndroidManifest.xml`) has no `uses-permission`, nor `allowBackup`; `INTERNET` appears only in the debug and profile manifests. `lib/` and the engine have no `dart:io`/`dart:html`/`http`/`dio`/socket import. The direct dependencies are the fixed list `privacy_claims_test.dart` checks. The currency rates are the `defaultCurrencyRatesPerUsd` table, editable and saved in preferences, never fetched. History and saved calculations are in sqflite; memory and settings in `SharedPreferences`.
+  - **Sentences 1, 2 and 4 are accurate and unchanged.** **Sentence 3 was inexact** ("Clearing the history or uninstalling the app removes this data from the app": clearing the history deletes only the history, not the saved calculations, memory or settings). Corrected to "Clearing the history deletes only the history. Uninstalling the app removes all of this data from the app. Your device's own backup may keep a copy, depending on its settings." (`settingsPrivacyRemoval` in `app_en.arb`, regenerated). Nothing else in the wording was touched; `android:allowBackup` was not changed.
+  - **The release build's merged manifest** was checked with `aapt` on a release APK: `flutter build apk --release` built `app-release.apk` (54.0 MB, ~269 s); `aapt dump permissions` lists only the app's own `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` (an AndroidX signature permission); **no `INTERNET`**, and the manifest has no `allowBackup` attribute (so Android's default applies, as the third paragraph says). Sentence 1 holds.
+- **Known Issue #19 (the Temperature tile) fixed:** see Known Issues #19. `lib/features/converter/presentation/category_picker.dart` and its new test.
+- **Known Issue #21 (the Financial tool picker) fixed** in a follow-up the user asked for the same day: see Known Issues #21. `lib/features/financial/presentation/financial_tool_picker.dart` and the new `test/features/financial/presentation/financial_tool_picker_test.dart`. No other calculator was changed.
+- **No "DEBUG" ribbon** (the user's request during that follow-up: "jo right top mai DEBUG ka text dikh kr aa rha hai usko hata do"): the app's `MaterialApp` sets `debugShowCheckedModeBanner: false`, as the gallery app already did; `test/app/app_test.dart` checks it. Only debug builds ever showed the ribbon.
+- **Test totals, after the last change (#21 and the ribbon):** `flutter analyze` (no issues), `dart format --set-exit-if-changed lib test packages` (233 files, 0 changed), `flutter test` (1704 passed, 1 skipped, 0 failed; was 1681 passed before the pass: +10 in `category_picker_test.dart`, +12 in `financial_tool_picker_test.dart`, +1 in `app_test.dart`), `dart test` in `packages/calc_engine` (459 passed, unchanged), `flutter build apk --debug` (built three times in the pass, the last ~130 s of Gradle). The release APK was not rebuilt after #21 (no manifest, permission or dependency change since its check).
+
+### Phone QA (`4DEEEUKF6HNFHEIJ`/`23124RN87I`, USB)
+
+How the click and the vibration were observed without hearing or feeling them: `dumpsys vibrator_manager` lists every recent vibration with its package, usage and effect, and with the device's touch sounds on, one key press produces exactly one `AudioTrack` (usage 13, sonification) from `system_server` in `logcat`. Taps were sent with `adb shell input tap`; counts are before and after.
+
+| Check | Result |
+| --- | --- |
+| Haptic feedback ON | **PASS.** 4 key taps added 4 vibrations from `com.parasshakya.smartcalculator` (`TEXTURE_TICK`, usage TOUCH): one per tap, none doubled |
+| Key sounds ON (default), device touch sounds on | **PASS** (observed in the system log; **not heard by ear**). 3 key taps gave 3 click tracks, not 6: no second Android click |
+| Key sounds OFF, haptics ON | **PASS.** 3 key taps gave 0 click tracks and 3 haptic ticks |
+| Key sounds ON, haptics OFF | **PASS.** 3 key taps gave 3 click tracks and 0 haptic ticks |
+| Whether the click is *audible* | **NOT TESTABLE** by Claude (no way to hear it). This phone has the device-level "touch sounds" setting **off** (`sound_effects_enabled=0`), so with it off the app's key click is silent whatever the switch says; the setting's hint says it follows the device. It was turned on for the test and put back to 0 |
+| Settings at 200% device text | **PASS.** Every section top to bottom: no clipping or overflow; the Theme and Text size choices become radio lists (by design); the switches, Version row, the whole privacy card and the licences button (two lines) are complete; the Keep-the-latest sheet fits |
+| Keep the latest picker | **PASS.** The sheet lists 50, 100, 500, All (the unlimited choice is labelled "All"); the current one is selected each time it opens; 100, 500 and 50 each applied; 50 was still selected after a force-stop and relaunch; set back to All. Deleting older entries when the limit is lowered (needs more than 50 entries and the confirmation) was **not** tried on the device (repository, notifier and widget tests only) |
+| Save history OFF | **PASS.** With it off, a calculation (`7,852 + 3 = 7,855`) was made and the History screen stayed empty ("History is off"); with it on again, `6 + 5 = 11` appeared in the history |
+| Rotation of Settings | **PASS.** Choosing Dark and Radians, then portrait to landscape to portrait: both still selected, the page and its scroll position kept, no crash, no overflow |
+| Settings in portrait and landscape; theme, calculator, history, accessibility, About | **PASS.** Theme (System, Dark, back to System), Angle unit (Degrees, Radians, back), the Haptic and Key sounds switches, Save history, Keep the latest; text size 130%, Larger controls and High contrast each applied at once with the page staying open, then restored; Version `1.0.0 (1)`; the privacy card with the corrected third paragraph. "Opens in" and the Decimal places sheet were only displayed in this pass, and the licences page not opened (both were exercised in the first pass above) |
+| Temperature tile | **PASS.** One line in portrait at 100% (three tiles to a row, all the same size) and 200% (one tile per row), and in landscape at 100% and 130% |
+| All six modes open | **PASS.** Basic, Scientific, Programmer, Finance, Converter and Date each opened with no crash or visible overflow (a smoke pass, not a functional test; the automated suite covers the behaviour) |
+| Finance tool picker tiles | **FAIL (pre-existing).** "Compou / nd interest" and "Percenta / ge" broke mid-word at default settings: Known Issues #21. **Fixed in the follow-up; re-checked PASS** (next table) |
+
+- **Phone settings:** the app's settings were returned to their defaults (theme System, opens in Basic, Degrees, Auto, haptics and key sounds on, Save history on, keep All, text 100%, Larger controls and High contrast off); device `sound_effects_enabled=0`, `accelerometer_rotation=0`, `user_rotation=0`, `font_scale=1.0`. Screenshots went straight to the PC.
+**Follow-up, the same day, after the #21 fix and the ribbon change** (the new debug build installed with `adb install -r`; device text size set with `settings put system font_scale`, landscape with `cmd window user-rotation lock 1`):
+
+| Check | Result |
+| --- | --- |
+| Finance tiles, portrait, 100% | **PASS.** "Simple interest" and "Compound interest" wrap between their words ("Compound / interest"); "Percentage", "Discount" and the rest are on one line; three tiles to a row, the same 96 dp tiles as before |
+| Selecting Compound interest and Percentage | **PASS.** The selected tint and the whole label; the tool's form opens |
+| Portrait, 130% device text | **PASS.** Two tiles to a row; no word broken; no overflow |
+| Portrait, 200% device text | **PASS.** One tile per row; every label whole (scrolled to the end) |
+| Landscape, 100% / 130% / 200% | **PASS.** Four, three and two tiles to a row beside the rail; no word broken; no overflow |
+| EMI after the fix | **PASS.** ₹1,00,000 at 10% for 1 year: ₹8,791.59 a month, total interest ₹5,499.06 (the Phase 7 reference) |
+| No "DEBUG" ribbon | **PASS.** Not shown on Basic, Finance, Scientific, Programmer, Converter, Date or Settings |
+| Basic, Scientific, Programmer, Converter, Date, Settings | **PASS (smoke).** Each opened in portrait at 100% with no crash or visible overflow; Settings showed its defaults |
+| Bold text (Android accessibility setting) | **Not tested on the device**; widget tests at 100% and 200% |
+
+- **Another test slip:** while typing the EMI example one tap missed the Tenure field (the keyboard covered it), so a "1" went into the rate field; the form showed "Enter at most 1000" for `1011`, as it should. A Back press then left the app. The app was reopened and the EMI check repeated cleanly.
+- **Phone settings after the follow-up:** `font_scale=1.0`, `user_rotation=0`, display rotation 0; `accelerometer_rotation` read 1 after the rotation unlock and was set back to 0. The app was left in Basic, with EMI as the Financial tool. Screenshots went straight to the PC.
+- **A test slip, recorded for honesty:** two of my taps landed on the wrong switches because the Settings scroll position differs by a few hundred pixels between swipes (Save history was switched off for a few minutes). The measurements above were repeated with the state confirmed by a screenshot first; the invalid reading was discarded.
 
 ## Phase Status
 
@@ -323,7 +376,7 @@ The phone was connected by USB. **Device:** `4DEEEUKF6HNFHEIJ`, model `23124RN87
 | 7 | Financial | **Complete, committed `16e7f87`, phone-tested.** Plan (DEC-052) independently and adversarially reviewed before code (five real gaps found and fixed); seven tools built, tested (1356 app tests), every on-device check passed. |
 | 8 | Date calculator | **Complete, committed `0e2c9fb`, phone-tested.** Plan (DEC-053) independently reviewed before code; the review caught a difference-vs-addMonths disagreement at month ends. |
 | 9 | Programmer calculator | **Complete, committed `06ce7a5`, `afa9978`, `5ace4cb`, `214d8cd`, phone-tested.** Plan (DEC-054) independently reviewed before code (twelve defects fixed); engine validated against Dart typed-data and native-int oracles; 446 engine + 1552 app tests. |
-| 10 | Settings screen | **Complete, phone-tested** (commits `c25108c`, `b249e42`, `a556e24`). Plan (DEC-055) independently reviewed before code; one `AppSettings` notifier, `KeyFeedback`, decimal places, larger controls, privacy and version guard tests; 459 engine + 1681 app tests. |
+| 10 | Settings screen | **Complete, phone-tested, finalized.** Commits `c25108c`, `b249e42`, `a556e24`, `504feba`; the finalization pass (2026-10-02) is uncommitted. Plan (DEC-055) independently reviewed before code; one `AppSettings` notifier, `KeyFeedback`, decimal places, larger controls, privacy and version guard tests; 459 engine + 1704 app tests. |
 | 11 | Polish | Not started |
 | 12 | QA | Not started |
 
@@ -514,15 +567,17 @@ None to hand off mid-task. Phases 3 to 10 are complete; Phases 5 to 10 are phone
 
 ## Current Task
 
-None. Phase 10 (Settings) is finished, tested, phone-tested and documented. The next phase needs the user's explicit choice and approval before starting; nothing should be assumed or started ahead of that.
+None. Phase 10 (Settings) is finished, tested, phone-tested, finalized and documented. The next phase needs the user's explicit choice and approval before starting; nothing should be assumed or started ahead of that.
 
-- **On the phone:** the debug build with the Settings screen is installed (`4DEEEUKF6HNFHEIJ`/`23124RN87I`); every setting is back at its default; rotation (`0`/`0`) and `font_scale=1.0` are restored.
+- **On the phone:** the debug build with the Temperature and Financial tile fixes, the corrected privacy sentence and no "DEBUG" ribbon is installed (`4DEEEUKF6HNFHEIJ`/`23124RN87I`); every app setting is at its default; `sound_effects_enabled=0`, rotation (`0`/`0`) and `font_scale=1.0` are restored.
+- **Uncommitted** (the user commits; on 2026-10-02 a brief asked Claude to commit and the user answered "NO"): `lib/app/app.dart`, `lib/features/converter/presentation/category_picker.dart`, `lib/features/financial/presentation/financial_tool_picker.dart`, `lib/l10n/app_en.arb` and the two regenerated `app_localizations*.dart`, `test/app/app_test.dart`, the new `test/features/converter/presentation/category_picker_test.dart` and `test/features/financial/presentation/financial_tool_picker_test.dart`, and the docs (CLAUDE.md, DEVELOPMENT_STATUS, CHANGELOG, DECISIONS, ARCHITECTURE, ROADMAP). `android/build/` is build output: never stage it (Known Issues #14).
 - **Screenshots:** none via the design-review generator this session (the new "Settings" gallery section is covered by the existing loop and the accessibility test); the phone test served as the visual review.
 
 ## Next Task
 
-1. **Report Phase 10 to the user**, flagging: the plan-review defects and how they were fixed; the user's decisions (version constant, no developer information, privacy summary, key sounds, decimal places, larger controls, history and text-size values); the honest limit of "Larger controls" (the Basic and Scientific key grids do not change); the privacy wording, for the user's approval, and the `android:allowBackup` caveat (not set, so Android's default backup applies; the summary says the device backup may keep a copy; changing it is the user's platform decision); the pre-existing issues found (Known Issues #19, #20); and that developer information is still missing because its content must come from the user.
-2. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 11, Polish, then Phase 12, QA). Don't start either without that explicit approval, per the phase gate (CLAUDE.md rule 9).
+1. **The user commits** the whole finalization pass themselves (rule 10), including #21 and the ribbon change. Don't run `git add` or `git commit`, even when a brief asks for a commit (the user answered "NO" to exactly that on 2026-10-02).
+2. Nothing else is open in Phase 10: the privacy correction, #19, #21 and the ribbon are done, tested and phone-checked.
+3. **Wait for the user to choose and approve the next phase** (ROADMAP.md lists Phase 11, Polish, then Phase 12, QA). Don't start either without that explicit approval, per the phase gate (CLAUDE.md rule 9).
 
 ## Do NOT Repeat
 
@@ -557,6 +612,9 @@ None. Phase 10 (Settings) is finished, tested, phone-tested and documented. The 
 - **Don't make the `MaterialApp.builder` conditional.** It always wraps `AppSizing` and `MediaQuery`; wrapping only when a setting is on rebuilds the `Navigator` and closes Settings the moment a setting changes (DEC-055, tested).
 - **Don't round values placed inside an expression or the spoken expression with the decimal places setting.** Only results shown (`formatResult`) are rounded; an inserted value keeps 12 digits (DEC-055).
 - **A new direct dependency fails `test/core/privacy_claims_test.dart` on purpose.** Check what it does (network, usage reports), then update both the test's list and the privacy summary in `app_en.arb` if needed. Don't add an internet permission or a `dart:io`/`http` import without revising the summary first.
+- **Don't run `git add`, `git commit`, `git stash` or `git reset` in this repository** (the user's instruction of 2026-10-02: they commit themselves). Report the changed files instead.
+- **A tile grid whose tiles have a fixed width breaks long labels mid-word** at default size or larger text. `CategoryPicker` sizes its tiles from the widest label (Known Issues #19) and `FinancialToolPicker` from the widest *word*, because its labels have several words (#21). A new tile grid should do the same (or reuse one of them), never a fixed width.
+- **Don't turn the "DEBUG" ribbon back on** (`debugShowCheckedModeBanner: false` in `lib/app/app.dart`, the user's request; `app_test.dart` checks it).
 - **`AppHeader` resets `AppSizing` to 1.** Don't remove that: the toolbar is a fixed 56 dp and larger controls clip the mode pill (found on the phone, DEC-055).
 
 ## Pending Decisions
@@ -652,6 +710,19 @@ None. Phase 10 (Settings) is finished, tested, phone-tested and documented. The 
 - **Still planned:** ARCHITECTURE.md §3.8.
 
 ## Tests
+
+**Run in the Phase 10 finalization pass (2026-10-02), in `smart_calculator/`, after the last code change (the Financial tool picker, #21, and the "DEBUG" ribbon):**
+
+| Command | Result |
+| --- | --- |
+| `flutter analyze` | `No issues found!` |
+| `dart format --set-exit-if-changed lib test packages` | `Formatted 233 files (0 changed)` (the new picker test needed formatting once; applied, then re-run clean) |
+| `flutter test` (whole suite) | `All tests passed!` (1704 passed, 1 skipped; 0 failed; was 1681 passed before the pass: +10 in `category_picker_test.dart`, +12 in `financial_tool_picker_test.dart`, +1 in `app_test.dart`) |
+| `dart test` in `packages/calc_engine` | `All tests passed!` (459, unchanged) |
+| `flutter build apk --debug` | built (Gradle ~130 s), installed on the phone |
+| `flutter build apk --release` + `aapt dump permissions` | earlier in the pass (before #21): built (54.0 MB, ~269 s); only `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`, no `INTERNET`. Not rebuilt after #21 (no manifest, permission or dependency change) |
+| The new `category_picker_test.dart` before the #19 fix | failed (the "Temperature" label wrapped in every size; the tiles differed in height); passes after |
+| The new `financial_tool_picker_test.dart` before the #21 fix | 10 of 12 failed (a word split across lines: "Compound" at 100% and 115%, "interest" at 130%, "Simple" and "interest" at 200%, in portrait, landscape and with bold text); all 12 pass after |
 
 **Run in the Phase 10 session (2026-10-02), in `smart_calculator/`, after the last code change:**
 
@@ -846,7 +917,7 @@ Not run this session: the release build, the design-review screenshots (nothing 
     - **Observation, Phase 9:** the Programmer calculator does **not** show this behaviour. Its state is in a Riverpod provider (like Basic, Scientific and Converter), so a typed number, the pending operation, the base, the word size and the signedness all survive a rotation (checked on the phone and in a test). The Date and Financial tools remain affected.
 18. **Six older design-review screenshot tests fail** (`flutter test --tags design-review --run-skipped`, which is skipped in a normal run): an "app screens … shell" test that times out in `pumpAndSettle`, and several "calculator …" tests that start the whole app through a real `sqflite` (`MissingPluginException … getDatabasesPath`). Found in Phase 9 and reproduced in a clean worktree at the previous commit, so they predate it. They need the in-memory database that `pumpApp` uses; not fixed (outside this phase). They do not affect the normal test run.
 
-19. **The Converter's "Temperature" category tile breaks mid-word** ("Tempera / ture") on the phone (720×1600 px, 360 dp): seen with the text size at 130% and again at default settings, so it predates Phase 10. Found on the device in Phase 10; not fixed (the Converter's approved layout, outside this phase). A fix would be a smaller label style or `softWrap` with an ellipsis in `CategoryPicker`'s tiles.
+19. ~~**The Converter's "Temperature" category tile breaks mid-word** ("Tempera / ture")~~ **Fixed in the Phase 10 finalization pass (2026-10-02).** Found on the phone (720×1600 px, 360 dp) at default settings, so it predates Phase 10. `CategoryPicker`'s tiles were a fixed 96 dp wide with 16 dp side padding (64 dp for a label that needs about 87 dp at 100% text; "Currency" breaks from 115%). The tile width is now measured from the longest label at the current text size (at least 96 dp, the same for every tile), and the tile's side padding is `AppSpacing.sm`. At 100% on a 360 dp phone the tiles still sit three to a row; at larger text they get wider (one per row at 200%). `test/features/converter/presentation/category_picker_test.dart` (10 tests, real fonts) checks that no label wraps in portrait and landscape at 100%, 115%, 130% and 200%, that every tile is the same size, and the three-to-a-row layout; it failed before the fix. Checked on the phone: portrait 100% and 200%, landscape 100% and 130%.
 20. **Phase 10 limits, all stated in the UI or the docs:**
     - **Larger controls** does not change the Basic and Scientific key grids (they already fill the space they are given); the switch's hint says so. With it on, Programmer's page scrolls (keys are 60 dp).
     - **The default mode** applies at the next start; changing it never switches the mode on screen.
@@ -855,6 +926,7 @@ Not run this session: the release build, the design-review screenshots (nothing 
     - **The licences page in a debug build** lists development-tool packages (a debug build bundles them); a release build lists what the app ships.
     - **`android:allowBackup` is not set**, so Android's default (backup on) applies; the privacy summary says the device backup may keep a copy.
     - **No developer information** is shown (the user said not now; the content must come from the user).
+21. ~~**The Financial tool picker has the same mid-word break** ("Compou / nd interest", "Percenta / ge")~~ **Fixed in the Phase 10 finalization pass (2026-10-02, a follow-up the user asked for).** Found on the phone at default settings; it predates Phase 10 (Phase 7's phone test did not flag it). **Root cause:** `FinancialToolPicker`'s tiles were a fixed 96 dp wide with `AppCard`'s default 16 dp side padding, which left 64 dp for a label; at 100% text "Percentage" needs about 79 dp and "Compound" about 75 dp, and a word longer than its line is broken between letters. **Fix:** these labels have several words, so sizing to the whole label (the Converter's #19 rule) would have made "Compound interest" one 132 dp line and the tiles two to a row. Instead every tile is as wide as the widest *word* of any label at the current text size (at least 96 dp, the same for every tile, capped at the available width; measured with a `TextPainter`, the ambient text style and `TextScaler`, and bold when the platform asks for bold text), with `AppSpacing.sm` side padding like the Converter's tiles. A label may wrap between words ("Compound / interest"), never inside one. At 100% on a 360 dp phone the tiles are still 96 dp and three to a row, as before. Tile heights still follow their labels, as before the fix (a two-line tile is taller). `test/features/financial/presentation/financial_tool_picker_test.dart` (12 tests, real fonts) checks that no word is split across lines in portrait and landscape at 100%, 115%, 130% and 200% and with bold text at 100% and 200%, that every tile is the same width, and the three-to-a-row layout; 10 of them failed before the fix. Checked on the phone: portrait at 100%, 130% and 200%, landscape at 100%, 130% and 200%.
 
 ## Blockers
 
@@ -874,6 +946,24 @@ None. Phase 10 is built, tested, phone-tested and documented. The next blocker i
 7. **Phase 5, Module 2 audit session:** this session's very first action — reading `expression_buffer.dart` to make a small unrelated edit — found `insertFunction`/`insertConstant`/`insertFactorial` already there, contradicting this session's own last chat report ("Module 2 hasn't started"). `git log` explained it: a *different* Claude Code session (co-authored "Claude Sonnet 5.5") built and committed all of Module 2 (`856d175`) while this session was between turns. Treated the committed code as ground truth rather than re-deriving or distrusting it. Separately, the "Where the tests are" table (below, under "Tests") had the same staleness pattern as #6: the Module 2 session updated the headline pass count but not this row-by-row breakdown, so it still showed Module 1's 465-test-total shape under a section reporting 592. Rebuilt from freshly re-run per-file counts in this session, not guessed.
 
 ## Last Session Summary
+
+**2026-10-02 (later still), the end of the Phase 10 finalization pass: Known Issue #21 and the "DEBUG" ribbon.**
+
+1. The user's follow-up brief: fix Known Issue #21 without redesigning the Financial screen, changing another calculator or hard-coding a width for two labels; add a regression test; phone-test; run the full gate; update the docs; then make one local commit. Because rule 10 forbids commits, the user was asked; they answered "NO", so **nothing was committed**. Mid-task the user also asked for the "DEBUG" ribbon to go.
+2. **#21:** the regression test was written first and failed (10 of 12); the tiles now size to the widest word of any label (see Known Issues #21); all 12 pass.
+3. **Ribbon:** `debugShowCheckedModeBanner: false` on the app's `MaterialApp`, with a test.
+4. **Gate:** analyze clean, format clean (233 files), 1704 app + 459 engine tests, debug build. The release build was not rebuilt (nothing it checks changed).
+5. **Phone:** every check passed (the follow-up table under "Phone QA"); bold text only in widget tests. Settings, rotation and font scale restored.
+6. **Docs:** this file, CHANGELOG, ARCHITECTURE (§1.19, §1.20, the tests table), DECISIONS (DEC-055 addendum), ROADMAP (the Phase 10 test count), CLAUDE.md snapshot. **Nothing committed, nothing pushed; Phase 11 not started.**
+
+**2026-10-02 (later), Phase 10 finalization and QA pass.**
+
+1. The user approved the Phase 10 decisions and asked for a focused QA pass (no Phase 11, no new feature). Mid-pass they also said Claude must stop committing; the pass is therefore uncommitted, and CLAUDE.md rule 10, DEC-006 and the user-memory note were updated.
+2. **Privacy text verified** against the app manifest, the imports, the dependency list, the currency table, the storage and a release APK (`aapt`: no `INTERNET`, no `allowBackup`). One sentence was inexact (clearing the history does not remove "this data") and was corrected; `android:allowBackup` was left alone.
+3. **Phone QA completed** for what the first pass could not do: the haptic and the key click (observed in the system's vibration and audio logs, not heard), Settings at 200% text, the Keep-the-latest picker and its persistence, Save history off and on, rotation of Settings, the accessibility switches. The audible click is **NOT TESTABLE** by Claude, and the phone's own touch sounds were off.
+4. **Known Issue #19 fixed** (the Converter's Temperature tile) with a regression test that failed first. The same defect in the Financial tool picker was found and recorded as #21, not fixed (out of scope).
+5. Full QA gate clean: analyze, format, 1691 app + 459 engine tests, debug and release builds.
+6. Docs updated: this file, CHANGELOG, DECISIONS (DEC-055 addendum, DEC-006 update), ARCHITECTURE, ROADMAP, CLAUDE.md. **Nothing committed, nothing pushed.**
 
 **2026-10-02, Phase 10 session (Settings — audit, plan and review, build, test, phone test).**
 
@@ -995,9 +1085,9 @@ None. Phase 10 is built, tested, phone-tested and documented. The next blocker i
 ## Instructions For Next Session
 
 1. Follow the Context Recovery Protocol in [CLAUDE.md](../CLAUDE.md). **Reply to the user in Hinglish** (CLAUDE.md rule 13).
-2. **Phases 3 to 10 are complete and committed locally.** Confirm with `git log --oneline -12` if in doubt (Phase 10's hashes are in the git log; none of it is pushed, and Claude never pushes).
+2. **Phases 3 to 10 are complete and were committed locally by Claude** (Phase 10: `c25108c`, `b249e42`, `a556e24`, `504feba`). **From 2026-10-02 Claude neither commits nor pushes; the user does both** (CLAUDE.md rule 10), so expect uncommitted changes from the finalization pass in `git status` and leave them alone. Confirm with `git log --oneline -12` and `git status` if in doubt.
 3. **Don't redo the engine, the input logic, the keypads, the converter, the financial or date tools, the programmer calculator or Settings.** If the user wants a specific default, mapping or scope choice changed, it's a targeted edit (see DEC-047 to DEC-055 for exactly what to touch), not a rebuild.
-4. **Don't start Phase 11 (or any other phase) without the user's explicit choice and approval** — ROADMAP.md lists Phase 11 (Polish) next, then Phase 12 (QA), but the user may pick differently. Ask, don't assume. Known Issues #16 to #20 are the likely Polish candidates.
+4. **Don't start Phase 11 (or any other phase) without the user's explicit choice and approval** — ROADMAP.md lists Phase 11 (Polish) next, then Phase 12 (QA), but the user may pick differently. Ask, don't assume. Known Issues #16, #17, #18 and #20 are the likely Polish candidates (#19 and #21 are fixed).
 5. **A pre-existing Basic bug is still known but not fixed:** `CalculatorMemoryKeys` narrows below 48 dp in landscape at 200% text (Known Issues #16). It's Basic's widget, not any later phase's to fix unless the user asks for it specifically.
 6. **For any future toggle-style key** (a persisted or ephemeral on/off shown on a button), reuse `CalculatorButton.selected` (tinted `primary`/`onPrimary`) rather than inventing a new pattern — and re-verify the tint is distinct from the button's resting tone in all four palettes before picking a color, the way DEC-050 had to.
 7. **For any future "composite" key** (one press, multiple buffer operations), give it its own small, atomic `ExpressionBuffer` method, tested directly — chaining existing methods at the notifier level has already been shown to silently misbehave in several positions (DEC-050).

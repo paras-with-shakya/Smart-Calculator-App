@@ -28,6 +28,8 @@ class SmartCalculatorApp extends ConsumerWidget {
 
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+      // No "DEBUG" ribbon in the corner of debug builds (the user's request).
+      debugShowCheckedModeBanner: false,
       // With "High contrast" on in Settings, the high-contrast themes are
       // the ordinary ones. The `highContrast*` slots stay as they were, so
       // a device that asks for more contrast still gets them either way.

@@ -1203,7 +1203,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsPrivacyRemoval =>
-      'Clearing the history or uninstalling the app removes this data from the app. Your device\'s own backup may keep a copy, depending on its settings.';
+      'Clearing the history deletes only the history. Uninstalling the app removes all of this data from the app. Your device\'s own backup may keep a copy, depending on its settings.';
 
   @override
   String get settingsPrivacyNotPolicy =>
